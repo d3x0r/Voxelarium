@@ -1,0 +1,10 @@
+del M:\xperdex\games\voxelarium\Voxelarium.Bullet\LinearMath\btMatrix3x3.cs
+del M:\xperdex\games\voxelarium\Voxelarium.Bullet\LinearMath\btMotionState.cs
+del M:\xperdex\games\voxelarium\Voxelarium.Bullet\LinearMath\btQuaternion.cs
+del M:\xperdex\games\voxelarium\Voxelarium.Bullet\LinearMath\btQuickprof.cs
+del M:\xperdex\games\voxelarium\Voxelarium.Bullet\LinearMath\btScalar.cs
+del M:\xperdex\games\voxelarium\Voxelarium.Bullet\LinearMath\btTransform.cs
+del M:\xperdex\games\voxelarium\Voxelarium.Bullet\LinearMath\btTransformUtil.h.cs
+del M:\xperdex\games\voxelarium\Voxelarium.Bullet\LinearMath\btVector3.cs
+del M:\xperdex\games\voxelarium\Voxelarium.Bullet\LinearMath\btConvexHull.cs
+del M:\xperdex\games\voxelarium\Voxelarium.Bullet\LinearMath\btPolarDecomposition.cs

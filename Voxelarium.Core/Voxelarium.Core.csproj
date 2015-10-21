@@ -1,0 +1,110 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{D8E76CD6-817D-4B50-B1C8-ABA10886FB68}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Voxelarium.Core</RootNamespace>
+    <AssemblyName>Voxelarium.Core</AssemblyName>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="OpenTK">
+      <HintPath>..\..\..\..\opentk\opentk\Binaries\OpenTK\Release\OpenTK.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenTK.GLControl">
+      <HintPath>..\..\..\..\opentk\opentk\Binaries\OpenTK\Release\OpenTK.GLControl.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Graphics\Control.cs" />
+    <Compile Include="Graphics\Display.cs" />
+    <Compile Include="Graphics\EventConsumer.cs" />
+    <Compile Include="Graphics\EventManager.cs" />
+    <Compile Include="Graphics\GameScreen.cs" />
+    <Compile Include="Graphics\Shaders\Shader.cs" />
+    <Compile Include="Graphics\Shaders\EdgeShader.cs" />
+    <Compile Include="Graphics\Shaders\SimpleShader.cs" />
+    <Compile Include="Math\Matrix3x3.cs" />
+    <Compile Include="Math\Quaternion.cs" />
+    <Compile Include="Math\Scalar.cs" />
+    <Compile Include="Math\Vector3.cs" />
+    <Compile Include="Physics.cs" />
+    <Compile Include="Settings.cs" />
+    <Compile Include="System\Assembler.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Voxels\FabMachineInfo.cs" />
+    <Compile Include="Voxels\SectorModifiedTracker.cs" />
+    <Compile Include="Voxels\SectorSphere.cs" />
+    <Compile Include="Voxels\Types\PooledType.cs" />
+    <Compile Include="Voxels\Types\VObject.cs" />
+    <Compile Include="Voxels\Types\VSimpleTypes.cs" />
+    <Compile Include="Voxels\Types\VStream.cs" />
+    <Compile Include="Voxels\Types\VStreamFile.cs" />
+    <Compile Include="Voxels\VoxelExtension.cs" />
+    <Compile Include="Voxels\VoxelGameEnvironment.cs" />
+    <Compile Include="Voxels\VoxelGlobalSettings.cs" />
+    <Compile Include="Voxels\VoxelRef.cs" />
+    <Compile Include="Voxels\VoxelSector.cs" />
+    <Compile Include="Voxels\VoxelType.cs" />
+    <Compile Include="Voxels\VoxelTypeManager.cs" />
+    <Compile Include="Voxels\VoxelWorld.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="System\Interfaces\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
