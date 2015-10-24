@@ -4,26 +4,56 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
+using Voxelarium.Core.Support;
 using Voxelarium.Core.Voxels.Types;
+using Voxelarium.Core.Voxels.UI;
 
 namespace Voxelarium.Core.Voxels
 {
 
-	public class VoxelSector : VObject
+	public class VoxelSector : VObject, IDisposable
 	{
 		public const int ZVOXELBLOCSHIFT_X = 5;
 		public const int ZVOXELBLOCSHIFT_Y = 5;
 		public const int ZVOXELBLOCSHIFT_Z = 5;
-		public const int ZVOXELBLOCSIZE_X = 1 << ZVOXELBLOCSHIFT_X;
-		public const int ZVOXELBLOCSIZE_Y = 1 << ZVOXELBLOCSHIFT_Y;
-		public const int ZVOXELBLOCSIZE_Z = 1 << ZVOXELBLOCSHIFT_Z;
-		public const int ZVOXELBLOCMASK_X = ZVOXELBLOCSIZE_X - 1;
-		public const int ZVOXELBLOCMASK_Y = ZVOXELBLOCSIZE_Y - 1;
-		public const int ZVOXELBLOCMASK_Z = ZVOXELBLOCSIZE_Z - 1;
+		public const uint ZVOXELBLOCSIZE_X = 1 << ZVOXELBLOCSHIFT_X;
+		public const uint ZVOXELBLOCSIZE_Y = 1 << ZVOXELBLOCSHIFT_Y;
+		public const uint ZVOXELBLOCSIZE_Z = 1 << ZVOXELBLOCSHIFT_Z;
+		public const uint ZVOXELBLOCMASK_X = ZVOXELBLOCSIZE_X - 1;
+		public const uint ZVOXELBLOCMASK_Y = ZVOXELBLOCSIZE_Y - 1;
+		public const uint ZVOXELBLOCMASK_Z = ZVOXELBLOCSIZE_Z - 1;
+
+		static bool Initialized;
+		public static byte[] STableX = new byte[ZVOXELBLOCSIZE_X + 2];//= { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2 };
+		public static byte[] STableZ = new byte[ZVOXELBLOCSIZE_Z + 2];// { 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 };
+		public static byte[] STableY = new byte[ZVOXELBLOCSIZE_Y + 2];//{9,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0,
+																	  //0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0,
+																	  //0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0,
+																	  //0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0,
+																	  //0,18};
+		public static ushort[] OfTableY = new ushort[ZVOXELBLOCSIZE_Y + 2];//= {63, 0,1,2,3, 4,5,6,7, 8,9,10,11, 12,13,14,15,
+																		   //16,17,18,19, 20,21,22,23, 24,25,26,27, 28,29,30,31,
+																		   //32,33,34,35, 36,37,38,39, 40,41,42,43, 44,45,46,47,
+																		   //48,49,50,51, 52,53,54,55, 56,57,58,59, 60,61,62,63,
+																		   //0};
+		public static ushort[] OfTableX = new ushort[ZVOXELBLOCSIZE_X + 2];//{  15*ZVOXELBLOCSIZE_Y,
+																		   //	0*ZVOXELBLOCSIZE_Y,  1*ZVOXELBLOCSIZE_Y,  2*ZVOXELBLOCSIZE_Y, 3*ZVOXELBLOCSIZE_Y,
+																		   //	4*ZVOXELBLOCSIZE_Y,  5*ZVOXELBLOCSIZE_Y,  6*ZVOXELBLOCSIZE_Y, 7*ZVOXELBLOCSIZE_Y,
+																		   //	8*ZVOXELBLOCSIZE_Y,  9*ZVOXELBLOCSIZE_Y, 10*ZVOXELBLOCSIZE_Y,11*ZVOXELBLOCSIZE_Y,
+																		   //   12*ZVOXELBLOCSIZE_Y, 13*ZVOXELBLOCSIZE_Y, 14*ZVOXELBLOCSIZE_Y,15*ZVOXELBLOCSIZE_Y,
+																		   //	0*ZVOXELBLOCSIZE_Y };
+		public static ushort[] OfTableZ = new ushort[ZVOXELBLOCSIZE_Z + 2]; //{  15*ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X,
+					   //0 *ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X, 1 *ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X, 2*ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X, 3*ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X,
+					   //4 *ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X, 5 *ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X, 6*ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X, 7*ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X,
+					   //8 *ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X, 9 *ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X,10*ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X,11*ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X,
+					   //12*ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X, 13*ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X,14*ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X,15*ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X,
+					   //0 *ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X};
+
 
 		// 14 bits requires for position
 		// 18 bits left
 		// 0x3FFF
+		[Flags]
 		public enum FACEDRAW_Operations
 		{
 			LEFT = 0x00001
@@ -168,9 +198,9 @@ namespace Voxelarium.Core.Voxels
 
 
 
-		public static int[] RelativeVoxelOffsets_Unwrapped = new int[27];
+		public static uint[] RelativeVoxelOffsets_Unwrapped = new uint[27];
 		public static FACEDRAW_Operations[] RelativeVoxelOffset_Fixups = new FACEDRAW_Operations[27]; // (ordered the same way voxel order is?)... but as a bitmask of draw ops
-		public static int[] RelativeVoxelOffsets_Wrapped = new int[27];
+		public static uint[] RelativeVoxelOffsets_Wrapped = new uint[27];
 		static public RelativeVoxelOrds[] VoxelSectorReactorMapTemp = new RelativeVoxelOrds[] {
 						RelativeVoxelOrds.LEFT_BELOW_BEHIND
 			, RelativeVoxelOrds.BELOW_BEHIND
@@ -270,7 +300,7 @@ namespace Voxelarium.Core.Voxels
 
 		public int SectorsInMemory;
 
-		public VoxelTypeManager VoxelTypeManager;
+		internal VoxelTypeManager VoxelTypeManager;
 
 		public VoxelSector Next;
 		public VoxelSector Pred;
@@ -282,13 +312,15 @@ namespace Voxelarium.Core.Voxels
 
 		short Handle_x, Handle_y, Handle_z;
 		public int Pos_x, Pos_y, Pos_z;
-		int Size_x, Size_y, Size_z;
+		internal uint Size_x, Size_y, Size_z;
 
 		// Version control : Added for handling better world evolution.
 		ushort ZoneType;     // The type of the zone.
 		ushort ZoneVersion;  // The version of the generator used for this zone.
 		ushort GeneratorVersion; // Main generator version. Updated at world change.
 		ushort RingNum;
+
+		internal VoxelWorld world;
 
 		// Is_Modified field Values.
 		[Flags]
@@ -312,7 +344,7 @@ namespace Voxelarium.Core.Voxels
 
 		public bool Flag_Void_Regular;
 		public bool Flag_Void_Transparent;
-		public bool[] Flag_Render_Dirty = new bool[6];
+		public bool Flag_Render_Dirty;
 		public bool Flag_HighPriorityRefresh;
 		public bool Flag_IsVisibleAtLastRendering;
 		public bool Flag_DeletePending;
@@ -328,25 +360,23 @@ namespace Voxelarium.Core.Voxels
 
 		//bool Flag_NeedPartialCulling;
 		//byte PartialCulling;
-		public int PartialCulling;
+		public FACEDRAW_Operations PartialCulling;
 
 		// Data stored by block
 		public uint DataSize;
 		public class VoxelData
 		{
-			public ushort[] Data = new ushort[ZVOXELBLOCSIZE_X * ZVOXELBLOCSIZE_Y * ZVOXELBLOCSIZE_Z];
-			public ushort[] TempInfos = new ushort[ZVOXELBLOCSIZE_X * ZVOXELBLOCSIZE_Y * ZVOXELBLOCSIZE_Z];
-			public VoxelExtension[] OtherInfos = new VoxelExtension[ZVOXELBLOCSIZE_X * ZVOXELBLOCSIZE_Y * ZVOXELBLOCSIZE_Z];
-		}
+			public ushort[] Data = new ushort[ZVOXELBLOCSIZE_X * ZVOXELBLOCSIZE_Y * ZVOXELBLOCSIZE_Z];  // voxel type index
+			public ushort[] TempInfos = new ushort[ZVOXELBLOCSIZE_X * ZVOXELBLOCSIZE_Y * ZVOXELBLOCSIZE_Z];// TempÃ©rature des voxels
+			public VoxelExtension[] OtherInfos = new VoxelExtension[ZVOXELBLOCSIZE_X * ZVOXELBLOCSIZE_Y * ZVOXELBLOCSIZE_Z];// Informations autres
+			//public byte[] FaceCulling = new byte[ZVOXELBLOCSIZE_X * ZVOXELBLOCSIZE_Y * ZVOXELBLOCSIZE_Z];
+        }
 		public VoxelData Data;
-		//ushort    * Data;
-#if VOXEL_CULLER
-		ZVoxelCuller Culler;
-		void* Culling;
-#endif
-		//uint  * OtherInfos; // Informations autres
-		//ushort    * TempInfos;  // TempÃ©rature des voxels
-		public VObject DisplayData;
+
+		internal VoxelCuller Culler;
+
+		//public VObject DisplayData;
+		internal VoxelGeometry geometry;
 		public SectorModifiedTracker ModifTracker;
 
 		public int RefreshWaitCount;
@@ -369,7 +399,22 @@ namespace Voxelarium.Core.Voxels
 		bool Decompress_Temperatures_RLE( VoxelData* Data, void* Stream );
 #endif
 
-		public void SetVoxelTypeManager( VoxelTypeManager VoxelTypeManager ) { this.VoxelTypeManager = VoxelTypeManager; }
+		internal void SetVoxelTypeManager( VoxelTypeManager VoxelTypeManager ) { this.VoxelTypeManager = VoxelTypeManager; }
+
+		static void InitStatics()
+		{
+			if( !Initialized )
+			{
+				STableX[0] = 1;
+				STableX[ZVOXELBLOCSIZE_X + 1] = 2;
+				STableZ[0] = 3;
+				STableZ[ZVOXELBLOCSIZE_Z + 1] = 6;
+				STableY[0] = 9;
+				STableY[ZVOXELBLOCSIZE_Y + 1] = 18;
+				Initialized = false;
+
+			}
+		}
 
 		public void ReinitSector()
 		{
@@ -401,38 +446,41 @@ namespace Voxelarium.Core.Voxels
 #if ALLOW_INLINE
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 #endif
-		public void SetCube( int x, int y, int z, byte CubeValue )
+		public void SetCube( int x, int y, int z, int CubeValue )
 		{
 			int Offset;
-
-			Offset = ( y & ZVOXELBLOCMASK_Y ) + ( ( x & ZVOXELBLOCMASK_X ) * Size_y ) + ( ( z & ZVOXELBLOCMASK_Z ) * ( Size_y * Size_x ) );
-			Data.Data[Offset] = CubeValue;
+			Offset = ( y & (int)ZVOXELBLOCMASK_Y )
+				+( ( x & (int)ZVOXELBLOCMASK_X ) * (int)ZVOXELBLOCSIZE_Y )
+				+ ( ( z & (int)ZVOXELBLOCMASK_Z ) * ( (int)ZVOXELBLOCSIZE_Y * (int)ZVOXELBLOCSIZE_X ) );
+			Data.Data[Offset] = (ushort)CubeValue;
 			Data.OtherInfos[Offset] = null;
 		}
 
 #if ALLOW_INLINE
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 #endif
-		void SetCube_WithExtension( int x, int y, int z, byte CubeValue, VoxelExtension Extension )
+		void SetCube_WithExtension( uint x, uint y, uint z, byte CubeValue, VoxelExtension Extension )
 		{
-			int Offset;
-
-			Offset = ( y & ZVOXELBLOCMASK_Y ) + ( ( x & ZVOXELBLOCMASK_X ) * Size_y ) + ( ( z & ZVOXELBLOCMASK_Z ) * ( Size_y * Size_x ) );
+			uint Offset;
+			Offset = ( y & ZVOXELBLOCMASK_Y )
+				+ ( ( x & ZVOXELBLOCMASK_X ) * ZVOXELBLOCSIZE_Y )
+				+ ( ( z & ZVOXELBLOCMASK_Z ) * ( ZVOXELBLOCSIZE_Y * ZVOXELBLOCSIZE_X ) );
 			Data.Data[Offset] = CubeValue;
 			Data.OtherInfos[Offset] = Extension;
 		}
 
-		ushort GetCube( int x, int y, int z )
+		ushort GetCube( uint x, uint y, uint z )
 		{
-			int Offset;
-
-			Offset = ( y & ZVOXELBLOCMASK_Y ) + ( ( x & ZVOXELBLOCMASK_X ) * Size_y ) + ( ( z & ZVOXELBLOCMASK_Z ) * ( Size_y * Size_x ) );
+			uint Offset;
+			Offset = ( y & ZVOXELBLOCMASK_Y )
+				+ ( ( x & ZVOXELBLOCMASK_X ) * ZVOXELBLOCSIZE_Y )
+				+ ( ( z & ZVOXELBLOCMASK_Z ) * ( ZVOXELBLOCSIZE_Y * ZVOXELBLOCSIZE_X ) );
 			return ( Data.Data[Offset] );
 		}
 
 		void MakeSector()
 		{
-			int x, y, z;
+			uint x, y, z;
 			byte Cnt;
 
 			if( Pos_y < 0 ) { Cnt = 1; Flag_Void_Regular = false; Flag_Void_Transparent = true; }
@@ -444,13 +492,13 @@ namespace Voxelarium.Core.Voxels
 				{
 					for( x = 0; x < Size_x; x++ )
 					{
-						SetCube( x, y, z, Cnt );
+						SetCube( (int)x, (int)y, (int)z, Cnt );
 					}
 				}
 			}
 		}
 
-		void Fill( byte VoxelType )
+		internal void Fill( ushort VoxelType )
 		{
 			uint i;
 
@@ -466,7 +514,7 @@ namespace Voxelarium.Core.Voxels
 #if ALLOW_INLINE
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 #endif
-		bool IsMustBeSaved()
+		internal bool IsMustBeSaved()
 		{
 
 			bool IsModified = /*(Flag_IsModified & BITSECTORMODIFIED) && */ ( Flag_IsModified & ModifiedFieldFlags.SAVEMASK ) != 0;
@@ -477,8 +525,8 @@ namespace Voxelarium.Core.Voxels
 #if ALLOW_INLINE
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 #endif
-		public static void GetNearVoxel( VoxelSector Sector, int origin_offset
-					, out VoxelSector SectorOut, out int offsetOut, RelativeVoxelOrds direction )
+		public static void GetNearVoxel( VoxelSector Sector, uint origin_offset
+					, out VoxelSector SectorOut, out uint offsetOut, RelativeVoxelOrds direction )
 		{
 			SectorOut = Sector;
 			offsetOut = origin_offset + RelativeVoxelOffsets_Unwrapped[(int)direction];
@@ -532,14 +580,14 @@ namespace Voxelarium.Core.Voxels
 		}
 
 
-		static int OffsetDelta( int x, int y, int z )
+		static uint OffsetDelta( int x, int y, int z )
 		{
-			return ( ( ( x ) * ZVOXELBLOCSIZE_Y ) + ( y ) + ( ( z ) * ZVOXELBLOCSIZE_Y * ZVOXELBLOCSIZE_X ) );
+			return (uint)( ( ( x ) * ZVOXELBLOCSIZE_Y ) + ( y ) + ( ( z ) * ZVOXELBLOCSIZE_Y * ZVOXELBLOCSIZE_X ) );
 		}
-		static int OffsetDeltaWrapped( int x, int y, int z )
+		static uint OffsetDeltaWrapped( int x, int y, int z )
 		{
-			return ( ( ( ( ( x ) > 0 ? ( -( ZVOXELBLOCSIZE_X ) ) : ( x ) < 0 ? ( ZVOXELBLOCSIZE_X ) : 0 ) ) * ZVOXELBLOCSIZE_Y )
-					+ ( ( ( ( y ) > 0 ? ( -( ZVOXELBLOCSIZE_Y ) ) : ( y ) < 0 ? ( ZVOXELBLOCSIZE_Y ) : 0 ) ) )
+			return (uint)( ( ( ( ( x ) > 0 ? ( -( ZVOXELBLOCSIZE_X ) ) : ( x ) < 0 ? ( ZVOXELBLOCSIZE_X ) : 0 ) ) * ZVOXELBLOCSIZE_Y )
+                   + ( ( ( ( y ) > 0 ? ( -( ZVOXELBLOCSIZE_Y ) ) : ( y ) < 0 ? ( ZVOXELBLOCSIZE_Y ) : 0 ) ) )
 					+ ( ( ( ( ( z ) > 0 ? ( -( ZVOXELBLOCSIZE_Z ) ) : ( z ) < 0 ? ( ZVOXELBLOCSIZE_Z ) : 0 ) ) ) * ZVOXELBLOCSIZE_Y * ZVOXELBLOCSIZE_X ) );
 		}
 		void DefaultInit()
@@ -547,11 +595,6 @@ namespace Voxelarium.Core.Voxels
 			if( RelativeVoxelOffsets_Unwrapped[1] == 0 )
 			{
 				// these should have been done in-line... but forgot; and it became long serial code 
-				//#define OffsetDelta(x,y,z)  ( ((x)*ZVOXELBLOCSIZE_Y) + (y) + ((z)*ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X) )
-				//#define OffsetDeltaWrapped(x,y,z)  ( (( ((x)>0?(-(ZVOXELBLOCSIZE_X)):(x)<0?(ZVOXELBLOCSIZE_X):0) )*ZVOXELBLOCSIZE_Y) \
-				//				+( ( ( ( y ) > 0 ? ( -( ZVOXELBLOCSIZE_Y ) ) : ( y ) < 0 ? ( ZVOXELBLOCSIZE_Y ) : 0 ) ) )   \
-				//			   +( ( ( ( ( z ) > 0 ? ( -( ZVOXELBLOCSIZE_Z ) ) : ( z ) < 0 ? ( ZVOXELBLOCSIZE_Z ) : 0 ) ) ) * ZVOXELBLOCSIZE_Y * ZVOXELBLOCSIZE_X ) )
-
 				{
 					int n, f;
 					for( n = 0; n < 6; n++ )
@@ -631,7 +674,7 @@ namespace Voxelarium.Core.Voxels
 			Handle_x = Handle_y = Handle_z = 0;
 
 			DataSize = (uint)( Size_x * Size_y * Size_z );
-			DisplayData = null;
+			//DisplayData = null;
 			//Data        = new VoxelData();
 			//FaceCulling = new int [DataSize];
 			//OtherInfos  = new uint[DataSize];
@@ -647,8 +690,9 @@ namespace Voxelarium.Core.Voxels
 			SectorsInMemory++;
 		}
 
-		public VoxelSector()
+		public VoxelSector( VoxelWorld world )
 		{
+			this.world = world;
 			ModifTracker.Init( ZVOXELBLOCSIZE_X * ZVOXELBLOCSIZE_Y * ZVOXELBLOCSIZE_Z );
 			DefaultInit();
 		}
@@ -692,10 +736,8 @@ namespace Voxelarium.Core.Voxels
 
 			Flag_Void_Regular = Sector.Flag_Void_Regular;
 			Flag_Void_Transparent = Sector.Flag_Void_Transparent;
-			for( int r = 0; r < 6; r++ )
-			{
-				Flag_Render_Dirty[r] = Sector.Flag_Render_Dirty[r];
-			}
+			Flag_Render_Dirty = Sector.Flag_Render_Dirty;
+
 			Flag_HighPriorityRefresh = Sector.Flag_HighPriorityRefresh;
 			Flag_IsVisibleAtLastRendering = Sector.Flag_IsVisibleAtLastRendering;
 			Flag_DeletePending = Sector.Flag_DeletePending;
@@ -710,81 +752,8 @@ namespace Voxelarium.Core.Voxels
 			Flag_NeedSortedRendering = Sector.Flag_NeedSortedRendering;
 			PartialCulling = Sector.PartialCulling;
 
-			this.DataSize = Sector.DataSize;
 			RefreshWaitCount = Sector.RefreshWaitCount;
 			LowRefresh_Mask = Sector.LowRefresh_Mask;
-
-		}
-
-		public VoxelSector( int Size_x, int Size_y, int Size_z )
-		{
-			VoxelTypeManager = null;
-			this.Size_x = Size_x;
-			this.Size_y = Size_y;
-			this.Size_z = Size_z;
-			Handle_x = Handle_y = Handle_z = 0;
-
-			DataSize = (uint)( Size_x * Size_y * Size_z );
-			DisplayData = null;
-			if( DataSize > 0 )
-			{
-				//Data        = new VoxelData[DataSize];
-				//FaceCulling = new int [DataSize];
-				//OtherInfos  = new uint [DataSize];
-				//TempInfos   = new ushort[DataSize];
-			}
-			else
-			{
-				//Data        = 0;
-#if VOXEL_CULLER
-				Culling = 0;
-#endif
-				//OtherInfos  = 0;
-				//TempInfos   = 0;
-			}
-
-			Next = null;
-			Pred = null;
-			GlobalList_Next = null;
-			GlobalList_Pred = null;
-
-			InitSector();
-
-			SectorsInMemory++;
-		}
-
-		public void ChangeSize( int Size_x, int Size_y, int Size_z )
-		{
-			int i;
-
-			//if (Data)        {delete [] Data;        Data = 0;        }
-#if VOXEL_CULLER
-			if( Culling ) { delete[] Culling; Culling = 0; }
-#endif
-			DisplayData = null;
-			//if (OtherInfos)  {delete [] OtherInfos;  OtherInfos  = 0; }
-			//if (TempInfos)   {delete [] TempInfos;   TempInfos   = 0; }
-
-			this.Size_x = Size_x;
-			this.Size_y = Size_y;
-			this.Size_z = Size_z;
-			Handle_x = Handle_y = Handle_z = 0;
-
-			DataSize = (uint)( Size_x * Size_y * Size_z );
-			DisplayData = null;
-
-			//Data        = new VoxelData[DataSize];
-#if VOXEL_CULLER
-			Culler.InitFaceCullData( this );
-#endif
-			//FaceCulling = new int [DataSize];
-			//OtherInfos  = new uint [DataSize];
-			//TempInfos   = new ushort[DataSize];
-
-			for( i = 0; i < DataSize; i++ ) Data.Data[i] = 0;
-			//for(i=0;i<DataSize;i++) FaceCulling[i] = 0;
-			for( i = 0; i < DataSize; i++ ) Data.OtherInfos[i] = null;
-			for( i = 0; i < DataSize; i++ ) Data.TempInfos[i] = 273 + 20;
 		}
 
 		void InitSector()
@@ -800,15 +769,18 @@ namespace Voxelarium.Core.Voxels
 #if VOXEL_CULLER
 			Culling = 0;
 #endif
-
-			for( i = 0; i < DataSize; i++ ) Data.OtherInfos[i] = null;
+			Data = new VoxelData();
+			Data.Data = new ushort[DataSize];
+			Data.TempInfos = new ushort[DataSize];
+			Data.OtherInfos = new VoxelExtension[DataSize];
+			//for( i = 0; i < DataSize; i++ ) Data.OtherInfos[i] = null;
 			for( i = 0; i < DataSize; i++ ) Data.TempInfos[i] = 273 + 20;
 
 			for( int r = 0; r < 6; r++ )
 			{
 				near_sectors[r] = null;
-				Flag_Render_Dirty[r] = true;
 			}
+			Flag_Render_Dirty = true;
 			Flag_HighPriorityRefresh = false;
 			Flag_Void_Regular = true;
 			Flag_Void_Transparent = true;
@@ -843,13 +815,9 @@ namespace Voxelarium.Core.Voxels
 			}
 		} //
 
-
-		~VoxelSector()
+		public void Dispose()
 		{
-			uint i;
-
-			// Delete allocated voxel extensions
-
+			int i;
 			if( VoxelTypeManager != null )
 			{
 				for( i = 0; i < DataSize; i++ )
@@ -866,11 +834,17 @@ namespace Voxelarium.Core.Voxels
 #if VOXEL_CULLER
 			if( Culling ) { delete[] Culling; Culling = 0; }
 #endif
-			DisplayData = null;
+			geometry.Dispose();
+			//DisplayData = null;
 			//if (OtherInfos)  {delete [] OtherInfos;  OtherInfos  = 0; }
 			//if (TempInfos)   {delete [] TempInfos;   TempInfos   = 0; }
+			world = null;
 
 			SectorsInMemory--;
+		}
+
+		~VoxelSector()
+		{
 		}
 
 		bool GetSectorBaseDirectory( out string OutDirectory )
@@ -926,8 +900,9 @@ namespace Voxelarium.Core.Voxels
 			return ( true );
 		}
 
-		bool Save( int UniverseNum, string OptFileName = null )
+		internal bool Save( int UniverseNum, string OptFileName = null )
 		{
+			Log.log( "VoxelSector.Save is incomplete" );
 			return true;
 #if FINISHED_SAVE
 			ZStream_File OutStream;
@@ -1103,8 +1078,9 @@ OutStream.Close();
 		*/
 
 
-		bool Load( int UniverseNum, string OptFileName = null )
+		internal bool Load( int UniverseNum, string OptFileName = null )
 		{
+			Log.log( "*** Sector load incomplete " );
 			return true;
 #if asdfsadf
 			ZTestMemoryPool MemPool;
@@ -1754,17 +1730,17 @@ bool Decompress_FaceCulling_RLE(byte * Data, void * Stream)
 
 		public void Draw_safe_Sphere( double x, double y, double z, double Radius, ushort VoxelType, bool DrawIfVoid = true )
 		{
-			int sx, sy, sz;
-			int ex, ey, ez;
-			int nx, ny, nz;
+			uint sx, sy, sz;
+			uint ex, ey, ez;
+			uint nx, ny, nz;
 			double r;
 			double dx, dy, dz;
 
 			if( Radius < 0 ) Radius = -Radius;
 
-			sx = (int)Math.Floor( x - Radius ); ex = (int)Math.Ceiling( x + Radius );
-			sy = (int)Math.Floor( y - Radius ); ey = (int)Math.Ceiling( y + Radius );
-			sz = (int)Math.Floor( z - Radius ); ez = (int)Math.Ceiling( z + Radius );
+			sx = (uint)Math.Floor( x - Radius ); ex = (uint)Math.Ceiling( x + Radius );
+			sy = (uint)Math.Floor( y - Radius ); ey = (uint)Math.Ceiling( y + Radius );
+			sz = (uint)Math.Floor( z - Radius ); ez = (uint)Math.Ceiling( z + Radius );
 
 			if( sx < 0 ) sx = 0; if( sx >= Size_x ) sx = Size_x - 1;
 			if( sy < 0 ) sy = 0; if( sy >= Size_y ) sy = Size_y - 1;
@@ -1787,9 +1763,9 @@ bool Decompress_FaceCulling_RLE(byte * Data, void * Stream)
 
 		}
 
-		public void Draw_safe_SetVoxel( int x, int y, int z, ushort VoxelType, bool DrawIfVoid = true )
+		public void Draw_safe_SetVoxel( uint x, uint y, uint z, ushort VoxelType, bool DrawIfVoid = true )
 		{
-			int Pointer;
+			uint Pointer;
 
 			ushort OldVoxel;
 
@@ -1802,7 +1778,7 @@ bool Decompress_FaceCulling_RLE(byte * Data, void * Stream)
 			OldVoxel = Data.Data[Pointer];
 
 			if( OldVoxel != 0 && !DrawIfVoid ) return;
-			if( VoxelTypeManager.VoxelTable[OldVoxel].Is_HasAllocatedMemoryExtension )
+			if( VoxelTypeManager.VoxelTable[OldVoxel].properties.Is_HasAllocatedMemoryExtension )
 			{
 				VoxelTypeManager.VoxelTable[Data.Data[Pointer]].DeleteVoxelExtension( Data.OtherInfos[Pointer] );
 				Data.OtherInfos[Pointer] = null;
@@ -1814,7 +1790,7 @@ bool Decompress_FaceCulling_RLE(byte * Data, void * Stream)
 
 			// Si le voxel a stocker comporte une partie extension, la crÃ©er et l'enregistrer.
 
-			if( VoxelTypeManager.VoxelTable[VoxelType].Is_HasAllocatedMemoryExtension )
+			if( VoxelTypeManager.VoxelTable[VoxelType].properties.Is_HasAllocatedMemoryExtension )
 			{
 				Data.OtherInfos[Pointer] = VoxelTypeManager.VoxelTable[VoxelType].CreateVoxelExtension();
 			}
@@ -1830,7 +1806,7 @@ bool Decompress_FaceCulling_RLE(byte * Data, void * Stream)
 				Voxel = this.Data.Data[i];
 				if( Voxel == VoxelType )
 				{
-					if( VoxelTypeManager.VoxelTable[Voxel].Is_HasAllocatedMemoryExtension )
+					if( VoxelTypeManager.VoxelTable[Voxel].properties.Is_HasAllocatedMemoryExtension )
 					{
 						VoxelTypeManager.VoxelTable[Voxel].DeleteVoxelExtension( Data.OtherInfos[i] );
 					}
@@ -1853,14 +1829,14 @@ bool Decompress_FaceCulling_RLE(byte * Data, void * Stream)
 
 			TempMax = ( Math.Abs( Dx ) > Math.Abs( Dy ) ) ? Math.Abs( Dx ) : Math.Abs( Dy );
 			NumSteps = ( TempMax > Math.Abs( Dz ) ) ? TempMax : Math.Abs( Dz );
-			if( NumSteps <= 0 ) Draw_safe_SetVoxel( LineCoords.sx, LineCoords.sy, LineCoords.sz, VoxelType );
+			if( NumSteps <= 0 ) Draw_safe_SetVoxel( (uint)LineCoords.sx, (uint)LineCoords.sy, (uint)LineCoords.sz, VoxelType );
 
 			x = LineCoords.sx; y = LineCoords.sy; z = LineCoords.sz; Thick = Thickness.Start;
 			Stepx = ( (double)Dx ) / NumSteps; Stepy = ( (double)Dy ) / NumSteps; Stepz = ( (double)Dz ) / NumSteps; StepThick = ( Thickness.End - Thickness.Start ) / NumSteps;
 
 			for( i = 0; i <= NumSteps; i++ )
 			{
-				if( Thick == 0.5 ) Draw_safe_SetVoxel( (int)Math.Floor( x + 0.5 ), (int)Math.Floor( y + 0.5 ), (int)Math.Floor( z + 0.5 ), VoxelType );
+				if( Thick == 0.5 ) Draw_safe_SetVoxel( (uint)Math.Floor( x + 0.5 ), (uint)Math.Floor( y + 0.5 ), (uint)Math.Floor( z + 0.5 ), VoxelType );
 				else Draw_safe_Sphere( x + 0.5, y + 0.5, z + 0.5, Thick, VoxelType );
 
 				x += Stepx;
@@ -1883,9 +1859,9 @@ bool Decompress_FaceCulling_RLE(byte * Data, void * Stream)
 			MaxThickness = (int)Thickness.End;
 			if( Thickness.Start > MaxThickness ) MaxThickness = (int)Thickness.Start;
 			MaxThickness += MaxThickness; // Convert Ray to diameter.
-			ThickSize_x = Size_x + MaxThickness;
-			ThickSize_y = Size_y + MaxThickness;
-			ThickSize_z = Size_z + MaxThickness;
+			ThickSize_x = (int)Size_x + MaxThickness;
+			ThickSize_y = (int)Size_y + MaxThickness;
+			ThickSize_z = (int)Size_z + MaxThickness;
 
 			MaxThickness = -MaxThickness; // We needs negative value for next tests;
 
@@ -1904,14 +1880,14 @@ bool Decompress_FaceCulling_RLE(byte * Data, void * Stream)
 
 			TempMax = ( Math.Abs( Dx ) > Math.Abs( Dy ) ) ? Math.Abs( Dx ) : Math.Abs( Dy );
 			NumSteps = ( TempMax > Math.Abs( Dz ) ) ? TempMax : Math.Abs( Dz );
-			if( NumSteps <= 0 ) Draw_safe_SetVoxel( LineCoords.Start.x, LineCoords.Start.y, LineCoords.Start.z, VoxelType );
+			if( NumSteps <= 0 ) Draw_safe_SetVoxel( (uint)LineCoords.Start.x, (uint)LineCoords.Start.y, (uint)LineCoords.Start.z, VoxelType );
 
 			x = LineCoords.Start.x; y = LineCoords.Start.y; z = LineCoords.Start.z; Thick = Thickness.Start;
 			Stepx = ( (double)Dx ) / NumSteps; Stepy = ( (double)Dy ) / NumSteps; Stepz = ( (double)Dz ) / NumSteps; StepThick = ( Thickness.End - Thickness.Start ) / NumSteps;
 
 			for( i = 0; i <= NumSteps; i++ )
 			{
-				if( Thick == 0.5 ) Draw_safe_SetVoxel( (int)Math.Floor( x + 0.5 ), (int)Math.Floor( y + 0.5 ), (int)Math.Floor( z + 0.5 ), VoxelType );
+				if( Thick == 0.5 ) Draw_safe_SetVoxel( (uint)Math.Floor( x + 0.5 ), (uint)Math.Floor( y + 0.5 ), (uint)Math.Floor( z + 0.5 ), VoxelType );
 				else Draw_safe_Sphere( x + 0.5, y + 0.5, z + 0.5, Thick, VoxelType );
 
 				x += Stepx;
@@ -1937,7 +1913,7 @@ bool Decompress_FaceCulling_RLE(byte * Data, void * Stream)
 
 			TempMax = ( Math.Abs( Dx ) > Math.Abs( Dy ) ) ? Math.Abs( Dx ) : Math.Abs( Dy );
 			NumSteps = ( TempMax > Math.Abs( Dz ) ) ? TempMax : Math.Abs( Dz );
-			if( NumSteps <= 0 ) Draw_safe_SetVoxel( LineCoords.Start.x, LineCoords.Start.y, LineCoords.Start.z, VoxelType );
+			if( NumSteps <= 0 ) Draw_safe_SetVoxel( (uint)LineCoords.Start.x, (uint)LineCoords.Start.y, (uint)LineCoords.Start.z, VoxelType );
 
 			x = LineCoords.Start.x; y = LineCoords.Start.y; z = LineCoords.Start.z;
 			Stepx = ( (double)Dx ) / NumSteps; Stepy = ( (double)Dy ) / NumSteps; Stepz = ( (double)Dz ) / NumSteps;
@@ -1945,7 +1921,7 @@ bool Decompress_FaceCulling_RLE(byte * Data, void * Stream)
 
 			for( i = 0; i <= NumSteps; i++ )
 			{
-				Modulator = ( ThickIndex % TempMax );
+				Modulator = ThickIndex - ( Temp = Math.Floor( ThickIndex ) );
 				Index1 = (int)Math.Floor( ThickIndex );
 				Index2 = (int)Math.Ceiling( ThickIndex );
 				if( Index2 >= nThickIndices ) Index2 = nThickIndices - 1;
@@ -1954,7 +1930,7 @@ bool Decompress_FaceCulling_RLE(byte * Data, void * Stream)
 
 				Thick = ( Thick1 * ( 1.0 - Modulator ) ) + ( Thick2 * Modulator );
 
-				if( Thick <= 1.0 ) Draw_safe_SetVoxel( (int)(x + 0.5),(int)(y + 0.5), (int)( z + 0.5), VoxelType );
+				if( Thick <= 1.0 ) Draw_safe_SetVoxel( (uint)( x + 0.5 ), (uint)( y + 0.5 ), (uint)( z + 0.5 ), VoxelType );
 				else Draw_safe_Sphere( x + 0.5, y + 0.5, z + 0.5, Thick, VoxelType );
 
 				x += Stepx;
@@ -1984,9 +1960,9 @@ bool Decompress_FaceCulling_RLE(byte * Data, void * Stream)
 			if( Sp.x > SourceSector.Size_x || Sp.y > SourceSector.Size_y || Sp.z > SourceSector.Size_z ) return;
 			if( Sp.x < 0 || Sp.y < 0 || Sp.z < 0 ) return;
 
-			if( ( Sp.x + Sz.x ) > SourceSector.Size_x ) Sz.x -= ( Sp.x + Sz.x - SourceSector.Size_x );
-			if( ( Sp.y + Sz.y ) > SourceSector.Size_y ) Sz.y -= ( Sp.y + Sz.y - SourceSector.Size_y );
-			if( ( Sp.z + Sz.z ) > SourceSector.Size_z ) Sz.z -= ( Sp.z + Sz.z - SourceSector.Size_z );
+			if( ( Sp.x + Sz.x ) > SourceSector.Size_x ) Sz.x -= ( Sp.x + Sz.x - (int)SourceSector.Size_x );
+			if( ( Sp.y + Sz.y ) > SourceSector.Size_y ) Sz.y -= ( Sp.y + Sz.y - (int)SourceSector.Size_y );
+			if( ( Sp.z + Sz.z ) > SourceSector.Size_z ) Sz.z -= ( Sp.z + Sz.z - (int)SourceSector.Size_z );
 
 			int x, y, z;
 			ushort Voxel;
@@ -1995,8 +1971,8 @@ bool Decompress_FaceCulling_RLE(byte * Data, void * Stream)
 				for( x = 0; x < Sz.x; x++ )
 					for( y = 0; y < Sz.y; y++ )
 					{
-						Voxel = SourceSector.GetCube( Sp.x + x, Sp.y + y, Sp.z + z );
-						if( Voxel != 0 ) Draw_safe_SetVoxel( Dp.x + x, Dp.y + y, Dp.z + z, Voxel );
+						Voxel = SourceSector.GetCube( (uint)(Sp.x + x), (uint)(Sp.y + y ), (uint)( Sp.z + z ));
+						if( Voxel != 0 ) Draw_safe_SetVoxel( (uint)( Dp.x + x ), (uint)( Dp.y + y ), (uint)( Dp.z + z ), Voxel );
 					}
 		}
 
@@ -2008,7 +1984,7 @@ bool Decompress_FaceCulling_RLE(byte * Data, void * Stream)
 			ZRect3L_2 Rect;
 			ZRect1d Thickness;
 
-			BranchVector.x = (float)(Direction.Len * Math.Sin( Direction.yaw / 57.295779506 ) * Math.Cos( Direction.pitch / 57.295779506 ) );
+			BranchVector.x = (float)( Direction.Len * Math.Sin( Direction.yaw / 57.295779506 ) * Math.Cos( Direction.pitch / 57.295779506 ) );
 			BranchVector.y = (float)( Direction.Len * Math.Sin( Direction.yaw / 57.295779506 ) * Math.Sin( Direction.pitch / 57.295779506 ) );
 			BranchVector.z = (float)( Direction.Len * Math.Cos( Direction.yaw / 57.295779506 ) );
 
@@ -2030,7 +2006,7 @@ bool Decompress_FaceCulling_RLE(byte * Data, void * Stream)
 
 			angle = (double)( (int)Random.Next() ) / 23860929 / 3;
 			angle2 = (double)( (int)Random.Next() ) / 23860929 / 3;
-			NewDirection.pitch +=(float) angle;
+			NewDirection.pitch += (float)angle;
 			NewDirection.yaw += (float)angle2;
 			NewDirection2.pitch -= (float)angle;
 			NewDirection2.yaw -= (float)angle2;
@@ -2079,9 +2055,9 @@ bool Decompress_FaceCulling_RLE(byte * Data, void * Stream)
 			ZRect3L_2 Rect;
 			ZRect1d Thickness;
 
-			BranchVector.x = (float)(Direction.Len * Math.Sin( Direction.yaw / 57.295779506 ) * Math.Cos( Direction.pitch / 57.295779506 ));
-			BranchVector.y = (float)( Direction.Len * Math.Sin( Direction.yaw / 57.295779506 ) * Math.Sin( Direction.pitch / 57.295779506 ));
-			BranchVector.z = (float)( Direction.Len * Math.Cos( Direction.yaw / 57.295779506 ));
+			BranchVector.x = (float)( Direction.Len * Math.Sin( Direction.yaw / 57.295779506 ) * Math.Cos( Direction.pitch / 57.295779506 ) );
+			BranchVector.y = (float)( Direction.Len * Math.Sin( Direction.yaw / 57.295779506 ) * Math.Sin( Direction.pitch / 57.295779506 ) );
+			BranchVector.z = (float)( Direction.Len * Math.Cos( Direction.yaw / 57.295779506 ) );
 
 			NewPoint.x = Point.x + BranchVector.x;
 			NewPoint.y = Point.y + BranchVector.y;
@@ -2158,7 +2134,7 @@ bool Decompress_FaceCulling_RLE(byte * Data, void * Stream)
 			ZRect3L_2 Rect;
 			ZRect1d Thickness;
 
-			BranchVector.x = (float)(Direction.Len * Math.Sin( Direction.yaw / 57.295779506 ) * Math.Cos( Direction.pitch / 57.295779506 ) );
+			BranchVector.x = (float)( Direction.Len * Math.Sin( Direction.yaw / 57.295779506 ) * Math.Cos( Direction.pitch / 57.295779506 ) );
 			BranchVector.y = (float)( Direction.Len * Math.Sin( Direction.yaw / 57.295779506 ) * Math.Sin( Direction.pitch / 57.295779506 ) );
 			BranchVector.z = (float)( Direction.Len * Math.Cos( Direction.yaw / 57.295779506 ) );
 
@@ -2242,8 +2218,8 @@ bool Decompress_FaceCulling_RLE(byte * Data, void * Stream)
 			int SOffsetStep_x, SOffsetStep_z, DOffsetStep_z, DOffsetStep_x;
 			int So, Do, SoEnd;
 
-			SSize.x = Source.Size_x; SSize.y = Source.Size_y; SSize.z = Source.Size_z;
-			DSize.x = Size_x; DSize.y = Size_y; DSize.z = Size_z;
+			SSize.x = (int)Source.Size_x; SSize.y = (int)Source.Size_y; SSize.z = (int)Source.Size_z;
+			DSize.x = (int)Size_x; DSize.y = (int)Size_y; DSize.z = (int)Size_z;
 
 			SStart.x = SStart.y = SStart.z = 0;
 			SEnd = SSize;
@@ -2263,16 +2239,16 @@ bool Decompress_FaceCulling_RLE(byte * Data, void * Stream)
 			if( SStart.y >= SEnd.y ) return;
 			if( SStart.z >= SEnd.z ) return;
 
-			Size.x = Source.Size_x;
-			Size.y = Source.Size_y;
-			Size.z = Source.Size_z;
+			Size.x = (int)Source.Size_x;
+			Size.y = (int)Source.Size_y;
+			Size.z = (int)Source.Size_z;
 
 
 
-			SOffsetStep_x = Source.Size_y;
-			SOffsetStep_z = Source.Size_y * Source.Size_x;
-			DOffsetStep_x = Size_y;
-			DOffsetStep_z = Size_y * Size_x;
+			SOffsetStep_x = (int)Source.Size_y;
+			SOffsetStep_z = (int)Source.Size_y * (int)Source.Size_x;
+			DOffsetStep_x = (int)Size_y;
+			DOffsetStep_z = (int)Size_y * (int)Size_x;
 
 			int SOffsetStart_x, SOffsetStart_y, SOffsetStart_z;
 			int SOffsetEnd_x, SOffsetEnd_z;
@@ -2315,33 +2291,26 @@ bool Decompress_FaceCulling_RLE(byte * Data, void * Stream)
 							Data.Data[Do] = VoxelType;
 							if( ( Data.OtherInfos[Do] = Source.Data.OtherInfos[So] ) != null )
 							{
-								if( VoxelTypeManager.VoxelTable[Data.Data[So]].Is_HasAllocatedMemoryExtension )
+								if( VoxelTypeManager.VoxelTable[Data.Data[So]].properties.Is_HasAllocatedMemoryExtension )
 								{
 									Data.OtherInfos[Do] = Data.OtherInfos[So].GetNewCopy();
 								}
 							}
 						}
-
 					}
 				}
 			}
-
 		}
 
 		public void Subst( ushort Source_VoxelType, ushort Dest_VoxelType )
 		{
-			int VoxelCount, i;
-			if( Flag_NotStandardSize ) VoxelCount = Size_x * Size_y * Size_z;
-			else VoxelCount = ZVOXELBLOCSIZE_X * ZVOXELBLOCSIZE_Y * ZVOXELBLOCSIZE_Z;
-
-			for( i = 0; i < VoxelCount; i++ )
+			int i;
+			for( i = 0; i < DataSize; i++ )
 			{
 				if( Data.Data[i] == Source_VoxelType ) Data.Data[i] = Dest_VoxelType;
 			}
 
 		}
-
-
 
 	}
 }

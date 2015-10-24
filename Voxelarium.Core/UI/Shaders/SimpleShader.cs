@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+#if !USE_GLES2
 using OpenTK.Graphics.OpenGL;
+#else
+using OpenTK.Graphics.ES20;
+#endif
 using OpenTK;
-//using OpenTK.Graphics.OpenGL4;
 
 namespace Voxelarium.Core.UI.Shaders
 {

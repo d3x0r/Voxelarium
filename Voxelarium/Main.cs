@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Voxelarium.Core.Graphics;
+using Voxelarium.Core.UI;
 using Voxelarium.Core;
 
 namespace Voxelarium
@@ -11,8 +11,9 @@ namespace Voxelarium
         public static void Main( string [] args )
         {
             Physics p = new Physics();
+			Voxelarium.Core.VoxelGameEnvironment game = new Voxelarium.Core.VoxelGameEnvironment();
 
-            Display d = new Display();
+            Display d = new Display( game );
             d.Run( 60.0 );
         }
     }

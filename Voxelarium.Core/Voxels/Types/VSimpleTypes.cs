@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OpenTK;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -17,8 +18,19 @@ namespace Voxelarium.Core.Voxels.Types
 
 	public struct ZRect3L{ public ZVector3L Start, End; } 
 	public struct ZRect3L_2 { public int sx, sy, sz, ex, ey, ez; }
+	public struct ZRect3UL_2 { public uint sx, sy, sz, ex, ey, ez; }
 	public struct ZRect1d { public double Start, End; };
 	public struct ZRect1f { public float Start, End; };
 	public struct ZLineCoords { public ZVector2 Start, End; };
+	public struct Box
+	{
+		internal Vector3 Position; // Size.Z too
+		internal Vector3 Size;
+	}
+	public struct Box2D
+	{
+		internal Vector2 Position; // Size.Z too
+		internal Vector2 Size;
+	}
 
 }

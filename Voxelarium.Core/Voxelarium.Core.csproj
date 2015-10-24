@@ -18,10 +18,11 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,6 +31,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -39,6 +41,7 @@
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <OutputPath>bin\x86\Release\</OutputPath>
@@ -48,13 +51,12 @@
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="OpenTK">
-      <HintPath>..\..\..\..\opentk\opentk\Binaries\OpenTK\Release\OpenTK.dll</HintPath>
-    </Reference>
-    <Reference Include="OpenTK.GLControl">
-      <HintPath>..\..\..\..\opentk\opentk\Binaries\OpenTK\Release\OpenTK.GLControl.dll</HintPath>
+    <Reference Include="OpenTK, Version=1.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\opentk\opentk\Binaries\OpenTK\Release\OpenTK.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
@@ -63,42 +65,84 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Graphics\Control.cs" />
-    <Compile Include="Graphics\Display.cs" />
-    <Compile Include="Graphics\EventConsumer.cs" />
-    <Compile Include="Graphics\EventManager.cs" />
-    <Compile Include="Graphics\GameScreen.cs" />
-    <Compile Include="Graphics\Shaders\Shader.cs" />
-    <Compile Include="Graphics\Shaders\EdgeShader.cs" />
-    <Compile Include="Graphics\Shaders\SimpleShader.cs" />
+    <Compile Include="Game\Actor.cs" />
+    <Compile Include="Game\Game_Events.cs" />
+    <Compile Include="Game\Screens\ScreenLoading.cs" />
+    <Compile Include="Game\Screens\ScreenMain.cs" />
+    <Compile Include="Game\Screens\ScreenSlotSelect.cs" />
+    <Compile Include="Game\VoxelGameEngine.cs" />
+    <Compile Include="Game\VoxelGameEnvironment.cs" />
+    <Compile Include="Math\SaltyRandomGenerator.cs" />
+    <Compile Include="Math\Transform.cs" />
+    <Compile Include="Support\HighPerfTimer.cs" />
+    <Compile Include="Types\XString.cs" />
+    <Compile Include="UI\Display.cs" />
+    <Compile Include="UI\EventConsumer.cs" />
+    <Compile Include="UI\EventManager.cs" />
+    <Compile Include="UI\FontFrame.cs" />
+    <Compile Include="UI\Frame.cs" />
+    <Compile Include="UI\GraphicUserManager.cs" />
+    <Compile Include="UI\IVoxelCuller.cs" />
+    <Compile Include="Voxels\IO\FileSectorLoader.cs" />
+    <Compile Include="Voxels\IO\SectorLoader.cs" />
+    <Compile Include="Voxels\IO\SectorRequestRingList.cs" />
+    <Compile Include="Voxels\IO\SectorTagHash.cs" />
+    <Compile Include="Voxels\UI\Camera.cs" />
+    <Compile Include="Voxels\UI\Radius_Zoning.cs" />
+    <Compile Include="Voxels\UI\RenderInterface.cs" />
+    <Compile Include="UI\Screen.cs" />
+    <Compile Include="UI\Shaders\Shader.cs" />
+    <Compile Include="UI\Shaders\EdgeShader.cs" />
+    <Compile Include="UI\Shaders\SimpleGuiShader.cs" />
+    <Compile Include="UI\Shaders\SimpleShader.cs" />
     <Compile Include="Math\Matrix3x3.cs" />
     <Compile Include="Math\Quaternion.cs" />
     <Compile Include="Math\Scalar.cs" />
     <Compile Include="Math\Vector3.cs" />
     <Compile Include="Physics.cs" />
     <Compile Include="Settings.cs" />
-    <Compile Include="System\Assembler.cs" />
+    <Compile Include="Support\Compiler.cs" />
+    <Compile Include="Support\Log.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UI\Shaders\SimpleGuiTextureShader.cs" />
+    <Compile Include="UI\Shaders\SimpleTextureShader.cs" />
+    <Compile Include="UI\Shaders\VoxelGeometryShader.cs" />
+    <Compile Include="UI\Sound.cs" />
+    <Compile Include="UI\TextureAtlas.cs" />
+    <Compile Include="UI\TextureManager.cs" />
+    <Compile Include="UI\TileSet.cs" />
+    <Compile Include="Voxels\EventSequencer.cs" />
     <Compile Include="Voxels\FabMachineInfo.cs" />
+    <Compile Include="Game\GameStats.cs" />
     <Compile Include="Voxels\SectorModifiedTracker.cs" />
+    <Compile Include="Voxels\SectorRingList.cs" />
     <Compile Include="Voxels\SectorSphere.cs" />
+    <Compile Include="Voxels\Types\FastBit_Array_64k.cs" />
     <Compile Include="Voxels\Types\PooledType.cs" />
     <Compile Include="Voxels\Types\VObject.cs" />
     <Compile Include="Voxels\Types\VSimpleTypes.cs" />
     <Compile Include="Voxels\Types\VStream.cs" />
     <Compile Include="Voxels\Types\VStreamFile.cs" />
+    <Compile Include="Voxels\UI\Render_Basic.cs" />
+    <Compile Include="Voxels\UI\Render_Smooth.cs" />
+    <Compile Include="Voxels\UI\VoxelCuller.cs" />
     <Compile Include="Voxels\VoxelExtension.cs" />
-    <Compile Include="Voxels\VoxelGameEnvironment.cs" />
+    <Compile Include="Voxels\UI\VoxelGeometry.cs" />
     <Compile Include="Voxels\VoxelGlobalSettings.cs" />
+    <Compile Include="Voxels\VoxelProperties.cs" />
+    <Compile Include="Voxels\VoxelReactor.cs" />
     <Compile Include="Voxels\VoxelRef.cs" />
     <Compile Include="Voxels\VoxelSector.cs" />
     <Compile Include="Voxels\VoxelType.cs" />
     <Compile Include="Voxels\VoxelTypeManager.cs" />
+    <Compile Include="Voxels\VoxelType_Void.cs" />
     <Compile Include="Voxels\VoxelWorld.cs" />
+    <Compile Include="Voxels\WorldGenesis.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="System\Interfaces\" />
+    <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

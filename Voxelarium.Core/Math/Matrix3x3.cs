@@ -262,19 +262,6 @@ namespace Bullet.LinearMath
 			}
 		}
 
-		public void Translate( float x, float y, float z )
-		{
-			m_el3.x = x;
-			m_el3.y = y;
-			m_el3.z = z;
-		}
-		public void Move( float x, float y, float z )
-		{
-			m_el3.x += x;
-			m_el3.y += y;
-			m_el3.z += z;
-		}
-
 		public void Rotate( float x, float y, float z )
 		{
 			if( x != 0 )
@@ -1324,7 +1311,7 @@ namespace Bullet.LinearMath
 		}
 
 
-		public void GetGLMatrix( out btMatrix3x3 m )
+		 void GetGLMatrix( out btMatrix3x3 m )
 		{
 			m = this;
 			btVector3 tmp;

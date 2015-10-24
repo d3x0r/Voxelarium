@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+#if !USE_GLES2
 using OpenTK.Graphics.OpenGL;
+#else
+using OpenTK.Graphics.ES20;
+#endif
 using Bullet.LinearMath;
 
 namespace Voxelarium.Core.UI.Shaders
@@ -69,9 +73,11 @@ namespace Voxelarium.Core.UI.Shaders
 				}
 			}
 			Display.CheckErr();
-			GL.UniformMatrix4( modelview_id, false, ref Display.modelview );
-			Display.CheckErr();
-
+			if( modelview_id >= 0 )
+			{
+				GL.UniformMatrix4( modelview_id, false, ref Display.modelview );
+				Display.CheckErr();
+			}
 			//GL.UniformMatrix4( 
 		}
 
@@ -174,5 +180,6 @@ namespace Voxelarium.Core.UI.Shaders
 		{
 			throw new NotImplementedException();
 		}
+
 	}
 }

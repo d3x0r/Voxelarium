@@ -5,22 +5,21 @@ using System.Text;
 
 namespace Voxelarium.Core.Voxels
 {
-	class SectorSphere
+	internal class SectorSphere
 	{
 		public struct SphereEntry
 		{
-			public long x, y, z;
-			public double SectorDistance;
+			public int x, y, z;
+			public float SectorDistance;
 		};
 
-		protected SphereEntry[] SectorList;
-		protected int nSlots;
+		static SphereEntry[] SectorList;
+		static int nSlots;
 
-		public int GetEntryCount() { return nSlots; }
-		public void GetEntry( int EntryNum, out SphereEntry result ) { result = SectorList[EntryNum]; }
-
+		public static int GetEntryCount() { return nSlots; }
+		public static void GetEntry( int EntryNum, out SphereEntry result ) { result = SectorList[EntryNum]; }
 		
-		protected void PartSort( int Start, int ItemCount, SphereEntry[] SortBuffer )
+		static void PartSort( int Start, int ItemCount, SphereEntry[] SortBuffer )
 		{
 			int i, FirstPartCount, SecondPartCount, FirstPartStart, SecondPartStart, EndPart;
 			if( ItemCount <= 1 )
@@ -62,7 +61,7 @@ namespace Voxelarium.Core.Voxels
 			}
 		}
 
-		protected void Sort()
+		static void Sort()
 		{
 			SphereEntry[] SortBuffer;
 			SortBuffer = new SphereEntry[nSlots];
@@ -70,23 +69,17 @@ namespace Voxelarium.Core.Voxels
 			//SortBuffer;
 		}
 
-		public SectorSphere()
-		{
-			SectorList = null;
-			nSlots = 0;
-		}
-
 		~SectorSphere()
 		{
 			SectorList = null;
 		}
 
-		public void Init( int Render_Distance_h, int Render_Distance_v )
+		public static void Init( int Render_Distance_h, int Render_Distance_v )
 		{
-			long x, y, z;
+			int x, y, z;
 			ulong Offset;
 
-			double dist_x, dist_y, dist_z;
+			float dist_x, dist_y, dist_z;
 
 			nSlots = ( Render_Distance_h * 2 + 1 ) * ( Render_Distance_h * 2 + 1 ) * ( Render_Distance_v * 2 + 1 );
 
@@ -100,10 +93,10 @@ namespace Voxelarium.Core.Voxels
 						SectorList[Offset].x = x;
 						SectorList[Offset].y = y;
 						SectorList[Offset].z = z;
-						dist_x = ( (double)( ( ( (long)x ) << ( VoxelGlobalSettings.VoxelBlockSizeBits + 4 ) ) ) );
-						dist_y = ( (double)( ( ( (long)y ) << ( VoxelGlobalSettings.VoxelBlockSizeBits + 6 ) ) ) );
-						dist_z = ( (double)( ( ( (long)z ) << ( VoxelGlobalSettings.VoxelBlockSizeBits + 4 ) ) ) );
-						SectorList[Offset].SectorDistance = Math.Sqrt( dist_x * dist_x + dist_y * dist_y + dist_z * dist_z );
+						dist_x = ( (float)( ( ( (long)x ) << ( VoxelGlobalSettings.WorldVoxelBlockSizeBits + VoxelSector.ZVOXELBLOCSHIFT_X ) ) ) );
+						dist_y = ( (float)( ( ( (long)y ) << ( VoxelGlobalSettings.WorldVoxelBlockSizeBits + VoxelSector.ZVOXELBLOCSHIFT_Y ) ) ) );
+						dist_z = ( (float)( ( ( (long)z ) << ( VoxelGlobalSettings.WorldVoxelBlockSizeBits + VoxelSector.ZVOXELBLOCSHIFT_Z ) ) ) );
+						SectorList[Offset].SectorDistance = (float)Math.Sqrt( dist_x * dist_x + dist_y * dist_y + dist_z * dist_z );
 						Offset++;
 					}
 
