@@ -35,10 +35,20 @@ namespace Bullet.Collision.NarrowPhase
 		btConvexShape m_convexA;
 		btConvexShape m_convexB;
 
+		public btSubsimplexConvexCast()
+		{
+		}
+		public void Initialize( btConvexShape convexA, btConvexShape convexB, btSimplexSolverInterface simplexSolver )
+		{
+			m_simplexSolver = ( simplexSolver );
+			m_convexA = ( convexA );
+			m_convexB = ( convexB );
+		}
 		public btSubsimplexConvexCast (btConvexShape convexA, btConvexShape convexB,btSimplexSolverInterface simplexSolver)
 		{
 			m_simplexSolver = ( simplexSolver);
-			m_convexA = ( convexA);m_convexB = ( convexB);
+			m_convexA = ( convexA);
+			m_convexB = ( convexB);
         }
 
 		///SimsimplexConvexCast calculateTimeOfImpact calculates the time of impact+normal for the linear cast (sweep) between two moving objects.
@@ -47,23 +57,23 @@ namespace Bullet.Collision.NarrowPhase
 		///Typically the conservative advancement reaches solution in a few iterations, clip it to 32 for degenerate cases.
 		///See discussion about this here http://continuousphysics.com/Bullet/phpBB2/viewtopic.php?t=565
 		public override bool calcTimeOfImpact(
-				ref btTransform fromA,
-				ref btTransform toA,
-				ref btTransform fromB,
-				ref btTransform toB,
+				btITransform fromA,
+				btITransform toA,
+				btITransform fromB,
+				btITransform toB,
 				CastResult result )
 		{
 
 			m_simplexSolver.reset();
 
 			btVector3 linVelA, linVelB;
-			toA.m_origin.Sub(ref fromA.m_origin, out linVelA );
-			toB.m_origin.Sub( ref fromB.m_origin, out linVelB );
+			toA.getOrigin().Sub( fromA.getOrigin(), out linVelA );
+			toB.getOrigin().Sub( fromB.getOrigin(), out linVelB );
 
 			double lambda = btScalar.BT_ZERO;
 
-			btTransform interpolatedTransA = fromA;
-			btTransform interpolatedTransB = fromB;
+			btTransform interpolatedTransA; fromA.Get( out interpolatedTransA );
+			btTransform interpolatedTransB; fromB.Get( out interpolatedTransB );
 
 			///take relative motion
 			btVector3 r; linVelA.Sub( ref linVelB, out r );
@@ -127,8 +137,8 @@ namespace Bullet.Collision.NarrowPhase
 						lambda = lambda - VdotW / VdotR;
 						//interpolate to next lambda
 						//	x = s + lambda * r;
-						interpolatedTransA.m_origin.setInterpolate3( ref fromA.m_origin, ref toA.m_origin, lambda );
-						interpolatedTransB.m_origin.setInterpolate3( ref fromB.m_origin, ref toB.m_origin, lambda );
+						interpolatedTransA.m_origin.setInterpolate3( fromA.getOrigin(), toA.getOrigin(), lambda );
+						interpolatedTransB.m_origin.setInterpolate3( fromB.getOrigin(), toB.getOrigin(), lambda );
 						//m_simplexSolver.reset();
 						//check next line
 						supVertexA.Sub( ref supVertexB, out w );
@@ -142,7 +152,7 @@ namespace Bullet.Collision.NarrowPhase
 				if( !m_simplexSolver.inSimplex( ref w ) )
 					m_simplexSolver.addVertex( ref w, ref supVertexA, ref supVertexB );
 
-				if( m_simplexSolver.closest( ref v ) )
+				if( m_simplexSolver.closest( out v ) )
 				{
 					dist2 = v.length2();
 
@@ -179,10 +189,6 @@ namespace Bullet.Collision.NarrowPhase
 			result.m_hitPoint = hitB;
 			return true;
 		}
-
-
-
 	};
-
 }
 

@@ -155,6 +155,10 @@ namespace Bullet.LinearMath
 		{
 			return a > b ? a : b;
 		}
+		public static int btMax( int a, int b )
+		{
+			return a > b ? a : b;
+		}
 
 
 		public static double btClamped( double a, double lb, double ub )

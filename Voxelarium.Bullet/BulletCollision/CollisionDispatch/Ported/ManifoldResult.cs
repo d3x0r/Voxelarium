@@ -207,7 +207,9 @@ namespace Bullet.Collision.Dispatch
 				m_body1Wrap.getCollisionObject().getWorldTransform().invXform( ref pointInWorld, out localB );
 			}
 
-			btManifoldPoint newPt = new btManifoldPoint( ref localA, ref localB, ref normalOnBInWorld, depth );
+			btManifoldPoint newPt = BulletGlobals.ManifoldPointPool.Get();
+			newPt.Initialize( ref localA, ref localB, ref normalOnBInWorld, depth );
+
 			newPt.m_positionWorldOnA = pointA;
 			newPt.m_positionWorldOnB = pointInWorld;
 

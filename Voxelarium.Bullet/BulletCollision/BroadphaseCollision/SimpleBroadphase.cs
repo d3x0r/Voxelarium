@@ -16,7 +16,7 @@ subject to the following restrictions:
 namespace BUllet.BulletCollision
 {
 
-	extern int gOverlappingPairs;
+	//extern int gOverlappingPairs;
 
 void	btSimpleBroadphase::validate()
 {
@@ -307,7 +307,7 @@ void	btSimpleBroadphase::calculateOverlappingPairs(btDispatcher* dispatcher)
 					pair.m_pProxy0 = 0;
 					pair.m_pProxy1 = 0;
 					m_invalidPair++;
-					gOverlappingPairs--;
+						btHashedOverlappingPairCache.gOverlappingPairs--;
 				} 
 
 			}

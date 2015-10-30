@@ -118,8 +118,8 @@ namespace Bullet.Collision.BroadPhase
 		public object m_multiSapParentProxy;
 		internal int m_uniqueId;//m_uniqueId is introduced for paircache. could get rid of this, by calculating the address offset etc.
 
-		btVector3 m_aabbMin;
-		btVector3 m_aabbMax;
+		internal btVector3 m_aabbMin;
+		internal btVector3 m_aabbMax;
 
 		public static int IMPLICIT_CONVEX_SHAPES_START_HERE { get; private set; }
 
@@ -206,14 +206,16 @@ namespace Bullet.Collision.BroadPhase
 
 	///The btBroadphasePair class contains a pair of aabb-overlapping objects.
 	///A btDispatcher can search a btCollisionAlgorithm that performs exact/narrowphase collision detection on the actual collision shapes.
-	public struct btBroadphasePair
+	public class btBroadphasePair
 	{
 		internal btBroadphaseProxy m_pProxy0;
 		internal btBroadphaseProxy m_pProxy1;
 
 		internal btCollisionAlgorithm m_algorithm;
 		object m_internalInfo1;
-
+		internal btBroadphasePair(  )
+		{
+		}
 		btBroadphasePair( ref btBroadphasePair other )
 		{
 			m_pProxy0 = other.m_pProxy0;
@@ -245,7 +247,7 @@ namespace Bullet.Collision.BroadPhase
 			return ( a.m_pProxy0 == b.m_pProxy0 ) && ( a.m_pProxy1 == b.m_pProxy1 );
 		}
 
-		public static bool qaCompare( btBroadphasePair a, btBroadphasePair b )
+		public static bool qsCompare( btBroadphasePair a, btBroadphasePair b )
 		{
 			int uidA0 = a.m_pProxy0 != null ? a.m_pProxy0.m_uniqueId : -1;
 			int uidB0 = b.m_pProxy0 != null ? b.m_pProxy0.m_uniqueId : -1;
@@ -271,29 +273,27 @@ namespace Bullet.Collision.BroadPhase
 			(a.m_pProxy0 == b.m_pProxy0 && a.m_pProxy1 < b.m_pProxy1); 
 	}
 	*/
-
-#if false
+/* this is in broadphase as qaCompare 
 	internal class btBroadphasePairSortPredicate : IComparer<btBroadphasePair>
 	{
-		public
-
-			bool Compare( ref btBroadphasePair a, ref btBroadphasePair b )
+		public int Compare( btBroadphasePair a, btBroadphasePair b )
 		{
 			int uidA0 = a.m_pProxy0.m_uniqueId;
 			int uidB0 = b.m_pProxy0.m_uniqueId;
 			int uidA1 = a.m_pProxy1.m_uniqueId;
 			int uidB1 = b.m_pProxy1.m_uniqueId;
 
-			return uidA0 > uidB0 ||
+			if( uidA0 > uidB0 ||
 			   ( a.m_pProxy0.Equals( b.m_pProxy0 ) && uidA1 > uidB1 ) ||
 			   ( a.m_pProxy0 == b.m_pProxy0
 			   && a.m_pProxy1 == b.m_pProxy1
-			   && a.m_algorithm > b.m_algorithm
-			   );
+			   //&& a.m_algorithm > b.m_algorithm
+			   ) )
+				return 0;
+			return -1;
 		}
 	};
-#endif
-
+	*/
 
 }
 

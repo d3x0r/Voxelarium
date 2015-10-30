@@ -27,7 +27,7 @@ using Bullet.LinearMath;
 using System.Diagnostics;
 using Bullet.Types;
 
-namespace Bullet.Collision
+namespace Bullet.Collision.BroadPhase
 {
 	public class btDbvt
 	{
@@ -1165,11 +1165,11 @@ namespace Bullet.Collision
 		public static btDbvtVolume Merge( ref btDbvtVolume a, ref btDbvtVolume b )
 		{
 			btDbvtVolume res = new btDbvtVolume();
-			Merge( ref a, ref b, ref res );
+			Merge( ref a, ref b, out res );
 			return ( res );
 		}
 
-		public static void Merge( ref btDbvtVolume a, ref btDbvtVolume b, ref btDbvtVolume r )
+		public static void Merge( ref btDbvtVolume a, ref btDbvtVolume b, out btDbvtVolume r )
 		{
 			//r = a;
 			//SetMin(ref r._min, ref b._min);

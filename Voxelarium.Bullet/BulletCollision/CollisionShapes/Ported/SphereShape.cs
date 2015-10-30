@@ -22,6 +22,17 @@ namespace Bullet.Collision.Shapes
 	public class btSphereShape : btConvexInternalShape
 	{
 
+		public btSphereShape()
+		{
+			m_shapeType = BroadphaseNativeTypes.SPHERE_SHAPE_PROXYTYPE;
+			m_implicitShapeDimensions.x = 1.0;
+			m_collisionMargin = 1.0;
+		}
+		public void Initialize( double radius )
+		{
+			m_implicitShapeDimensions.x = ( radius );
+			m_collisionMargin = radius;
+		}
 		public btSphereShape( double radius )
 		{
 			m_shapeType = BroadphaseNativeTypes.SPHERE_SHAPE_PROXYTYPE;

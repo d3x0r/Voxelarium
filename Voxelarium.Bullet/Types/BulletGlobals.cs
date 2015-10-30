@@ -1,16 +1,18 @@
-﻿using Bullet.Collision;
+﻿using Bullet.Collision.NarrowPhase;
+using Bullet.Collision;
 using Bullet.LinearMath;
 using Bullet.Types;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Bullet.Collision.Shapes;
 
 namespace Bullet
 {
 	internal class BulletGlobals
 	{
 		public static bool gDisableDeactivation = false;
-		public static int gOverlappingPairs = 0;
+		//public static int gOverlappingPairs = 0;
 		public static float gDeactivationTime = 2f;
 		/* git ef5650b67990814e332bb132efb5461fb8b8ee39 */
 		public static string Version = "Bullet#-2.8.4-git";
@@ -78,17 +80,17 @@ namespace Bullet
 		public static PooledType<btDbvtStackDataBlock> DbvtStackDataBlockPool = new PooledType<btDbvtStackDataBlock>();
 		public static PooledType<btDbvtNode> DbvtNodePool = new PooledType<btDbvtNode>();
 
-#if UNUSED_GLOBAL
-		public static PooledType<VoronoiSimplexSolver> VoronoiSimplexSolverPool = new PooledType<VoronoiSimplexSolver>();
-		public static PooledType<SubSimplexConvexCast> SubSimplexConvexCastPool = new PooledType<SubSimplexConvexCast>();
-		public static PooledType<ManifoldPoint> ManifoldPointPool = new PooledType<ManifoldPoint>();
-		public static PooledType<CastResult> CastResultPool = new PooledType<CastResult>();
-		public static PooledType<SphereShape> SphereShapePool = new PooledType<SphereShape>();
-		public static PooledType<SingleRayCallback> SingleRayCallbackPool = new PooledType<SingleRayCallback>();
-		public static PooledType<SubSimplexClosestResult> SubSimplexClosestResultPool = new PooledType<SubSimplexClosestResult>();
-		public static PooledType<GjkPairDetector> GjkPairDetectorPool = new PooledType<GjkPairDetector>();
-		public static PooledType<DbvtTreeCollider> DbvtTreeColliderPool = new PooledType<DbvtTreeCollider>();
-		public static PooledType<SingleSweepCallback> SingleSweepCallbackPool = new PooledType<SingleSweepCallback>();
+//#if UNUSED_GLOBAL
+		public static PooledType<btVoronoiSimplexSolver> VoronoiSimplexSolverPool = new PooledType<btVoronoiSimplexSolver>();
+		public static PooledType<btSubsimplexConvexCast> SubSimplexConvexCastPool = new PooledType<btSubsimplexConvexCast>();
+		internal static PooledType<btManifoldPoint> ManifoldPointPool = new PooledType<btManifoldPoint>();
+		public static PooledType<btConvexCast.CastResult> CastResultPool = new PooledType<btConvexCast.CastResult>();
+		public static PooledType<btSphereShape> SphereShapePool = new PooledType<btSphereShape>();
+		public static PooledType<btSingleRayCallback> SingleRayCallbackPool = new PooledType<btSingleRayCallback>();
+		public static PooledType<btSubSimplexClosestResult> SubSimplexClosestResultPool = new PooledType<SubSimplexClosestResult>();
+		public static PooledType<btGjkPairDetector> GjkPairDetectorPool = new PooledType<GjkPairDetector>();
+		public static PooledType<btDbvtTreeCollider> DbvtTreeColliderPool = new PooledType<DbvtTreeCollider>();
+		public static PooledType<btSingleSweepCallback> SingleSweepCallbackPool = new PooledType<SingleSweepCallback>();
 		public static PooledType<BroadphaseRayTester> BroadphaseRayTesterPool = new PooledType<BroadphaseRayTester>();
 		public static PooledType<ClosestNotMeConvexResultCallback> ClosestNotMeConvexResultCallbackPool = new PooledType<ClosestNotMeConvexResultCallback>();
 		public static PooledType<GjkEpaPenetrationDepthSolver> GjkEpaPenetrationDepthSolverPool = new PooledType<GjkEpaPenetrationDepthSolver>();
@@ -119,7 +121,7 @@ namespace Bullet
 		public static PooledType<MyNodeOverlapCallback> MyNodeOverlapCallbackPool = new PooledType<MyNodeOverlapCallback>();
 		public static PooledType<ClosestRayResultCallback> ClosestRayResultCallbackPool = new PooledType<ClosestRayResultCallback>();
 		public static PooledType<DebugDrawcallback> DebugDrawcallbackPool = new PooledType<DebugDrawcallback>();
-#endif
+//#endif
 
 		public const bool debugRigidBody = true;
 		public const bool debugCollisionWorld = false;

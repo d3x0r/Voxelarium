@@ -116,6 +116,16 @@ namespace Bullet.LinearMath
 			axis.Mult( angle, out angVel );
 			angVel.Div( timeStep, out angVel );
 		}
+		internal static void calculateVelocity( btITransform transform0, btITransform transform1, double timeStep, out btVector3 linVel, out btVector3 angVel )
+		{
+			transform1.getOrigin().Sub( transform0.getOrigin(), out linVel );
+			linVel.Div( timeStep, out linVel );
+			btVector3 axis;
+			double angle;
+			calculateDiffAxisAngle( transform0, transform1, out axis, out angle );
+			axis.Mult( angle, out angVel );
+			angVel.Div( timeStep, out angVel );
+		}
 
 		internal static void calculateDiffAxisAngle( ref btTransform transform0, ref btTransform transform1, out btVector3 axis, out double angle )
 		{
@@ -123,6 +133,27 @@ namespace Bullet.LinearMath
 			transform0.m_basis.inverse( out tmp_m );
 			btMatrix3x3 dmat;
 			transform1.m_basis.Mult( ref tmp_m, out dmat );
+			btQuaternion dorn;
+			dmat.getRotation( out dorn );
+
+			///floating point inaccuracy can lead to w component > 1..., which breaks 
+			dorn.normalize();
+
+			angle = dorn.getAngle();
+			axis.x = dorn.x; axis.y = dorn.y; axis.z = dorn.z; axis.w = 0;
+			//check for axis length
+			double len = axis.length2();
+			if( len < btScalar.SIMD_EPSILON * btScalar.SIMD_EPSILON )
+				axis = btVector3.xAxis;
+			else
+				axis.Div( btScalar.btSqrt( len ), out axis );
+		}
+		internal static void calculateDiffAxisAngle( btITransform transform0, btITransform transform1, out btVector3 axis, out double angle )
+		{
+			btMatrix3x3 tmp_m;
+			transform0.getBasis().inverse( out tmp_m );
+			btMatrix3x3 dmat;
+			transform1.getBasis().Mult( ref tmp_m, out dmat );
 			btQuaternion dorn;
 			dmat.getRotation( out dorn );
 

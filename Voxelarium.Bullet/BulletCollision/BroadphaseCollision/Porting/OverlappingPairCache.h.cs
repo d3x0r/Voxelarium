@@ -14,6 +14,8 @@ subject to the following restrictions:
 */
 
 using Bullet.Types;
+using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Bullet.Collision.BroadPhase
 {
@@ -45,7 +47,7 @@ namespace Bullet.Collision.BroadPhase
 
 		btBroadphasePairArray getOverlappingPairArray();
 
-		void cleanOverlappingPair( ref btBroadphasePair pair, btDispatcher dispatcher );
+		void cleanOverlappingPair( btBroadphasePair pair, btDispatcher dispatcher );
 
 		int getNumOverlappingPairs();
 
@@ -67,50 +69,51 @@ namespace Bullet.Collision.BroadPhase
 	};
 
 	/// Hash-space based Pair Cache, thanks to Erin Catto, Box2D, http://www.box2d.org, and Pierre Terdiman, Codercorner, http://codercorner.com
-	class btHashedOverlappingPairCache : btOverlappingPairCache
+	internal partial class btHashedOverlappingPairCache : btOverlappingPairCache
 	{
+		const int BT_NULL_PAIR = -1;
 		btBroadphasePairArray m_overlappingPairArray;
 		btOverlapFilterCallback m_overlapFilterCallback;
 
 
 		protected List<int> m_hashTable;
 		protected List<int> m_next;
-		protected btOverlappingPairCallback* m_ghostPairCallback;
+		protected btOverlappingPairCallback m_ghostPairCallback;
 
 
-		public void removeOverlappingPairsContainingProxy( btBroadphaseProxy proxy, btDispatcher dispatcher );
+		//public void removeOverlappingPairsContainingProxy( btBroadphaseProxy proxy, btDispatcher dispatcher );
 
-		public virtual object removeOverlappingPair( btBroadphaseProxy proxy0, btBroadphaseProxy proxy1, btDispatcher dispatcher );
+		//public virtual object removeOverlappingPair( btBroadphaseProxy proxy0, btBroadphaseProxy proxy1, btDispatcher dispatcher );
 
 		public bool needsBroadphaseCollision( btBroadphaseProxy proxy0, btBroadphaseProxy proxy1 )
 		{
-			if( m_overlapFilterCallback )
+			if( m_overlapFilterCallback != null )
 				return m_overlapFilterCallback.needBroadphaseCollision( proxy0, proxy1 );
 
 			bool collides = ( proxy0.m_collisionFilterGroup & proxy1.m_collisionFilterMask ) != 0;
-			collides = collides && ( proxy1.m_collisionFilterGroup & proxy0.m_collisionFilterMask );
+			collides = collides && ( ( proxy1.m_collisionFilterGroup & proxy0.m_collisionFilterMask ) != 0 );
 
 			return collides;
 		}
 
 		// Add a pair and return the new pair. If the pair already exists,
 		// no new pair is created and the old one is returned.
-		public virtual btBroadphasePair* addOverlappingPair( btBroadphaseProxy proxy0, btBroadphaseProxy proxy1 )
+		public btBroadphasePair addOverlappingPair( btBroadphaseProxy proxy0, btBroadphaseProxy proxy1 )
 		{
 			btHashedOverlappingPairCache.gAddedPairs++;
 
 			if( !needsBroadphaseCollision( proxy0, proxy1 ) )
-				return 0;
+				return null;
 
 			return internalAddPair( proxy0, proxy1 );
 		}
 
 
 
-		public void cleanProxyFromPairs( btBroadphaseProxy proxy, btDispatcher* dispatcher );
+		//public void cleanProxyFromPairs( btBroadphaseProxy proxy, btDispatcher dispatcher );
 
 
-		public virtual void processAllOverlappingPairs( btOverlapCallback*, btDispatcher* dispatcher );
+		//public virtual void processAllOverlappingPairs( btOverlapCallback*, btDispatcher dispatcher );
 
 		public virtual btBroadphasePair[] getOverlappingPairArrayPtr()
 		{
@@ -118,318 +121,289 @@ namespace Bullet.Collision.BroadPhase
 		}
 
 
-	btBroadphasePairArray&	getOverlappingPairArray()
-	{
-		return m_overlappingPairArray;
-	}
+		internal btBroadphasePairArray getOverlappingPairArray()
+		{
+			return m_overlappingPairArray;
+		}
+		//void cleanOverlappingPair( btBroadphasePair pair, btDispatcher dispatcher );
 
-	btBroadphasePairArray&	getOverlappingPairArray()
-	{
-		return m_overlappingPairArray;
-	}
+		//btBroadphasePair findPair( btBroadphaseProxy proxy0, btBroadphaseProxy proxy1 );
 
-void cleanOverlappingPair( btBroadphasePair& pair, btDispatcher* dispatcher );
+		internal int GetCount() { return m_overlappingPairArray.Count; }
+		//	btBroadphasePair GetPairs() { return m_pairs; }
 
+		internal btOverlapFilterCallback getOverlapFilterCallback()
+		{
+			return m_overlapFilterCallback;
+		}
 
+		internal void setOverlapFilterCallback( btOverlapFilterCallback callback )
+		{
+			m_overlapFilterCallback = callback;
+		}
 
-btBroadphasePair* findPair( btBroadphaseProxy proxy0, btBroadphaseProxy proxy1 );
+		internal int getNumOverlappingPairs()
+		{
+			return m_overlappingPairArray.Count;
+		}
 
-int GetCount() string  return m_overlappingPairArray.Count; }
-//	btBroadphasePair* GetPairs() { return m_pairs; }
+		//	btBroadphasePair internalAddPair( btBroadphaseProxy proxy0, btBroadphaseProxy proxy1 );
 
-	btOverlapFilterCallback* getOverlapFilterCallback()
-{
-	return m_overlapFilterCallback;
-}
+		//void growTables();
 
-void setOverlapFilterCallback( btOverlapFilterCallback* callback )
-{
-	m_overlapFilterCallback = callback;
-}
-
-int getNumOverlappingPairs()
-	{
-		return m_overlappingPairArray.Count;
-	}
-private:
-	
-//	btBroadphasePair* internalAddPair( btBroadphaseProxy proxy0, btBroadphaseProxy proxy1 );
-
-//void growTables();
-
-public bool equalsPair( btBroadphasePair& pair, int proxyId1, int proxyId2 )
-{
-	return pair.m_pProxy0.getUid() == proxyId1 && pair.m_pProxy1.getUid() == proxyId2;
-}
+		public bool equalsPair( btBroadphasePair pair, int proxyId1, int proxyId2 )
+		{
+			return pair.m_pProxy0.getUid() == proxyId1 && pair.m_pProxy1.getUid() == proxyId2;
+		}
 
 
-/*
-// Thomas Wang's hash, see: http://www.concentric.net/~Ttwang/tech/inthash.htm
-// This assumes proxyId1 and proxyId2 are 16-bit.
-public int getHash(int proxyId1, int proxyId2)
-{
-	int key = (proxyId2 << 16) | proxyId1;
-	key = ~key + (key << 15);
-	key = key ^ (key >> 12);
-	key = key + (key << 2);
-	key = key ^ (key >> 4);
-	key = key * 2057;
-	key = key ^ (key >> 16);
-	return key;
-}
-*/
+		/*
+		// Thomas Wang's hash, see: http://www.concentric.net/~Ttwang/tech/inthash.htm
+		// This assumes proxyId1 and proxyId2 are 16-bit.
+		public int getHash(int proxyId1, int proxyId2)
+		{
+			int key = (proxyId2 << 16) | proxyId1;
+			key = ~key + (key << 15);
+			key = key ^ (key >> 12);
+			key = key + (key << 2);
+			key = key ^ (key >> 4);
+			key = key * 2057;
+			key = key ^ (key >> 16);
+			return key;
+		}
+		*/
 
 
 
-public uint getHash( uint proxyId1, uint proxyId2 )
-{
-	int key = (int)( ( proxyId1 ) | ( ( proxyId2 ) << 16 ) );
-	// Thomas Wang's hash
+		public uint getHash( uint proxyId1, uint proxyId2 )
+		{
+			int key = (int)( ( proxyId1 ) | ( ( proxyId2 ) << 16 ) );
+			// Thomas Wang's hash
 
-	key += ~( key << 15 );
-	key ^= ( key >> 10 );
-	key += ( key << 3 );
-	key ^= ( key >> 6 );
-	key += ~( key << 11 );
-	key ^= ( key >> 16 );
-	return (uint)( key );
-}
+			key += ~( key << 15 );
+			key ^= ( key >> 10 );
+			key += ( key << 3 );
+			key ^= ( key >> 6 );
+			key += ~( key << 11 );
+			key ^= ( key >> 16 );
+			return (uint)( key );
+		}
 
 
 
 
 
-public btBroadphasePair* internalFindPair( btBroadphaseProxy proxy0, btBroadphaseProxy proxy1, int hash )
-{
-	int proxyId1 = proxy0.getUid();
-	int proxyId2 = proxy1.getUid();
-#if 0 // wrong, 'equalsPair' use unsorted uids, copy-past devil striked again. Nat.
+		public btBroadphasePair internalFindPair( btBroadphaseProxy proxy0, btBroadphaseProxy proxy1, int hash )
+		{
+			int proxyId1 = proxy0.getUid();
+			int proxyId2 = proxy1.getUid();
+#if false // wrong, 'equalsPair' use unsorted uids, copy-past devil striked again. Nat.
 		if (proxyId1 > proxyId2) 
 			btSwap(proxyId1, proxyId2);
 #endif
 
-	int index = m_hashTable[hash];
+			int index = m_hashTable[hash];
 
-	while( index != BT_NULL_PAIR && equalsPair( m_overlappingPairArray[index], proxyId1, proxyId2 ) == false )
+			while( index != BT_NULL_PAIR && equalsPair( m_overlappingPairArray[index], proxyId1, proxyId2 ) == false )
+			{
+				index = m_next[index];
+			}
+
+			if( index == BT_NULL_PAIR )
+			{
+				return null;
+			}
+
+			Debug.Assert( index < m_overlappingPairArray.Count );
+
+			return &m_overlappingPairArray[index];
+		}
+
+		public bool hasDeferredRemoval()
+		{
+			return false;
+		}
+
+		public void setInternalGhostPairCallback( btOverlappingPairCallback ghostPairCallback )
+		{
+			m_ghostPairCallback = ghostPairCallback;
+		}
+
+		public void sortOverlappingPairs( btDispatcher dispatcher );
+
+
+
+	};
+
+
+
+
+	///btSortedOverlappingPairCache maintains the objects with overlapping AABB
+	///Typically managed by the Broadphase, Axis3Sweep or btSimpleBroadphase
+	internal partial class btSortedOverlappingPairCache : btOverlappingPairCache
 	{
-		index = m_next[index];
-	}
-
-	if( index == BT_NULL_PAIR )
-	{
-		return NULL;
-	}
-
-	Debug.Assert( index < m_overlappingPairArray.Count );
-
-	return &m_overlappingPairArray[index];
-}
-
-virtual bool hasDeferredRemoval()
-{
-	return false;
-}
-
-virtual void setInternalGhostPairCallback( btOverlappingPairCallback* ghostPairCallback )
-{
-	m_ghostPairCallback = ghostPairCallback;
-}
-
-virtual void sortOverlappingPairs( btDispatcher* dispatcher );
-	
-
-	
-};
-
-
-
-
-///btSortedOverlappingPairCache maintains the objects with overlapping AABB
-///Typically managed by the Broadphase, Axis3Sweep or btSimpleBroadphase
-class btSortedOverlappingPairCache : btOverlappingPairCache
-{
-	protected:
 		//avoid brute-force finding all the time
 		btBroadphasePairArray m_overlappingPairArray;
 
-//during the dispatch, check that user doesn't destroy/create proxy
-bool m_blockedForChanges;
+		//during the dispatch, check that user doesn't destroy/create proxy
+		bool m_blockedForChanges;
 
-///by default, do the removal during the pair traversal
-bool m_hasDeferredRemoval;
+		///by default, do the removal during the pair traversal
+		bool m_hasDeferredRemoval;
 
-//if set, use the callback instead of the built in filter in needBroadphaseCollision
-btOverlapFilterCallback* m_overlapFilterCallback;
+		//if set, use the callback instead of the built in filter in needBroadphaseCollision
+		btOverlapFilterCallback m_overlapFilterCallback;
 
-btOverlappingPairCallback* m_ghostPairCallback;
+		btOverlappingPairCallback m_ghostPairCallback;
 
-public:
+		//public  btSortedOverlappingPairCache();
 
-		btSortedOverlappingPairCache();
-virtual ~btSortedOverlappingPairCache();
+		//virtual void processAllOverlappingPairs( btOverlapCallback*, btDispatcher dispatcher );
 
-virtual void processAllOverlappingPairs( btOverlapCallback*, btDispatcher* dispatcher );
+		//object removeOverlappingPair( btBroadphaseProxy proxy0, btBroadphaseProxy proxy1, btDispatcher dispatcher );
 
-object removeOverlappingPair( btBroadphaseProxy proxy0, btBroadphaseProxy proxy1, btDispatcher* dispatcher );
+		//void cleanOverlappingPair( btBroadphasePair pair, btDispatcher dispatcher );
 
-void cleanOverlappingPair( btBroadphasePair& pair, btDispatcher* dispatcher );
+		//btBroadphasePair addOverlappingPair( btBroadphaseProxy proxy0, btBroadphaseProxy proxy1 );
 
-btBroadphasePair* addOverlappingPair( btBroadphaseProxy proxy0, btBroadphaseProxy proxy1 );
-
-btBroadphasePair* findPair( btBroadphaseProxy proxy0, btBroadphaseProxy proxy1 );
+		//btBroadphasePair findPair( btBroadphaseProxy proxy0, btBroadphaseProxy proxy1 );
 
 
-void cleanProxyFromPairs( btBroadphaseProxy proxy, btDispatcher* dispatcher );
+		//void cleanProxyFromPairs( btBroadphaseProxy proxy, btDispatcher dispatcher );
 
-void removeOverlappingPairsContainingProxy( btBroadphaseProxy proxy, btDispatcher* dispatcher );
+		//void removeOverlappingPairsContainingProxy( btBroadphaseProxy proxy, btDispatcher dispatcher );
 
-
-inline bool needsBroadphaseCollision( btBroadphaseProxy proxy0, btBroadphaseProxy proxy1 )
+#if ALLOW_INLINE
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+#endif
+		public bool needsBroadphaseCollision( btBroadphaseProxy proxy0, btBroadphaseProxy proxy1 )
 		{
-			if (m_overlapFilterCallback)
-				return m_overlapFilterCallback.needBroadphaseCollision( proxy0, proxy1);
+			if( m_overlapFilterCallback != null )
+				return m_overlapFilterCallback.needBroadphaseCollision( proxy0, proxy1 );
 
-bool collides = ( proxy0.m_collisionFilterGroup & proxy1.m_collisionFilterMask ) != 0;
-collides = collides && (proxy1.m_collisionFilterGroup & proxy0.m_collisionFilterMask);
-			
+			bool collides = ( proxy0.m_collisionFilterGroup & proxy1.m_collisionFilterMask ) != 0;
+			collides = collides && ( ( proxy1.m_collisionFilterGroup & proxy0.m_collisionFilterMask ) != 0 ); 
+
 			return collides;
 		}
-		
-		btBroadphasePairArray&	getOverlappingPairArray()
-{
-	return m_overlappingPairArray;
-}
 
-btBroadphasePairArray&	getOverlappingPairArray()
+		public btBroadphasePairArray getOverlappingPairArray()
 		{
 			return m_overlappingPairArray;
 		}
 
-		
 
-
-		btBroadphasePair[] getOverlappingPairArrayPtr()
-{
-	return m_overlappingPairArray;
-}
-
-btBroadphasePair* getOverlappingPairArrayPtr()
+		public btBroadphasePair[] getOverlappingPairArrayPtr()
 		{
-			return m_overlappingPairArray;
+			return m_overlappingPairArray.InternalArray;
 		}
 
-		int getNumOverlappingPairs()
+		public int getNumOverlappingPairs()
 		{
 			return m_overlappingPairArray.Count;
 		}
-		
-		btOverlapFilterCallback* getOverlapFilterCallback()
-{
-	return m_overlapFilterCallback;
-}
 
-void setOverlapFilterCallback( btOverlapFilterCallback* callback )
-{
-	m_overlapFilterCallback = callback;
-}
-
-virtual bool hasDeferredRemoval()
-{
-	return m_hasDeferredRemoval;
-}
-
-virtual void setInternalGhostPairCallback( btOverlappingPairCallback* ghostPairCallback )
-{
-	m_ghostPairCallback = ghostPairCallback;
-}
-
-virtual void sortOverlappingPairs( btDispatcher* dispatcher );
-		
-
-};
-
-
-
-///btNullPairCache skips add/removal of overlapping pairs. Userful for benchmarking and unit testing.
-internal class btNullPairCache : btOverlappingPairCache
-{
-
-	btBroadphasePairArray m_overlappingPairArray;
-
-	public:
-
-	virtual btBroadphasePair* getOverlappingPairArrayPtr()
-	{
-		return m_overlappingPairArray;
-	}
-	btBroadphasePair* getOverlappingPairArrayPtr()
+		public btOverlapFilterCallback getOverlapFilterCallback()
 		{
-		return m_overlappingPairArray;
-	}
-btBroadphasePairArray&	getOverlappingPairArray()
-{
-	return m_overlappingPairArray;
-}
+			return m_overlapFilterCallback;
+		}
 
-virtual void cleanOverlappingPair( btBroadphasePair& /*pair*/, btDispatcher* /*dispatcher*/)
-{
+		public void setOverlapFilterCallback( btOverlapFilterCallback callback )
+		{
+			m_overlapFilterCallback = callback;
+		}
 
-}
+		public bool hasDeferredRemoval()
+		{
+			return m_hasDeferredRemoval;
+		}
 
-virtual int getNumOverlappingPairs()
+		public void setInternalGhostPairCallback( btOverlappingPairCallback ghostPairCallback )
+		{
+			m_ghostPairCallback = ghostPairCallback;
+		}
+
+		//virtual void sortOverlappingPairs( btDispatcher dispatcher );
+
+
+	};
+
+
+
+	///btNullPairCache skips add/removal of overlapping pairs. Userful for benchmarking and unit testing.
+	internal class btNullPairCache : btOverlappingPairCache
 	{
-		return 0;
-	}
 
-	virtual void cleanProxyFromPairs( btBroadphaseProxy /*proxy*/, btDispatcher* /*dispatcher*/)
-{
+		btBroadphasePairArray m_overlappingPairArray;
 
-}
+		public btBroadphasePair[] getOverlappingPairArrayPtr()
+		{
+			return m_overlappingPairArray.InternalArray;
+		}
+		public btBroadphasePairArray getOverlappingPairArray()
+		{
+			return m_overlappingPairArray;
+		}
 
-virtual void setOverlapFilterCallback( btOverlapFilterCallback* /*callback*/)
-{
-}
+		public void cleanOverlappingPair( btBroadphasePair pair, btDispatcher dispatcher)
+		{
 
-virtual void processAllOverlappingPairs( btOverlapCallback*, btDispatcher* /*dispatcher*/)
-{
-}
+		}
 
-virtual btBroadphasePair* findPair( btBroadphaseProxy /*proxy0*/, btBroadphaseProxy /*proxy1*/)
-{
-	return 0;
-}
+		public int getNumOverlappingPairs()
+		{
+			return 0;
+		}
 
-virtual bool hasDeferredRemoval()
-{
-	return true;
-}
+		public void cleanProxyFromPairs( btBroadphaseProxy proxy, btDispatcher dispatcher )
+		{
 
-virtual void setInternalGhostPairCallback( btOverlappingPairCallback* /* ghostPairCallback */)
-{
+		}
 
-}
+		public void setOverlapFilterCallback( btOverlapFilterCallback callback)
+		{
+		}
 
-virtual btBroadphasePair* addOverlappingPair( btBroadphaseProxy /*proxy0*/, btBroadphaseProxy /*proxy1*/)
-{
-	return 0;
-}
+		public void processAllOverlappingPairs( btOverlapCallback callback, btDispatcher dispatcher)
+		{
+		}
 
-virtual object removeOverlappingPair( btBroadphaseProxy /*proxy0*/, btBroadphaseProxy /*proxy1*/, btDispatcher* /*dispatcher*/)
-{
-	return 0;
-}
+		public btBroadphasePair findPair( btBroadphaseProxy proxy0, btBroadphaseProxy proxy1)
+		{
+			return null;
+		}
 
-virtual void removeOverlappingPairsContainingProxy( btBroadphaseProxy /*proxy0*/, btDispatcher* /*dispatcher*/)
-{
-}
+		public bool hasDeferredRemoval()
+		{
+			return true;
+		}
 
-virtual void sortOverlappingPairs( btDispatcher* dispatcher )
-{
-	(void)dispatcher;
-}
+		public void setInternalGhostPairCallback( btOverlappingPairCallback  ghostPairCallback )
+		{
+
+		}
+
+		public btBroadphasePair addOverlappingPair( btBroadphaseProxy proxy0, btBroadphaseProxy proxy1)
+		{
+			return null;
+		}
+
+		public object removeOverlappingPair( btBroadphaseProxy proxy0, btBroadphaseProxy proxy1, btDispatcher dispatcher)
+		{
+			return null;
+		}
+
+		public void removeOverlappingPairsContainingProxy( btBroadphaseProxy proxy0, btDispatcher dispatcher)
+		{
+		}
+
+		public void sortOverlappingPairs( btDispatcher dispatcher )
+		{
+			//(void)dispatcher;
+		}
 
 
-};
+	};
 
 
 

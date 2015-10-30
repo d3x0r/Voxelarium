@@ -195,7 +195,7 @@ namespace Bullet.Dynamics
 		}
 
 		/// continuous collision detection needs prediction
-		void saveKinematicState( double timeStep )
+		internal void saveKinematicState( double timeStep )
 		{
 			//todo: clamp to some (user definable) safe minimum timestep, to limit maximum angular/linear velocities
 			if( timeStep != btScalar.BT_ZERO )
@@ -621,7 +621,7 @@ namespace Bullet.Dynamics
 			}
 		}
 
-		void removeConstraintRef( btTypedConstraint c )
+		internal void removeConstraintRef( btTypedConstraint c )
 		{
 			int index = m_constraintRefs.IndexOf( c );
 			//don't remove constraints that are not referenced

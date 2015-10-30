@@ -27,14 +27,14 @@ namespace Bullet.Collision.Shapes
 
 		//btVector3	m_boxHalfExtents1; //use m_implicitShapeDimensions instead
 
-		void getHalfExtentsWithMargin( out btVector3 result )
+		internal void getHalfExtentsWithMargin( out btVector3 result )
 		{
 			btVector3 halfExtents; getHalfExtentsWithoutMargin( out halfExtents );
 			btVector3 margin = new btVector3( getMargin(), getMargin(), getMargin() );
 			halfExtents.Add( ref margin, out result );
 		}
 
-		void getHalfExtentsWithoutMargin( out btVector3 result )
+		internal void getHalfExtentsWithoutMargin( out btVector3 result )
 		{
 			result = m_implicitShapeDimensions;//scaling is included, margin is not
 		}

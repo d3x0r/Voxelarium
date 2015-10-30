@@ -160,7 +160,7 @@ namespace Bullet.Collision.Shapes
 		}
 
 		///optionally pass in a larger bvh aabb, used for quantization. This allows for deformations within this aabb
-		public btBvhTriangleMeshShape( btStridingMeshInterface<Index,Data> meshInterface, bool useQuantizedAabbCompression, ref btVector3 bvhAabbMin, ref btVector3 bvhAabbMax, bool buildBvh = true )
+		public btBvhTriangleMeshShape( btStridingMeshInterface<Index, Data> meshInterface, bool useQuantizedAabbCompression, ref btVector3 bvhAabbMin, ref btVector3 bvhAabbMax, bool buildBvh = true )
 			: base( meshInterface )
 		{
 			m_bvh = ( null );
@@ -169,12 +169,11 @@ namespace Bullet.Collision.Shapes
 			m_ownsBvh = ( false );
 			m_shapeType = BroadphaseNativeTypes.TRIANGLE_MESH_SHAPE_PROXYTYPE;
 			//construct bvh from meshInterface
-# if ! DISABLE_BVH
+#if !DISABLE_BVH
 
 			if( buildBvh )
 			{
-				object mem = btAlignedAlloc( sizeof( btOptimizedBvh ), 16 );
-				m_bvh = new ( mem ) btOptimizedBvh();
+				m_bvh = new btOptimizedBvh();
 
 				m_bvh.build( meshInterface, m_useQuantizedAabbCompression, bvhAabbMin, bvhAabbMax );
 				m_ownsBvh = true;
@@ -200,229 +199,162 @@ namespace Bullet.Collision.Shapes
 			recalcLocalAabb();
 		}
 
-		btBvhTriangleMeshShape::~btBvhTriangleMeshShape()
+		~btBvhTriangleMeshShape()
 		{
 			if( m_ownsBvh )
 			{
-				m_bvh.~btOptimizedBvh();
-				btAlignedFree( m_bvh );
+				m_bvh = null;
 			}
 		}
 
 		public override void performRaycast( btTriangleCallback callback, ref btVector3 raySource, ref btVector3 rayTarget )
 		{
-			MyNodeOverlapCallback myNodeCallback( callback, m_meshInterface );
+			MyNodeOverlapCallback myNodeCallback = new MyNodeOverlapCallback( callback, m_meshInterface );
 
 			m_bvh.reportRayOverlappingNodex( &myNodeCallback, raySource, rayTarget );
 		}
 
 		public override void performConvexcast( btTriangleCallback callback, ref btVector3 raySource, ref btVector3 rayTarget, ref btVector3 aabbMin, ref btVector3 aabbMax )
 		{
-    struct MyNodeOverlapCallback : btNodeOverlapCallback
-		{
-			btStridingMeshInterface* m_meshInterface;
-			btTriangleCallback m_callback;
 
-			MyNodeOverlapCallback( btTriangleCallback callback, btStridingMeshInterface* meshInterface )
-				:m_meshInterface( meshInterface),
-            m_callback( callback)
+			MyNodeOverlapCallback myNodeCallback = new MyNodeOverlapCallback( callback, m_meshInterface );
+
+			m_bvh.reportBoxCastOverlappingNodex( &myNodeCallback, raySource, rayTarget, aabbMin, aabbMax );
+		}
+
+
+		public class MyNodeOverlapCallback<Index, Data> : btNodeOverlapCallback
+		{
+			btStridingMeshInterface<Index, Data> m_meshInterface;
+			btTriangleCallback m_callback;
+			btVector3[] m_triangle = new btVector3[3];
+
+
+			MyNodeOverlapCallback( btTriangleCallback callback, btStridingMeshInterface<Index, Data> meshInterface )
 			{
+				m_meshInterface = ( meshInterface );
+				m_callback = ( callback );
 			}
 
-			virtual void processNode( int nodeSubPart, int nodeTriangleIndex )
+			public virtual void processNode( int nodeSubPart, int nodeTriangleIndex )
 			{
-				btVector3 m_triangle[3];
-				string nsigned char* vertexbase;
+				Data[] vertexbase;
 				int numverts;
 				PHY_ScalarType type;
-				int stride;
-				string nsigned char* indexbase;
-				int indexstride;
+				//int stride;
+				Index[] indexbase;
+				//int indexstride;
 				int numfaces;
 				PHY_ScalarType indicestype;
 
+
 				m_meshInterface.getLockedReadOnlyVertexIndexBase(
-					&vertexbase,
-					numverts,
-					type,
-					stride,
-					&indexbase,
-					indexstride,
-					numfaces,
-					indicestype,
+					out vertexbase,
+					out numverts,
+					out type,
+					//out stride,
+					out indexbase,
+					//out indexstride,
+					out numfaces,
+					out indicestype,
 					nodeSubPart );
 
-				uint* gfxbase = (uint*)( indexbase + nodeTriangleIndex * indexstride );
-				Debug.Assert( indicestype == PHY_INTEGER || indicestype == PHY_SHORT );
-	
-			ref btVector3 meshScaling = m_meshInterface.getScaling();
+				//uint* gfxbase = (uint*)( indexbase + nodeTriangleIndex * indexstride );
+				Debug.Assert( indicestype == PHY_ScalarType.PHY_INTEGER || indicestype == PHY_ScalarType.PHY_SHORT || indicestype == PHY_ScalarType.PHY_UCHAR );
+
+				btVector3 meshScaling; m_meshInterface.getScaling( out meshScaling );
 				for( int j = 2; j >= 0; j-- )
 				{
-					int graphicsindex = indicestype == PHY_SHORT ? ( (ushort*)gfxbase )[j] : gfxbase[j];
 
-					if( type == PHY_FLOAT )
-					{
-						float* graphicsbase = (float*)( vertexbase + graphicsindex * stride );
-
-						m_triangle[j] = btVector3( graphicsbase[0] * meshScaling.x, graphicsbase[1] * meshScaling.y, graphicsbase[2] * meshScaling.z );
-					}
-					else
-					{
-						double* graphicsbase = (double*)( vertexbase + graphicsindex * stride );
-
-						m_triangle[j] = btVector3( (double)( graphicsbase[0] ) * meshScaling.x, (double)( graphicsbase[1] ) * meshScaling.y, (double)( graphicsbase[2] ) * meshScaling.z );
-					}
-				}
-
-				/* Perform ray vs. triangle collision here */
-				m_callback.processTriangle( m_triangle, nodeSubPart, nodeTriangleIndex );
-				m_meshInterface.unLockReadOnlyVertexBase( nodeSubPart );
-			}
-		};
-
-		MyNodeOverlapCallback myNodeCallback( callback, m_meshInterface);
-
-		m_bvh.reportBoxCastOverlappingNodex (&myNodeCallback, raySource, rayTarget, aabbMin, aabbMax);
-}
-
-
-	public class MyNodeOverlapCallback<Index, Data> : btNodeOverlapCallback
-	{
-		btStridingMeshInterface<Index, Data> m_meshInterface;
-		btTriangleCallback m_callback;
-		btVector3[] m_triangle = new btVector3[3];
-
-
-		MyNodeOverlapCallback( btTriangleCallback callback, btStridingMeshInterface<Index, Data> meshInterface )
-		{
-			m_meshInterface = ( meshInterface );
-			m_callback = ( callback );
-		}
-
-		public virtual void processNode( int nodeSubPart, int nodeTriangleIndex )
-		{
-			Data[] vertexbase;
-			int numverts;
-			PHY_ScalarType type;
-			//int stride;
-			Index[] indexbase;
-			//int indexstride;
-			int numfaces;
-			PHY_ScalarType indicestype;
-
-
-			m_meshInterface.getLockedReadOnlyVertexIndexBase(
-				out vertexbase,
-				out numverts,
-				out type,
-				//out stride,
-				out indexbase,
-				//out indexstride,
-				out numfaces,
-				out indicestype,
-				nodeSubPart );
-
-			//uint* gfxbase = (uint*)( indexbase + nodeTriangleIndex * indexstride );
-			Debug.Assert( indicestype == PHY_ScalarType.PHY_INTEGER || indicestype == PHY_ScalarType.PHY_SHORT || indicestype == PHY_ScalarType.PHY_UCHAR );
-
-			btVector3 meshScaling; m_meshInterface.getScaling( out meshScaling );
-			for( int j = 2; j >= 0; j-- )
-			{
-
-				int graphicsindex = indicestype == PHY_ScalarType.PHY_SHORT ? ( (ushort*)gfxbase )[j] : indicestype == PHY_ScalarType.PHY_INTEGER ? gfxbase[j] : ( ( string gfxbase)[j];
+					int graphicsindex = indicestype == PHY_ScalarType.PHY_SHORT ? ( (ushort*)gfxbase )[j] : indicestype == PHY_ScalarType.PHY_INTEGER
+						? gfxbase[j]
+						: ( gfxbase )[j];
 
 
 #if DEBUG_TRIANGLE_MESH
 				Console.WriteLine("%d ,",graphicsindex);
 #endif //DEBUG_TRIANGLE_MESH
-				if (type == PHY_FLOAT)
-				{
-					float* graphicsbase = (float*)( vertexbase + graphicsindex * stride );
+					if( type == PHY_ScalarType.PHY_FLOAT )
+					{
+						Data graphicsbase = (Data)( vertexbase + graphicsindex * stride );
 
-		m_triangle[j] = btVector3(
-															graphicsbase[0]*meshScaling.x,
-															graphicsbase[1]*meshScaling.y,
-															graphicsbase[2]*meshScaling.z);
-	}
-				else
-				{
-					double* graphicsbase = (double*)( vertexbase + graphicsindex * stride );
+						m_triangle[j] = btVector3(
+																			graphicsbase[0] * meshScaling.x,
+																			graphicsbase[1] * meshScaling.y,
+																			graphicsbase[2] * meshScaling.z );
+					}
+					else
+					{
+						double* graphicsbase = (double*)( vertexbase + graphicsindex * stride );
 
-	m_triangle[j] = btVector3(
-						(double)(graphicsbase[0])* meshScaling.x,
-						(double)(graphicsbase[1])* meshScaling.y,
-						(double)(graphicsbase[2])* meshScaling.z);
-}
+						m_triangle[j] = btVector3(
+										(double)( graphicsbase[0] ) * meshScaling.x,
+										(double)( graphicsbase[1] ) * meshScaling.y,
+										(double)( graphicsbase[2] ) * meshScaling.z );
+					}
 #if DEBUG_TRIANGLE_MESH
 				Console.WriteLine("triangle vertices:%f,%f,%f\n",triangle[j].x,triangle[j].y,triangle[j].z);
 #endif //DEBUG_TRIANGLE_MESH
+				}
+
+				m_callback.processTriangle( m_triangle, nodeSubPart, nodeTriangleIndex );
+				m_meshInterface.unLockReadOnlyVertexBase( nodeSubPart );
 			}
 
-			m_callback.processTriangle(m_triangle,nodeSubPart,nodeTriangleIndex);
-			m_meshInterface.unLockReadOnlyVertexBase(nodeSubPart);
-		}
+		};
 
-	};
-	
-	//perform bvh tree traversal and report overlapping triangles to 'callback'
-public override void processAllTriangles( btTriangleCallback callback, ref btVector3 aabbMin, ref btVector3 aabbMax )
-{
+		//perform bvh tree traversal and report overlapping triangles to 'callback'
+		public override void processAllTriangles( btTriangleCallback callback, ref btVector3 aabbMin, ref btVector3 aabbMax )
+		{
 
 #if DISABLE_BVH
 	//brute force traverse all triangles
 	btTriangleMeshShape::processAllTriangles(callback,aabbMin,aabbMax);
 #else
 
-	//first get all the nodes
+			//first get all the nodes
+			MyNodeOverlapCallback<Index, Data> myNodeCallback = new MyNodeOverlapCallback<Index,Data>( callback, m_meshInterface );
 
-
-
-	MyNodeOverlapCallback myNodeCallback( callback, m_meshInterface );
-
-	m_bvh.reportAabbOverlappingNodex( &myNodeCallback, aabbMin, aabbMax );
-
-
+			m_bvh.reportAabbOverlappingNodex( myNodeCallback, out aabbMin, out aabbMax );
 #endif//DISABLE_BVH
+		}
 
+		public virtual void setLocalScaling( ref btVector3 scaling )
+		{
+			if( ( getLocalScaling() - scaling ).length2() > SIMD_EPSILON )
+			{
+				btTriangleMeshShape::setLocalScaling( scaling );
+				buildOptimizedBvh();
+			}
+		}
 
-}
+		public void buildOptimizedBvh()
+		{
+			if( m_ownsBvh )
+			{
+				m_bvh = null;
+			}
+			///m_localAabbMin/m_localAabbMax is already re-calculated in btTriangleMeshShape. We could just scale aabb, but this needs some more work
+			//object mem = btAlignedAlloc( sizeof( btOptimizedBvh ), 16 );
+			m_bvh = new btOptimizedBvh();
+			//rebuild the bvh...
+			m_bvh.build( m_meshInterface, m_useQuantizedAabbCompression, m_localAabbMin, m_localAabbMax );
+			m_ownsBvh = true;
+		}
 
-public virtual void setLocalScaling( ref btVector3 scaling )
-{
-	if( ( getLocalScaling() - scaling ).length2() > SIMD_EPSILON )
-	{
-		btTriangleMeshShape::setLocalScaling( scaling );
-		buildOptimizedBvh();
-	}
-}
+		public void setOptimizedBvh( btOptimizedBvh bvh, ref btVector3 scaling /* btVector.One */ )
+		{
+			Debug.Assert( !m_bvh );
+			Debug.Assert( !m_ownsBvh );
 
-public void buildOptimizedBvh()
-{
-	if( m_ownsBvh )
-	{
-		m_bvh = null;
-	}
-	///m_localAabbMin/m_localAabbMax is already re-calculated in btTriangleMeshShape. We could just scale aabb, but this needs some more work
-	//object mem = btAlignedAlloc( sizeof( btOptimizedBvh ), 16 );
-	m_bvh = new btOptimizedBvh();
-	//rebuild the bvh...
-	m_bvh.build( m_meshInterface, m_useQuantizedAabbCompression, m_localAabbMin, m_localAabbMax );
-	m_ownsBvh = true;
-}
-
-public void setOptimizedBvh( btOptimizedBvh bvh, ref btVector3 scaling /* btVector.One */ )
-{
-	Debug.Assert( !m_bvh );
-	Debug.Assert( !m_ownsBvh );
-
-	m_bvh = bvh;
-	m_ownsBvh = false;
-	// update the scaling without rebuilding the bvh
-	if( ( getLocalScaling() - scaling ).length2() > SIMD_EPSILON )
-	{
-		btTriangleMeshShape::setLocalScaling( scaling );
-	}
-}
+			m_bvh = bvh;
+			m_ownsBvh = false;
+			// update the scaling without rebuilding the bvh
+			if( ( getLocalScaling() - scaling ).length2() > SIMD_EPSILON )
+			{
+				btTriangleMeshShape::setLocalScaling( scaling );
+			}
+		}
 
 
 #if SERIALIZE_DONE
@@ -524,7 +456,7 @@ void btBvhTriangleMeshShape::serializeSingleTriangleInfoMap( btSerializer* seria
 }
 #endif
 
-};
+	};
 
 #if SERIALIZE_DONE
 ///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64

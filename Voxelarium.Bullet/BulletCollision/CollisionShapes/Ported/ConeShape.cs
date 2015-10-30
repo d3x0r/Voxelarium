@@ -61,7 +61,7 @@ namespace Bullet.Collision.Shapes
 		}
 
 
-		int getConeUpIndex()
+		public int getConeUpIndex()
 		{
 			return m_coneIndices[1];
 		}

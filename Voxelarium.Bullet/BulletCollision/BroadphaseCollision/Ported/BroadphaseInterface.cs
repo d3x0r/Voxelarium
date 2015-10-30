@@ -27,9 +27,9 @@ namespace Bullet.Collision.BroadPhase
 	public abstract class btBroadphaseRayCallback : btBroadphaseAabbCallback
 	{
 		///added some cached data to accelerate ray-AABB tests
-		btVector3 m_rayDirectionInverse;
-		uint[] m_signs = new uint[3];
-		double m_lambda_max;
+		internal btVector3 m_rayDirectionInverse;
+		internal uint[] m_signs = new uint[3];
+		internal double m_lambda_max;
 
 		public abstract bool process( btBroadphaseProxy proxy );
 	};
@@ -50,6 +50,7 @@ namespace Bullet.Collision.BroadPhase
 		void getAabb( btBroadphaseProxy proxy, ref btVector3 aabbMin, ref btVector3 aabbMax );
 
 		void rayTest( ref btVector3 rayFrom, ref btVector3 rayTo, btBroadphaseRayCallback rayCallback, ref btVector3 aabbMin, ref btVector3 aabbMax );
+		void rayTest( ref btVector3 rayFrom, ref btVector3 rayTo, btBroadphaseRayCallback rayCallback );
 
 		void aabbTest( ref btVector3 aabbMin, ref btVector3 aabbMax, btBroadphaseAabbCallback callback );
 

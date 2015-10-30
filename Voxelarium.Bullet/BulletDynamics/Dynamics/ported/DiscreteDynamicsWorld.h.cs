@@ -32,7 +32,7 @@ namespace Bullet.Dynamics
 	{
 
 		protected btList<btTypedConstraint> m_sortedConstraints = new btList<btTypedConstraint>();
-		protected InplaceSolverIslandCallback m_solverIslandCallback;
+		internal InplaceSolverIslandCallback m_solverIslandCallback;
 
 		internal btConstraintSolver m_constraintSolver;
 

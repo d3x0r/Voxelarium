@@ -28,13 +28,13 @@ namespace Bullet.LinearMath
 
 		public struct DefaultColors
 		{
-			btVector3 m_activeObject;
-			btVector3 m_deactivatedObject;
-			btVector3 m_wantsDeactivationObject;
-			btVector3 m_disabledDeactivationObject;
-			btVector3 m_disabledSimulationObject;
-			btVector3 m_aabb;
-			btVector3 m_contactPoint;
+			public btVector3 m_activeObject;
+			public btVector3 m_deactivatedObject;
+			public btVector3 m_wantsDeactivationObject;
+			public btVector3 m_disabledDeactivationObject;
+			public btVector3 m_disabledSimulationObject;
+			public btVector3 m_aabb;
+			public btVector3 m_contactPoint;
 
 			static public void Init( out DefaultColors c )
 			{
@@ -49,7 +49,7 @@ namespace Bullet.LinearMath
 		};
 
 
-		enum DebugDrawModes
+		internal enum DebugDrawModes
 		{
 			DBG_NoDebug = 0,
 			DBG_DrawWireframe = 1,
@@ -125,7 +125,7 @@ namespace Bullet.LinearMath
 
 		public abstract void setDebugMode( int debugMode );
 
-		public abstract int getDebugMode();
+		internal abstract DebugDrawModes getDebugMode();
 
 		public virtual void drawAabb( ref btVector3 from, ref btVector3 to, ref btVector3 color )
 		{

@@ -36,8 +36,10 @@ namespace Bullet.Collision.Dispatch
 		public btUnionFind getUnionFind() { return m_unionFind; }
 
 
-		delegate void IslandCallback( btCollisionObject bodies, int numBodies
-			, btPersistentManifold[] manifolds, int numManifolds, int islandId );
+		internal abstract class IslandCallback
+		{
+			internal abstract void processIsland( btCollisionObject[] bodies, int numBodies,btPersistentManifold[]	manifolds,int numManifolds, int islandId) ;
+		};
 
 
 		public bool getSplitIslands()

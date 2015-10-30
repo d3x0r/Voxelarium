@@ -33,7 +33,17 @@ namespace Bullet.LinearMath
 		btIVector3
 	{
 		double this[int n] { get; set; }
-		
+		double X { get; set; }
+		double Y { get; set; }
+		double Z { get; set; }
+		double W { get; set; }
+
+		double R { get; set; }
+		double G { get; set; }
+		double B { get; set; }
+		double A { get; set; }
+		void Copy( out btVector3 result );
+
 		/*@brief Add a vector to this one 
           @param The vector to add to this one */
 		void Add( ref btVector3 b, out btVector3 result );
@@ -41,6 +51,7 @@ namespace Bullet.LinearMath
 		void AddAndScale( ref btVector3 b, double s, out btVector3 result );
 
 		void Sub( ref btVector3 b, out btVector3 result );
+		void Sub( btIVector3 b, out btVector3 result );
 
 		void SubScale( ref btVector3 b, double s, out btVector3 result );
 		void SubAndScale( ref btVector3 b, double s, out btVector3 result );
@@ -169,9 +180,21 @@ namespace Bullet.LinearMath
 		public double z;
 		public double w;
 
-		public static btVector3 Zero    = new btVector3();
-		public static btVector3 Right   = new btVector3( 1, 0, 0 );
-		public static btVector3 Up      = new btVector3( 0, 1, 0 );
+		public double X { get { return x; } set { x = value; } }
+		public double Y { get { return y; } set { y = value; } }
+		public double Z { get { return z; } set { z = value; } }
+		public double W { get { return w; } set { w = value; } }
+
+		public double R { get { return x; } set { x = value; } }
+		public double G { get { return y; } set { y = value; } }
+		public double B { get { return z; } set { x = value; } }
+		public double A { get { return w; } set { w = value; } }
+
+		public void Copy( out btVector3 result ) { result = this; }
+
+		public static btVector3 Zero = new btVector3();
+		public static btVector3 Right = new btVector3( 1, 0, 0 );
+		public static btVector3 Up = new btVector3( 0, 1, 0 );
 		public static btVector3 Forward = new btVector3( 0, 0, 1 );
 		public static btVector3 One = new btVector3( 1, 1, 1 );
 		public static btVector3 NegOne = new btVector3( -1, -1, -1 );
@@ -236,7 +259,7 @@ namespace Bullet.LinearMath
 		}
 		public void AddScale( ref btVector3 b, double s, out btVector3 result )
 		{
-			result.x = x + b.x * s ;
+			result.x = x + b.x * s;
 			result.y = y + b.y * s;
 			result.z = z + b.z * s;
 			result.w = w + b.w * s;
@@ -250,10 +273,10 @@ namespace Bullet.LinearMath
 		}
 		public void AddAndScale( ref btVector3 b, double s, out btVector3 result )
 		{
-			result.x = (x + b.x) * s;
-			result.y = (y + b.y) * s;
-			result.z = ( z + b.z) * s;
-			result.w = ( w + b.w) * s;
+			result.x = ( x + b.x ) * s;
+			result.y = ( y + b.y ) * s;
+			result.z = ( z + b.z ) * s;
+			result.w = ( w + b.w ) * s;
 		}
 
 		public void Sub( ref btVector3 b, out btVector3 result )
@@ -262,6 +285,14 @@ namespace Bullet.LinearMath
 			result.y = y - b.y;
 			result.z = z - b.z;
 			result.w = w - b.w;
+		}
+
+		public void Sub( btIVector3 b, out btVector3 result )
+		{
+			result.x = x - b.X;
+			result.y = y - b.Y;
+			result.z = z - b.Z;
+			result.w = w - b.W;
 		}
 
 		public void SubScale( ref btVector3 b, double s, out btVector3 result )
@@ -273,10 +304,10 @@ namespace Bullet.LinearMath
 		}
 		public void SubAndScale( ref btVector3 b, double s, out btVector3 result )
 		{
-			result.x = (x - b.x) * s;
-			result.y = (y - b.y) * s;
-			result.z = (z - b.z) * s;
-			result.w = (w - b.w) * s;
+			result.x = ( x - b.x ) * s;
+			result.y = ( y - b.y ) * s;
+			result.z = ( z - b.z ) * s;
+			result.w = ( w - b.w ) * s;
 		}
 
 		public void Mult( double b, out btVector3 result )
@@ -392,7 +423,7 @@ namespace Bullet.LinearMath
 		/*@brief Return a vector will the absolute values of each element */
 		public btVector3 absolute()
 		{
-			return new btVector3( btScalar.btFabs( x), btScalar.btFabs(y), btScalar.btFabs(z) );
+			return new btVector3( btScalar.btFabs( x ), btScalar.btFabs( y ), btScalar.btFabs( z ) );
 		}
 
 		/*@brief Normalize this vector 
@@ -409,7 +440,7 @@ namespace Bullet.LinearMath
 			if( btScalar.btFabs( v.x ) > 1e-6 || btScalar.btFabs( v.y ) > 1e-6 || btScalar.btFabs( v.z ) > 1e-6 ) return false;
 			return true;
 		}
-		public bool IsAlmostZero(  )
+		public bool IsAlmostZero()
 		{
 			if( btScalar.btFabs( x ) > 1e-6 || btScalar.btFabs( y ) > 1e-6 || btScalar.btFabs( z ) > 1e-6 ) return false;
 			return true;
@@ -441,7 +472,7 @@ namespace Bullet.LinearMath
 			wAxis.cross( ref this, out _y );
 			btVector3 tmp;
 			btVector3 tmp2;
-			_x.Mult( btScalar.btCos(angle), out tmp );
+			_x.Mult( btScalar.btCos( angle ), out tmp );
 			o.Add( ref tmp, out tmp2 );
 			_y.Mult( btScalar.btSin( angle ), out tmp );
 			tmp2.Add( ref tmp, out result );
@@ -460,11 +491,11 @@ namespace Bullet.LinearMath
           @param v The other vector */
 		public double angle( ref btVector3 v )
 		{
-			double s = btScalar.btSqrt( ( length2() * v.length2() ));
+			double s = btScalar.btSqrt( ( length2() * v.length2() ) );
 #if PARANOID_ASSERTS
 			Debug.Assert( s != (double)(0.0));
 #endif
-			return btScalar.btAcos( ( dot( ref v ) / s ));
+			return btScalar.btAcos( ( dot( ref v ) / s ) );
 		}
 
 
@@ -511,13 +542,35 @@ namespace Bullet.LinearMath
 			//		m_co[3] = s  v0[3] + rt  v1[3];
 		}
 
-		public static void setInterpolate3( ref btVector3 v0, ref btVector3 v1, double rt, out btVector3 result )
+		public static void setInterpolate3( out btVector3 result, btIVector3 v0, btIVector3 v1, double rt )
 		{
 			double s = 1.0 - rt;
-			result.x = s * v0.x + rt * v1.x;
-			result.y = s * v0.y + rt * v1.y;
-			result.z = s * v0.z + rt * v1.z;
+			result.x = s * v0.X + rt * v1.X;
+			result.y = s * v0.Y + rt * v1.Y;
+			result.z = s * v0.Z + rt * v1.Z;
 			result.w = 0;
+			//don't do the unused w component
+			//		m_co[3] = s  v0[3] + rt  v1[3];
+		}
+
+		public void setInterpolate3( ref btVector3 v0, ref btVector3 v1, double rt )
+		{
+			double s = 1.0 - rt;
+			x = s * v0.x + rt * v1.x;
+			y = s * v0.y + rt * v1.y;
+			z = s * v0.z + rt * v1.z;
+			w = 0;
+			//don't do the unused w component
+			//		m_co[3] = s  v0[3] + rt  v1[3];
+		}
+
+		public void setInterpolate3( btIVector3 v0, btIVector3 v1, double rt )
+		{
+			double s = 1.0 - rt;
+			x = s * v0.X + rt * v1.X;
+			y = s * v0.Y + rt * v1.Y;
+			z = s * v0.Z + rt * v1.Z;
+			w = 0;
 			//don't do the unused w component
 			//		m_co[3] = s  v0[3] + rt  v1[3];
 		}
@@ -830,6 +883,13 @@ namespace Bullet.LinearMath
 			half.w = ( min.w + max.w ) * btScalar.BT_HALF; ;
 		}
 
+		public static double btDelLength( ref btVector3 linVelB, ref btVector3 linVelA )
+		{
+			btVector3 tmp;
+			linVelB.Sub( linVelA, out tmp );
+			return tmp.length();
+		}
+
 #if !DISABLE_OPERATORS
 		public static btVector3 operator +( btVector3 a, btVector3 b )
 		{
@@ -845,7 +905,7 @@ namespace Bullet.LinearMath
 		}
 		public static btVector3 operator -( btVector3 a )
 		{
-			return new btVector3(- a.x, -a.y,  -a.z );
+			return new btVector3( -a.x, -a.y, -a.z );
 		}
 		public static btVector3 operator *( btVector3 a, btVector3 b )
 		{

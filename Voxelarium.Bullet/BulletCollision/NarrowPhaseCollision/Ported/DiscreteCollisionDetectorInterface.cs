@@ -14,9 +14,9 @@ subject to the following restrictions:
 */
 
 using System;
-using Voxelarium.Bullet.LinearMath;
+using Bullet.LinearMath;
 
-namespace Voxelarium.Bullet.Collision.NarrowPhase
+namespace Bullet.Collision.NarrowPhase
 {
 
 	/// This interface is made to be used by an iterative approach to do TimeOfImpact calculations

@@ -15,6 +15,7 @@ subject to the following restrictions:
 
 using Bullet.Collision.BroadPhase;
 using Bullet.LinearMath;
+using System;
 
 namespace Bullet.Collision.Shapes
 {
@@ -26,7 +27,8 @@ namespace Bullet.Collision.Shapes
 		protected BroadphaseNativeTypes m_shapeType;
 		protected object m_userPointer;
 		protected int m_userIndex;
-
+		internal Type bvhIndexType;
+		internal Type bvhDataType;
 
 		public btCollisionShape()
 		{
@@ -37,6 +39,7 @@ namespace Bullet.Collision.Shapes
 
 		///getAabb returns the axis aligned bounding box in the coordinate frame of the given transform t.
 		public abstract void getAabb( ref btTransform t, out btVector3 aabbMin, out btVector3 aabbMax );
+		//public abstract void getAabb( btITransform t, out btVector3 aabbMin, out btVector3 aabbMax );
 
 		///getAngularMotionDisc returns the maximus radius needed for Conservative Advancement to handle time-of-impact with rotations.
 

@@ -98,7 +98,7 @@ namespace Bullet.Collision.NarrowPhase
 
 				double edge_tolerance = triangleNormal.length2();
 				edge_tolerance *= (double)( -0.0001 );
-				btVector3 point; btVector3.setInterpolate3( ref m_from, ref m_to, distance, out point );
+				btVector3 point; btVector3.setInterpolate3( out point, ref m_from, ref m_to, distance );
 				{
 					btVector3 v0p; vert0.Sub( ref point, out v0p );
 					btVector3 v1p; vert1.Sub( ref point, out v1p );
@@ -155,14 +155,14 @@ namespace Bullet.Collision.NarrowPhase
 
 
 
-		public abstract double reportHit( ref btVector3 hitNormalLocal, ref btVector3 hitPointLocal, double hitFraction, int partId, int triangleIndex );
+		internal abstract double reportHit( ref btVector3 hitNormalLocal, ref btVector3 hitPointLocal, double hitFraction, int partId, int triangleIndex );
 
-		public btTriangleConvexcastCallback( btConvexShape convexShape, ref btTransform convexShapeFrom, ref btTransform convexShapeTo, ref btTransform triangleToWorld, double triangleCollisionMargin )
+		public btTriangleConvexcastCallback( btConvexShape convexShape, ref btTransform convexShapeFrom, ref btTransform convexShapeTo, btITransform triangleToWorld, double triangleCollisionMargin )
 		{
 			m_convexShape = convexShape;
 			m_convexShapeFrom = convexShapeFrom;
 			m_convexShapeTo = convexShapeTo;
-			m_triangleToWorld = triangleToWorld;
+			m_triangleToWorld = triangleToWorld.T;
 			m_hitFraction = 1.0f;
 			m_triangleCollisionMargin = triangleCollisionMargin;
 			m_allowedPenetration = 0;

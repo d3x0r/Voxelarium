@@ -85,11 +85,11 @@ namespace Bullet.Collision.Dispatch
 	public partial class btCollisionWorld
 	{
 
-		protected btCollisionObjectArray m_collisionObjects;
+		internal btCollisionObjectArray m_collisionObjects;
 
-		protected btDispatcher m_dispatcher1;
+		internal btDispatcher m_dispatcher1;
 
-		protected btDispatcherInfo m_dispatchInfo;
+		internal btDispatcherInfo m_dispatchInfo;
 
 		protected btBroadphaseInterface m_broadphasePairCache;
 
@@ -220,7 +220,6 @@ namespace Bullet.Collision.Dispatch
 		public class ClosestRayResultCallback : RayResultCallback
 		{
 			public ClosestRayResultCallback( ref btVector3 rayFromWorld, ref btVector3 rayToWorld )
-				: base( true )
 			{
 				m_rayFromWorld = ( rayFromWorld );
 				m_rayToWorld = ( rayToWorld );
@@ -249,7 +248,7 @@ namespace Bullet.Collision.Dispatch
 					m_collisionObject.m_worldTransform.m_basis.Apply( ref rayResult.m_hitNormalLocal, out m_hitNormalWorld );
 					//m_hitNormalWorld = m_collisionObject.getWorldTransform().getBasis() * rayResult.m_hitNormalLocal;
 				}
-				btVector3.setInterpolate3( ref m_rayFromWorld, ref m_rayToWorld, rayResult.m_hitFraction, out m_hitPointWorld );
+				btVector3.setInterpolate3( out m_hitPointWorld, ref m_rayFromWorld, ref m_rayToWorld, rayResult.m_hitFraction );
 				return rayResult.m_hitFraction;
 			}
 		};
@@ -257,7 +256,6 @@ namespace Bullet.Collision.Dispatch
 		public class AllHitsRayResultCallback : RayResultCallback
 		{
 			public AllHitsRayResultCallback( ref btVector3 rayFromWorld, ref btVector3 rayToWorld )
-				: base( true )
 			{
 				m_rayFromWorld = ( rayFromWorld );
 				m_rayToWorld = ( rayToWorld );
@@ -301,8 +299,8 @@ namespace Bullet.Collision.Dispatch
 		{
 			public LocalConvexResult( btCollisionObject hitCollisionObject,
 				LocalShapeInfo localShapeInfo,
-				btVector3 hitNormalLocal,
-				btVector3 hitPointLocal,
+				ref btVector3 hitNormalLocal,
+				ref btVector3 hitPointLocal,
 				double hitFraction
 				)
 			{
@@ -408,7 +406,7 @@ namespace Bullet.Collision.Dispatch
 				return collides;
 			}
 
-			public abstract double addSingleResult( btManifoldPoint cp, ref btCollisionObjectWrapper colObj0Wrap, int partId0, int index0, ref btCollisionObjectWrapper colObj1Wrap, int partId1, int index1 ) ;
+			internal abstract double addSingleResult( btManifoldPoint cp, btCollisionObjectWrapper colObj0Wrap, int partId0, int index0, btCollisionObjectWrapper colObj1Wrap, int partId1, int index1 ) ;
 		};
 
 

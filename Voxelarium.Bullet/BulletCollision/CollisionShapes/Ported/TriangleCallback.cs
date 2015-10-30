@@ -21,14 +21,14 @@ namespace Bullet.Collision.Shapes
 	///The btTriangleCallback provides a callback for each overlapping triangle when calling processAllTriangles.
 	///This callback is called by processAllTriangles for all btConcaveShape derived class, such as  btBvhTriangleMeshShape, btStaticPlaneShape and btHeightfieldTerrainShape.
 
-	public abstract class btTriangleCallback
+	internal interface btTriangleCallback
 	{
-		public abstract void processTriangle( btVector3[] triangle, int partId, int triangleIndex );
+		void processTriangle( btVector3[] triangle, int partId, int triangleIndex );
 	};
 
-	public abstract class btInternalTriangleIndexCallback
+	internal abstract class btInternalTriangleIndexCallback
 	{
-		public abstract void internalProcessTriangleIndex( btVector3[] triangle, int partId, int triangleIndex );
+		internal abstract void internalProcessTriangleIndex( btVector3[] triangle, int partId, int triangleIndex );
 	};
 
 

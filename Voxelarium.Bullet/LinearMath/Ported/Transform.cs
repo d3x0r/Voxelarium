@@ -32,6 +32,7 @@ namespace Bullet.LinearMath
 		btIMatrix3x3 Basis {get;}
 
 		btTransform T { get; set; }
+		void Get( out btTransform tmp );
 		/*@brief Constructor from btQuaternion (optional btVector3 )
 		  @param q Rotation from quaternion 
 		  @param c Translation from Vector (default 0,0,0) */
@@ -107,6 +108,7 @@ namespace Bullet.LinearMath
 	{
 		public static btTransform Identity = new btTransform( ref btMatrix3x3.Identity );
 		public btTransform T { get { return this; } set { this = value; } }
+		public void Get( out btTransform tmp ) { tmp = this; }
 
 		///Storage for the rotation
 		internal btMatrix3x3 m_basis;
@@ -289,6 +291,10 @@ namespace Bullet.LinearMath
 			m_origin = origin;
 		}
 
+		public void setOrigin( btIVector3 origin )
+		{
+			origin.Copy( out m_origin );
+		}
 		/*@brief Set the rotational element by btMatrix3x3 */
 		public void setBasis( ref btMatrix3x3 basis )
 		{

@@ -70,7 +70,6 @@ namespace Bullet.Dynamics
 		///You can disable subdividing the timestep/substepping by passing maxSubSteps=0 as second argument to stepSimulation, but in that case you have to keep the timeStep constant.
 		public abstract int stepSimulation( double timeStep, int maxSubSteps/* = 1*/, double fixedTimeStep/*=btScalar.BT_ONE/(double)(60)*/);
 
-		public abstract void debugDrawWorld();
 
 		public virtual void addConstraint( btTypedConstraint constraint, bool disableCollisionsBetweenLinkedBodies = false )
 		{
@@ -79,35 +78,17 @@ namespace Bullet.Dynamics
 
 		public virtual void removeConstraint( btTypedConstraint constraint ) { }
 
-		public abstract void addAction( btActionInterface action );
-
-		public abstract void removeAction( btActionInterface action );
 
 		//once a rigidbody is added to the dynamics world, it will get this gravity assigned
 		//existing rigidbodies in the world get gravity assigned too, during this method
-		public abstract void setGravity( btVector3 gravity );
-		public abstract void getGravity( out btVector3 result );
-		public abstract btIVector3 getGravity(  );
-
-		public abstract void synchronizeMotionStates();
-
-		public abstract void addRigidBody( btRigidBody body );
-
-		public abstract void addRigidBody( btRigidBody body, short group, short mask );
-
-		public abstract void removeRigidBody( btRigidBody body );
-
-		internal abstract void setConstraintSolver( btConstraintSolver solver );
-
-		internal abstract btConstraintSolver getConstraintSolver();
 
 		public virtual int getNumConstraints() { return 0; }
 
 		public virtual btTypedConstraint getConstraint( int index ) { return null; }
 
-		public abstract btDynamicsWorldType getWorldType();
+		//public abstract btDynamicsWorldType getWorldType();
 
-		public abstract void clearForces();
+		//public abstract void clearForces();
 
 		/// Set the callback for when an internal tick (simulation substep) happens, optional user info
 		public void setInternalTickCallback( btInternalTickCallback cb, object worldUserInfo = null, bool isPreTick = false )
@@ -136,17 +117,6 @@ namespace Bullet.Dynamics
 		{
 			return m_solverInfo;
 		}
-
-
-		///obsolete, use addAction instead.
-		public virtual void addVehicle( btActionInterface vehicle ) { }
-		///obsolete, use removeAction instead
-		public virtual void removeVehicle( btActionInterface vehicle ) { }
-		///obsolete, use addAction instead.
-		public virtual void addCharacter( btActionInterface character ) { }
-		///obsolete, use removeAction instead
-		public virtual void removeCharacter( btActionInterface character ) { }
-
 
 	};
 

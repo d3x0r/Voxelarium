@@ -580,7 +580,7 @@ m_sepDistance((static_cast<btConvexShape*>(body0.getCollisionShape())).getAngula
 							double threshold = m_manifoldPtr.getContactBreakingThreshold();
 
 							btVector3 sepNormalWorldSpace;
-							double minDist = -1e30f;
+							double minDist = -btScalar.BT_LARGE_FLOAT;
 							double maxDist = threshold;
 
 							bool foundSepAxis = false;
@@ -801,8 +801,8 @@ m_sepDistance((static_cast<btConvexShape*>(body0.getCollisionShape())).getAngula
 				btConvexShape convex0 = (btConvexShape)col0.getCollisionShape();
 
 				btSphereShape sphere1 = new btSphereShape( col1.getCcdSweptSphereRadius() ); //todo: allow non-zero sphere sizes, for better approximation
-				btConvexCast.CastResult result = new btConvexCast.CastResult();
-				btVoronoiSimplexSolver voronoiSimplex = new btVoronoiSimplexSolver();
+				btConvexCast.CastResult result = BulletGlobals.CastResultPool.Get(); 
+				btVoronoiSimplexSolver voronoiSimplex = BulletGlobals.VoronoiSimplexSolverPool.Get();
 				//SubsimplexConvexCast ccd0(&sphere,min0,&voronoiSimplex);
 				///Simplification, one object is simplified as a sphere
 				btGjkConvexCast ccd1 = new btGjkConvexCast( convex0, sphere1,  voronoiSimplex);
@@ -834,8 +834,8 @@ m_sepDistance((static_cast<btConvexShape*>(body0.getCollisionShape())).getAngula
 				btConvexShape convex1 = (btConvexShape)( col1.getCollisionShape() );
 
 				btSphereShape sphere0 = new btSphereShape( col0.getCcdSweptSphereRadius() ); //todo: allow non-zero sphere sizes, for better approximation
-				btConvexCast.CastResult result = new btConvexCast.CastResult();
-				btVoronoiSimplexSolver voronoiSimplex = new btVoronoiSimplexSolver();
+				btConvexCast.CastResult result = BulletGlobals.CastResultPool.Get();
+				btVoronoiSimplexSolver voronoiSimplex = BulletGlobals.VoronoiSimplexSolverPool.Get();
 				//SubsimplexConvexCast ccd0(&sphere,min0,&voronoiSimplex);
 				///Simplification, one object is simplified as a sphere
 				btGjkConvexCast ccd1 = new btGjkConvexCast( sphere0, convex1, voronoiSimplex );

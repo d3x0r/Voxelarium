@@ -14,15 +14,7 @@ subject to the following restrictions:
 */
 
 
-#if ! BT_COLLISION_WORLD_IMPORTER_H
-#define BT_COLLISION_WORLD_IMPORTER_H
-
-#include "LinearMath/btTransform.h"
-#include "LinearMath/btVector3.h"
-#include "LinearMath/List.h"
-#include "LinearMath/btHashMap.h"
-
-
+#if SERIALIZER_DONE
 
 
 class btCollisionWorldImporter
@@ -162,5 +154,4 @@ public:
 
 };
 
-
-#endif //BT_WORLD_IMPORTER_H
+#endif

@@ -41,7 +41,11 @@ namespace Bullet.Collision.Shapes
 			m_collisionMargin = btScalar.BT_ZERO;
 		}
 
-		public abstract void processAllTriangles( btTriangleCallback callback, ref btVector3 aabbMin, ref btVector3 aabbMax );
+		internal virtual void performConvexcast( btTriangleCallback callback, ref btVector3 raySource, ref btVector3 rayTarget, ref btVector3 aabbMin, ref btVector3 aabbMax )
+		{
+		}
+
+		internal abstract void processAllTriangles( btTriangleCallback callback, ref btVector3 aabbMin, ref btVector3 aabbMax );
 
 		public override double getMargin()
 		{

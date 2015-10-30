@@ -39,7 +39,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 		///solve a group of constraints
 		double solveGroup( btCollisionObject[] bodies, int numBodies
 					, btPersistentManifold[] manifold, int numManifolds
-					, btTypedConstraint[] constraints, int numConstraints
+					, btTypedConstraint[] constraints, int startConstraint, int numConstraints
 					, btContactSolverInfo info
 					, btIDebugDraw debugDrawer
 					, btDispatcher dispatcher );
