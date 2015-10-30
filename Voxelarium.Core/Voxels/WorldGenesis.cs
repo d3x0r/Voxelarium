@@ -7,6 +7,6 @@ namespace Voxelarium.Core.Voxels
 	public interface IWorldGenesis
 	{
 		void GenerateSector( VoxelSector VoxelSector );
-		bool LoadTemplateImages();
+		bool LoadTemplateImages( VoxelTypeManager voxelTypeManager );
 	}
 }

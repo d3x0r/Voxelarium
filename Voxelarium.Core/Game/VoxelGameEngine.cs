@@ -28,7 +28,7 @@ namespace Voxelarium.Core
 		HighPerfTimer Timer_Draw;
 		HighPerfTimer PhysicsTimer;
 		HighPerfTimer PhysicsTimer_Compute;
-
+		uint FrameTime;
 		//		Screen_ChooseOption Screen_ChooseOption;
 		//Screen_SlotSelection Screen_SlotSelection;
 		//Screen_Loading Screen_Loading;
@@ -48,7 +48,9 @@ namespace Voxelarium.Core
 		Screen prior_active_screen;
 		internal Screen active_screen
 		{
-			set { prior_active_screen = _active_screen; _active_screen = value; }
+			set { prior_active_screen = _active_screen; _active_screen = value;
+				if( value == null ) GuiManager.RemoveAllFrames();
+					}
 			get { return _active_screen; }
 		}
 
@@ -56,7 +58,14 @@ namespace Voxelarium.Core
 		{
 			VoxelGameEnvironment game = o as VoxelGameEnvironment;
 			if( !game.Start_Game() )
+			{
 				game.active_screen = game.Screen_Main;
+			}
+			else
+			{
+				game.Game_Run = true;
+                game.active_screen = null;
+			}
 		}
 
 		// return false to Exit()
@@ -88,6 +97,7 @@ namespace Voxelarium.Core
 						return false; // return false to Exit();
 				}
 			}
+
 #if PHYSICS_COMPLETED
 			if( PhysicEngine != null )
 			{
@@ -165,128 +175,51 @@ namespace Voxelarium.Core
 #endif
 			return true; // allow continued play.
 		}
-		public bool Draw( Display display )
+		public bool Draw( Display display, float game_time )
 		{
-			Screen.ScreenChoices Result = Screen.ScreenChoices.SAME_SCREEN;
 			Timer_Draw.Start();
 
 			if( frames == 0 )
 				frame_start = HighPerfTimer.GetActualTime();
 			frames++;
 
-
-			switch( page_up )
-			{
-				case 0:
-					switch( Result )
-					{
-						case Screen.ScreenChoices.QUIT:     // Quit the game
-							display.Exit();
-							break;
-
-						case Screen.ScreenChoices.OPTIONS:  // Option Section
-							page_up = Pages.SETTINGS;
-							break;
-
-						case Screen.ScreenChoices.PLAYGAME: // Play the game
-							page_up = Pages.SELECT_UNIVERSE;
-							break;
-					}
-					break;
-				case Pages.SETTINGS:
-					{
-#if asdfasdf
-						Screen_ChooseOption.ProcessScreen( Ge );
-						switch( Screen_ChooseOption.ResultCode )
-						{
-							case Screen.ScreenChoices.QUIT: { page_up = Pages.MAIN_MENU; break; }
-							case Screen.ScreenChoices.DISPLAY: { page_up = Pages.SETTINGS_DISPLAY; break; }
-							case Screen.ScreenChoices.SOUND: { page_up = Pages.SETTINGS_SOUND; break; }
-							case Screen.ScreenChoices.MOUSE: { page_up = Pages.SETTINGS_MOUSE; break; }
-							case Screen.ScreenChoices.KEYMAP: { page_up = Pages.SETTINGS_KEYMAP; break; }
-						}
-#endif
-					}
-					break;
-				case Pages.SAVE_GAME:
-					//Screen_Saving.ProcessScreen( Ge );
-					break;
-				case Pages.SETTINGS_DISPLAY:
-					{
-#if asdfasdf
-						if( Screen_Options_Display.ProcessScreen( Ge ) == Screen.ScreenChoices.QUIT )
-							page_up = Pages.MAIN_MENU;
-#endif
-						break;
-					}
-
-				case Pages.SETTINGS_SOUND:
-					{
-#if asdfasdf
-						if( Screen_Options_Sound.ProcessScreen( Ge ) == Screen.ScreenChoices.QUIT )
-							page_up = Pages.MAIN_MENU;
-#endif
-						break;
-					}
-
-				case Pages.SETTINGS_MOUSE:
-					{
-#if asdfasdf
-						if( Screen_Options_Mouse.ProcessScreen( Ge ) == Screen.ScreenChoices.QUIT )
-							page_up = Pages.MAIN_MENU;
-#endif
-						break;
-					}
-
-				case Pages.SETTINGS_KEYMAP:
-					{
-#if asdfasdf
-						if( Screen_Options_Keymap.ProcessScreen( Ge ) == Screen.ScreenChoices.QUIT )
-							page_up = Pages.MAIN_MENU;
-#endif
-						break;
-					}
-				case Pages.GAME_WORLD_1:
-					if( prior_page_up != page_up )
-					{
-						prior_page_up = page_up;
-						GuiManager.RemoveAllFrames();
-					}
-					break;
-				case Pages.SELECT_UNIVERSE:
-
-#if asdfasdf
-					UniverseNum = Screen_SlotSelection.ProcessScreen( Ge );
-					if( UniverseNum )
-						page_up = Pages.LOADING_SCREEN;
-#endif
-					break;
-				case Pages.LOADING_SCREEN:
-#if asdfasdf
-
-					Screen_Loading.ProcessScreen( Ge );
-					( *pStartGame ) = true;
-#endif
-					break;
-			}
-
-#if asdfasdf
-			Basic_Renderer.Aspect_Ratio = sack_aspect[psvInit - 1];
-#endif
 			if( Game_Run )
 			{
 				// Rendering
-#if asdfasdf
-				if( Basic_Renderer )
+				if( Basic_Renderer != null )
 				{
-						GameWindow_Advertising.Advertising_Actions( (double)FrameTime );
-						ToolManager.ProcessAndDisplay();
-					Basic_Renderer.Render( true );
-				}
-#endif
-			}
 
+
+					// Process Input events (Mouse, Keyboard)
+					// this is handeld from callbacks
+					//EventManager.ProcessEvents();       // Process incoming events.
+
+					Game_Events.Process_StillEvents(); // Process repeating checked events.
+
+					// Process incoming sectors from the make/load working thread
+					World.ProcessNewLoadedSectors( );
+					// Sector Ejection processing.
+					World.ProcessOldEjectedSectors();
+
+					// if (MoveShipCounter>125 ) {GameEnv.MoveShip(); MoveShipCounter = 0; }
+
+					// Player physics
+					// PhysicEngine.DoPhysic( GameEnv.Time_FrameTime );
+
+					// Voxel Processor Get Player Position.
+					//ZActor* Actor;
+					//Actor = GameEnv.PhysicEngine.GetSelectedActor();
+					//GameEnv.VoxelProcessor.SetPlayerPosition( Actor.Location.x, Actor.Location.y, Actor.Location.z );
+
+					// Advertising messages
+					GameWindow_Advertising.Advertising_Actions( game_time );
+					//ToolManager.ProcessAndDisplay();
+					Basic_Renderer.Render( display, World );
+					//if( Ge && Ge->Gui )
+				}
+			}
 			GuiManager.Render( display );
+
 			//Timer.End();
 			Timer_Draw.End();
 

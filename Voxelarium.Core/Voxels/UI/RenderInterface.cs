@@ -1,8 +1,10 @@
 ﻿using Bullet.LinearMath;
+using OpenTK;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using Voxelarium.Core.Game;
+using Voxelarium.Core.Support;
 using Voxelarium.Core.UI;
 using Voxelarium.Core.Voxels;
 
@@ -227,33 +229,7 @@ namespace Voxelarium.Core.Voxels.UI
 				  }
 				};
 
-		class Render_Interface_displaydata
-		{
-			internal int DisplayList_Regular;
-			internal int DisplayList_Transparent;
 
-			internal Render_Interface_displaydata()
-			{
-				for( int i = 0; i < 6; i++ )
-				{
-					DisplayList_Regular = 0;
-					DisplayList_Transparent = 0;
-				}
-
-			}
-			~Render_Interface_displaydata()
-			{
-				for( int i = 0; i < 6; i++ )
-				{
-					//if( DisplayList_Regular ) glDeleteLists( DisplayList_Regular, 1 );
-					DisplayList_Regular = 0;
-					//if( DisplayList_Transparent ) glDeleteLists( DisplayList_Transparent, 1 );
-					DisplayList_Transparent = 0;
-				}
-			}
-		}
-
-		protected VoxelWorld World;
 		protected VoxelTypeManager VoxelTypeManager;
 		protected TextureManager TextureManager;
 
@@ -264,8 +240,8 @@ namespace Voxelarium.Core.Voxels.UI
 								//protected RayCast_out PointedVoxel;
 		protected Radius_Zoning RadiusZones;
 
-		int hRenderRadius;
-		int vRenderRadius;
+		uint hRenderRadius;
+		uint vRenderRadius;
 
 		protected int Stat_RenderDrawFaces;
 		protected int Stat_FaceTop;
@@ -328,9 +304,18 @@ namespace Voxelarium.Core.Voxels.UI
 			Frustum_CullingLimit = 50.0;
 		}
 
+		internal void SetPixelAspectRatio( float AspectRatio = 1.0f ) { PixelAspectRatio = AspectRatio; }
+		internal void SetSectorCullingOptimisationFactor( float CullingOptimisationFactor = 1.0f )
+		{ Optimisation_FCullingFactor = CullingOptimisationFactor; }
+		void SetCamera( Camera Camera )
+		{
+			this.Camera = Camera;
+		}
 #if asdf
-		void SetWorld( VoxelWorld World );
-		void SetCamera( ZCamera* Camera );
+		void SetWorld( VoxelWorld World )
+		{
+
+		}
 		void SetActor( ZActor* Actor );
 
 		void SetVoxelTypeManager( ZVoxelTypeManager* Manager );
@@ -338,8 +323,6 @@ namespace Voxelarium.Core.Voxels.UI
 		void SetPointedVoxel( ZRayCast_out* Pvoxel ) { this->PointedVoxel = Pvoxel; }
 		void SetViewportResolution( ZVector2f &Resolution) { ViewportResolution = Resolution; }
 		void SetVerticalFOV( double VFov ) { VerticalFOV = VFov; }
-		void SetPixelAspectRatio( double AspectRatio = 1.0 ) { PixelAspectRatio = AspectRatio; }
-		void SetSectorCullingOptimisationFactor( double CullingOptimisationFactor = 1.0 ) { Optimisation_FCullingFactor = CullingOptimisationFactor; }
 
 
 
@@ -371,13 +354,13 @@ namespace Voxelarium.Core.Voxels.UI
 	void DrawReticule( void );
 	void DrawColorOverlay( void );
 #endif
-		internal abstract VoxelCuller GetCuller();
+		internal abstract VoxelCuller GetCuller( );
 
-		void SetRenderSectorRadius( int Horizontal, int Vertical )
+		internal void SetRenderSectorRadius( uint Horizontal, uint Vertical )
 		{
 			hRenderRadius = Horizontal;
 			vRenderRadius = Vertical;
-			RadiusZones.SetSize( hRenderRadius * 2 + 1, vRenderRadius * 2 + 1, hRenderRadius * 2 + 1 );
+			RadiusZones.SetSize( (int)hRenderRadius * 2 + 1, (int)vRenderRadius * 2 + 1, (int)hRenderRadius * 2 + 1 );
 			// RadiusZones.DrawZones( 5.0, 3.5, 3.0, 2.0 );
 			RadiusZones.DrawZones( 5.0, 1 );
 			RadiusZones.DrawZones( 3.5, 2 );
@@ -399,43 +382,131 @@ namespace Voxelarium.Core.Voxels.UI
 			TransformParam.ApplyRotation( ref Point, out Cv );
 
 			// Projection
+			if( Cv.z > 0 )
+			{
+				Cv.x = Cv.x / Cv.z * FocusDistance;  // Number replaced by FocusDistance was 50.0
+				Cv.y = Cv.y / Cv.z * FocusDistance;
 
-			Cv.x = Cv.x / Cv.z * FocusDistance;  // Number replaced by FocusDistance was 50.0
-			Cv.y = Cv.y / Cv.z * FocusDistance;
+				// Visibility test
 
-			// Visibility test
-
-			Visible = (
-						 ( Cv.z > 0.0 )
-					  && ( Cv.x < Frustum_CullingLimit && Cv.x > -Frustum_CullingLimit ) // Number replaced by Frustum_CullingLimit was 50.0
-					  && ( Cv.y < Frustum_CullingLimit && Cv.y > -Frustum_CullingLimit ) //
-					);
-
-			return ( Visible );
+				Visible = ( ( Cv.x < Frustum_CullingLimit && Cv.x > -Frustum_CullingLimit ) // Number replaced by Frustum_CullingLimit was 50.0
+						  && ( Cv.y < Frustum_CullingLimit && Cv.y > -Frustum_CullingLimit ) //
+						);
+				//Log.log( "visible: {0} {1} {2} {3}", Point.x, Point.y, Point.z, Visible );
+				return ( Visible );
+			}
+			return false;
 		}
 
-		internal void Render_EmptySector( int x, int y, int z, float r, float g, float b )
-		{
-#if asdfasdf
-			btVector3 P1, P2, P3, P4, P5, P6, P7, P8;
-			btVector3 c;
-			c.r = r;
-			c.g = g;
-			c.b = b;
-			c.a = 0.5f;
-			P1.x = x * ZVOXELBLOCSIZE_X * GlobalSettings.VoxelBlockSize + 0.0f; P1.y = y * ZVOXELBLOCSIZE_Y * GlobalSettings.VoxelBlockSize + 0.0f; P1.z = z * ZVOXELBLOCSIZE_Z * GlobalSettings.VoxelBlockSize + 0.0f;
-			P2.x = x * ZVOXELBLOCSIZE_X * GlobalSettings.VoxelBlockSize + 0.0f; P2.y = y * ZVOXELBLOCSIZE_Y * GlobalSettings.VoxelBlockSize + 0.0f; P2.z = z * ZVOXELBLOCSIZE_Z * GlobalSettings.VoxelBlockSize + ZVOXELBLOCSIZE_Z * GlobalSettings.VoxelBlockSize;
-			P3.x = x * ZVOXELBLOCSIZE_X * GlobalSettings.VoxelBlockSize + ZVOXELBLOCSIZE_X * GlobalSettings.VoxelBlockSize; P3.y = y * ZVOXELBLOCSIZE_Y * GlobalSettings.VoxelBlockSize + 0.0f; P3.z = z * ZVOXELBLOCSIZE_Z * GlobalSettings.VoxelBlockSize + ZVOXELBLOCSIZE_Z * GlobalSettings.VoxelBlockSize;
-			P4.x = x * ZVOXELBLOCSIZE_X * GlobalSettings.VoxelBlockSize + ZVOXELBLOCSIZE_X * GlobalSettings.VoxelBlockSize; P4.y = y * ZVOXELBLOCSIZE_Y * GlobalSettings.VoxelBlockSize + 0.0f; P4.z = z * ZVOXELBLOCSIZE_Z * GlobalSettings.VoxelBlockSize + 0.0f;
-			P5.x = x * ZVOXELBLOCSIZE_X * GlobalSettings.VoxelBlockSize + 0.0f; P5.y = y * ZVOXELBLOCSIZE_Y * GlobalSettings.VoxelBlockSize + ZVOXELBLOCSIZE_Y * GlobalSettings.VoxelBlockSize; P5.z = z * ZVOXELBLOCSIZE_Z * GlobalSettings.VoxelBlockSize + 0.0f;
-			P6.x = x * ZVOXELBLOCSIZE_X * GlobalSettings.VoxelBlockSize + 0.0f; P6.y = y * ZVOXELBLOCSIZE_Y * GlobalSettings.VoxelBlockSize + ZVOXELBLOCSIZE_Y * GlobalSettings.VoxelBlockSize; P6.z = z * ZVOXELBLOCSIZE_Z * GlobalSettings.VoxelBlockSize + ZVOXELBLOCSIZE_Z * GlobalSettings.VoxelBlockSize;
-			P7.x = x * ZVOXELBLOCSIZE_X * GlobalSettings.VoxelBlockSize + ZVOXELBLOCSIZE_X * GlobalSettings.VoxelBlockSize; P7.y = y * ZVOXELBLOCSIZE_Y * GlobalSettings.VoxelBlockSize + ZVOXELBLOCSIZE_Y * GlobalSettings.VoxelBlockSize; P7.z = z * ZVOXELBLOCSIZE_Z * GlobalSettings.VoxelBlockSize + ZVOXELBLOCSIZE_Z * GlobalSettings.VoxelBlockSize;
-			P8.x = x * ZVOXELBLOCSIZE_X * GlobalSettings.VoxelBlockSize + ZVOXELBLOCSIZE_X * GlobalSettings.VoxelBlockSize; P8.y = y * ZVOXELBLOCSIZE_Y * GlobalSettings.VoxelBlockSize + ZVOXELBLOCSIZE_Y * GlobalSettings.VoxelBlockSize; P8.z = z * ZVOXELBLOCSIZE_Z * GlobalSettings.VoxelBlockSize + 0.0f;
+		internal abstract void Render( Display display, VoxelWorld world );
 
-			simple_shader->DrawBox( &P1, &P2, &P3, &P4
-				, &P5, &P6, &P7, &P8
-				, &c );
-#endif
+		float[] sector_verts = new float[2 * 12 * 3];
+
+		internal void Render_EmptySector( Display display, VoxelWorld world, int x, int y, int z, float r, float g, float b )
+		{
+			Vector4 c;
+			int p = 0;
+			int sx = (int)VoxelSector.ZVOXELBLOCSIZE_X * world.VoxelBlockSize;
+			int sy = (int)VoxelSector.ZVOXELBLOCSIZE_Y * world.VoxelBlockSize;
+			int sz = (int)VoxelSector.ZVOXELBLOCSIZE_Z * world.VoxelBlockSize;
+
+			c.X = r;
+			c.Y = g;
+			c.Z = b;
+			c.W = 0.5f;
+			unsafe
+			{
+				fixed ( float* _v = sector_verts )
+				{
+					float* v = _v;
+					*(v++) = x * sx;
+					*(v++) = y * sy;
+					*(v++) = z * sz;
+					*(v++) = x * sx;
+					*(v++) = y * sy;
+					*(v++) = z * sz + sz;
+
+					*(v++) = x * sx;
+					*(v++) = y * sy;
+					*(v++) = z * sz + sz;
+					*(v++) = x * sx + sx;
+					*(v++) = y * sy;
+					*(v++) = z * sz + sz;
+
+					*(v++) = x * sx + sx;
+					*(v++) = y * sy;
+					*(v++) = z * sz + sz;
+					*(v++) = x * sx + sx;
+					*(v++) = y * sy;
+					*(v++) = z * sz;
+
+
+					*(v++) = x * sx + sx;
+					*(v++) = y * sy;
+					*(v++) = z * sz;
+					*(v++) = x * sx;
+					*(v++) = y * sy;
+					*(v++) = z * sz;
+
+					*(v++) = x * sx;
+					*(v++) = y * sy + sy;
+					*(v++) = z * sz;
+					*(v++) = x * sx;
+					*(v++) = y * sy + sy;
+					*(v++) = z * sz + sz;
+
+					*(v++) = x * sx;
+					*(v++) = y * sy + sy;
+					*(v++) = z * sz + sz;
+					*(v++) = x * sx + sx;
+					*(v++) = y * sy + sy;
+					*(v++) = z * sz + sz;
+
+					*(v++) = x * sx + sx;
+					*(v++) = y * sy + sy;
+					*(v++) = z * sz + sz;
+					*(v++) = x * sx + sx;
+					*(v++) = y * sy + sy;
+					*(v++) = z * sz;
+
+					*(v++) = x * sx + sx;
+					*(v++) = y * sy + sy;
+					*(v++) = z * sz;
+					*(v++) = x * sx;
+					*(v++) = y * sy + sy;
+					*(v++) = z * sz;
+
+					*(v++) = x * sx;
+					*(v++) = y * sy;
+					*(v++) = z * sz;
+					*(v++) = x * sx;
+					*(v++) = y * sy + sy;
+					*(v++) = z * sz;
+
+					*(v++) = x * sx;
+					*(v++) = y * sy;
+					*(v++) = z * sz + sz;
+					*(v++) = x * sx;
+					*(v++) = y * sy + sy;
+					*(v++) = z * sz + sz;
+
+					*(v++) = x * sx + sx;
+					*(v++) = y * sy;
+					*(v++) = z * sz + sz;
+					*(v++) = x * sx + sx;
+					*(v++) = y * sy + sy;
+					*(v++) = z * sz + sz;
+
+					*(v++) = x * sx + sx;
+					*(v++) = y * sy;
+					*(v++) = z * sz;
+					*(v++) = x * sx + sx;
+					*(v++) = y * sy + sy;
+					*(v++) = z * sz;
+					if( display.simple.Activate() )
+						display.simple.DrawBox( sector_verts, ref c );
+				}
+			}
 #if false
 	CheckErr();
 
@@ -475,7 +546,6 @@ namespace Voxelarium.Core.Voxels.UI
 #endif
 
 		}
-
 
 	}
 }

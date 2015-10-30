@@ -98,7 +98,10 @@ namespace Voxelarium.Core.UI
 		internal virtual void AddedToFrameCallback( Frame Frame ) { }
 		internal virtual void AddFrame( Frame Frame )
 		{
-			SubFrameList.AddFirst( Frame );
+			lock ( SubFrameList )
+			{
+				SubFrameList.AddFirst( Frame );
+			}
 			Frame.GuiManager = GuiManager;
 			Frame.ParentFrame = this;
 			Frame.AddedToFrameCallback( this );
@@ -106,16 +109,22 @@ namespace Voxelarium.Core.UI
 
 		internal virtual void RemoveFrame( Frame Frame )
 		{
-			SubFrameList.Remove( Frame );
+			lock ( SubFrameList )
+			{
+				SubFrameList.Remove( Frame );
+			}
 			Frame.RemoveAllFrames();
 		}
 
 		internal virtual void RemoveAllFrames()
 		{
-			foreach( Frame frame in SubFrameList )
-				frame.RemoveAllFrames();
+			lock( SubFrameList )
+			{
+				foreach( Frame frame in SubFrameList )
+					frame.RemoveAllFrames();
 
-			SubFrameList.Clear();
+				SubFrameList.Clear();
+			}
 		}
 
 		internal struct quad
@@ -135,7 +144,7 @@ namespace Voxelarium.Core.UI
 			if( Flag_Show_Master )
 			{
 				EffectivePosition.Position = ParentPosition.Position + Dimensions.Position;
-				EffectivePosition.Position.Z += 0.1f;
+				EffectivePosition.Position.Z -= 0.1f;
 				EffectivePosition.Size = Dimensions.Size;
 
 				if( this.Flag_Draging ) { EffectivePosition.Position.X = DragAbsolutePosition.X; EffectivePosition.Position.Y = DragAbsolutePosition.Y; }
@@ -166,10 +175,13 @@ namespace Voxelarium.Core.UI
 					render.simple_texture.DrawQuadTris( coords, tex_coords );
 				}
 				// Render child frames
-                if( Flag_Show_Childs )
+				if( Flag_Show_Childs )
 				{
-					foreach( Frame frame in SubFrameList )
-						frame.Render( render, ref EffectivePosition );
+					lock ( SubFrameList )
+					{
+						foreach( Frame frame in SubFrameList )
+							frame.Render( render, ref EffectivePosition );
+					}
 				}
 
 			}

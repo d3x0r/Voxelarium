@@ -1,3 +1,4 @@
+//#define COLUMN_MAJOR_EXPECTED
 //#define DISABLE_OPERATORS
 /*
 Copyright (c) 2003-2006 Gino van den Bergen / Erwin Coumans  http://continuousphysics.com/Bullet/
@@ -271,27 +272,6 @@ namespace Bullet.LinearMath
 			m_basis.getRotation( out result );
 		}
 
-#if asdfasdf
-		/*@brief Set from an array 
-		  @param m A pointer to a 15 element array (12 rotation(row major padded on the right by 1), and 3 translation */
-		void setFromOpenGLMatrix( double m )
-		{
-			m_basis.setFromOpenGLSubMatrix( m );
-			m_origin.setValue( m[12], m[13], m[14] );
-		}
-
-		/*@brief Fill an array representation
-		  @param m A pointer to a 15 element array (12 rotation(row major padded on the right by 1), and 3 translation */
-		void getOpenGLMatrix( double m )
-		{
-			m_basis.getOpenGLSubMatrix( m );
-			m[12] = m_origin.x;
-			m[13] = m_origin.y;
-			m[14] = m_origin.z;
-			m[15] = 1.0;
-		}
-#endif
-
 		/*@brief Set the translational element
 		  @param origin The vector to set the translation to */
 		public void setOrigin( ref btVector3 origin )
@@ -371,14 +351,76 @@ namespace Bullet.LinearMath
 
 		public void GetGLMatrix( out btMatrix3x3 m )
 		{
+#if !COLUMN_MAJOR_EXPECTED
+			m = m_basis;
+			m.m_el3 = m_origin;
+			m.m_el3.w = 1;
+#else
+			m.m_el0.x = m_basis.m_el0.x;
+			m.m_el0.y = m_basis.m_el1.x;
+			m.m_el0.z = m_basis.m_el2.x;
+			m.m_el0.w = m_basis.m_el0.w;
+
+			m.m_el1.x = m_basis.m_el0.y;
+			m.m_el1.y = m_basis.m_el1.y;
+			m.m_el1.z = m_basis.m_el2.y;
+			m.m_el1.w = m_basis.m_el1.w;
+
+			m.m_el2.x = m_basis.m_el0.z;
+			m.m_el2.y = m_basis.m_el1.z;
+			m.m_el2.z = m_basis.m_el2.z;
+			m.m_el2.w = m_basis.m_el2.w;
+			m.m_el3 = m_origin;
+			m.m_el3.w = m_basis[3][3];
+#endif
+		}
+
+		public void GetGLCameraMatrix( out btMatrix3x3 m )
+		{
+#if !COLUMN_MAJOR_EXPECTED
+			m.m_el0.x = m_basis.m_el0.x;
+			m.m_el0.y = m_basis.m_el1.x;
+			m.m_el0.z = -m_basis.m_el2.x;
+			m.m_el0.w = 0;
+
+			m.m_el1.x = m_basis.m_el0.y;
+			m.m_el1.y = m_basis.m_el1.y;
+			m.m_el1.z = -m_basis.m_el2.y;
+			m.m_el1.w = 0;// m_basis.m_el1.w;
+
+			m.m_el2.x = m_basis.m_el0.z;
+			m.m_el2.y = m_basis.m_el1.z;
+			m.m_el2.z = -m_basis.m_el2.z;
+			m.m_el2.w = 0;// m_basis.m_el2.w;
+			//m.m_el3 = 
+			btVector3 negOrigin;
+			m_origin.Invert( out negOrigin );
+			m_basis.m_el2.Invert( out m_basis.m_el2 );
+			m_basis.ApplyInverseRotation( ref negOrigin, out m.m_el3 );
+			m_basis.m_el2.Invert( out m_basis.m_el2 );
+			m.m_el3.w = 1;
+#else
 			m = m_basis;
 			btVector3 tmp;
-			m_basis.ApplyInverseRotation( ref m_origin, out tmp );
+			btVector3 negOrigin;
+			m_origin.Invert( out negOrigin );
+			m.m_el0.z = -m.m_el0.z;
+			m.m_el1.z = -m.m_el1.z;
+			m.m_el2.z = -m.m_el2.z;
+			m_basis.m_el0.z = -m_basis.m_el0.z;
+			m_basis.m_el1.z = -m_basis.m_el1.z;
+			m_basis.m_el2.z = -m_basis.m_el2.z;
+			m_basis.ApplyInverseRotation( ref negOrigin, out tmp );
+			m_basis.m_el0.z = -m_basis.m_el0.z;
+			m_basis.m_el1.z = -m_basis.m_el1.z;
+			m_basis.m_el2.z = -m_basis.m_el2.z;
 			m.m_el3.x = tmp.x;
 			m.m_el3.y = tmp.y;
 			m.m_el3.z = tmp.z;
 			m.m_el3.w = m_basis[3][3];
+#endif
 		}
+
 
 		public void Translate( ref btVector3 v )
 		{

@@ -99,6 +99,7 @@ namespace Voxelarium.Core.Support
 				System.Diagnostics.Debug.WriteLine(
 					//Console.WriteLine( //"{0}{1}"
 					 file + "(" + sf.GetFileLineNumber() + "):"
+					 + System.Threading.Thread.CurrentThread.ManagedThreadId + "|"
 					+ s );
 			}
 			 

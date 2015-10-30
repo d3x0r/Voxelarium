@@ -100,8 +100,8 @@ namespace Voxelarium.Core.Voxels
 		}
 
 
-		bool SlotIsActivated( uint SlotNum ) { return ( SlotTable[SlotNum].Triggered ); }
-		bool SlotIsEventAttached( uint SlotNum ) { return ( SlotTable[SlotNum].EventOn ); }
+		internal bool SlotIsActivated( uint SlotNum ) { return ( SlotTable[SlotNum].Triggered ); }
+		internal bool SlotIsEventAttached( uint SlotNum ) { return ( SlotTable[SlotNum].EventOn ); }
 
 
 	}

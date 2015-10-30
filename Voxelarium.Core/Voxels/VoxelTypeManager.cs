@@ -7,18 +7,19 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
 using Voxelarium.Core.Support;
+using Voxelarium.Core.UI;
 using Voxelarium.Core.Voxels.Types;
 
 namespace Voxelarium.Core.Voxels
 {
-	internal class VoxelTypeManager
+	public class VoxelTypeManager
 	{
 		internal VoxelType[] VoxelTable;
 		VoxelGameEnvironment GameEnv;
 
 		int LoadedTexturesCount;
 
-		public FastBit_Array_64k ActiveTable;
+		internal FastBit_Array_64k ActiveTable;
 
 
 		internal int GetTexturesCount() { return ( LoadedTexturesCount ); }
@@ -80,7 +81,15 @@ namespace Voxelarium.Core.Voxels
 			return ( VoxelTable[TypeNum] );
 		}
 
-		internal bool LoadVoxelTypes()
+		internal void LoadTexturesToAtlas( TextureAtlas atlas )
+		{
+			foreach( VoxelType vt in VoxelTable )
+			{
+				vt.LoadTextureToAtlas( atlas );
+			}
+        }
+
+		internal bool LoadVoxelTypes( )
 		{
 			Log.log( "Here we start to do magic to get voxel types..." );
 			int i;
@@ -96,14 +105,25 @@ namespace Voxelarium.Core.Voxels
 				VoxelProperties props = VoxelProperties.Load( i );
 				if( Compiler.LoadVoxelCode( props.Type ) )
 					VoxelType = Compiler.LoadExtendedVoxelType( props.Type );
-
+				else
+					VoxelType = null;
 				if( VoxelType == null )
 					VoxelType = new VoxelType();
 				VoxelType.SetProperties( props );
 
 				VoxelType.SetGameEnv( GameEnv );
 				VoxelType.SetManager( this );
-				if( VoxelType.LoadTexture() )
+				bool success = false;
+				if( ( ( VoxelType.properties.DrawInfo & (byte)VoxelGlobalSettings.ZVOXEL_DRAWINFO_SHADER ) != 0 ) )
+				{
+					if( ( ( VoxelType.properties.DrawInfo & (byte)VoxelGlobalSettings.ZVOXEL_DRAWINFO_DECAL ) != 0 ) )
+						success = VoxelType.LoadTexture();
+					else
+						success = true;
+				}
+				else
+					success = VoxelType.LoadTexture();
+                if( success )
 				{
 					AddVoxelType( i, VoxelType );
 					//VoxelType.LoadVoxelInformations();

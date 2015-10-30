@@ -8,7 +8,7 @@ namespace Voxelarium.Core
 	{
 		public class SaltData
 		{
-			internal List<byte[]> salt_data;
+			public List<byte[]> salt_data;
 			internal SaltData()
 			{
 				salt_data = new List<byte[]>();
@@ -20,7 +20,7 @@ namespace Voxelarium.Core
 				return salt_data;
 			}
 
-			internal void Clear()
+			public void Clear()
 			{
 				salt_data.Clear();
 			}
@@ -186,6 +186,7 @@ namespace Voxelarium.Core
 			bits_avail = 0;
 			entropy = null;
 		}
+
 
 #if include_bit_shift_debug
 		class BitCollector

@@ -36,8 +36,8 @@ namespace Voxelarium.Core.Voxels
 		//	bool _ThrowExtension( ZStream_SpecialRamStream* Stream, ZMemSize ExtensionSize );
 
 		public virtual uint GetExtensionID() { return ( VoxelGlobalSettings.MulticharConst( 'N', 'S', 'P', 'C' ) ); }
-		public virtual bool Save( Stream Stream ) { return true; }
-		public virtual bool Load( Stream Stream ) { return true; }
+		public virtual bool Save( BinaryWriter Stream ) { return true; }
+		public virtual bool Load( BinaryReader Stream ) { return true; }
 		//public virtual void SetGameEnv( VoxelGameEnvironment GameEnv ) { }
 		public virtual VoxelExtension GetNewCopy() { return ( null ); }
 		public void Dispose() { }
@@ -78,16 +78,5 @@ namespace Voxelarium.Core.Voxels
 		//, // count unused
 	};
 
-#if asdfasdf
-		public inline void* operator new ( size_t Size )
-		{
-			return ( ZMemPool_Optimized::GetMainPublicPool()->AllocMem( Size ) );
-		}
-
-		inline void operator delete ( void* Memory )
-		{
-			ZMemPool_Optimized::GetMainPublicPool()->FreeMem( Memory );
-		}
-#endif
 }
 }

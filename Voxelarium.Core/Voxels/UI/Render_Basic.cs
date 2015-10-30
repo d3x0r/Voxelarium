@@ -3,8 +3,11 @@ using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Text;
 using Voxelarium.Core.Support;
+using Voxelarium.Core.UI;
+using Voxelarium.Core.Voxels.Types;
 
 namespace Voxelarium.Core.Voxels.UI
 {
@@ -13,8 +16,9 @@ namespace Voxelarium.Core.Voxels.UI
 
 		internal class BasicVoxelCuller : VoxelCuller
 		{
-			byte[] FaceCulling;
+			internal byte[] FaceCulling;
 			VoxelWorld world;
+
 			internal override int getFaceCulling( VoxelSector Sector, int offset )
 			{
 				return FaceCulling[offset];
@@ -27,14 +31,18 @@ namespace Voxelarium.Core.Voxels.UI
 			internal override void InitFaceCullData( VoxelSector Sector )
 			{
 				Sector.Culler = this;
+				this.world = Sector.world;
 				FaceCulling = new byte[Sector.DataSize];
+				int n;
+				for( n = 0; n < Sector.DataSize; n++ )
+					FaceCulling[n] = 0xFF;
 			}
 			internal override byte[] GetData()
 			{
 				return FaceCulling;
 			}
 
-			void CullSector( VoxelSector Sector, bool internal_faces, VoxelSector.FACEDRAW_Operations interesting_faces )
+			internal override void CullSector( VoxelSector Sector, bool internal_faces, VoxelSector.FACEDRAW_Operations interesting_faces )
 			{
 				if( world == null )
 					return;// false;
@@ -288,12 +296,12 @@ namespace Voxelarium.Core.Voxels.UI
 
 
 
-		VoxelWorld world;
-		BasicVoxelCuller Culler = new BasicVoxelCuller();
+		//VoxelWorld world;
+		//BasicVoxelCuller Culler = new BasicVoxelCuller();
 
 		internal override VoxelCuller GetCuller()
 		{
-			return Culler;
+			return new BasicVoxelCuller();
 		}
 
 
@@ -418,15 +426,15 @@ namespace Voxelarium.Core.Voxels.UI
 						if( BlocMatrix[1][4] > 0 )
 						{
 
-							MainVoxelDrawInfo = VoxelTypeTable[BlocMatrix[1][4]].DrawInfo;
-							VoxelSector.FACEDRAW_Operations[] SubTable = IntFaceStateTable[MainVoxelDrawInfo];
+							MainVoxelDrawInfo = VoxelTypeTable[BlocMatrix[1][4]].properties.DrawInfo;
+							VoxelSector.FACEDRAW_Operations[] SubTable = IntFaceStateTable[MainVoxelDrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLING_MODE];
 
-							info |= ( ( SubTable[VoxelTypeTable[BlocMatrix[1][1]].DrawInfo] ) & VoxelSector.FACEDRAW_Operations.AHEAD );
-							info |= ( ( SubTable[VoxelTypeTable[BlocMatrix[1][7]].DrawInfo] ) & VoxelSector.FACEDRAW_Operations.BEHIND );
-							info |= ( ( SubTable[VoxelTypeTable[BlocMatrix[1][3]].DrawInfo] ) & VoxelSector.FACEDRAW_Operations.LEFT );
-							info |= ( ( SubTable[VoxelTypeTable[BlocMatrix[1][5]].DrawInfo] ) & VoxelSector.FACEDRAW_Operations.RIGHT );
-							info |= ( ( SubTable[VoxelTypeTable[BlocMatrix[0][4]].DrawInfo] ) & VoxelSector.FACEDRAW_Operations.BELOW );
-							info |= ( ( SubTable[VoxelTypeTable[BlocMatrix[2][4]].DrawInfo] ) & VoxelSector.FACEDRAW_Operations.ABOVE );
+							info |= ( ( SubTable[VoxelTypeTable[BlocMatrix[1][1]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLING_MODE] ) & VoxelSector.FACEDRAW_Operations.AHEAD );
+							info |= ( ( SubTable[VoxelTypeTable[BlocMatrix[1][7]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLING_MODE] ) & VoxelSector.FACEDRAW_Operations.BEHIND );
+							info |= ( ( SubTable[VoxelTypeTable[BlocMatrix[1][3]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLING_MODE] ) & VoxelSector.FACEDRAW_Operations.LEFT );
+							info |= ( ( SubTable[VoxelTypeTable[BlocMatrix[1][5]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLING_MODE] ) & VoxelSector.FACEDRAW_Operations.RIGHT );
+							info |= ( ( SubTable[VoxelTypeTable[BlocMatrix[0][4]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLING_MODE] ) & VoxelSector.FACEDRAW_Operations.BELOW );
+							info |= ( ( SubTable[VoxelTypeTable[BlocMatrix[2][4]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLING_MODE] ) & VoxelSector.FACEDRAW_Operations.ABOVE );
 						}
 
 						// Write face culling info to face culling table
@@ -447,7 +455,6 @@ namespace Voxelarium.Core.Voxels.UI
 			VoxelType[] VoxelTypeTable;
 			VoxelSector MissingSector;
 			VoxelSector Sector_In, Sector_Out;
-
 			int i;
 			VoxelSector.FACEDRAW_Operations CuledFaces;
 			int Off_Ip, Off_In, Off_Op, Off_Out, Off_Aux;
@@ -500,7 +507,7 @@ namespace Voxelarium.Core.Voxels.UI
 						{
 							Off_In = Off_Ip + Off_Aux;
 							Off_Out = Off_Op + Off_Aux;
-							FaceState = IntFaceStateTable[VoxelTypeTable[VoxelData_In.Data[Off_In]].DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS][VoxelTypeTable[VoxelData_Out.Data[Off_Out]].DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS];
+							FaceState = IntFaceStateTable[VoxelTypeTable[VoxelData_In.Data[Off_In]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS][VoxelTypeTable[VoxelData_Out.Data[Off_Out]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS];
 							if( FaceState != 0 )
 							{
 								VoxelFC_In[Off_In] |= (byte)VoxelSector.FACEDRAW_Operations.ABOVE;
@@ -528,7 +535,7 @@ namespace Voxelarium.Core.Voxels.UI
 
 							Off_In = Off_Ip + Off_Aux;
 							Off_Out = Off_Op + Off_Aux;
-							FaceState = IntFaceStateTable[VoxelTypeTable[VoxelData_In.Data[Off_In]].DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS][VoxelTypeTable[0].DrawInfo & (int)VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS];
+							FaceState = IntFaceStateTable[VoxelTypeTable[VoxelData_In.Data[Off_In]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS][VoxelTypeTable[0].properties.DrawInfo & (int)VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS];
 							if( FaceState != 0 )
 								VoxelFC_In[Off_In] |= (byte)VoxelSector.FACEDRAW_Operations.ABOVE;
 							else
@@ -559,7 +566,7 @@ namespace Voxelarium.Core.Voxels.UI
 							//ZVoxelType * VtOut = VoxelTypeTable[ Voxel_Out ];
 
 
-							FaceState = IntFaceStateTable[VoxelTypeTable[Voxel_In].DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS][VoxelTypeTable[Voxel_Out].DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS];
+							FaceState = IntFaceStateTable[VoxelTypeTable[Voxel_In].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS][VoxelTypeTable[Voxel_Out].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS];
 
 							//FaceState = IntFaceStateTable[ VoxelTypeTable[ VoxelData_In.Data[Off_In] ].DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS ][ VoxelTypeTable[ VoxelData_Out.Data[Off_Out] ].DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS ];
 							if( FaceState != 0 ) VoxelFC_In[Off_In] |= (byte)VoxelSector.FACEDRAW_Operations.BELOW; else VoxelFC_In[Off_In] &= (byte)( (int)~VoxelSector.FACEDRAW_Operations.BELOW & 0xFF );
@@ -590,7 +597,7 @@ namespace Voxelarium.Core.Voxels.UI
 							Off_In = Off_Ip + Off_Aux;
 							Off_Out = Off_Op + Off_Aux;
 							//VoxelData_In[Off_In]=1; VoxelData_Out[Off_Out]=14;
-							FaceState = IntFaceStateTable[VoxelTypeTable[VoxelData_In.Data[Off_In]].DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS][VoxelTypeTable[VoxelData_Out.Data[Off_Out]].DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS];
+							FaceState = IntFaceStateTable[VoxelTypeTable[VoxelData_In.Data[Off_In]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS][VoxelTypeTable[VoxelData_Out.Data[Off_Out]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS];
 							if( FaceState != 0 ) VoxelFC_In[Off_In] |= (byte)VoxelSector.FACEDRAW_Operations.LEFT; else VoxelFC_In[Off_In] &= (byte)( (int)~VoxelSector.FACEDRAW_Operations.LEFT & 0xFF );
 
 
@@ -616,7 +623,7 @@ namespace Voxelarium.Core.Voxels.UI
 						{
 							Off_In = Off_Ip + Off_Aux;
 							Off_Out = Off_Op + Off_Aux;
-							FaceState = IntFaceStateTable[VoxelTypeTable[VoxelData_In.Data[Off_In]].DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS][VoxelTypeTable[VoxelData_Out.Data[Off_Out]].DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS];
+							FaceState = IntFaceStateTable[VoxelTypeTable[VoxelData_In.Data[Off_In]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS][VoxelTypeTable[VoxelData_Out.Data[Off_Out]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS];
 							if( FaceState != 0 ) VoxelFC_In[Off_In] |= (byte)VoxelSector.FACEDRAW_Operations.RIGHT; else VoxelFC_In[Off_In] &= (byte)( (int)~VoxelSector.FACEDRAW_Operations.RIGHT & 0xFF );
 						}
 					}
@@ -639,7 +646,7 @@ namespace Voxelarium.Core.Voxels.UI
 						{
 							Off_In = Off_Ip + Off_Aux;
 							Off_Out = Off_Op + Off_Aux;
-							FaceState = IntFaceStateTable[VoxelTypeTable[VoxelData_In.Data[Off_In]].DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS][VoxelTypeTable[VoxelData_Out.Data[Off_Out]].DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS];
+							FaceState = IntFaceStateTable[VoxelTypeTable[VoxelData_In.Data[Off_In]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS][VoxelTypeTable[VoxelData_Out.Data[Off_Out]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS];
 							if( FaceState != 0 ) VoxelFC_In[Off_In] |= (byte)VoxelSector.FACEDRAW_Operations.AHEAD; else VoxelFC_In[Off_In] &= (byte)( (int)~VoxelSector.FACEDRAW_Operations.AHEAD & 0xFF );
 						}
 					}
@@ -663,7 +670,7 @@ namespace Voxelarium.Core.Voxels.UI
 						{
 							Off_In = Off_Ip + Off_Aux;
 							Off_Out = Off_Op + Off_Aux;
-							FaceState = IntFaceStateTable[VoxelTypeTable[VoxelData_In.Data[Off_In]].DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS][VoxelTypeTable[VoxelData_Out.Data[Off_Out]].DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS];
+							FaceState = IntFaceStateTable[VoxelTypeTable[VoxelData_In.Data[Off_In]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS][VoxelTypeTable[VoxelData_Out.Data[Off_Out]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS];
 							if( FaceState != 0 ) VoxelFC_In[Off_In] |= (byte)VoxelSector.FACEDRAW_Operations.BEHIND; else VoxelFC_In[Off_In] &= (byte)((int)~VoxelSector.FACEDRAW_Operations.BEHIND & 0xFF);
 						}
 					}
@@ -801,7 +808,7 @@ namespace Voxelarium.Core.Voxels.UI
 
 
 
-		void Render( bool use_external_matrix )
+		internal override void Render( Display display, VoxelWorld world )
 		{
 			HighPerfTimer Timer = new HighPerfTimer();
 			HighPerfTimer Timer_SectorRefresh = new HighPerfTimer();
@@ -891,9 +898,10 @@ namespace Voxelarium.Core.Voxels.UI
 
 			RenderedSectors = 0;
 			Sector_Refresh_Count = 0;
-
+			int voxelSizeBits = world.VoxelBlockSizeBits;
+			int voxelSize = world.VoxelBlockSize;
 			SectorSphere.SphereEntry SectorSphereEntry;
-			int SectorsToProcess = SectorSphere.GetEntryCount();
+			uint SectorsToProcess = SectorSphere.GetEntryCount();
 
 			btVector3 Cv;
 			btVector3 Cv2;
@@ -916,29 +924,29 @@ namespace Voxelarium.Core.Voxels.UI
 
 				bool SectorVisible;
 
-				Cv.x = (float)( (x ) << ( VoxelGlobalSettings.WorldVoxelBlockSizeBits + VoxelSector.ZVOXELBLOCSHIFT_X ) );
-				Cv.y = (float)( (y ) << ( VoxelGlobalSettings.WorldVoxelBlockSizeBits + VoxelSector.ZVOXELBLOCSHIFT_Y ) );
-				Cv.z = (float)( (z ) << ( VoxelGlobalSettings.WorldVoxelBlockSizeBits + VoxelSector.ZVOXELBLOCSHIFT_Z ) );
+				Cv.x = (float)( (x ) << ( voxelSizeBits + VoxelSector.ZVOXELBLOCSHIFT_X ) );
+				Cv.y = (float)( (y ) << ( voxelSizeBits + VoxelSector.ZVOXELBLOCSHIFT_Y ) );
+				Cv.z = (float)( (z ) << ( voxelSizeBits + VoxelSector.ZVOXELBLOCSHIFT_Z ) );
 
 				SectorVisible = false;
-				Cv2.x = ( 0 * VoxelSector.ZVOXELBLOCSIZE_X * VoxelGlobalSettings.WorldVoxelBlockSize ); Cv2.y = ( 0 * VoxelSector.ZVOXELBLOCSIZE_Y * VoxelGlobalSettings.WorldVoxelBlockSize ); Cv2.z = ( 0 * VoxelSector.ZVOXELBLOCSIZE_Z * VoxelGlobalSettings.WorldVoxelBlockSize );
+				Cv2.x = ( 0 * VoxelSector.ZVOXELBLOCSIZE_X * voxelSize ); Cv2.y = ( 0 * VoxelSector.ZVOXELBLOCSIZE_Y * voxelSize ); Cv2.z = ( 0 * VoxelSector.ZVOXELBLOCSIZE_Z * voxelSize );
 				Cv2.Add( ref Cv, out Cv2 ); SectorVisible |= Is_PointVisible( ref Camera.location.m_basis, ref Cv2 );
-				Cv2.x = ( 1 * VoxelSector.ZVOXELBLOCSIZE_X * VoxelGlobalSettings.WorldVoxelBlockSize ); Cv2.y = ( 0 * VoxelSector.ZVOXELBLOCSIZE_Y * VoxelGlobalSettings.WorldVoxelBlockSize ); Cv2.z = ( 0 * VoxelSector.ZVOXELBLOCSIZE_Z * VoxelGlobalSettings.WorldVoxelBlockSize ); 
+				Cv2.x = ( 1 * VoxelSector.ZVOXELBLOCSIZE_X * voxelSize ); Cv2.y = ( 0 * VoxelSector.ZVOXELBLOCSIZE_Y * voxelSize ); Cv2.z = ( 0 * VoxelSector.ZVOXELBLOCSIZE_Z * voxelSize ); 
 				Cv2.Add( ref Cv, out Cv2 ); SectorVisible |= Is_PointVisible( ref Camera.location.m_basis, ref Cv2 );
-				Cv2.x = ( 1 * VoxelSector.ZVOXELBLOCSIZE_X * VoxelGlobalSettings.WorldVoxelBlockSize ); Cv2.y = ( 0 * VoxelSector.ZVOXELBLOCSIZE_Y * VoxelGlobalSettings.WorldVoxelBlockSize ); Cv2.z = ( 1 * VoxelSector.ZVOXELBLOCSIZE_Z * VoxelGlobalSettings.WorldVoxelBlockSize ); 
+				Cv2.x = ( 1 * VoxelSector.ZVOXELBLOCSIZE_X * voxelSize ); Cv2.y = ( 0 * VoxelSector.ZVOXELBLOCSIZE_Y * voxelSize ); Cv2.z = ( 1 * VoxelSector.ZVOXELBLOCSIZE_Z * voxelSize ); 
 				Cv2.Add( ref Cv, out Cv2 ); SectorVisible |= Is_PointVisible( ref Camera.location.m_basis, ref Cv2 );
-				Cv2.x = ( 0 * VoxelSector.ZVOXELBLOCSIZE_X * VoxelGlobalSettings.WorldVoxelBlockSize ); Cv2.y = ( 0 * VoxelSector.ZVOXELBLOCSIZE_Y * VoxelGlobalSettings.WorldVoxelBlockSize ); Cv2.z = ( 1 * VoxelSector.ZVOXELBLOCSIZE_Z * VoxelGlobalSettings.WorldVoxelBlockSize ); 
+				Cv2.x = ( 0 * VoxelSector.ZVOXELBLOCSIZE_X * voxelSize ); Cv2.y = ( 0 * VoxelSector.ZVOXELBLOCSIZE_Y * voxelSize ); Cv2.z = ( 1 * VoxelSector.ZVOXELBLOCSIZE_Z * voxelSize ); 
 				Cv2.Add( ref Cv, out Cv2 ); SectorVisible |= Is_PointVisible( ref Camera.location.m_basis, ref Cv2 );
-				Cv2.x = ( 0 * VoxelSector.ZVOXELBLOCSIZE_X * VoxelGlobalSettings.WorldVoxelBlockSize ); Cv2.y = ( 1 * VoxelSector.ZVOXELBLOCSIZE_Y * VoxelGlobalSettings.WorldVoxelBlockSize ); Cv2.z = ( 0 * VoxelSector.ZVOXELBLOCSIZE_Z * VoxelGlobalSettings.WorldVoxelBlockSize ); 
+				Cv2.x = ( 0 * VoxelSector.ZVOXELBLOCSIZE_X * voxelSize ); Cv2.y = ( 1 * VoxelSector.ZVOXELBLOCSIZE_Y * voxelSize ); Cv2.z = ( 0 * VoxelSector.ZVOXELBLOCSIZE_Z * voxelSize ); 
 				Cv2.Add( ref Cv, out Cv2 ); SectorVisible |= Is_PointVisible( ref Camera.location.m_basis, ref Cv2 );
-				Cv2.x = ( 1 * VoxelSector.ZVOXELBLOCSIZE_X * VoxelGlobalSettings.WorldVoxelBlockSize ); Cv2.y = ( 1 * VoxelSector.ZVOXELBLOCSIZE_Y * VoxelGlobalSettings.WorldVoxelBlockSize ); Cv2.z = ( 0 * VoxelSector.ZVOXELBLOCSIZE_Z * VoxelGlobalSettings.WorldVoxelBlockSize ); 
+				Cv2.x = ( 1 * VoxelSector.ZVOXELBLOCSIZE_X * voxelSize ); Cv2.y = ( 1 * VoxelSector.ZVOXELBLOCSIZE_Y * voxelSize ); Cv2.z = ( 0 * VoxelSector.ZVOXELBLOCSIZE_Z * voxelSize ); 
 				Cv2.Add( ref Cv, out Cv2 ); SectorVisible |= Is_PointVisible( ref Camera.location.m_basis, ref Cv2 );
-				Cv2.x = ( 1 * VoxelSector.ZVOXELBLOCSIZE_X * VoxelGlobalSettings.WorldVoxelBlockSize ); Cv2.y = ( 1 * VoxelSector.ZVOXELBLOCSIZE_Y * VoxelGlobalSettings.WorldVoxelBlockSize ); Cv2.z = ( 1 * VoxelSector.ZVOXELBLOCSIZE_Z * VoxelGlobalSettings.WorldVoxelBlockSize ); 
+				Cv2.x = ( 1 * VoxelSector.ZVOXELBLOCSIZE_X * voxelSize ); Cv2.y = ( 1 * VoxelSector.ZVOXELBLOCSIZE_Y * voxelSize ); Cv2.z = ( 1 * VoxelSector.ZVOXELBLOCSIZE_Z * voxelSize ); 
 				Cv2.Add( ref Cv, out Cv2 ); SectorVisible |= Is_PointVisible( ref Camera.location.m_basis, ref Cv2 );
-				Cv2.x = ( 0 * VoxelSector.ZVOXELBLOCSIZE_X * VoxelGlobalSettings.WorldVoxelBlockSize ); Cv2.y = ( 1 * VoxelSector.ZVOXELBLOCSIZE_Y * VoxelGlobalSettings.WorldVoxelBlockSize ); Cv2.z = ( 1 * VoxelSector.ZVOXELBLOCSIZE_Z * VoxelGlobalSettings.WorldVoxelBlockSize ); 
+				Cv2.x = ( 0 * VoxelSector.ZVOXELBLOCSIZE_X * voxelSize ); Cv2.y = ( 1 * VoxelSector.ZVOXELBLOCSIZE_Y * voxelSize ); Cv2.z = ( 1 * VoxelSector.ZVOXELBLOCSIZE_Z * voxelSize ); 
 				Cv2.Add( ref Cv, out Cv2 ); SectorVisible |= Is_PointVisible( ref Camera.location.m_basis, ref Cv2 );
 
-				Sector = World.FindSector( x, y, z );
+				Sector = world.FindSector( x, y, z );
 				Priority = RadiusZones.GetZone( x - Sector_x, y - Sector_y, z - Sector_z );
 				PriorityBoost = ( SectorVisible && Priority <= 2 ) ? 1 : 0;
 				// Go = true;
@@ -1013,8 +1021,9 @@ namespace Voxelarium.Core.Voxels.UI
 				else
 				{
 					if( GameEnv.Enable_LoadNewSector )
-						World.RequestSector( x, y, z, Priority + PriorityBoost );
-					Render_EmptySector( x, y, z, 1.0f, 0.3f, 0.1f );
+						world.RequestSector( x, y, z, Priority + PriorityBoost );
+					//Render_EmptySector( display, world, x, y, z, 1.0f, 0.3f, 0.1f );
+					//return;
 
 				}
 
@@ -1035,7 +1044,7 @@ namespace Voxelarium.Core.Voxels.UI
 				y = SectorSphereEntry.y + Sector_y;
 				z = SectorSphereEntry.z + Sector_z;
 
-				Sector = World.FindSector( x, y, z );
+				Sector = world.FindSector( x, y, z );
 				// printf("Sector : %ld %ld %ld %lu\n", x, y, z, (uint)(Sector != 0));9
 				if( Sector != null )
 				{
@@ -1151,27 +1160,33 @@ namespace Voxelarium.Core.Voxels.UI
 
 		void MakeSectorRenderingData( VoxelSector Sector )
 		{
+			Color face = Color.Black, edge = Color.Red;
+			short power = 400;
 			int x, y, z;
 			VoxelSector.FACEDRAW_Operations info;
 			ushort cube, prevcube;
-#if asdfasdfasdf
+			/* build sector geometry */
 
 			uint Offset;
 			float cubx, cuby, cubz;
 			int Sector_Display_x, Sector_Display_y, Sector_Display_z;
 			uint Pass;
 			bool Draw;
+			VoxelTypeManager VoxelTypeManager = Sector.VoxelTypeManager;
 			VoxelType[] VoxelTypeTable = VoxelTypeManager.VoxelTable;
 			Vector3 P0, P1, P2, P3, P4, P5, P6, P7;
 
-
+			//Log.log( "Building sector {0} {1} {2}", Sector.Pos_x, Sector.Pos_y, Sector.Pos_z );
 			// Display list creation or reuse.
 
 			if( Sector.Flag_Render_Dirty )
 			{
-				Sector_Display_x = (int)(Sector.Pos_x * Sector.Size_x * VoxelGlobalSettings.WorldVoxelBlockSize);
-				Sector_Display_y = (int)( Sector.Pos_y * Sector.Size_y * VoxelGlobalSettings.WorldVoxelBlockSize);
-				Sector_Display_z = (int)( Sector.Pos_z * Sector.Size_z * VoxelGlobalSettings.WorldVoxelBlockSize);
+				VoxelGeometry geometry = Sector.geometry;
+				float voxelSize = Sector.world.VoxelBlockSize;
+				byte[] FaceCulling = ( Sector.Culler as BasicVoxelCuller ).FaceCulling;
+				Sector_Display_x = (int)(Sector.Pos_x * Sector.Size_x * voxelSize );
+				Sector_Display_y = (int)( Sector.Pos_y * Sector.Size_y * voxelSize );
+				Sector_Display_z = (int)( Sector.Pos_z * Sector.Size_z * voxelSize );
 
 				Sector.Flag_Void_Regular = true;
 				Sector.Flag_Void_Transparent = true;
@@ -1180,8 +1195,8 @@ namespace Voxelarium.Core.Voxels.UI
 				{
 					switch( Pass )
 					{
-						case 0: glNewList( DisplayData.DisplayList_Regular[current_gl_camera], GL_COMPILE ); break;
-						case 1: glNewList( DisplayData.DisplayList_Transparent[current_gl_camera], GL_COMPILE ); break;
+						case 0: geometry.SetSolid(); break;// glNewList( DisplayData.DisplayList_Regular[current_gl_camera], GL_COMPILE ); break;
+						case 1: geometry.SetTransparent(); break;//glNewList( DisplayData.DisplayList_Transparent[current_gl_camera], GL_COMPILE ); break;
 					}
 					prevcube = 0;
 					for( z = 0; z < Sector.Size_z; z++ )
@@ -1190,181 +1205,136 @@ namespace Voxelarium.Core.Voxels.UI
 						{
 							for( y = 0; y < Sector.Size_y; y++ )
 							{
-								Offset = y + ( x * Sector.Size_y ) + ( z * ( Sector.Size_y * Sector.Size_x ) );
+								Offset = (uint)(y + ( x * Sector.Size_y ) + ( z * ( Sector.Size_y * Sector.Size_x ) ));
 								cube = Sector.Data.Data[Offset];
-								info = ( (byte*)Sector.Culling )[Offset];
+								info = (VoxelSector.FACEDRAW_Operations)FaceCulling[Offset];
 
 
 								if( cube > 0 && info != VoxelSector.FACEDRAW_Operations.NONE )
 								{
 									switch( Pass )
 									{
+										default:
 										case 0:
-											if( VoxelTypeTable[cube].Draw_TransparentRendering ) { Draw = false; Sector.Flag_Void_Transparent = false; }
+											if( VoxelTypeTable[cube].properties.Draw_TransparentRendering ) { Draw = false; Sector.Flag_Void_Transparent = false; }
 											else { Draw = true; Sector.Flag_Void_Regular = false; }
 											break;
-										case 1: Draw = ( VoxelTypeTable[cube].Draw_TransparentRendering ) ? true : false; break;
+										case 1: Draw = ( VoxelTypeTable[cube].properties.Draw_TransparentRendering ) ? true : false; break;
 									}
 								}
 								else Draw = false;
 
 								if( Draw )
 								{
-									// glTexEnvf(0x8500 /* TEXTURE_FILTER_CONTROL_EXT */, 0x8501 /* TEXTURE_LOD_BIAS_EXT */,VoxelTypeManager.VoxelTable[cube].TextureLodBias);
-									if( cube != prevcube ) glBindTexture( GL_TEXTURE_2D, VoxelTypeManager.VoxelTable[cube].OpenGl_TextureRef[current_gl_camera] );
+									Box2D box = VoxelTypeTable[cube].TextureCoords;
+									bool face_is_shaded;
+									if( ( VoxelTypeTable[cube].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_SHADER ) != 0 )
 									{
-										int x; if( x = glGetError() )
-											printf( "glerror(%d): %d\n", __LINE__, x );
+										face = VoxelTypeTable[cube].properties.FaceColor;
+										edge = VoxelTypeTable[cube].properties.EdgeColor;
+										power = VoxelTypeTable[cube].properties.EdgePower;
+										face_is_shaded = true;
 									}
-
+									else
+										face_is_shaded = false;
 									prevcube = cube;
-									cubx = (float)( x * VoxelGlobalSettings.WorldVoxelBlockSize + Sector_Display_x );
-									cuby = (float)( y * VoxelGlobalSettings.WorldVoxelBlockSize + Sector_Display_y );
-									cubz = (float)( z * VoxelGlobalSettings.WorldVoxelBlockSize + Sector_Display_z );
 
-									if( VoxelTypeTable[cube].DrawInfo & VoxelSector.RelativeVoxelOrds.DRAWINFO_SPECIALRENDERING ) { VoxelTypeTable[cube].SpecialRender( cubx, cuby, cubz ); continue; }
+									cubx = (float)( x * Sector.world.VoxelBlockSize + Sector_Display_x );
+									cuby = (float)( y * Sector.world.VoxelBlockSize + Sector_Display_y );
+									cubz = (float)( z * Sector.world.VoxelBlockSize + Sector_Display_z );
 
-									P0.x = cubx; P0.y = cuby; P0.z = cubz;
-									P1.x = cubx + VoxelGlobalSettings.WorldVoxelBlockSize; P1.y = cuby; P1.z = cubz;
-									P2.x = cubx + VoxelGlobalSettings.WorldVoxelBlockSize; P2.y = cuby; P2.z = cubz + VoxelGlobalSettings.WorldVoxelBlockSize;
-									P3.x = cubx; P3.y = cuby; P3.z = cubz + VoxelGlobalSettings.WorldVoxelBlockSize;
-									P4.x = cubx; P4.y = cuby + VoxelGlobalSettings.WorldVoxelBlockSize; P4.z = cubz;
-									P5.x = cubx + VoxelGlobalSettings.WorldVoxelBlockSize; P5.y = cuby + VoxelGlobalSettings.WorldVoxelBlockSize; P5.z = cubz;
-									P6.x = cubx + VoxelGlobalSettings.WorldVoxelBlockSize; P6.y = cuby + VoxelGlobalSettings.WorldVoxelBlockSize; P6.z = cubz + VoxelGlobalSettings.WorldVoxelBlockSize;
-									P7.x = cubx; P7.y = cuby + VoxelGlobalSettings.WorldVoxelBlockSize; P7.z = cubz + VoxelGlobalSettings.WorldVoxelBlockSize;
+									if( 0 != ( VoxelTypeTable[cube].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_SPECIALRENDERING ))
+									{ VoxelTypeTable[cube].SpecialRender( cubx, cuby, cubz ); continue; }
+
+									P0.X = cubx; P0.Y = cuby; P0.Z = cubz;
+									P1.X = cubx + voxelSize; P1.Y = cuby; P1.Z = cubz;
+									P2.X = cubx + voxelSize; P2.Y = cuby; P2.Z = cubz + voxelSize;
+									P3.X = cubx; P3.Y = cuby; P3.Z = cubz + voxelSize;
+									P4.X = cubx; P4.Y = cuby + voxelSize; P4.Z = cubz;
+									P5.X = cubx + voxelSize; P5.Y = cuby + voxelSize; P5.Z = cubz;
+									P6.X = cubx + voxelSize; P6.Y = cuby + voxelSize; P6.Z = cubz + voxelSize;
+									P7.X = cubx; P7.Y = cuby + voxelSize; P7.Z = cubz + voxelSize;
 
 									//Left
-									if( info & VoxelSector.FACEDRAW_Operations.LEFT )
+									if( ( info & VoxelSector.FACEDRAW_Operations.LEFT ) != 0 )
 									{
 										Stat_RenderDrawFaces++;
 										Stat_FaceLeft++;
-										glBegin( GL_TRIANGLES );
-										glTexCoord2f( 0.25, 0.25 ); glVertex3f( P4.x, P4.y, P4.z );
-										glTexCoord2f( 0.25, 0.0 ); glVertex3f( P0.x, P0.y, P0.z );
-										glTexCoord2f( 0.50, 0.0 ); glVertex3f( P3.x, P3.y, P3.z );
-										glTexCoord2f( 0.50, 0.0 ); glVertex3f( P3.x, P3.y, P3.z );
-										glTexCoord2f( 0.50, 0.25 ); glVertex3f( P7.x, P7.y, P7.z );
-										glTexCoord2f( 0.25, 0.25 ); glVertex3f( P4.x, P4.y, P4.z );
-										glEnd();
-									}
-									{
-										int x; if( x = glGetError() )
-											printf( "glerror(%d): %d\n", __LINE__, x );
+										//Log.log( "Add {0} {1} {2} {3}", P4 , P0, P3, P7 );
+										if( face_is_shaded )
+											geometry.AddQuad( ref P0, ref P3, ref P4, ref P7, face, edge, power  );
+										else
+											geometry.AddQuad( ref P0, ref P3, ref P4, ref P7, ref VoxelTypeTable[cube].TextureCoords );
 									}
 
 									// Right
-									if( info & VoxelSector.FACEDRAW_Operations.RIGHT )
+									if( ( info & VoxelSector.FACEDRAW_Operations.RIGHT ) != 0 )
 									{
 										Stat_RenderDrawFaces++;
 										Stat_FaceRight++;
-										glBegin( GL_TRIANGLES );
-										glTexCoord2f( 0.25, 0.50 ); glVertex3f( P5.x, P5.y, P5.z );
-										glTexCoord2f( 0.50, 0.50 ); glVertex3f( P6.x, P6.y, P6.z );
-										glTexCoord2f( 0.50, 0.75 ); glVertex3f( P2.x, P2.y, P2.z );
-										glTexCoord2f( 0.50, 0.75 ); glVertex3f( P2.x, P2.y, P2.z );
-										glTexCoord2f( 0.25, 0.75 ); glVertex3f( P1.x, P1.y, P1.z );
-										glTexCoord2f( 0.25, 0.50 ); glVertex3f( P5.x, P5.y, P5.z );
-										glEnd();
-									}
-
-									{
-										int x; if( x = glGetError() )
-											printf( "glerror(%d): %d\n", __LINE__, x );
+										//Log.log( "Add {0} {1} {2} {3}", P5, P6, P2, P1 );
+										if( face_is_shaded )
+											geometry.AddQuad( ref P1, ref P2, ref P5, ref P6, face, edge, power );
+										else
+											geometry.AddQuad( ref P1, ref P2, ref P5, ref P6, ref VoxelTypeTable[cube].TextureCoords );
 									}
 									//Front
-									if( info & VoxelSector.FACEDRAW_Operations.AHEAD )
+									if( ( info & VoxelSector.FACEDRAW_Operations.AHEAD ) != 0 )
 									{
 										Stat_RenderDrawFaces++;
 										Stat_FaceFront++;
-										glBegin( GL_TRIANGLES );
-										glTexCoord2f( 0.0, 0.25 ); glVertex3f( P0.x, P0.y, P0.z );
-										glTexCoord2f( 0.25, 0.25 ); glVertex3f( P4.x, P4.y, P4.z );
-										glTexCoord2f( 0.25, 0.50 ); glVertex3f( P5.x, P5.y, P5.z );
-										glTexCoord2f( 0.25, 0.50 ); glVertex3f( P5.x, P5.y, P5.z );
-										glTexCoord2f( 0.0, 0.50 ); glVertex3f( P1.x, P1.y, P1.z );
-										glTexCoord2f( 0.0, 0.25 ); glVertex3f( P0.x, P0.y, P0.z );
-										glEnd();
+										//Log.log( "Add {0} {1} {2} {3}", P0, P4, P5, P1 );
+										if( face_is_shaded )
+											geometry.AddQuad( ref P0, ref P1, ref P4, ref P5, face, edge, power );
+										else
+											geometry.AddQuad( ref P0, ref P1, ref P4, ref P5, ref VoxelTypeTable[cube].TextureCoords );
 									}
 
-									{
-										int x; if( x = glGetError() )
-											printf( "glerror(%d): %d\n", __LINE__, x );
-									}
 									//Back
-									if( info & VoxelSector.FACEDRAW_Operations.BEHIND )
+									if( ( info & VoxelSector.FACEDRAW_Operations.BEHIND ) != 0 )
 									{
 										Stat_RenderDrawFaces++;
 										Stat_FaceBack++;
-										glBegin( GL_TRIANGLES );
-										glTexCoord2f( 0.75, 0.50 ); glVertex3f( P2.x, P2.y, P2.z );
-										glTexCoord2f( 0.50, 0.50 ); glVertex3f( P6.x, P6.y, P6.z );
-										glTexCoord2f( 0.75, 0.25 ); glVertex3f( P3.x, P3.y, P3.z );
-										glTexCoord2f( 0.75, 0.25 ); glVertex3f( P3.x, P3.y, P3.z );
-										glTexCoord2f( 0.50, 0.50 ); glVertex3f( P6.x, P6.y, P6.z );
-										glTexCoord2f( 0.50, 0.25 ); glVertex3f( P7.x, P7.y, P7.z );
-										glEnd();
+										//Log.log( "Add {0} {1} {2} {3}", P2, P6, P3, P7 );
+										if( face_is_shaded )
+											geometry.AddQuad( ref P2, ref P3, ref P6, ref P7, face, edge, power );
+										else
+											geometry.AddQuad( ref P2, ref P3, ref P6, ref P7, ref VoxelTypeTable[cube].TextureCoords );
 									}
 
-									{
-										int x; if( x = glGetError() )
-											printf( "glerror(%d): %d\n", __LINE__, x );
-									}
 									// Top
-									if( info & VoxelSector.FACEDRAW_Operations.ABOVE )
+									if( ( info & VoxelSector.FACEDRAW_Operations.ABOVE ) != 0 )
 									{
 										Stat_RenderDrawFaces++;
 										Stat_FaceTop++;
-										glBegin( GL_TRIANGLES );
-										glTexCoord2f( 0.25, 0.25 ); glVertex3f( P4.x, P4.y, P4.z );
-										glTexCoord2f( 0.50, 0.25 ); glVertex3f( P7.x, P7.y, P7.z );
-										glTexCoord2f( 0.25, 0.50 ); glVertex3f( P5.x, P5.y, P5.z );
-										glTexCoord2f( 0.25, 0.50 ); glVertex3f( P5.x, P5.y, P5.z );
-										glTexCoord2f( 0.50, 0.25 ); glVertex3f( P7.x, P7.y, P7.z );
-										glTexCoord2f( 0.50, 0.50 ); glVertex3f( P6.x, P6.y, P6.z );
-										glEnd();
-									}
-									{
-										int x; if( x = glGetError() )
-											printf( "glerror(%d): %d\n", __LINE__, x );
+										//Log.log( "Add {0} {1} {2} {3}", P4, P7, P5, P6 );
+										if( face_is_shaded )
+											geometry.AddQuad( ref P4, ref P7, ref P5, ref P6, face, edge, power );
+										else
+											geometry.AddQuad( ref P4, ref P7, ref P5, ref P6, ref VoxelTypeTable[cube].TextureCoords );
 									}
 
 									// Bottom
-									if( info & VoxelSector.FACEDRAW_Operations.BELOW )
+									if( ( info & VoxelSector.FACEDRAW_Operations.BELOW ) != 0 )
 									{
 										Stat_RenderDrawFaces++;
 										Stat_FaceBottom++;
-										glBegin( GL_TRIANGLES );
-										glTexCoord2f( 1.0, 0.25 ); glVertex3f( P0.x, P0.y, P0.z );
-										glTexCoord2f( 1.0, 0.50 ); glVertex3f( P1.x, P1.y, P1.z );
-										glTexCoord2f( 0.75, 0.25 ); glVertex3f( P3.x, P3.y, P3.z );
-										glTexCoord2f( 0.75, 0.25 ); glVertex3f( P3.x, P3.y, P3.z );
-										glTexCoord2f( 1.0, 0.50 ); glVertex3f( P1.x, P1.y, P1.z );
-										glTexCoord2f( 0.75, 0.50 ); glVertex3f( P2.x, P2.y, P2.z );
-										glEnd();
+										//Log.log( "Add {0} {1} {2} {3}", P0, P1, P3, P2 );
+										if( face_is_shaded )
+											geometry.AddQuad( ref P0, ref P1, ref P2, ref P3, face, edge, power );
+										else
+											geometry.AddQuad( ref P0, ref P1, ref P2, ref P3, ref VoxelTypeTable[cube].TextureCoords );
 									}
 								}
-
-								{
-									int x; if( x = glGetError() )
-										printf( "glerror(%d): %d\n", __LINE__, x );
-								}
-
 							}
 						}
 					}
-					glEndList();
-					{
-						int x; if( x = glGetError() )
-							printf( "glerror(%d): %d\n", __LINE__, x );
-					}
-
 					// if in the first pass, the sector has no transparent block, the second pass is cancelled.
-
 					if( Sector.Flag_Void_Transparent ) break;
 				}
-				Sector.Flag_Render_Dirty[current_gl_camera] = false;
+				geometry.SetSolid();
+				Sector.Flag_Render_Dirty = false;
 			}
-#endif
 		}
 
 

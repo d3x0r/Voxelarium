@@ -51,7 +51,7 @@ namespace Voxelarium.Core.Support
 			if( File.Exists( FileName ) )
 			{
 				string code = File.ReadAllText( FileName );
-				Assembly a = CompileCode( code, FileName );
+				Assembly a = CompileCode( code, FileName, new string[] { "System.Drawing.dll" } );
 				if( a != null )
 				{
 					Type[] types = a.GetTypes();
@@ -69,7 +69,7 @@ namespace Voxelarium.Core.Support
 		}
 
 
-		static Assembly CompileCode( string code, string filename )
+		static Assembly CompileCode( string code, string filename, string[] extra )
 		{
 #if USE_ROSLYN_COMPILATION
 					Microsoft.CodeAnalysis.
@@ -144,10 +144,24 @@ namespace Voxelarium.Core.Support
 			using( Microsoft.CSharp.CSharpCodeProvider foo =
 						new Microsoft.CSharp.CSharpCodeProvider() )
 			{
+				string[] externals;
+				if( extra != null )
+				{
+					externals = new string[1 + extra.Length];
+					externals[0] = path;
+					for( int i = 0; i < extra.Length; i++ )
+						externals[i + 1] = extra[i];
+				}
+				else
+				{
+					externals = new string[1];
+					externals[0] = path;
+				}
 				CompilerResults res = foo.CompileAssemblyFromSource(
-					new System.CodeDom.Compiler.CompilerParameters( new string[] { path } )
+					new System.CodeDom.Compiler.CompilerParameters( externals )
 					{
-						GenerateInMemory = true
+						IncludeDebugInformation = true
+						, GenerateInMemory = true
 					},
 					code
 				);
@@ -188,10 +202,10 @@ namespace Voxelarium.Core.Support
 					+ "/" + VoxelGlobalSettings.COMPILEOPTION_SAVEFOLDERNAME
 					+ "/VoxelTypes/voxelinfo/" + String.Format( "voxelcode_" + type + ".cs" );
 			}
-			if( File.Exists( FileName ) )
+			if( false && File.Exists( FileName ) )
 			{
 				string code = File.ReadAllText( FileName );
-				Assembly a = CompileCode( code, FileName );
+				Assembly a = CompileCode( code, FileName, null );
 				if( a != null && AllowAssembly( a ) )
 				{
 					loaded_objects.Add( type, a );

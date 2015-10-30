@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Text;
+using Voxelarium.Core.Support;
 using Voxelarium.Core.Voxels.Types;
 
 namespace Voxelarium.Core.UI
@@ -20,7 +21,7 @@ namespace Voxelarium.Core.UI
 		int size;
 		int x_ofs, y_ofs;
 
-		int _OpenGl_TextureRef;
+		int _OpenGl_TextureRef = -1;
 
 		internal int OpenGl_TextureRef
 		{
@@ -28,6 +29,8 @@ namespace Voxelarium.Core.UI
 			{
 				if( _OpenGl_TextureRef == -1 )
 				{
+					Log.log( "Load atlas texture  (check thread)" );
+
 					GL.ActiveTexture( TextureUnit.Texture0 );
 					Display.CheckErr();
 
@@ -57,13 +60,11 @@ namespace Voxelarium.Core.UI
 						);
 #endif
 					Display.CheckErr();
-					GL.TexParameter( TextureTarget.Texture2D
-						, TextureParameterName.TextureMinFilter
-						, (int)TextureMinFilter.Linear );
-					int param = (int)TextureMinFilter.Nearest;
-					GL.TexParameter( TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, param ); // GL_LINEAR GL_NEAREST
-					param = (int)TextureMagFilter.Nearest;
-					GL.TexParameter( TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, param );
+					GL.TexParameter( TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest );
+					Display.CheckErr();
+					GL.TexParameter( TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest );
+					Display.CheckErr();
+
 					atlas.UnlockBits( data );
 				}
 				return _OpenGl_TextureRef;
@@ -86,12 +87,22 @@ namespace Voxelarium.Core.UI
 			atlas = new Bitmap( needed_size, needed_size );
 		}
 
-		void AddTexture( Bitmap image, out Box2D coord )
+		internal void AddTexture( Bitmap image, out Box2D coord )
 		{
-			coord.Position.X = ( 1.0f / texture_count ) * x_ofs;
-			coord.Position.Y = ( 1.0f / texture_count ) * y_ofs;
-			coord.Size.X = ( 1.0f / texture_count );
-			coord.Size.Y = ( 1.0f / texture_count );
+			if( y_ofs >= 32 )
+			{
+				coord.Position.X = 0;
+				coord.Position.Y = 0;
+				coord.Size.X = 0;
+				coord.Size.Y = 0;
+				return;
+			}
+
+			//Log.log( "output texture to atlas... {0} {1}", x_ofs, y_ofs );
+			coord.Position.X = ( 65535.0f / texture_count ) * x_ofs;
+			coord.Position.Y = ( 65535.0f / texture_count ) * y_ofs;
+			coord.Size.X = ( 65535.0f / texture_count );
+			coord.Size.Y = ( 65535.0f / texture_count );
 
 			Graphics g = Graphics.FromImage( atlas );
 			g.DrawImage( image, new Rectangle( texture_size * x_ofs, texture_size * y_ofs, texture_size, texture_size ) );

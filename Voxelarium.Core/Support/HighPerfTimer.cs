@@ -27,7 +27,7 @@ namespace Voxelarium.Core.Support
 			if( StartTime > EndTime ) Result = 1; // Workaround for timechange causing problems.
 		}
 
-		public long GetResult() { return Result; }
+		public int GetResult() { return (int)Result; }
 		public long GetLongResult() { return Result; }
 	}
 }

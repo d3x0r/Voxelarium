@@ -20,7 +20,7 @@ namespace Voxelarium.Core.Game
 		btVector3 Location_Old;    // The old player position.
 		btVector3 Velocity;        // Player velocity
 		btVector3 Deplacement;     // Deplacement is legs movement speed.
-		btTransform ViewDirection;   // Player viewing and displacement Direction.
+		internal btTransform ViewDirection;   // Player viewing and displacement Direction.
 		btVector3 EyesPosition;    // Player Eyes relative to the foot center.
 		double DammageThreshold;
 		double LifePoints;

@@ -144,10 +144,10 @@ namespace Voxelarium.Core.UI
 
 			Dimensions.Position.X = -1;
 			Dimensions.Position.Y = -1;
-			Dimensions.Position.Z = -1;
+			Dimensions.Position.Z = 1;
 			Dimensions.Size.X = 2;
 			Dimensions.Size.Y = 2;
-			Dimensions.Size.Z = -10;
+			Dimensions.Size.Z = 10;
 
 			FirstFrame.Render( render, ref Dimensions );
 		}

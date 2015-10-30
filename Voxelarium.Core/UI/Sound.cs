@@ -50,6 +50,10 @@ namespace Voxelarium.Core.UI
 		bool SoundActivated;
 		static uint[] SoundBuffer = new uint[65536];
 
+		internal void PlaySound( uint sound_id )
+		{
+		}
+
 		static void mixaudio( object unused, short[] stream, uint len )
 		{
 			SoundData Snd, OldSound;
@@ -250,10 +254,6 @@ namespace Voxelarium.Core.UI
 			}
 			*/
 			return ( true );
-		}
-
-		void PlaySound( uint SoundNum )
-		{
 		}
 
 

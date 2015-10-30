@@ -14,14 +14,14 @@ namespace Voxelarium.Core.Voxels
 		};
 
 		static SphereEntry[] SectorList;
-		static int nSlots;
+		static uint nSlots;
 
-		public static int GetEntryCount() { return nSlots; }
+		public static uint GetEntryCount() { return nSlots; }
 		public static void GetEntry( int EntryNum, out SphereEntry result ) { result = SectorList[EntryNum]; }
 		
-		static void PartSort( int Start, int ItemCount, SphereEntry[] SortBuffer )
+		static void PartSort( uint Start, uint ItemCount, SphereEntry[] SortBuffer )
 		{
-			int i, FirstPartCount, SecondPartCount, FirstPartStart, SecondPartStart, EndPart;
+			uint i, FirstPartCount, SecondPartCount, FirstPartStart, SecondPartStart, EndPart;
 			if( ItemCount <= 1 )
 			{
 				return;
@@ -74,7 +74,7 @@ namespace Voxelarium.Core.Voxels
 			SectorList = null;
 		}
 
-		public static void Init( int Render_Distance_h, int Render_Distance_v )
+		public static void Init( uint Render_Distance_h, uint Render_Distance_v )
 		{
 			int x, y, z;
 			ulong Offset;
@@ -86,9 +86,9 @@ namespace Voxelarium.Core.Voxels
 			SectorList = new SphereEntry[nSlots];
 
 			Offset = 0;
-			for( x = -Render_Distance_h; x <= Render_Distance_h; x++ )
-				for( y = -Render_Distance_v; y <= Render_Distance_v; y++ )
-					for( z = -Render_Distance_h; z <= Render_Distance_h; z++ )
+			for( x = -(int)Render_Distance_h; x <= Render_Distance_h; x++ )
+				for( y = -(int)Render_Distance_v; y <= Render_Distance_v; y++ )
+					for( z = -(int)Render_Distance_h; z <= Render_Distance_h; z++ )
 					{
 						SectorList[Offset].x = x;
 						SectorList[Offset].y = y;

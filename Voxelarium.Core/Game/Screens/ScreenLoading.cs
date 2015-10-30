@@ -8,6 +8,7 @@ namespace Voxelarium.Core.Game.Screens
 	internal class ScreenLoading : Screen
 	{
 		FontFrame Frame_Loading;
+		ProgressBar LoadProgress;
 		Vector2 Loading_Size;
 		internal ScreenLoading( VoxelGameEnvironment.Pages page_id ) : base( page_id )
 		{
@@ -15,7 +16,7 @@ namespace Voxelarium.Core.Game.Screens
 
 		internal override ScreenChoices ProcessScreen( VoxelGameEnvironment GameEnv )
 		{
-			if( GameEnv.page_up != page_id )
+            if( GameEnv.page_up != page_id )
 			{
 				GameEnv.page_up = page_id;
 				GameEnv.GuiManager.RemoveAllFrames();
@@ -28,11 +29,19 @@ namespace Voxelarium.Core.Game.Screens
 					Frame_Loading.GetTextDisplaySize( out Loading_Size );
 					Frame_Loading.SetPosition(  1-Loading_Size.X / 2.0f, 1-Loading_Size.Y / 2.0f );
 					Frame_Loading.SetSize( Loading_Size.X + 1.0f, Loading_Size.Y );
+					Frame_Loading.TextureNum = 3;
+
+					LoadProgress = new ProgressBar();
+					LoadProgress.SetPosition( 0.5f, 0.5f );
+					LoadProgress.SetSize( 1.0f, 0.2f );
+
 				}
-				Frame_Loading.TextureNum = 3;
+
+				LoadProgress.SetCompletion( GameEnv.start_percent );
 
 				//TitleBackground.AddFrame(&Frame_PlayGame);
 				GameEnv.GuiManager.AddFrame( Frame_Loading );
+				GameEnv.GuiManager.AddFrame( LoadProgress );
 			}
 			return ( ScreenChoices.NONE );
 		}

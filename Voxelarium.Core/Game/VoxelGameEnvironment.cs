@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Voxelarium.Core.Game;
+using Voxelarium.Core.Game.GameWindows;
 using Voxelarium.Core.Game.Screens;
 using Voxelarium.Core.Support;
 using Voxelarium.Core.UI;
@@ -50,29 +51,24 @@ namespace Voxelarium.Core
 			GuiTileset = null;
 			//Settings_Hardware = null;
 			UniverseNum = 1;
-#if FINISHED_PORTING
+			Enable_LoadNewSector = true;
+
 			TileSetStyles = null;
 				Time_GameLoop = 16.0;
 
+#if FINISHED_PORTING
 				for( int r = 0; r < 6; r++ )
 					sack_camera[r] = 0;
-				//Menu_Up = false;
-				//OptionScreen_Up = false;
-				Game_Run = false;
 				display_index = 0;
-				GameWindow_Advertising = 0;
-				Sound = 0;
-				GameWindow_UserTextureTransformer = 0;
-				GameWindow_Sequencer = 0;
-				GameStat = 0;
+#endif
+			//Menu_Up = false;
+			//OptionScreen_Up = false;
+			Game_Run = false;
 				Initialized_GameStats = false;
-				WorldInfo = 0;
 				Mouse_captured = false;
 				Mouse_relative = false;
 				Enable_MVI = true;
-				Enable_LoadNewSector = true;
 				Enable_NewSectorRendering = true;
-				GameEventSequencer = 0;
 				frames = 0;
 				frame_start = 0;
 				Time_FrameTime = 20;
@@ -80,7 +76,6 @@ namespace Voxelarium.Core
 				VFov = 63.597825649;
 				Machine_Serial = 1;
 				Stop_Programmable_Robots = false;
-#endif
 		}
 		~VoxelGameEnvironment() { UniverseNum = 0; }
 
@@ -126,9 +121,11 @@ namespace Voxelarium.Core
 
 		bool Game_Run;
 
+		internal VoxelWorldProcessor VoxelProcessor;
 		internal VoxelTypeManager VoxelTypeManager;
 		internal VoxelTypeManager GetVoxelTypeManager() { return VoxelTypeManager; }
-        internal TextureManager TextureManager;
+		internal Settings_Hardware Settings_Hardware;
+		internal TextureManager TextureManager;
 		internal GraphicUserManager GuiManager;
 		internal EventManager EventManager = new EventManager();
 		internal TileSet.TileSetStyles TileSetStyles;
@@ -138,7 +135,7 @@ namespace Voxelarium.Core
 		internal Actor GetActiveActor() { return ActiveActor; }
 
 		/* Started things */
-		EventSequencer GameEventSequencer;  // internal timer system
+		internal EventSequencer GameEventSequencer;  // internal timer system
 		internal GameStats GameStat;  // timing stats for rendering
 		Game_Events Game_Events; // this is user input event dispatch
 
@@ -152,7 +149,6 @@ namespace Voxelarium.Core
 			// Jeu proprement dit
 
 			ZActorPhysicEngine PhysicEngine;
-			ZVoxelProcessor VoxelProcessor;
 			ZToolManager ToolManager;
 			ZWorldInfo WorldInfo;
 
@@ -163,10 +159,10 @@ namespace Voxelarium.Core
 			ZGameWindow_Programmable GameWindow_Programmable;
 			ZGameWindow_UserTextureTransformer GameWindow_UserTextureTransformer;
 			ZGameWindow_ProgressBar GameProgressBar;
-			ZGameWindow_Advertising GameWindow_Advertising;
 			ZGameWindow_DisplayInfos GameWindow_DisplayInfos;
 			ZGameWindow_Sequencer GameWindow_Sequencer;
 #endif
+		GameWindow_Advertising GameWindow_Advertising;
 
 		bool Initialized_UserDataStorage;
 		bool Initialized_Settings;
@@ -256,6 +252,7 @@ namespace Voxelarium.Core
 		{
 			bool result;
 			result = Init_UserDataStorage(); if( !result ) return ( false );
+			result = Init_Settings(); if( !result ) return ( false );
 			percent_done = 1 + ( ++step * 100 ) / steps;
 			result = Init_VoxelTypeManager(); if( !result ) return ( false );
 			percent_done = 1 + ( ++step * 100 ) / steps;
@@ -301,37 +298,50 @@ namespace Voxelarium.Core
 			page_up = Pages.NONE;
 			active_screen = Screen_Main;
 			Basic_Renderer = new Render_Basic();
+			Basic_Renderer.GameEnv = this;
         }
 
+		internal int start_percent;
+		const int start_steps = 7;
+		int start_step = 0;
 		internal bool Start_Game()
 		{
 			bool result;
-
+			start_step = 0;
+			start_percent = 0;
 			result = Start_PersistGameEnv(); if( !result ) return ( false );
+			start_percent = ( ++start_step * 100 ) / start_steps;
 			result = Start_GameEventSequencer(); if( !result ) return ( false );
+			start_percent = ( ++start_step * 100 ) / start_steps;
 			//    result = Start_WorldInfo();          if(!result) return(false);
 			result = Start_Game_Stats(); if( !result ) return ( false );
+			start_percent = ( ++start_step * 100 ) / start_steps;
 			result = Start_Game_Events(); if( !result ) return ( false );
+			start_percent = ( ++start_step * 100 ) / start_steps;
 			result = Start_World(); if( !result ) return ( false );
 
+			start_percent = ( ++start_step * 100 ) / start_steps;
 			result = Start_SectorLoader(); if( !result ) return ( false );
+			start_percent = ( ++start_step * 100 ) / start_steps;
+			result = Start_VoxelProcessor(); if( !result ) return ( false );
 #if FINISHED_PORTING
 				result = Start_ToolManager(); if( !result ) return ( false );
 				result = Start_PhysicEngine(); if( !result ) return ( false );
-				result = Start_VoxelProcessor(); if( !result ) return ( false );
-				result = Start_RendererSettings(); if( !result ) return ( false );
 #endif
+			result = Start_RendererSettings(); if( !result ) return ( false );
 			result = Start_GameWindows(); if( !result ) return ( false );
+			start_percent = ( ++start_step * 100 ) / start_steps;
 			return ( true );
 		}
 
 		bool End_Game()
 		{
+			if( Initialized_GameWindows ) End_GameWindows();
+
+			if( Initialized_SectorLoader ) End_SectorLoader();
 #if FINISHED_PORTING
-				if( Initialized_GameWindows ) End_GameWindows();
 				if( Initialized_VoxelProcessor ) End_VoxelProcessor();
 				if( Initialized_RendererSettings ) End_RendererSettings();
-				if( Initialized_SectorLoader ) End_SectorLoader();
 				if( Initialized_PhysicEngine ) End_PhysicEngine();
 				if( Initialized_ToolManager ) End_ToolManager();
 				if( Initialized_World ) End_World();
@@ -360,15 +370,15 @@ namespace Voxelarium.Core
 				if( Initialized_GraphicMode ) Cleanup_GraphicMode( InitLog.Sec( 2030 ) );
 				if( Initialized_SDL ) Cleanup_SDL( InitLog.Sec( 2020 ) );
 				if( Initialized_TileSetsAndFonts ) Cleanup_TileSetsAndFonts( InitLog.Sec( 2100 ) );
-				if( Initialized_Settings ) Cleanup_Settings( InitLog.Sec( 2010 ) );
 				if( Initialized_UserDataStorage ) Cleanup_UserDataStorage( InitLog.Sec( 2000 ) );
 #endif
+			if( Initialized_Settings ) Cleanup_Settings(  );
 			return ( true );
 		}
 
 		// TileSets
 
-		TileSet Font_1;
+		internal TileSet Font_1;
 		TileSet GuiTileset;
 
 		enum FontSizes
@@ -379,7 +389,10 @@ namespace Voxelarium.Core
 			FONTSIZE_4 = 1,
 			FONTSIZE_5 = 2
 		};
-
+		enum TileTypes
+		{
+			Something
+		}
 
 		// InGame
 
@@ -468,7 +481,7 @@ namespace Voxelarium.Core
 			//if (!Initialized_Glew)           {ZString Err ="Can't init VoxelTypeManager : Glew init not completed"; InitLog.Log(4, ZLog::FAIL, Err); return(false);}
 			VoxelTypeManager = new VoxelTypeManager();
 			VoxelTypeManager.SetGameEnv( this );
-			if( !VoxelTypeManager.LoadVoxelTypes() ) { string Err = "Can't init VoxelTypeManager."; Log.log( Err ); return ( false ); }
+			if( !VoxelTypeManager.LoadVoxelTypes(  ) ) { string Err = "Can't init VoxelTypeManager."; Log.log( Err ); return ( false ); }
 			Msg = "Loaded " + VoxelTypeManager.GetTexturesCount() + " Voxel Textures.";
 			Log.log( Msg );
 			if( VoxelTypeManager.GetTexturesCount() < 10 ) { string Err; Err = "Missing Texture files (count : " + VoxelTypeManager.GetTexturesCount() + ")"; Log.log( Err ); return ( false ); }
@@ -580,14 +593,12 @@ namespace Voxelarium.Core
 			//Basic_Renderer = new ZRender_Basic( World );
 			Basic_Renderer = new ZRender_Smooth( World );
 
-			Basic_Renderer->SetGameEnv( this );
-			Basic_Renderer->Init();
+			Basic_Renderer.SetGameEnv( this );
+			Basic_Renderer.Init();
 			//Basic_Renderer.SetCamera(&Player);
-			Basic_Renderer->SetVoxelTypeManager( &VoxelTypeManager );
-			Basic_Renderer->SetTextureManager( &TextureManager );
-			Basic_Renderer->current_gl_camera = psvInit - 1;
-			Basic_Renderer->LoadVoxelTexturesToGPU( psvInit - 1 );
-			Basic_Renderer->LoadTexturesToGPU( psvInit - 1 );
+			Basic_Renderer.SetVoxelTypeManager( &VoxelTypeManager );
+			Basic_Renderer.SetTextureManager( &TextureManager );
+			Basic_Renderer.current_gl_camera = psvInit - 1;
 #endif
 			Initialized_Renderer = true;
 			Log.log( "Ended Ok : Renderer Init" );
@@ -602,13 +613,13 @@ namespace Voxelarium.Core
 
 			Sound.LoadSoundFiles();
 			/*
-			Msg.Clear() << "Loaded " << Sound->GetSampleCount() << " Sound samples."; InitLog->Log( 3, ZLog::INFO, Msg );
-			if( Sound->GetSampleCount() < 8 ) { ZString Err; Err << "Missing Sound Sample Files (count : " << Sound->GetSampleCount() << ")"; InitLog->Log( 4, ZLog::FAIL, Err ); return ( false ); }
+			Msg.Clear() << "Loaded " << Sound.GetSampleCount() << " Sound samples."; InitLog.Log( 3, ZLog::INFO, Msg );
+			if( Sound.GetSampleCount() < 8 ) { ZString Err; Err << "Missing Sound Sample Files (count : " << Sound.GetSampleCount() << ")"; InitLog.Log( 4, ZLog::FAIL, Err ); return ( false ); }
 
-			Sound->SampleModify_Volume( 4, 0.5 );
-			Sound->SampleModify_Volume( 5, 0.03 ); // Vrilleuse d'oreilles (0.1)
-			Sound->SampleModify_Volume( 6, 0.3 ); // Bloc Break (0.3)
-			Sound->SampleModify_Volume( 7, 0.3 ); // Bloc Place (0.3)
+			Sound.SampleModify_Volume( 4, 0.5 );
+			Sound.SampleModify_Volume( 5, 0.03 ); // Vrilleuse d'oreilles (0.1)
+			Sound.SampleModify_Volume( 6, 0.3 ); // Bloc Break (0.3)
+			Sound.SampleModify_Volume( 7, 0.3 ); // Bloc Place (0.3)
 
 			*/
 			Initialized_Sound = true;
@@ -619,7 +630,7 @@ namespace Voxelarium.Core
 		bool Start_GameEventSequencer()
 		{
 			GameEventSequencer = new EventSequencer();
-			// GameEventSequencer->AddEvent(30000,10000,1,true, 600000);
+			// GameEventSequencer.AddEvent(30000,10000,1,true, 600000);
 			return  Initialized_GameEventSequencer = true;
 		}
 
@@ -686,23 +697,41 @@ namespace Voxelarium.Core
 		}
 		bool Start_GameWindows()
 		{
-			//GameWindow_Inventory = new ZGameWindow_Inventory; GameWindow_Inventory->SetGameEnv( this );
-			//VoxelTypeBar = new ZGameWindow_VoxelTypeBar; VoxelTypeBar->SetGameEnv( this );
-			//GameWindow_Storage = new ZGameWindow_Storage; GameWindow_Storage->SetGameEnv( this );
-			//GameWindow_Programmable = new ZGameWindow_Programmable; GameWindow_Programmable->SetGameEnv( this );
-			//GameProgressBar = new ZGameWindow_ProgressBar; GameProgressBar->SetGameEnv( this );
-			//GameWindow_Advertising = new ZGameWindow_Advertising; GameWindow_Advertising->SetGameEnv( this );
-			//GameWindow_UserTextureTransformer = new ZGameWindow_UserTextureTransformer; GameWindow_UserTextureTransformer->SetGameEnv( this );
-			//GameWindow_DisplayInfos = new ZGameWindow_DisplayInfos; GameWindow_DisplayInfos->SetGameEnv( this );
-			//GameWindow_Sequencer = new ZGameWindow_Sequencer; GameWindow_Sequencer->SetGameEnv( this );
+			//GameWindow_Inventory = new ZGameWindow_Inventory; GameWindow_Inventory.SetGameEnv( this );
+			//VoxelTypeBar = new ZGameWindow_VoxelTypeBar; VoxelTypeBar.SetGameEnv( this );
+			//GameWindow_Storage = new ZGameWindow_Storage; GameWindow_Storage.SetGameEnv( this );
+			//GameWindow_Programmable = new ZGameWindow_Programmable; GameWindow_Programmable.SetGameEnv( this );
+			//GameProgressBar = new ZGameWindow_ProgressBar; GameProgressBar.SetGameEnv( this );
+			GameWindow_Advertising = new GameWindow_Advertising(); GameWindow_Advertising.SetGameEnv( this );
+			//GameWindow_UserTextureTransformer = new ZGameWindow_UserTextureTransformer; GameWindow_UserTextureTransformer.SetGameEnv( this );
+			//GameWindow_DisplayInfos = new ZGameWindow_DisplayInfos; GameWindow_DisplayInfos.SetGameEnv( this );
+			//GameWindow_Sequencer = new ZGameWindow_Sequencer; GameWindow_Sequencer.SetGameEnv( this );
 
-			//GameWindow_Advertising->Show();
+			//GameWindow_Advertising.Show();
 			Initialized_GameWindows = true;
+			return ( true );
+		}
+		bool End_GameWindows()
+		{
+			// saving should be the screen up, and don't remove his frames.
+			//while( prior_page_up != page_up )
+			//	Relinquish();
+			//GuiManager.RemoveAllFrames();
+			/*
+			VoxelTypeBar = null;
+			GameWindow_Storage = null;
+			GameWindow_UserTextureTransformer = null;
+			GameWindow_Inventory = null;
+			*/
+			Initialized_GameWindows = false;
 			return ( true );
 		}
 		bool Start_World()
 		{
 			World = new VoxelWorld( this );
+
+			World.renderer = Basic_Renderer;
+
 			//Basic_Renderer.SetWorld( World );
 
 			World.SetUniverseNum( UniverseNum );
@@ -721,7 +750,8 @@ namespace Voxelarium.Core
 
 		bool Start_SectorLoader()
 		{
-			IWorldGenesis genesis = Compiler.LoadGenesisCode();
+			IWorldGenesis genesis = new Genesis();
+			//IWorldGenesis genesis = Compiler.LoadGenesisCode();
 			if( genesis != null )
 			{
 				SectorLoader = new FileSectorLoader( this, genesis );
@@ -734,5 +764,100 @@ namespace Voxelarium.Core
 			}
 			return false;
 		}
+		internal bool End_SectorLoader()
+		{
+			if( SectorLoader != null )
+			{
+				SectorLoader.Cleanup();
+				Initialized_SectorLoader = false;
+				SectorLoader = null;
+			}
+			return ( true );
+		}
+
+		bool Start_VoxelProcessor()
+		{
+			// Compute sector ejection distance.
+
+			float EjectionDistance, h, v;
+
+			h = (float)Settings_Hardware.RenderingDistance_Horizontal;
+			v = (float)Settings_Hardware.RenderingDistance_Vertical;
+			EjectionDistance = (float)(Math.Sqrt( ( h * h ) + ( h * h ) + ( v * v ) ) * 1.5);
+
+			// Init the voxel processor
+
+			VoxelProcessor = new VoxelWorldProcessor();
+
+			VoxelProcessor.SetWorld( World );
+			VoxelProcessor.SetPlayerPosition( 0, 0, 0 );
+			VoxelProcessor.SetSectorEjectDistance( EjectionDistance );
+			VoxelProcessor.SetGameEnv( this );
+			VoxelProcessor.Start();
+
+			Initialized_VoxelProcessor = true;
+			return ( true );
+		}
+
+		bool End_VoxelProcessor()
+		{
+			if( VoxelProcessor != null )
+			{
+				VoxelProcessor.End();
+				Initialized_VoxelProcessor = false;
+				VoxelProcessor = null;
+			}
+			return ( true );
+		}
+		bool Init_Settings(  )
+		{
+			bool Res;
+
+			Log.log( "Starting : Settings" );
+
+			Settings_Hardware = new Settings_Hardware();
+			Res = Settings_Hardware.Load(); // If loading fail, continue anyway with default.
+
+			if( Res ) Log.log( "Info : Hardware Settings Loaded From File" );
+			else Log.log( "Info : Can't load Settings from file, default settings taken." );
+
+			Initialized_Settings = true;
+
+			Log.log( "Ended OK : Settings" );
+			return ( true );
+		}
+
+		bool Cleanup_Settings(  )
+		{
+			Log.log( "Cleanup : Settings" );
+			Settings_Hardware = null;
+			return ( true );
+		}
+		bool Start_RendererSettings()
+		{
+			Basic_Renderer.SetRenderSectorRadius( Settings_Hardware.RenderingDistance_Horizontal, Settings_Hardware.RenderingDistance_Vertical );
+			//Basic_Renderer.SetWorld( World );
+			//Basic_Renderer.SetActor( PhysicEngine.GetSelectedActor() );
+
+			//Basic_Renderer.SetCamera(&PhysicEngine.GetSelectedActor().Camera);
+
+			//Basic_Renderer.SetPointedVoxel( &PhysicEngine.GetSelectedActor().PointedVoxel );
+			//Basic_Renderer.SetViewportResolution( ScreenResolution );
+			Basic_Renderer.SetPixelAspectRatio( Settings_Hardware.PixelAspectRatio );
+			Basic_Renderer.SetSectorCullingOptimisationFactor( Settings_Hardware.Opt_SectCFactor );
+			Initialized_RendererSettings = true;
+			return ( true );
+		}
+
+		bool End_RendererSettings()
+		{
+			//Basic_Renderer.SetWorld( null );
+			//Basic_Renderer.SetCamera( null );
+			//Basic_Renderer.SetActor( null );
+			//Basic_Renderer.SetPointedVoxel( null );
+			Initialized_RendererSettings = false;
+			return ( false );
+		}
+
 	}
 }

@@ -1,3 +1,4 @@
+//#define COLUMN_MAJOR_EXPECTED
 //#define DISABLE_OPERATORS
 /*
 Copyright (c) 2003-2006 Gino van den Bergen / Erwin Coumans * http://continuousphysics.com/Bullet/
@@ -14,6 +15,7 @@ subject to the following restrictions:
 */
 
 using System;
+using Voxelarium.Core.Support;
 
 namespace Bullet.LinearMath
 {
@@ -208,25 +210,27 @@ namespace Bullet.LinearMath
 			m_el3.x = 0; m_el3.y = 0; m_el3.z = 0; m_el3.w = 1;
 		}
 
+
 		public void Rotate( int axis, float angle )
 		{
+			//Log.log( " Rotate {0} {1}", axis, angle );
+#if COLUMN_MAJOR_EXPECTED
 			switch( axis )
 			{
-
 				default:
 				case 0:
 					{
-						float savex = m_el0.y, savey = m_el1.y, savez = m_el2.y;
+						float savex = m_el0.z, savey = m_el1.z, savez = m_el2.z;
 						float dsin = btScalar.btSin( angle )
 							  , dcos = btScalar.btCos( angle );
 						float v1x, v1y, v1z;
 						float v2x, v2y, v2z;
-						v1x = dcos * m_el0.y; v1y = dcos * m_el1.y; v1z = dcos * m_el2.y;
-						v2x = dsin * m_el0.z; v2y = dsin * m_el1.z; v2z = dsin * m_el2.z;
-						m_el0.y = v1x - v2x; m_el1.y = v1y - v2y; m_el2.y = v1z - v2z;
+						v1x = dcos * m_el0.z; v1y = dcos * m_el1.z; v1z = dcos * m_el2.z;
+						v2x = dsin * m_el0.y; v2y = dsin * m_el1.y; v2z = dsin * m_el2.y;
+						m_el0.z = v1x - v2x; m_el1.z = v1y - v2y; m_el2.z = v1z - v2z;
 						v1x = savex * dsin; v1y = savey * dsin; v1z = savez * dsin;
-						v2x = dcos * m_el0.z; v2y = dcos * m_el1.z; v2z = dcos * m_el2.z;
-						m_el0.z = v1x + v2x; m_el1.z = v1y + v2y; m_el2.z = v1z + v2z;
+						v2x = dcos * m_el0.y; v2y = dcos * m_el1.y; v2z = dcos * m_el2.y;
+						m_el0.y = v1x + v2x; m_el1.y = v1y + v2y; m_el2.y = v1z + v2z;
 						break;
 					}
 				case 1:
@@ -260,6 +264,51 @@ namespace Bullet.LinearMath
 						break;
 					}
 			}
+#else
+			float dsin = btScalar.btSin( angle )
+				  , dcos = btScalar.btCos( angle );
+			switch( axis )
+			{
+
+				default:
+				case 0:
+					{
+						btVector3 savex = m_el1;
+						btVector3 v1, v2;
+						m_el1.Mult( dcos, out v1 );
+						m_el2.Mult( dsin, out v2 );
+						v1.Sub( ref v2, out m_el1 );
+						savex.Mult( dsin, out v2 );
+						m_el2.Mult( dcos, out v1 );
+						v1.Add( ref v2, out m_el2 );
+						break;
+					}
+				case 1:
+					{
+						btVector3 savex = m_el0;
+						btVector3 v1, v2;
+						m_el0.Mult( dcos, out v1 );
+						m_el2.Mult( dsin, out v2 );
+						v1.Sub( ref v2, out m_el0 );
+						savex.Mult( dsin, out v2 );
+						m_el2.Mult( dcos, out v1 );
+						v1.Add( ref v2, out m_el2 );
+						break;
+					}
+				case 2:
+					{
+						btVector3 savex = m_el0;
+						btVector3 v1, v2;
+						m_el0.Mult( dcos, out v1 );
+						m_el1.Mult( dsin, out v2 );
+						v1.Sub( ref v2, out m_el0 );
+						savex.Mult( dsin, out v2 );
+						m_el1.Mult( dcos, out v1 );
+						v1.Add( ref v2, out m_el1 );
+						break;
+					}
+			}
+#endif
 		}
 
 		public void Rotate( float x, float y, float z )
@@ -1088,9 +1137,9 @@ namespace Bullet.LinearMath
 				{
 					btVector3 co = new btVector3( cofac( 1, 1, 2, 2 ), cofac( 1, 2, 2, 0 ), cofac( 1, 0, 2, 1 ) );
 					float det = m_el0.dot( ref co );
-		#if PARANOID_ASSERTS
+#if PARANOID_ASSERTS
 					Debug.Assert( det != 0 );
-		#endif
+#endif
 					float s = 1.0 / det;
 					return new btMatrix3x3( co.x * s, cofac( 0, 2, 2, 1 ) * s, cofac( 0, 1, 1, 2 ) * s,
 							co.y * s, cofac( 0, 0, 2, 2 ) * s, cofac( 0, 2, 1, 0 ) * s,
@@ -1185,29 +1234,53 @@ namespace Bullet.LinearMath
 #endif
 		public void ApplyRotation( ref btVector3 m, out btVector3 result )
 		{
-			result.x = this[0][0] * m[0] +
-					   this[0][1] * m[1] +
-					   this[0][2] * m[2];
-			result.y = this[1][0] * m[0] +
-					   this[1][1] * m[1] +
-					   this[1][2] * m[2];
-			result.z = this[2][0] * m[0] +
-					   this[2][1] * m[1] +
-					   this[2][2] * m[2];
+#if COLUMN_MAJOR_EXPECTED
+			result.x = this.m_el0.x * m.x +
+					   this.m_el0.y * m.y +
+					   this.m_el0.z * m.z;
+			result.y = this.m_el1.x * m.x +
+					   this.m_el1.y * m.y +
+					   this.m_el1.z * m.z;
+			result.z = this.m_el2.x * m.x +
+					   this.m_el2.y * m.y +
+					   this.m_el2.z * m.z;
+#else
+			result.x = this.m_el0.x * m.x +
+					   this.m_el1.x * m.y +
+					   this.m_el2.x * m.z;
+			result.y = this.m_el0.y * m.x +
+					   this.m_el1.y * m.y +
+					   this.m_el2.y * m.z;
+			result.z = this.m_el0.z * m.x +
+					   this.m_el1.z * m.y +
+					   this.m_el2.z * m.z;
+#endif
 			result.w = 0;
 		}
 
 		public void ApplyInverseRotation( ref btVector3 m, out btVector3 result )
 		{
-			result.x = this[0][0] * m[0] +
-					   this[1][0] * m[1] +
-					   this[2][0] * m[2];
-			result.y = this[0][1] * m[0] +
-					   this[1][1] * m[1] +
-					   this[2][1] * m[2];
-			result.z = this[0][2] * m[0] +
-					   this[1][2] * m[1] +
-					   this[2][2] * m[2];
+#if COLUMN_MAJOR_EXPECTED
+			result.x = this.m_el0.x * m.x +
+					   this.m_el1.x * m.y +
+					   this.m_el2.x * m.z;
+			result.y = this.m_el0.y * m.x +
+					   this.m_el1.y * m.y +
+					   this.m_el2.y * m.z;
+			result.z = this.m_el0.z * m.x +
+					   this.m_el1.z * m.y +
+					   this.m_el2.z * m.z;
+#else
+			result.x = this.m_el0.x * m.x +
+					   this.m_el0.y * m.y +
+					   this.m_el0.z * m.z;
+			result.y = this.m_el1.x * m.x +
+					   this.m_el1.y * m.y +
+					   this.m_el1.z * m.z;
+			result.z = this.m_el2.x * m.x +
+					   this.m_el2.y * m.y +
+					   this.m_el2.z * m.z;
+#endif
 			result.w = 0;
 		}
 
@@ -1310,8 +1383,8 @@ namespace Bullet.LinearMath
 					m1.m_el0.z == m_el0.z && m1.m_el1.z == m_el1.z && m1.m_el2.z == m_el2.z );
 		}
 
-
-		 void GetGLMatrix( out btMatrix3x3 m )
+#if false
+		void GetGLMatrix( out btMatrix3x3 m )
 		{
 			m = this;
 			btVector3 tmp;
@@ -1321,6 +1394,7 @@ namespace Bullet.LinearMath
 			m.m_el3.z = tmp.z;
 			m.m_el3.w = this[3][3];
 		}
+#endif
 
 		/*
 			///for serialization

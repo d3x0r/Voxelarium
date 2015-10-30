@@ -1,7 +1,10 @@
-﻿using OpenTK;
+﻿using Bullet.LinearMath;
+using OpenTK;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Voxelarium.Core.Game;
+using Voxelarium.Core.Voxels.Types;
 
 namespace Voxelarium.Core.Voxels
 {
@@ -19,21 +22,28 @@ namespace Voxelarium.Core.Voxels
 		VoxelWorld World;
 		VoxelTypeManager VoxelTypeManager;
 		//ZEgmyTargetManager EgmyWaveManager;
-		ulong CycleNum;
+		uint CycleNum;
 
 
+		public struct ZBlocPosN { public sbyte x; public sbyte y; public sbyte z; public ZBlocPosN( sbyte x, sbyte y, sbyte z ) { this.x = x; this.y = y; this.z = z; } };
 		//ZVoxelReaction** ReactionTable;
+		public static ZBlocPosN[] nbp6 = new ZBlocPosN[]{
+			new ZBlocPosN ( -1, 0, 0 )
+			, new ZBlocPosN ( 1, 0, 0 )
+			, new ZBlocPosN( 0, 0, 1 )
+			, new ZBlocPosN( 0, 0, -1 )
+			, new ZBlocPosN( 0, 1, 0 )
+			, new ZBlocPosN( 0, -1, 0 ) };
+
 #if asdfasdfasdf
 		public:
 		public struct ZBlocPos { public byte x; byte y; byte z; };
-		public struct ZBlocPosN { public sbyte x; sbyte y; sbyte z; };
 		static ZBlocPos bfta[26];  // bloc flow table (air)
 		static ZBlocPos bfts[18];  // bloc flow table (smoothing)
 		static ZBlocPos bp6[6];   // Bloc positions with 6 slots around main cube.
 		static ZBlocPos bft[8];   // Bloc fall test positions with 4 slots around and 4 slots under;
 		static ZBlocPos bft6[10]; // Bloc fall test positions with 6 slots around main cube and 4 slots under (Special case for acid).
 		static UByte BlocOpposite[6];
-		static ZBlocPosN nbp6[6];
 		static ZBlocPos xbp6[6];  // Bloc positions with 6 slots around main cube. ( New standardised robot order.).
 		static ZBlocPos xbp6_opposing[6];  // Bloc positions with 6 slots around main cube. ( New standardised robot order.).
 		static RelativeVoxelOrds x6_opposing_escape[6,5];  // Bloc positions with 6 slots around main cube. ( New standardised robot order.).
@@ -53,10 +63,8 @@ namespace Voxelarium.Core.Voxels
 
 		public static byte[] DirCodeTable = new byte[16];
 
-#if asdfasdf
 		// Time remaining on FireMine action
-		ULong FireMineTime;
-#endif
+		uint FireMineTime;
 
 
 		public
@@ -81,7 +89,7 @@ namespace Voxelarium.Core.Voxels
 				//Random.Init( 0 );
 				// Dummy Sector
 
-				DummySector = new VoxelSector( ( VoxelWorld ) null );
+				DummySector = new VoxelSector( (VoxelWorld)null );
 				DummySector.Fill( 0xFFFF );
 
 				// Multiplexing Sector Tables for fast access to voxels
@@ -134,8 +142,109 @@ namespace Voxelarium.Core.Voxels
 		bool VoxelFluid_ComputeVolumePressure( ZVector3L* Location, UShort VoxelType, bool EvenCycle );
 		void VoxelFluid_ComputeVolumePressure_Recurse( ZVector3L* Location, ZonePressure* Pr );
 		void VoxelFluid_SetVolumePressure_Recurse( ZVector3L* Location, ZonePressure* Pr );
-		void ProcessSectors( double LastLoopTime );
 #endif
+		VoxelSector[] SectorTable = new VoxelSector[64];
 
+		internal void ProcessSectors( float LastLoopTime )
+		{
+			int x, y, z;
+
+			uint MainOffset;
+			ushort VoxelType;
+			VoxelSector Sector;
+			bool LowActivityTrigger;
+			Actor SelectedActor;
+
+			btVector3 PlayerLocation;
+
+			// FireMine
+			if( FireMineTime > 0 ) FireMineTime--;
+
+			// Get the player location (in multithreading friendly way)
+
+			//do
+			//{
+			SelectedActor = GameEnv.GetActiveActor();
+			PlayerLocation = SelectedActor.ViewDirection.m_origin;
+			//} while( PlayerLocation != GameEnv.PhysicEngine.GetSelectedActor().ViewDirection.origin() );
+
+			// Cycle Counter is incremented at each MVI's cycle. This is used in cycle dependent operations.
+
+			CycleNum++;
+
+			// Egmy Wave Manager
+			//EgmyWaveManager.SwapList();
+			//
+
+			Sector = World.SectorList;
+			int Sx, Sy, Sz;
+
+			while( ( Sector ) != null )
+			{
+				LowActivityTrigger = Sector.Flag_IsActiveLowRefresh
+					&& ( ( ( CycleNum ) & Sector.LowRefresh_Mask ) == 0 );
+				if( Sector.Flag_IsActiveVoxels | LowActivityTrigger )
+				{
+					// Find All the
+					Sx = Sector.Pos_x - 1;
+					Sy = Sector.Pos_y - 1;
+					Sz = Sector.Pos_z - 1;
+
+					for( x = 0; x <= 2; x++ )
+						for( y = 0; y <= 2; y++ )
+							for( z = 0; z <= 2; z++ )
+							{
+								MainOffset = (uint)( x + ( y << 2 ) + ( z << 4 ) );
+								if( null == ( SectorTable[MainOffset] = World.FindSector( Sx + x, Sy + y, Sz + z ) ) )
+									SectorTable[MainOffset] = DummySector;
+								SectorTable[MainOffset].ModifTracker.SetActualCycleNum( CycleNum );
+							}
+
+					// Make the sector table
+					VoxelExtension[] Extension = Sector.Data.OtherInfos;
+					ushort[] VoxelP = Sector.Data.Data;
+					FastBit_Array_64k ActiveTable = VoxelTypeManager.ActiveTable;
+					bool IsActiveVoxels = false;
+					MainOffset = 0;
+					int RSx = Sector.Pos_x << VoxelSector.ZVOXELBLOCSHIFT_X;
+					int RSy = Sector.Pos_y << VoxelSector.ZVOXELBLOCSHIFT_Y;
+					int RSz = Sector.Pos_z << VoxelSector.ZVOXELBLOCSHIFT_Z;
+					VoxelRef vref;
+					vref.World = World;
+					vref.VoxelTypeManager = VoxelTypeManager;
+					vref.Sector = Sector;
+					for( z = 0; z < VoxelSector.ZVOXELBLOCSIZE_Z; z++ )
+						for( x = 0; x < VoxelSector.ZVOXELBLOCSIZE_X; x++ )
+							for( y = 0; y < VoxelSector.ZVOXELBLOCSIZE_Y; y++ )
+							{
+								VoxelType = VoxelP[MainOffset];
+								if( ActiveTable.Get( VoxelType ) )
+								{
+									if( !Sector.ModifTracker.Get( MainOffset ) ) // If voxel is already processed, don't process it once more in the same cycle.
+									{
+										switch( VoxelType )
+										{
+											case 0:
+												break;
+											default:
+												vref.wx = RSx + ( vref.x = (byte)x );
+												vref.wy = RSy + ( vref.y = (byte)y );
+												vref.wz = RSz + ( vref.z = (byte)z );
+												vref.Offset = MainOffset;
+												vref.Type = VoxelType;
+
+												IsActiveVoxels = true;
+												vref.VoxelExtension = Extension[MainOffset];
+												//St[i].ModifTracker.Set(SecondaryOffset[i]);
+												IsActiveVoxels = VoxelTypeManager.VoxelTable[VoxelType].React( ref vref, LastLoopTime );
+												break;
+										}
+
+									}
+								}
+							}
+				}
+			}
+		}
 	}
 }

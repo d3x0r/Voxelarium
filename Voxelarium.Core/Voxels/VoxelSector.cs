@@ -3,6 +3,7 @@ using Bullet.LinearMath;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Text;
 using Voxelarium.Core.Support;
 using Voxelarium.Core.Voxels.Types;
@@ -310,15 +311,15 @@ namespace Voxelarium.Core.Voxels
 
 		public VoxelSector[] near_sectors = new VoxelSector[27];
 
-		short Handle_x, Handle_y, Handle_z;
+		public short Handle_x, Handle_y, Handle_z; // used in Genesis templates
 		public int Pos_x, Pos_y, Pos_z;
 		internal uint Size_x, Size_y, Size_z;
 
 		// Version control : Added for handling better world evolution.
-		ushort ZoneType;     // The type of the zone.
-		ushort ZoneVersion;  // The version of the generator used for this zone.
-		ushort GeneratorVersion; // Main generator version. Updated at world change.
-		ushort RingNum;
+		public ushort ZoneType;     // The type of the zone.
+		public ushort ZoneVersion;  // The version of the generator used for this zone.
+		public ushort GeneratorVersion; // Main generator version. Updated at world change.
+		public ushort RingNum;
 
 		internal VoxelWorld world;
 
@@ -381,7 +382,7 @@ namespace Voxelarium.Core.Voxels
 
 		public int RefreshWaitCount;
 
-		public int LowRefresh_Mask;
+		public uint LowRefresh_Mask;
 
 #if delete_this
 		void InitSector(); // Fill sector content for reuse.
@@ -399,7 +400,7 @@ namespace Voxelarium.Core.Voxels
 		bool Decompress_Temperatures_RLE( VoxelData* Data, void* Stream );
 #endif
 
-		internal void SetVoxelTypeManager( VoxelTypeManager VoxelTypeManager ) { this.VoxelTypeManager = VoxelTypeManager; }
+		public void SetVoxelTypeManager( VoxelTypeManager VoxelTypeManager ) { this.VoxelTypeManager = VoxelTypeManager; }
 
 		static void InitStatics()
 		{
@@ -411,8 +412,13 @@ namespace Voxelarium.Core.Voxels
 				STableZ[ZVOXELBLOCSIZE_Z + 1] = 6;
 				STableY[0] = 9;
 				STableY[ZVOXELBLOCSIZE_Y + 1] = 18;
-				Initialized = false;
-
+				Initialized = true;
+				for( uint n = 0; n < ZVOXELBLOCSIZE_Y + 2; n++ )
+					OfTableY[n] = (ushort)( ( ( n == 0 ) ? ( ZVOXELBLOCSIZE_Y - 1 ) : ( n == ( ZVOXELBLOCSIZE_Y + 1 ) ) ? 0 : ( n - 1 ) ) );
+				for( uint n = 0; n < ZVOXELBLOCSIZE_X + 2; n++ )
+					OfTableX[n] = (ushort)( ( ( n == 0 ) ? ( ZVOXELBLOCSIZE_X - 1 ) : ( n == ( ZVOXELBLOCSIZE_X + 1 ) ) ? 0 : ( n - 1 ) ) * ZVOXELBLOCSIZE_Y );
+				for( uint n = 0; n < ZVOXELBLOCSIZE_Z + 2; n++ )
+					OfTableZ[n] = (ushort)( ( ( n == 0 ) ? ( ZVOXELBLOCSIZE_Z - 1 ) : ( n == ( ZVOXELBLOCSIZE_Z + 1 ) ) ? 0 : ( n - 1 ) ) * ZVOXELBLOCSIZE_Y * ZVOXELBLOCSIZE_Z );
 			}
 		}
 
@@ -430,6 +436,32 @@ namespace Voxelarium.Core.Voxels
 			this.Pos_z = z;
 		}
 
+		void ChangeSize( uint Size_x, uint Size_y, uint Size_z )
+		{
+			int i;
+			Data.Data = null;
+			Data.OtherInfos = null;
+			Data.TempInfos = null;
+			
+			//if (OtherInfos)  {delete [] OtherInfos;  OtherInfos  = 0; }
+			//if (TempInfos)   {delete [] TempInfos;   TempInfos   = 0; }
+
+			this.Size_x = Size_x;
+			this.Size_y = Size_y;
+			this.Size_z = Size_z;
+			Handle_x = Handle_y = Handle_z = 0;
+			DataSize = Size_x * Size_y * Size_z;
+			geometry.Clear();
+
+			Data.Data = new ushort[DataSize];
+			Data.TempInfos = new ushort[DataSize];
+			Data.OtherInfos = new VoxelExtension[DataSize];
+			if( Culler != null )
+				Culler.InitFaceCullData( this );
+
+			for( i = 0; i < DataSize; i++ ) Data.TempInfos[i] = 273 + 20;
+		}
+
 		// Handle point is set relative to default point.
 		public void SetHandle( short x, short y, short z )
 		{
@@ -437,7 +469,10 @@ namespace Voxelarium.Core.Voxels
 			Handle_y = y;
 			Handle_z = z;
 		}
-
+		public void SetNotStandardSize(  )
+		{
+			SetNotStandardSize( true );
+		}
 		public void SetNotStandardSize( bool NotStandardSize = true )
 		{
 			Flag_NotStandardSize = NotStandardSize;
@@ -459,7 +494,7 @@ namespace Voxelarium.Core.Voxels
 #if ALLOW_INLINE
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 #endif
-		void SetCube_WithExtension( uint x, uint y, uint z, byte CubeValue, VoxelExtension Extension )
+		public void SetCube_WithExtension( uint x, uint y, uint z, byte CubeValue, VoxelExtension Extension )
 		{
 			uint Offset;
 			Offset = ( y & ZVOXELBLOCMASK_Y )
@@ -690,9 +725,13 @@ namespace Voxelarium.Core.Voxels
 			SectorsInMemory++;
 		}
 
+		static VoxelSector()
+		{
+			InitStatics();
+		}
 		public VoxelSector( VoxelWorld world )
 		{
-			this.world = world;
+            this.world = world;
 			ModifTracker.Init( ZVOXELBLOCSIZE_X * ZVOXELBLOCSIZE_Y * ZVOXELBLOCSIZE_Z );
 			DefaultInit();
 		}
@@ -759,7 +798,7 @@ namespace Voxelarium.Core.Voxels
 		void InitSector()
 		{
 			int i;
-
+			geometry = new VoxelGeometry();
 			Pos_x = 0; Pos_y = 0; Pos_z = 0;
 			Handle_x = Handle_y = Handle_z = 0;
 			ZoneType = 0;
@@ -1077,57 +1116,52 @@ OutStream.Close();
 		}
 		*/
 
-
-		internal bool Load( int UniverseNum, string OptFileName = null )
+		public bool Load( int UniverseNum )
 		{
-			Log.log( "*** Sector load incomplete " );
-			return true;
-#if asdfsadf
-			ZTestMemoryPool MemPool;
-			ZStream_File InStream;
-			ZStream_SpecialRamStream Rs;
+			return Load( UniverseNum, null );
+		}
+		public bool Load( int UniverseNum, string OptFileName = null )
+		{
+			//Log.log( "*** Sector load incomplete {0} {1} {2}", Pos_x, Pos_y, Pos_z );
+			//return false;
+
 			string String;
-			//String.SetMemPool(&MemPool);
 			string SectionName;
-			//SectionName.SetMemPool(&MemPool);
-			//InStream.FileName.SetMemPool(&MemPool);
 
 			bool Ok;
 			string Directory;
 			int i, j;
 
 			//for(i=0;i<DataSize;i++) Data[i]=0;
+			string FileName;
 
-			if( OptFileName )
+			if( OptFileName != null )
 			{
-				InStream.SetFileName( OptFileName );
+				FileName = OptFileName;
 			}
 			else
 			{
-				char FileName[FILENAME_MAX];
-
-				GetSectorBaseDirectory( Directory );
-				GetSectorFileName( UniverseNum, Pos_x, Pos_y, Pos_z, Directory, FileName );
-				InStream.SetFileName( FileName );
+				GetSectorBaseDirectory( out Directory );
+				GetSectorFileName( UniverseNum, Pos_x, Pos_y, Pos_z, Directory, out FileName );
 			}
 
-			if( !InStream.OpenRead() ) return ( false );
-
-			Rs.SetStream( &InStream );
-			Rs.OpenRead();
+			if( !File.Exists( OptFileName ) )
+				return false;
+			FileStream fs = new FileStream( OptFileName, FileMode.Open );
+			BinaryReader br = new BinaryReader( fs );
 
 			//
 			// Sector Header
 			ushort Version;
 			ushort Compatibility_Class;
+			byte[] data = br.ReadBytes( 8 );
+			String = System.Text.Encoding.UTF8.GetString( data );
 
-			String.SetLen( 8 );
-			Rs.GetStringFixedLen( String.String, 8 );
-			if( String != "BLACKSEC" ) { printf( "Sector Loading Error (%ld,%ld,%ld): Header Missing, File is not a Sector regular format.\n", (uint)Pos_x, (uint)Pos_y, (uint)Pos_z ); Rs.Close(); InStream.Close(); return ( false ); }
-			Ok = Rs.Get( Version );
-			Ok &= Rs.Get( Compatibility_Class ); if( !Ok ) { printf( "Sector Loading Error (%ld,%ld,%ld): Can't read header informations.\n", (uint)Pos_x, (uint)Pos_y, (uint)Pos_z ); Rs.Close(); InStream.Close(); return ( false ); }
-
-			if( Compatibility_Class > 4 ) { printf( "Sector Loading Error (%ld,%ld,%ld): Incompatible format version.\n", (uint)Pos_x, (uint)Pos_y, (uint)Pos_z ); Rs.Close(); InStream.Close(); return ( false ); }
+			if( String != "BLACKSEC" ) { Log.log( "Sector Loading Error (%ld,%ld,%ld): Header Missing, File is not a Sector regular format.\n", (uint)Pos_x, (uint)Pos_y, (uint)Pos_z ); br.Close();  return ( false ); }
+			Version = br.ReadUInt16();
+			Compatibility_Class = br.ReadUInt16();
+			
+			if( Compatibility_Class > 4 ) { Log.log( "Sector Loading Error (%ld,%ld,%ld): Incompatible format version.\n", (uint)Pos_x, (uint)Pos_y, (uint)Pos_z ); br.Close(); return ( false ); }
 
 			// Sector Informations
 
@@ -1141,150 +1175,170 @@ OutStream.Close();
 			Section_Version = 0;
 			Temp_Byte = 0;
 			//SectInfoReaded = false;
-			SectionName.SetLen( 8 );
-			while( Rs.GetRemainBytesToRead() != 0 )
+
+			while( fs.Length > fs.Position )
 			{
-				if( !Rs.GetStringFixedLen( SectionName.String, 8 ) ) { printf( "Sector Loading Error (%ld,%ld,%ld): Unable to read section name.\n", (uint)Pos_x, (uint)Pos_y, (uint)Pos_z ); Rs.Close(); InStream.Close(); return ( false ); }
+				data = br.ReadBytes( 8 );
+				SectionName = System.Text.Encoding.UTF8.GetString( data );
 
 				if( SectionName == "SECTINFO" )
 				{
-					Ok = Rs.Get( Section_Len );
-					Ok &= Rs.Get( Section_Version );
+					Section_Len = br.ReadInt32();
+					Section_Version = br.ReadUInt16();
 					if( Section_Version >= 1 )
 					{
-						Ok &= Rs.Get( Size_x );
-						Ok &= Rs.Get( Size_y );
-						Ok &= Rs.Get( Size_z );
+						Size_x = br.ReadUInt16();
+						Size_y = br.ReadUInt16();
+						Size_z = br.ReadUInt16();
 						if( ( Size_x != this.Size_x ) || ( Size_y != this.Size_y ) || ( Size_z != this.Size_z ) )
 							ChangeSize( Size_x, Size_y, Size_z );
 						if( Section_Version >= 4 )
 						{
-							Ok &= Rs.Get( Handle_x );
-							Ok &= Rs.Get( Handle_y );
-							Ok &= Rs.Get( Handle_z );
+							Handle_x = br.ReadInt16();
+							Handle_y = br.ReadInt16();
+							Handle_z = br.ReadInt16();
 						}
-						Ok &= Rs.Get( Temp_Byte ); Flag_NeedFullCulling = ( Temp_Byte ) ? true : false;
-						Ok &= Rs.Get( Temp_Byte ); PartialCulling = Temp_Byte;
+						Temp_Byte = br.ReadByte();
+						Flag_NeedFullCulling = ( Temp_Byte != 0 ) ? true : false;
+						Temp_Byte = br.ReadByte();
+						PartialCulling = (FACEDRAW_Operations) Temp_Byte;
 					}
 					if( Section_Version >= 2 )
 					{
-						if( Section_Version >= 6 ) { Ok &= Rs.Get( Flag_IsModified ); Flag_IsModified &= ( 0xFF ^ BITSECTORMODIFIED ); }
-						else { Ok &= Rs.Get( Temp_Byte ); Flag_IsModified = ( Temp_Byte ) ? IMPORTANT : NONE; }
-						Ok &= Rs.Get( Temp_Byte ); Flag_IsSlowGeneration = ( Temp_Byte ) ? true : false;
+						Temp_Byte = br.ReadByte();
+						if( Section_Version >= 6 ) { Flag_IsModified = (ModifiedFieldFlags)Temp_Byte;
+							Flag_IsModified &= ( ModifiedFieldFlags)( 0xFF ^ (byte)ModifiedFieldFlags.BITSECTORMODIFIED ); }
+						else { Flag_IsModified =  ((ModifiedFieldFlags)Temp_Byte != 0 )
+								? ModifiedFieldFlags.IMPORTANT : ModifiedFieldFlags.NONE; }
+						Temp_Byte = br.ReadByte();
+						Flag_IsSlowGeneration = (Temp_Byte!= 0 )?true:false ;
 					}
 					if( Section_Version >= 3 )
 					{
-						Ok &= Rs.Get( Temp_Byte ); Flag_IsActiveVoxels = ( Temp_Byte ) ? true : false;
+						Temp_Byte = br.ReadByte();
+						Flag_IsActiveVoxels = ( Temp_Byte != 0 ) ? true : false;
 					}
 
 					if( Section_Version >= 5 )
 					{
-						Ok &= Rs.Get( Temp_Byte ); Flag_IsActiveLowRefresh = ( Temp_Byte ) ? true : false;
-						Ok &= Rs.Get( LowRefresh_Mask );
+						Temp_Byte = br.ReadByte();
+						Flag_IsActiveLowRefresh = ( Temp_Byte != 0 ) ? true : false;
+						LowRefresh_Mask = br.ReadUInt32();
 					}
 
 					if( Section_Version >= 6 )
 					{
-						Ok &= Rs.Get( ZoneType );
-						Ok &= Rs.Get( ZoneVersion );
-						Ok &= Rs.Get( GeneratorVersion );
-						Ok &= Rs.Get( RingNum );
-						Ok &= Rs.Get( Temp_Byte ); Flag_NeedSortedRendering = ( Temp_Byte ) ? true : false;
-						Ok &= Rs.Get( Temp_Byte ); Flag_NotStandardSize = ( Temp_Byte ) ? true : false;
+						ZoneType = br.ReadUInt16();
+						ZoneVersion = br.ReadUInt16();
+						GeneratorVersion = br.ReadUInt16();
+						RingNum = br.ReadUInt16();
+
+						Temp_Byte = br.ReadByte();
+						Flag_NeedSortedRendering = ( Temp_Byte!= 0 ) ? true : false;
+						Temp_Byte = br.ReadByte();
+						Flag_NotStandardSize = ( Temp_Byte != 0 ) ? true : false;
 					}
 					//
-					if( !Ok ) { printf( "Sector Loading Error (%ld,%ld,%ld): Can't read SECTOR INFO section informations.\n", (uint)Pos_x, (uint)Pos_y, (uint)Pos_z ); Rs.Close(); InStream.Close(); return ( false ); }
 
-					if( !Flag_NotStandardSize ) if( ( Size_x != ZVOXELBLOCSIZE_X ) || ( Size_y != ZVOXELBLOCSIZE_Y ) || ( Size_z != ZVOXELBLOCSIZE_Z ) ) { printf( "Sector Loading Error (%ld,%ld,%ld): Incompatible sector dimension.\n", (uint)Pos_x, (uint)Pos_y, (uint)Pos_z ); Rs.Close(); InStream.Close(); return ( false ); }
-					if( Section_Version > 6 ) { printf( "Sector Loading Error (%ld,%ld,%ld): Incompatible format in SECTOR INFO section.\n", (uint)Pos_x, (uint)Pos_y, (uint)Pos_z ); Rs.Close(); InStream.Close(); return ( false ); }
+					if( !Flag_NotStandardSize )
+						if( ( Size_x != ZVOXELBLOCSIZE_X ) 
+							|| ( Size_y != ZVOXELBLOCSIZE_Y ) 
+							|| ( Size_z != ZVOXELBLOCSIZE_Z ) )
+						{ Log.log( "Sector Loading Error (%ld,%ld,%ld): Incompatible sector dimension.\n", (uint)Pos_x, (uint)Pos_y, (uint)Pos_z ); br.Close(); return ( false ); }
+					if( Section_Version > 6 ) { Log.log( "Sector Loading Error (%ld,%ld,%ld): Incompatible format in SECTOR INFO section.\n", (uint)Pos_x, (uint)Pos_y, (uint)Pos_z ); br.Close(); return ( false ); }
 				}
 				else if( SectionName == "VOXELDAT" )
 				{
-					Ok = Rs.Get( Section_Len );
-					Ok &= Rs.Get( Section_Version );
-					if( !Ok ) { printf( "Sector Loading Error (%ld,%ld,%ld): Can't read VOXEL DATA section informations.\n", (uint)Pos_x, (uint)Pos_y, (uint)Pos_z ); Rs.Close(); InStream.Close(); return ( false ); }
-					if( !Decompress_Short_RLE( &Data, &Rs ) ) { printf( "Sector Loading Error (%ld,%ld,%ld): Can't read and decompress VOXEL DATA section data.\n", (uint)Pos_x, (uint)Pos_y, (uint)Pos_z ); Rs.Close(); InStream.Close(); return ( false ); }
+					Section_Len = br.ReadInt32();
+					Section_Version = br.ReadUInt16();
+					if( !Decompress_Short_RLE( Data.Data, br ) ) { Log.log( "Sector Loading Error (%ld,%ld,%ld): Can't read and decompress VOXEL DATA section data.\n", (uint)Pos_x, (uint)Pos_y, (uint)Pos_z ); br.Close(); return ( false ); }
 				}
 				else if( SectionName == "FACECULL" )
 				{
-					Ok = Rs.Get( Section_Len );
-					Ok &= Rs.Get( Section_Version );
-					if( !Ok ) { printf( "Sector Loading Error (%ld,%ld,%ld): Can't read VOXEL DATA section informations.\n", (uint)Pos_x, (uint)Pos_y, (uint)Pos_z ); Rs.Close(); InStream.Close(); return ( false ); }
-					if( !Culler.Decompress_RLE( this, &Rs ) ) { printf( "Sector Loading Error (%ld,%ld,%ld): Can't read and decompress FACE CULLING section data.\n", (uint)Pos_x, (uint)Pos_y, (uint)Pos_z ); Rs.Close(); InStream.Close(); return ( false ); }
+					Section_Len = br.ReadInt32();
+					Section_Version = br.ReadUInt16();
+					br.ReadBytes( Section_Len - 2 );
+					//Log.log( "OtherInfo is useless at this point... so skipping section" );
+					//if( !Culler.Decompress_RLE( this, &Rs ) ) { Log.log( "Sector Loading Error (%ld,%ld,%ld): Can't read and decompress FACE CULLING section data.\n", (uint)Pos_x, (uint)Pos_y, (uint)Pos_z ); br.Close(); return ( false ); }
 				}
 				else if( SectionName == "OTHERINF" )
 				{
-					Ok = Rs.Get( Section_Len );
-					Ok &= Rs.Get( Section_Version );
-					if( !Ok ) { printf( "Sector Loading Error (%ld,%ld,%ld): Can't read VOXEL DATA section informations.\n", (uint)Pos_x, (uint)Pos_y, (uint)Pos_z ); Rs.Close(); InStream.Close(); return ( false ); }
-					if( !Decompress_OtherInfos_RLE( &Data, &Rs ) ) { printf( "Sector Loading Error (%ld,%ld,%ld): Can't read and decompress FACE CULLING section data.\n", (uint)Pos_x, (uint)Pos_y, (uint)Pos_z ); Rs.Close(); InStream.Close(); return ( false ); }
+					Section_Len = br.ReadInt32();
+					Section_Version = br.ReadUInt16();
+					br.ReadBytes( Section_Len - 2 );
+					//Log.log( "OtherInfo is useless at this point... so skipping section" );
+					//if( !Ok ) { Log.log( "Sector Loading Error (%ld,%ld,%ld): Can't read VOXEL DATA section informations.\n", (uint)Pos_x, (uint)Pos_y, (uint)Pos_z ); br.Close(); return ( false ); }
+					//if( !Decompress_OtherInfos_RLE( &Data, &Rs ) ) { Log.log( "Sector Loading Error (%ld,%ld,%ld): Can't read and decompress FACE CULLING section data.\n", (uint)Pos_x, (uint)Pos_y, (uint)Pos_z ); br.Close(); return ( false ); }
 				}
 				else if( SectionName == "TEMPDATA" )
 				{
-					Ok = Rs.Get( Section_Len );
-					Ok &= Rs.Get( Section_Version );
-					if( !Ok ) { printf( "Sector Loading Error (%ld,%ld,%ld): Can't read VOXEL DATA section informations.\n", (uint)Pos_x, (uint)Pos_y, (uint)Pos_z ); Rs.Close(); InStream.Close(); return ( false ); }
-					if( !Decompress_Temperatures_RLE( &Data, &Rs ) ) { printf( "Sector Loading Error (%ld,%ld,%ld): Can't read and decompress FACE CULLING section data.\n", (uint)Pos_x, (uint)Pos_y, (uint)Pos_z ); Rs.Close(); InStream.Close(); return ( false ); }
+					Section_Len = br.ReadInt32();
+					Section_Version = br.ReadUInt16();
+					if( !Decompress_Short_RLE( Data.Data, br, 55871 ) ) { Log.log( "Sector Loading Error (%ld,%ld,%ld): Can't read and decompress FACE CULLING section data.\n", (uint)Pos_x, (uint)Pos_y, (uint)Pos_z ); br.Close(); return ( false ); }
 				}
 				else if( SectionName == "VOXELEXT" )
 				{
 					// Voxel Extensions
 
 					ushort Voxel;
-					ZVoxelType* VoxelType;
-					ZVoxelExtension* VoxelExtension;
+					VoxelType VoxelType;
+					VoxelExtension VoxelExtension;
 					int RemainingExtensionsInFile;
 					int VoxelOffset, ExtensionID, ExtensionLen;
 					bool PassExtension;
 					RemainingExtensionsInFile = 0;
 
-					Ok = Rs.Get( Section_Len );
-					Ok &= Rs.Get( Section_Version );
-					Ok &= Rs.Get( RemainingExtensionsInFile );
+					Section_Len = br.ReadInt32();
+					Section_Version = br.ReadUInt16();
 
+					RemainingExtensionsInFile = br.ReadInt32();
 
-					if( !Ok ) { printf( "Sector Loading Error (%ld,%ld,%ld): Can't read VOXEL EXTENSION section informations.\n", (uint)Pos_x, (uint)Pos_y, (uint)Pos_z ); Rs.Close(); InStream.Close(); return ( false ); }
+					//if( !Ok ) { Log.log( "Sector Loading Error (%ld,%ld,%ld): Can't read VOXEL EXTENSION section informations.\n", (uint)Pos_x, (uint)Pos_y, (uint)Pos_z ); br.Close(); return ( false ); }
 
 					for( i = 0; i < DataSize; i++ )
 					{
 						Voxel = Data.Data[i];
 						VoxelType = VoxelTypeManager.VoxelTable[Voxel];
-						if( VoxelType.Is_HasAllocatedMemoryExtension )
+						if( VoxelType.properties.Is_HasAllocatedMemoryExtension )
 						{
-							VoxelExtension = (ZVoxelExtension*)VoxelType.CreateVoxelExtension( true );
-							if( !VoxelExtension ) { printf( "Sector Loading Error (%ld,%ld,%ld): Can't read VOXEL EXTENSION section / Can't create voxel extension.\n", (uint)Pos_x, (uint)Pos_y, (uint)Pos_z ); Rs.Close(); InStream.Close(); return ( false ); }
+							VoxelExtension = VoxelType.CreateVoxelExtension( true );
+							if( VoxelExtension == null ) { Log.log( "Sector Loading Error (%ld,%ld,%ld): Can't read VOXEL EXTENSION section / Can't create voxel extension.\n", (uint)Pos_x, (uint)Pos_y, (uint)Pos_z ); br.Close(); return ( false ); }
 
 							do
 							{
 								PassExtension = false;
-								Ok = Rs.Get( VoxelOffset ); if( !Ok ) { printf( "Sector Loading Error (%ld,%ld,%ld): Can't read VOXEL EXTENSION section / VoxelOffset.\n", (uint)Pos_x, (uint)Pos_y, (uint)Pos_z ); Rs.Close(); InStream.Close(); return ( false ); }
-								if( !RemainingExtensionsInFile ) { printf( "Sector Loading Error (%ld,%ld,%ld): Can't read VOXEL EXTENSION section / Missing voxel extensions in file.\n", (uint)Pos_x, (uint)Pos_y, (uint)Pos_z ); Rs.Close(); InStream.Close(); return ( false ); }
-								Ok = Rs.Get( ExtensionID ); if( !Ok ) { printf( "Sector Loading Error (%ld,%ld,%ld): Can't read VOXEL EXTENSION section / ExtensionID.\n", (uint)Pos_x, (uint)Pos_y, (uint)Pos_z ); Rs.Close(); InStream.Close(); return ( false ); }
+								VoxelOffset = br.ReadInt32();
+								if( 0 == RemainingExtensionsInFile ) { Log.log( "Sector Loading Error (%ld,%ld,%ld): Can't read VOXEL EXTENSION section / Missing voxel extensions in file.\n", (uint)Pos_x, (uint)Pos_y, (uint)Pos_z ); br.Close(); return ( false ); }
+								ExtensionID = br.ReadInt32();
 
 								// If there is unsupported extensions in file, read them and throw there contents out.
 								if( VoxelOffset != i )
 								{
 									PassExtension = true; // After throwing extension, we must try next.
-									Ok = Rs.Get( ExtensionLen ); if( !Ok ) { printf( "Sector Loading Error (%ld,%ld,%ld): Can't read VOXEL EXTENSION section / ExtensionLen.\n", (uint)Pos_x, (uint)Pos_y, (uint)Pos_z ); Rs.Close(); InStream.Close(); return ( false ); }
-									for( j = 0; j < ExtensionLen; j++ ) Ok &= Rs.Get( Temp_Byte );
-									if( !Ok ) { printf( "Sector Loading Error (%ld,%ld,%ld): Can't read VOXEL EXTENSION section / Thrown extension data.\n", (uint)Pos_x, (uint)Pos_y, (uint)Pos_z ); Rs.Close(); InStream.Close(); return ( false ); }
+									ExtensionLen = br.ReadInt32();
+									br.ReadBytes( ExtensionLen );
+									//if( !Ok ) { Log.log( "Sector Loading Error (%ld,%ld,%ld): Can't read VOXEL EXTENSION section / Thrown extension data.\n", (uint)Pos_x, (uint)Pos_y, (uint)Pos_z ); br.Close(); return ( false ); }
 
 								}
-								else if( ExtensionID != VoxelExtension.GetExtensionID() ) { printf( "Sector Loading Error (%ld,%ld,%ld): Can't read VOXEL EXTENSION section / Extension type doesn't match.\n", (uint)Pos_x, (uint)Pos_y, (uint)Pos_z ); Rs.Close(); InStream.Close(); return ( false ); }
+								else if( ExtensionID != VoxelExtension.GetExtensionID() ) { Log.log( "Sector Loading Error (%ld,%ld,%ld): Can't read VOXEL EXTENSION section / Extension type doesn't match.\n", (uint)Pos_x, (uint)Pos_y, (uint)Pos_z ); br.Close(); return ( false ); }
 								RemainingExtensionsInFile--;
 							} while( PassExtension );
 
-							Data.OtherInfos[i] = (uint)VoxelExtension;
-							if( !VoxelExtension.Load( &Rs ) ) { printf( "Sector Loading Error (%ld,%ld,%ld): Can't read VOXEL EXTENSION section / Can't read voxel extension subdata.\n", (uint)Pos_x, (uint)Pos_y, (uint)Pos_z ); Rs.Close(); InStream.Close(); return ( false ); }
+							Data.OtherInfos[i] = VoxelExtension;
+							if( VoxelExtension.Load( br ) )
+							{ Log.log( "Sector Loading Error (%ld,%ld,%ld): Can't read VOXEL EXTENSION section / Can't read voxel extension subdata.\n", (uint)Pos_x, (uint)Pos_y, (uint)Pos_z ); br.Close(); return ( false ); }
 						}
 					}
 					// End of Section
 				}
 				else // Unknow Section
 				{
-					Ok = Rs.Get( Section_Len );
-					if( !Ok ) { printf( "Sector Loading Error (%ld,%ld,%ld): Can't read UNKNOWN section informations.\n", (uint)Pos_x, (uint)Pos_y, (uint)Pos_z ); Rs.Close(); InStream.Close(); return ( false ); }
-					for( i = 0; i < Section_Len; i++ ) if( !Rs.Get( Temp_Byte ) ) { printf( "Sector Loading Error (%ld,%ld,%ld): Can't read UNKNOWN section data.\n", (uint)Pos_x, (uint)Pos_y, (uint)Pos_z ); Rs.Close(); InStream.Close(); return ( false ); }
+					Section_Len = br.ReadInt32();
+					//Section_Version = br.ReadUInt16();
+
+					//if( !Ok ) { Log.log( "Sector Loading Error (%ld,%ld,%ld): Can't read UNKNOWN section informations.\n", (uint)Pos_x, (uint)Pos_y, (uint)Pos_z ); br.Close(); return ( false ); }
+					br.ReadBytes( Section_Len );
+					//for( i = 0; i < Section_Len; i++ ) if( !Rs.Get( Temp_Byte ) ) { Log.log( "Sector Loading Error (%ld,%ld,%ld): Can't read UNKNOWN section data.\n", (uint)Pos_x, (uint)Pos_y, (uint)Pos_z ); br.Close(); return ( false ); }
 				}
 			}
 
@@ -1340,10 +1394,9 @@ OutStream.Close();
 			  //if (DataSize != fwrite(Data, sizeof(byte) ,DataSize,fh)) {fclose (fh);return(false);}
 			  //fclose (fh);
 		  */
-			InStream.Close();
+			br.Close();
 
 			return ( true );
-#endif
 
 		}
 
@@ -1366,6 +1419,36 @@ OutStream.Close();
 		  return(true);
 		}
 		*/
+		bool Decompress_Short_RLE( ushort[] Data, BinaryReader Stream, ushort MagicToken = 0xFFFF )
+		{
+			//ushort MagicToken = 0xFFFF;
+			ushort Actual;
+			int Pointer;
+			ushort nRepeat;
+
+			Pointer = 0;
+			while( Pointer < DataSize )
+			{
+				Actual = Stream.ReadUInt16();
+				if( Actual == MagicToken )
+				{
+					Actual = Stream.ReadUInt16();
+					nRepeat = Stream.ReadUInt16();
+					if( ( (int)nRepeat ) > ( DataSize - Pointer ) )
+					{
+						return ( false );
+					}
+
+					while( nRepeat-- != 0 ) { Data[Pointer++] = Actual; }
+				}
+				else
+				{
+					Data[Pointer++] = Actual;
+				}
+			}
+			return ( true );
+		}
+
 #if OUTPUT_ENABLED
 		void DebugOutFCInfo( string FileName )
 		{
@@ -1597,37 +1680,6 @@ OutStream.Close();
 
 		}
 
-		bool Decompress_Short_RLE( VoxelData* Data, void* Stream )
-		{
-			ZStream_SpecialRamStream* Rs = (ZStream_SpecialRamStream*)Stream;
-			ushort MagicToken = 0xFFFF;
-			ushort Actual;
-			int Pointer;
-			ushort nRepeat;
-
-			Pointer = 0;
-			while( Pointer < DataSize )
-			{
-				if( !Rs.Get( Actual ) ) return ( false );
-				if( Actual == MagicToken )
-				{
-					if( !Rs.Get( Actual ) ) return ( false );
-					if( !Rs.Get( nRepeat ) ) return ( false );
-					if( ( (int)nRepeat ) > ( DataSize - Pointer ) )
-					{
-						return ( false );
-					}
-
-					while( nRepeat-- ) { Data.Data[Pointer++] = Actual; }
-				}
-				else
-				{
-					Data.Data[Pointer++] = Actual;
-				}
-			}
-
-			return ( true );
-		}
 
 #if false
 bool Decompress_FaceCulling_RLE(byte * Data, void * Stream)
@@ -1817,7 +1869,7 @@ bool Decompress_FaceCulling_RLE(byte * Data, void * Stream)
 			}
 		}
 
-		public void Draw_safe_VoxelLine2( ref ZRect3L_2 LineCoords, ref ZRect1d Thickness, ushort VoxelType )
+		public void Draw_safe_VoxelLine2( ref ZRect3L_2 LineCoords, ref ZRect1f Thickness, ushort VoxelType )
 		{
 			int Dx, Dy, Dz, TempMax, NumSteps, i;
 
@@ -1897,7 +1949,7 @@ bool Decompress_FaceCulling_RLE(byte * Data, void * Stream)
 			}
 		}
 
-		public void Draw_safe_VoxelLine_TickCtl( ref ZRect3L LineCoords, double[] ThicknessTable, int nThickIndices, ushort VoxelType )
+		public void Draw_safe_VoxelLine_TickCtl( ref ZRect3L LineCoords, float[] ThicknessTable, int nThickIndices, ushort VoxelType )
 		{
 			int Index1, Index2;
 			int Dx, Dy, Dz, TempMax, NumSteps, i;
@@ -1982,7 +2034,7 @@ bool Decompress_FaceCulling_RLE(byte * Data, void * Stream)
 			ZPolar3f NewDirection, NewDirection2;
 			double angle, angle2;
 			ZRect3L_2 Rect;
-			ZRect1d Thickness;
+			ZRect1f Thickness;
 
 			BranchVector.x = (float)( Direction.Len * Math.Sin( Direction.yaw / 57.295779506 ) * Math.Cos( Direction.pitch / 57.295779506 ) );
 			BranchVector.y = (float)( Direction.Len * Math.Sin( Direction.yaw / 57.295779506 ) * Math.Sin( Direction.pitch / 57.295779506 ) );
@@ -2053,7 +2105,7 @@ bool Decompress_FaceCulling_RLE(byte * Data, void * Stream)
 			ZPolar3f NewDirection, NewDirection2;
 			double angle, angle2;
 			ZRect3L_2 Rect;
-			ZRect1d Thickness;
+			ZRect1f Thickness;
 
 			BranchVector.x = (float)( Direction.Len * Math.Sin( Direction.yaw / 57.295779506 ) * Math.Cos( Direction.pitch / 57.295779506 ) );
 			BranchVector.y = (float)( Direction.Len * Math.Sin( Direction.yaw / 57.295779506 ) * Math.Sin( Direction.pitch / 57.295779506 ) );
@@ -2126,13 +2178,13 @@ bool Decompress_FaceCulling_RLE(byte * Data, void * Stream)
 			this.Draw_subtree_2( ref Point, ref Direction, Random, 0.0 );
 		}
 
-		public void Draw_subtree_3( ref btVector3 Point, ref ZPolar3f Direction, Random Random, double TotalLen )
+		public void Draw_subtree_3( ref btVector3 Point, ref ZPolar3f Direction, Random Random, float TotalLen )
 		{
 			btVector3 BranchVector, NewPoint;
 			ZPolar3f NewDirection, NewDirection2;
 			double angle, angle2;
 			ZRect3L_2 Rect;
-			ZRect1d Thickness;
+			ZRect1f Thickness;
 
 			BranchVector.x = (float)( Direction.Len * Math.Sin( Direction.yaw / 57.295779506 ) * Math.Cos( Direction.pitch / 57.295779506 ) );
 			BranchVector.y = (float)( Direction.Len * Math.Sin( Direction.yaw / 57.295779506 ) * Math.Sin( Direction.pitch / 57.295779506 ) );
@@ -2205,7 +2257,7 @@ bool Decompress_FaceCulling_RLE(byte * Data, void * Stream)
 			Direction.yaw = 90.0f;
 			Direction.roll = 0;
 
-			Draw_subtree_3( ref Point, ref Direction, Random, 0.0 );
+			Draw_subtree_3( ref Point, ref Direction, Random, 0 );
 		}
 
 

@@ -33,7 +33,7 @@ namespace Voxelarium.Core.UI
 			if( Flag_Show_Master )
 			{
 				EffectivePosition.Position = ParentPosition.Position + Dimensions.Position;
-				EffectivePosition.Position.Z += 0.1f;
+				EffectivePosition.Position.Z -= 0.1f;
                 EffectivePosition.Size = Dimensions.Size;
 				if( Flag_Show_Frame )
 				{

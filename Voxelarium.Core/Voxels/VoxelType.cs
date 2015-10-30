@@ -4,25 +4,26 @@ using System.Drawing;
 using System.IO;
 using System.Text;
 using Voxelarium.Core.Support;
+using Voxelarium.Core.UI;
 using Voxelarium.Core.Voxels.Types;
 
 namespace Voxelarium.Core.Voxels
 {
 	public class VoxelType
 	{
-		public struct VoxelLocation
+		internal struct VoxelLocation
 		{
 			VoxelSector Sector;
-			ushort Offset;
+			uint Offset;
 		};
-		internal int DrawInfo;
+
 
 		protected VoxelGameEnvironment GameEnv;
 		internal VoxelTypeManager VoxelTypeManager;
 
 		internal protected Bitmap MainTexture;
-		internal protected int OpenGl_TextureRef;
-
+		//internal protected int OpenGl_TextureRef;
+		internal Box2D TextureCoords;
 		public VoxelProperties properties;
 
 		public delegate void OnPropertiesSet();
@@ -39,16 +40,26 @@ namespace Voxelarium.Core.Voxels
 		{
 			VoxelTypeManager = null;
 			MainTexture = null;
-			OpenGl_TextureRef = 0;
+			//OpenGl_TextureRef = 0;
 			GameEnv = null;
 		}
 
-		public void SetProperties( VoxelProperties props ) { properties = props; if( PropertiesSet != null ) PropertiesSet(); } 
+		public void SetProperties( VoxelProperties props ) { properties = props; if( PropertiesSet != null ) PropertiesSet(); }
 		public void SetGameEnv( VoxelGameEnvironment GameEnv ) { this.GameEnv = GameEnv; }
 		internal void SetManager( VoxelTypeManager VoxelTypeManager ) { this.VoxelTypeManager = VoxelTypeManager; }
 		public virtual void SpecialRender( float x, float y, float z ) { }
 
-		public virtual bool LoadTexture()
+		bool loaded_texture;
+		internal void LoadTextureToAtlas( TextureAtlas atlas )
+		{
+			if( MainTexture != null && !loaded_texture )
+			{
+				atlas.AddTexture( MainTexture, out TextureCoords );
+				loaded_texture = true;
+            }
+		}
+
+		internal virtual bool LoadTexture(  )
 		{
 			Bitmap image = null;
 			//ZBitmapImage* Image;
@@ -60,7 +71,7 @@ namespace Voxelarium.Core.Voxels
 				string FileSpec, FileName;
 				if( properties.Type < 32768 )
 				{
-					FileName  ="voxeltexture_" + properties.Type + ( attempt == 1 ? ".bmp" : ".png" );
+					FileName = "voxeltexture_" + properties.Type + ( attempt == 1 ? ".bmp" : ".png" );
 					FileSpec = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH + "/VoxelTypes/" + FileName;
 				}
 				else
@@ -73,7 +84,7 @@ namespace Voxelarium.Core.Voxels
 					}
 					else
 						FileSpec = ".";
-					FileSpec+="/UserTextures/" +FileName;
+					FileSpec += "/UserTextures/" + FileName;
 				}
 
 				//  if (VoxelType<32768) sprintf(Buffer, "VoxelTypes/voxeltexture_%u.bmp", VoxelType);
@@ -89,7 +100,7 @@ namespace Voxelarium.Core.Voxels
 			if( Image->Width > 128 ) Image->ReduceSize();
 #endif
 			MainTexture = image;
-			if( image.PixelFormat != System.Drawing.Imaging.PixelFormat.Format32bppArgb 
+			if( image.PixelFormat != System.Drawing.Imaging.PixelFormat.Format32bppArgb
 				&& image.PixelFormat != System.Drawing.Imaging.PixelFormat.Format32bppRgb
 				)
 			{
@@ -114,16 +125,16 @@ namespace Voxelarium.Core.Voxels
 		public virtual void UserAction_Activate( uint VoxelInfo, int x, int y, int z ) { }
 
 		public virtual bool Interface_StoreBlock_Store( ushort VoxelType, uint Count ) { return ( false ); }
-		public virtual uint Interface_PushBlock_Push( VoxelLocation DestLocation, ushort VoxelType, uint Count ) { return ( 0 ); }
-		public virtual uint Interface_PushBlock_PushTest( VoxelLocation DestLocation, ushort VoxelType, uint Count ) { return ( Count ); }
-		public virtual uint Interface_PushBlock_Pull( VoxelLocation DestLocation, out ushort VoxelType, uint Count ) { VoxelType = 0; return ( 0 ); }
-		public virtual uint Interface_PushBlock_PullTest( VoxelLocation DestLocation, out ushort VoxelType, uint Count ) { VoxelType = 0; return ( 0 ); }
+		internal virtual uint Interface_PushBlock_Push( VoxelLocation DestLocation, ushort VoxelType, uint Count ) { return ( 0 ); }
+		internal virtual uint Interface_PushBlock_PushTest( VoxelLocation DestLocation, ushort VoxelType, uint Count ) { return ( Count ); }
+		internal virtual uint Interface_PushBlock_Pull( VoxelLocation DestLocation, out ushort VoxelType, uint Count ) { VoxelType = 0; return ( 0 ); }
+		internal virtual uint Interface_PushBlock_PullTest( VoxelLocation DestLocation, out ushort VoxelType, uint Count ) { VoxelType = 0; return ( 0 ); }
 
 		// Squirrel interface
 		//public virtual bool Interface_GetInfo( VoxelLocation VLoc, uint InfoNum, ZVar Out ) { return ( false ); }
 		//public virtual bool Interface_GetInfoDoc( uint InfoNum, uint DocType, ZVar Out ) { return ( false ); }
 		//public virtual bool Interface_SetInfo( VoxelLocation VLoc, uint InfoNum, ZVar In ) { return ( false ); }
-		public virtual void GetBlockInformations( VoxelLocation DestLocation, string Infos ) { return; }
+		internal virtual void GetBlockInformations( VoxelLocation DestLocation, string Infos ) { return; }
 
 		// When an active voxel should be processed. Note some voxels use "direct" faster way.
 		//public virtual void ActiveProcess( ActiveVoxelInterface AvData ) { };

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using Voxelarium.Core.Types;
 using Voxelarium.Core.Voxels.Types;
@@ -23,6 +24,9 @@ namespace Voxelarium.Core.Voxels
 		public bool Draw_FullVoxelOpacity;
 		// New
 		public byte DrawInfo;
+		public Color FaceColor;
+		public Color EdgeColor;
+		public short EdgePower; 
 		//
 		public bool Is_NoType;                    // Defined if this is a default "No type" Entry;
 		public bool Is_UserTypeTransformable;     // Can be used to make user blocks. Very rare blocs must avoid that.
@@ -230,6 +234,18 @@ namespace Voxelarium.Core.Voxels
 						if( Token == "BvProp_AtomicFireResistant" ) { BvProp_AtomicFireResistant = ( intValue != 0 ) ? true : false; }
 						if( Token == "BvProp_EgmyT1Resistant" ) { BvProp_EgmyT1Resistant = ( intValue != 0 ) ? true : false; }
 						if( Token == "VoxelClassName" ) { VoxelClassName = sValue; }
+						if( Token == "EdgeColor" )
+						{
+							DrawInfo |= VoxelGlobalSettings.ZVOXEL_DRAWINFO_SHADER; EdgeColor = XColor.DeserializeColor( sValue );
+						}
+						if( Token == "FaceColor" )
+						{
+							DrawInfo |= VoxelGlobalSettings.ZVOXEL_DRAWINFO_SHADER; FaceColor = XColor.DeserializeColor( sValue );
+						}
+						if( Token == "EdgePower" )
+						{
+							DrawInfo |= VoxelGlobalSettings.ZVOXEL_DRAWINFO_SHADER; EdgePower = (short)intValue;
+						}
 					}
 				}
 			}

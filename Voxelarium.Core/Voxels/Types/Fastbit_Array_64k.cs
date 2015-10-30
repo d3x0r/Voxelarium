@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Voxelarium.Core.Voxels.Types
 {
-	internal class FastBit_Array_64k
+	public class FastBit_Array_64k
 	{
 		internal uint[] Storage = new uint[2048];
 
@@ -39,7 +39,7 @@ namespace Voxelarium.Core.Voxels.Types
 #if ALLOW_INLINE
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 #endif
-		bool Get( ushort Index )
+		internal bool Get( ushort Index )
 		{
 			ushort Remain;
 			int Offset;

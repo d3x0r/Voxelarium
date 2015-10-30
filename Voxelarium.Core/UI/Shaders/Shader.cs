@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Voxelarium.Core.Support;
 #if !USE_GLES2
 using OpenTK.Graphics.OpenGL;
 #else
@@ -21,6 +22,8 @@ namespace Voxelarium.Core.UI.Shaders
 		internal int worldview_id;
 
 		bool loaded;
+		//bool parameters_set;
+		internal static int prior_activated;
 
 		/// <summary>
 		/// Type of Shader
@@ -50,34 +53,50 @@ namespace Voxelarium.Core.UI.Shaders
 			GL.DeleteProgram( Program );
 		}
 
+		static int prior_thread;
 
-		internal  void Activate(  )
+		internal  bool Activate(  )
 		{
+			if( prior_thread == 0 )
+				prior_thread = System.Threading.Thread.CurrentThread.ManagedThreadId;
+			if( System.Threading.Thread.CurrentThread.ManagedThreadId != prior_thread )
+				Log.log( "Activate.." );
 			if( !loaded )
 			{
 				Compile();
 				loaded = true;
 			}
-			GL.UseProgram( Program );
-			Display.CheckErr();
-			GL.UniformMatrix4( projection_id, false, ref Display.projection );
-			Display.CheckErr();
-			unsafe
+			if( prior_activated != Program )
 			{
-				btMatrix3x3 tmp;
-				Display.worldview.GetGLMatrix( out tmp );
-				float* matrix_ptr = &tmp.m_el0.x;
-				//fixed ( float* matrix_ptr = &Display.worldview.m_el0.x )
+				prior_activated = Program;
+				GL.UseProgram( Program );
+				//if( !parameters_set )
 				{
-					GL.UniformMatrix4( worldview_id, 1, false, matrix_ptr );
+					if( Display.CheckErr() )
+					{
+						return false;
+					}
+					GL.UniformMatrix4( projection_id, false, ref Display.projection );
+					Display.CheckErr();
+					unsafe
+					{
+						btMatrix3x3 tmp;
+						Display.active_camera.location.GetGLCameraMatrix( out tmp );
+						float* matrix_ptr = &tmp.m_el0.x;
+						//fixed ( float* matrix_ptr = &Display.worldview.m_el0.x )
+						{
+							GL.UniformMatrix4( worldview_id, 1, false, matrix_ptr );
+						}
+					}
+					Display.CheckErr();
+					if( modelview_id >= 0 )
+					{
+						GL.UniformMatrix4( modelview_id, false, ref Display.modelview );
+						Display.CheckErr();
+					}
 				}
 			}
-			Display.CheckErr();
-			if( modelview_id >= 0 )
-			{
-				GL.UniformMatrix4( modelview_id, false, ref Display.modelview );
-				Display.CheckErr();
-			}
+			return true;
 			//GL.UniformMatrix4( 
 		}
 

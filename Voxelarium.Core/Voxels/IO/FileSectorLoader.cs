@@ -14,7 +14,7 @@ namespace Voxelarium.Core.Voxels.IO
 		bool ThreadContinue;
 
 		SectorRequestRingList[] RequestList = new SectorRequestRingList[8];
-		SectorTagHash RequestTag;
+		SectorTagHash RequestTag = new SectorTagHash();
 		SectorRingList ReadySectorList;
 		SectorRingList EjectedSectorList;
 		SectorRingList SectorRecycling;
@@ -39,7 +39,7 @@ namespace Voxelarium.Core.Voxels.IO
 		void thread_func( object Data )
 		{
 			FileSectorLoader SectorLoader = (FileSectorLoader)Data;
-			while( SectorLoader.ThreadContinue )
+			while( !VoxelGlobalSettings.Exiting && SectorLoader.ThreadContinue )
 			{
 				SectorLoader.MakeTasks();
 				System.Threading.Thread.Sleep( 10 );
@@ -106,7 +106,7 @@ namespace Voxelarium.Core.Voxels.IO
 			ThreadContinue = true;
 			Thread = new System.Threading.Thread( thread_func );
 			Thread.Start( this );
-			if( !SectorCreator.LoadTemplateImages() ) return ( false );
+			if( !SectorCreator.LoadTemplateImages( VoxelTypeManager ) ) return ( false );
 			return ( true );
 		}
 
@@ -171,7 +171,6 @@ namespace Voxelarium.Core.Voxels.IO
 			return ( false );
 		}
 
-		int CarZCounter = 0;
 		int debug_deletecount = 0;
 
 		internal void MakeTasks()
@@ -242,19 +241,19 @@ namespace Voxelarium.Core.Voxels.IO
 				System.Threading.Thread.Sleep( 10 );
 		}
 
+
+		ushort[][] BlocMatrix = new ushort[3][] { new ushort[9], new ushort[9], new ushort[9] };
+		ushort[] tmpp;
+		VoxelSector[] SectorTable = new VoxelSector[27];
+		VoxelType[] Vt = new VoxelType[6 + 12];
+
 		void LimitedUpdateFaceCulling( VoxelSector Sector )
 		{
-			VoxelSector[] SectorTable = new VoxelSector[27];
+			//VoxelSector[] SectorTable = new VoxelSector[27];
 			VoxelType[] VoxelTypeTable;
 
 			ushort Temp;
-			ushort[][] BlocMatrix = new ushort [3][];
-			ushort[] tmpp;
 			uint i;
-
-			BlocMatrix[0] = new ushort[9];
-			BlocMatrix[1] = new ushort[9];
-			BlocMatrix[2] = new ushort[9];
 
 			for( i = 0; i < 27; i++ ) SectorTable[i] = WorkingFullSector;
 			SectorTable[0] = Sector;
@@ -269,7 +268,6 @@ namespace Voxelarium.Core.Voxels.IO
 			int xp, yp, zp;
 			int xpp, ypp, zpp;
 			VoxelSector.FACEDRAW_Operations info;
-			VoxelType[] Vt = new VoxelType[6 + 12];
 			bool TransparentVoxel;
 
 			VoxelTypeTable = VoxelTypeManager.VoxelTable;
@@ -394,16 +392,12 @@ namespace Voxelarium.Core.Voxels.IO
 						}
 						*/
 						// Write face culling info to face culling table
-
-						SectorTable[0].Culler.setFaceCulling( SectorTable[0], VoxelSector.OfTableX[xp] + VoxelSector.OfTableY[yp] + VoxelSector.OfTableZ[zp], info );
+						if( SectorTable[0].Culler != null )
+							SectorTable[0].Culler.setFaceCulling( SectorTable[0], VoxelSector.OfTableX[xp] + VoxelSector.OfTableY[yp] + VoxelSector.OfTableZ[zp], info );
 
 					}
 				}
 			}
-
-			BlocMatrix[0] = null;
-			BlocMatrix[1] = null;
-			BlocMatrix[2] = null;
 
 		}
 
