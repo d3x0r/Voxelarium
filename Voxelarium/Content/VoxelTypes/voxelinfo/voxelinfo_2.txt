@@ -4,4 +4,6 @@ Draw_FullVoxelOpacity=1
 MiningHardness = 2000;
 MiningType     = 2;
 Documentation_PageNum = 1324
-VoxelClassName=Voxelarium.Core.Voxels.OrangeRock
+EdgeColor = ARGBColor:255:248:125:34
+FaceColor = ARGBColor:255:0:0:0
+EdgePower = 400

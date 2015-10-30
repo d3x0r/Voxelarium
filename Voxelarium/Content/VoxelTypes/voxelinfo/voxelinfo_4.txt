@@ -4,3 +4,6 @@ Draw_FullVoxelOpacity=1
 MiningHardness = 2000;
 MiningType     = 3;
 Documentation_PageNum = 1327
+EdgeColor = ARGBColor:255:232:50:55
+FaceColor = ARGBColor:255:0:0:0
+EdgePower = 400
