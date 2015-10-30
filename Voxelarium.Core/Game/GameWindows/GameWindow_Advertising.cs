@@ -20,7 +20,6 @@ namespace Voxelarium.Core.Game.GameWindows
 		};
 
 
-		Frame MainWindow;
 		string ActualText;
 		FontFrame Frame_Text = new FontFrame();
 

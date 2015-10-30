@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using Voxelarium.Core.Types;
 using Voxelarium.Core.Voxels.Types;
 using Voxelarium.Core.Voxels.Utils;
 
@@ -7,7 +8,7 @@ namespace Voxelarium.Core.Voxels
 {
 	public class Genesis : IWorldGenesis
 	{
-		const int Z_GENESISMAP_SIZE = 0;
+		const int Z_GENESISMAP_SIZE = 128;
 		// static ushort ZoneMap[32][32];
 		// static int  HeightMap[32][32];
 		const int InclusionQuantity = 75;
@@ -15,7 +16,8 @@ namespace Voxelarium.Core.Voxels
 
 		ushort[] ConvCN = new ushort[256];
 
-		SaltyRandomGenerator RandomGen;
+		LightSpeedRandom RandomGen;
+		SaltyRandomGenerator SaltyRandomGen;
 		VoxelTypeManager voxelTypeManager;
 
 		public Bitmap Template_1;
@@ -31,7 +33,7 @@ namespace Voxelarium.Core.Voxels
 		GenericCharCanvas Canva_3_2 = new GenericCharCanvas();
 		GenericCharCanvas Canva_3_3 = new GenericCharCanvas();
 
-		VoxelSector T3dTemplate_1 = new VoxelSector( ( VoxelWorld )null ); // Tree
+		VoxelSector T3dTemplate_1 = new VoxelSector( (VoxelWorld)null ); // Tree
 		VoxelSector T3dTemplate_2 = new VoxelSector( (VoxelWorld)null ); // Boulder 1
 		VoxelSector Template_Vegetation_1 = new VoxelSector( (VoxelWorld)null );
 		VoxelSector Template_Vegetation_2 = new VoxelSector( (VoxelWorld)null );
@@ -173,77 +175,6 @@ namespace Voxelarium.Core.Voxels
   "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"  // 128
 };
 
-		/*
-		const char * ZoneMap_New[]=
-		{
-		// 0000000001111111111222222222233333333334444444444555555555566666
-		// 1234567890123456789012345678901234567890123456789012345678901234
-		  "0000000000000000000000000000000000000000000000000000000000000000", // 1
-		  "0000000000000000000000000000000000000000000000000000000000000000", // 2
-		  "00DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD00", // 3
-		  "00DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD00", // 4
-		  "00DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD00", // 5
-		  "00DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD00", // 6
-		  "00DDDDBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBDDDD00", // 7
-		  "00DDDDBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBDDDD00", // 8
-		  "00DDDDBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBDDDD00", // 9
-		  "00DDDDBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBDDDD00", // 10
-		  "00DDDDBBBBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABBBBDDDD00", // 11
-		  "00DDDDBBBBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABBBBDDDD00", // 12
-		  "00DDDDBBBBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABBBBDDDD00", // 13
-		  "00DDDDBBBBAAABBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBAAABBBBDDDD00", // 14
-		  "00DDDDBBBBAAAB999999999999999999999999999999999999BAAABBBBDDDD00", // 15
-		  "00DDDDBBBBAAAB999999999999999999999999999999999999BAAABBBBDDDD00", // 16
-		  "00DDDDBBBBAAAB999999999999999999999999999999999999BAAABBBBDDDD00", // 17
-		  "00DDDDBBBBAAAB999999999999999999999999999999999999BAAABBBBDDDD00", // 18
-		  "00DDDDBBBBAAAB9999CCCCCCCCCCCCCCCCCCCCCCCCCCCC9999BAAABBBBDDDD00", // 19
-		  "00DDDDBBBBAAAB9999C66666666666666666666666666C9999BAAABBBBDDDD00", // 20
-		  "00DDDDBBBBAAAB9999C66666666666666666666666666C9999BAAABBBBDDDD00", // 21
-		  "00DDDDBBBBAAAB9999C66666666666666666666666666C9999BAAABBBBDDDD00", // 22
-		  "00DDDDBBBBAAAB9999C66666666666666666666666666C9999BAAABBBBDDDD00", // 23
-		  "00DDDDBBBBAAAB9999C66666666666666666666666666C9999BAAABBBBDDDD00", // 24
-		  "00DDDDBBBBAAAB9999C66666666666666666666666666C9999BAAABBBBDDDD00", // 25
-		  "00DDDDBBBBAAAB9999C66666633333333333333666666C9999BAAABBBBDDDD00", // 26
-		  "00DDDDBBBBAAAB9999C66666632222222222223666666C9999BAAABBBBDDDD00", // 27
-		  "00DDDDBBBBAAAB9999C66666632888888888823666666C9999BAAABBBBDDDD00", // 28
-		  "00DDDDBBBBAAAB9999C66666632855555555823666666C9999BAAABBBBDDDD00", // 29
-		  "00DDDDBBBBAAAB9999C66666632857777775823666666C9999BAAABBBBDDDD00", // 30
-		  "00DDDDBBBBAAAB9999C66666632857AAAA75823666666C9999BAAABBBBDDDD00", // 31
-		  "00DDDDBBBBAAAB9999C66666632857AEEA75823666666C9999BAAABBBBDDDD00", // 32
-		  "00DDDDBBBBAAAB9999C66666632857A0EA75823666666C9999BAAABBBBDDDD00", // 33
-		  "00DDDDBBBBAAAB9999C66666632857AAAA75823666666C9999BAAABBBBDDDD00", // 34
-		  "00DDDDBBBBAAAB9999C66666632857777775823666666C9999BAAABBBBDDDD00", // 35
-		  "00DDDDBBBBAAAB9999C66666632855555555823666666C9999BAAABBBBDDDD00", // 36
-		  "00DDDDBBBBAAAB9999C66666632888888888823666666C9999BAAABBBBDDDD00", // 37
-		  "00DDDDBBBBAAAB9999C66666632222222222223666666C9999BAAABBBBDDDD00", // 38
-		  "00DDDDBBBBAAAB9999C66666633333333333333666666C9999BAAABBBBDDDD00", // 39
-		  "00DDDDBBBBAAAB9999C66666666666666666666666666C9999BAAABBBBDDDD00", // 40
-		  "00DDDDBBBBAAAB9999C66666666666666666666666666C9999BAAABBBBDDDD00", // 41
-		  "00DDDDBBBBAAAB9999C66666666666666666666666666C9999BAAABBBBDDDD00", // 42
-		  "00DDDDBBBBAAAB9999C66666666666666666666666666C9999BAAABBBBDDDD00", // 43
-		  "00DDDDBBBBAAAB9999C66666666666666666666666666C9999BAAABBBBDDDD00", // 44
-		  "00DDDDBBBBAAAB9999C66666666666666666666666666C9999BAAABBBBDDDD00", // 45
-		  "00DDDDBBBBAAAB9999CCCCCCCCCCCCCCCCCCCCCCCCCCCC9999BAAABBBBDDDD00", // 46
-		  "00DDDDBBBBAAAB999999999999999999999999999999999999BAAABBBBDDDD00", // 47
-		  "00DDDDBBBBAAAB999999999999999999999999999999999999BAAABBBBDDDD00", // 48
-		  "00DDDDBBBBAAAB999999999999999999999999999999999999BAAABBBBDDDD00", // 49
-		  "00DDDDBBBBAAAB999999999999999999999999999999999999BAAABBBBDDDD00", // 50
-		  "00DDDDBBBBAAABBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBAAABBBBDDDD00", // 51
-		  "00DDDDBBBBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABBBBDDDD00", // 52
-		  "00DDDDBBBBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABBBBDDDD00", // 53
-		  "00DDDDBBBBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABBBBDDDD00", // 54
-		  "00DDDDBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBDDDD00", // 55
-		  "00DDDDBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBDDDD00", // 56
-		  "00DDDDBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBDDDD00", // 57
-		  "00DDDDBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBDDDD00", // 58
-		  "00DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD00", // 59
-		  "00DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD00", // 60
-		  "00DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD00", // 61
-		  "00DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD00", // 62
-		  "0000000000000000000000000000000000000000000000000000000000000000", // 63
-		  "0000000000000000000000000000000000000000000000000000000000000000"  // 64
-		};
-		*/
 
 		string[] RingNum =
 		{
@@ -380,77 +311,7 @@ namespace Voxelarium.Core.Voxels
   "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"  // 128
 };
 
-		/*
-		const char * RingNum[]=
-		{
-		// 0000000001111111111222222222233333333334444444444555555555566666
-		// 1234567890123456789012345678901234567890123456789012345678901234
-		  "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC", // 1
-		  "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC", // 2
-		  "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC", // 3
-		  "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC", // 4
-		  "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC", // 5
-		  "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC", // 6
-		  "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC", // 7
-		  "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC", // 8
-		  "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC", // 9
-		  "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC", // 10
-		  "CCCCCCCCCCBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBCCCCCCCCCC", // 11
-		  "CCCCCCCCCCBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBCCCCCCCCCC", // 12
-		  "CCCCCCCCCCBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBCCCCCCCCCC", // 13
-		  "CCCCCCCCCCBBBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABBBCCCCCCCCCC", // 14
-		  "CCCCCCCCCCBBBA999999999999999999999999999999999999ABBBCCCCCCCCCC", // 15
-		  "CCCCCCCCCCBBBA999999999999999999999999999999999999ABBBCCCCCCCCCC", // 16
-		  "CCCCCCCCCCBBBA999999999999999999999999999999999999ABBBCCCCCCCCCC", // 17
-		  "CCCCCCCCCCBBBA999999999999999999999999999999999999ABBBCCCCCCCCCC", // 18
-		  "CCCCCCCCCCBBBA999988888888888888888888888888889999ABBBCCCCCCCCCC", // 19
-		  "CCCCCCCCCCBBBA999987777777777777777777777777789999ABBBCCCCCCCCCC", // 20
-		  "CCCCCCCCCCBBBA999987777777777777777777777777789999ABBBCCCCCCCCCC", // 21
-		  "CCCCCCCCCCBBBA999987777777777777777777777777789999ABBBCCCCCCCCCC", // 22
-		  "CCCCCCCCCCBBBA999987777777777777777777777777789999ABBBCCCCCCCCCC", // 23
-		  "CCCCCCCCCCBBBA999987777777777777777777777777789999ABBBCCCCCCCCCC", // 24
-		  "CCCCCCCCCCBBBA999987777777777777777777777777789999ABBBCCCCCCCCCC", // 25
-		  "CCCCCCCCCCBBBA999987777776666666666666677777789999ABBBCCCCCCCCCC", // 26
-		  "CCCCCCCCCCBBBA999987777776555555555555677777789999ABBBCCCCCCCCCC", // 27
-		  "CCCCCCCCCCBBBA999987777776544444444445677777789999ABBBCCCCCCCCCC", // 28
-		  "CCCCCCCCCCBBBA999987777776543333333345677777789999ABBBCCCCCCCCCC", // 29
-		  "CCCCCCCCCCBBBA999987777776543222222345677777789999ABBBCCCCCCCCCC", // 30
-		  "CCCCCCCCCCBBBA999987777776543211112345677777789999ABBBCCCCCCCCCC", // 31
-		  "CCCCCCCCCCBBBA999987777776543210012345677777789999ABBBCCCCCCCCCC", // 32
-		  "CCCCCCCCCCBBBA999987777776543210012345677777789999ABBBCCCCCCCCCC", // 33
-		  "CCCCCCCCCCBBBA999987777776543211112345677777789999ABBBCCCCCCCCCC", // 34
-		  "CCCCCCCCCCBBBA999987777776543222222345677777789999ABBBCCCCCCCCCC", // 35
-		  "CCCCCCCCCCBBBA999987777776543333333345677777789999ABBBCCCCCCCCCC", // 36
-		  "CCCCCCCCCCBBBA999987777776544444444445677777789999ABBBCCCCCCCCCC", // 37
-		  "CCCCCCCCCCBBBA999987777776555555555555677777789999ABBBCCCCCCCCCC", // 38
-		  "CCCCCCCCCCBBBA999987777776666666666666677777789999ABBBCCCCCCCCCC", // 39
-		  "CCCCCCCCCCBBBA999987777777777777777777777777789999ABBBCCCCCCCCCC", // 40
-		  "CCCCCCCCCCBBBA999987777777777777777777777777789999ABBBCCCCCCCCCC", // 41
-		  "CCCCCCCCCCBBBA999987777777777777777777777777789999ABBBCCCCCCCCCC", // 42
-		  "CCCCCCCCCCBBBA999987777777777777777777777777789999ABBBCCCCCCCCCC", // 43
-		  "CCCCCCCCCCBBBA999987777777777777777777777777789999ABBBCCCCCCCCCC", // 44
-		  "CCCCCCCCCCBBBA999987777777777777777777777777789999ABBBCCCCCCCCCC", // 45
-		  "CCCCCCCCCCBBBA999988888888888888888888888888889999ABBBCCCCCCCCCC", // 46
-		  "CCCCCCCCCCBBBA999999999999999999999999999999999999ABBBCCCCCCCCCC", // 47
-		  "CCCCCCCCCCBBBA999999999999999999999999999999999999ABBBCCCCCCCCCC", // 48
-		  "CCCCCCCCCCBBBA999999999999999999999999999999999999ABBBCCCCCCCCCC", // 49
-		  "CCCCCCCCCCBBBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABBBCCCCCCCCCC", // 50
-		  "CCCCCCCCCCBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBCCCCCCCCCC", // 51
-		  "CCCCCCCCCCBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBCCCCCCCCCC", // 52
-		  "CCCCCCCCCCBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBCCCCCCCCCC", // 53
-		  "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC", // 54
-		  "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC", // 55
-		  "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC", // 56
-		  "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC", // 57
-		  "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC", // 58
-		  "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC", // 59
-		  "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC", // 60
-		  "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC", // 61
-		  "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC", // 62
-		  "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC", // 63
-		  "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC"  // 64
-		};
-		*/
+		// per ring offets.
 		int[] ZoneYOffset =
 	   {
    0,-20,0,0,0, 0, 0, -64,-80,-80,-80,-100,-81,-75,-70,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
@@ -593,52 +454,16 @@ namespace Voxelarium.Core.Voxels
   "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"  // 128
 };
 
-		/*
-		const char * HeightMap_New[] =
-		{
-		  "00000000000000000000000000000000",
-		  "00000000000000000000000000000000",
-		  "00000000000000000000000000000000",
-		  "00000000000000000000000000000000",
-		  "00005050505050505050505050505000",
-		  "00000262626262626262626262620000",
-		  "00005299999999999999999999925000",
-		  "00000294444444444444444444920000",
-		  "00005294111111111111111114925000",
-		  "00000294100000000000000014920000",
-		  "00000294100000000000000014920000",
-		  "00005294100222222222200014925000",
-		  "00000294100288888888200014920000",
-		  "00005294100285555558200014925000",
-		  "00000294100285777758200014920000",
-		  "00005294100285700758200014925000",
-		  "00000294100285700758200014920000",
-		  "00005294100285777758200014925000",
-		  "00000294100285555558200014920000",
-		  "00005294100288888888200014925000",
-		  "00000294100222222222200014920000",
-		  "00005294100000000000000014925000",
-		  "00005294100000000000000014925000",
-		  "00000294100000000000000014920000",
-		  "00005294111111111111111114925000",
-		  "00000294444444444444444444920000",
-		  "00005299999999999999999999925000",
-		  "00000222222222222222222222220000",
-		  "00005050505050505050505050505000",
-		  "00000000000000000000000000000000",
-		  "00000000000000000000000000000000",
-		  "00000000000000000000000000000000"
-		};
-		*/
-
 		int[] random_seed = new int[4];
 
 		public Genesis()
 		{
 			int i;
 			// char to num
-			RandomGen = new SaltyRandomGenerator();
-			RandomGen.getsalt += RandomGen_getsalt;
+			RandomGen = new LightSpeedRandom();
+			RandomGen.Init();
+			SaltyRandomGen = new SaltyRandomGenerator();
+			SaltyRandomGen.getsalt += RandomGen_getsalt;
 			for( i = 0; i < 256; i++ ) ConvCN[i] = 0;
 			for( i = 0; i <= 9; i++ ) ConvCN[i + '0'] = (ushort)i;
 			for( i = 0; i < 26; i++ ) ConvCN[i + 'A'] = (ushort)( 10 + i );
@@ -661,14 +486,14 @@ namespace Voxelarium.Core.Voxels
 
 
 
-		int GetZoneHeight( int x, int z, ushort ZoneType )
+		int GetZoneHeight( int x, int z, out ushort ZoneType )
 		{
 			int SecPos_x, SecPos_z;
 
 			SecPos_x = x >> VoxelSector.ZVOXELBLOCSHIFT_X;
 			SecPos_z = z >> VoxelSector.ZVOXELBLOCSHIFT_Z;
-			int XSel = ( ( ( SecPos_x ) >> 4 ) + 64 );
-			int ZSel = ( ( ( SecPos_z ) >> 4 ) + 64 );
+			int XSel = ( ( ( SecPos_x ) >> VoxelSector.ZVOXELBLOCSHIFT_X ) + 64 );
+			int ZSel = ( ( ( SecPos_z ) >> VoxelSector.ZVOXELBLOCSHIFT_Z ) + 64 );
 
 			if( ( XSel >= 0 && XSel < 128 )
 				&& ( ZSel >= 0 && ZSel < 128 ) )
@@ -686,17 +511,14 @@ namespace Voxelarium.Core.Voxels
 						{
 							int sx = (int)( ( SecPos_x << VoxelSector.ZVOXELBLOCSHIFT_X ) + ( x & VoxelSector.ZVOXELBLOCMASK_X ) );
 							int sz = (int)( ( SecPos_z << VoxelSector.ZVOXELBLOCSHIFT_Z ) + ( z & VoxelSector.ZVOXELBLOCMASK_Z ) );
+							uint rx = (uint)sx >> VoxelSector.ZVOXELBLOCSHIFT_X;
+							uint rz = (uint)sz >> VoxelSector.ZVOXELBLOCSHIFT_Z;
 							float Coef1 = ( sx % 16 ) * ( 1.0f / 16.0f );
 							float Coef2 = ( sz % 16 ) * ( 1.0f / 16.0f );
-							RandomGen.Reset();
-							random_seed[0] = x;
-							random_seed[1] = z;
-							random_seed[2] = 0;
-							random_seed[3] = 0;
-							float P1 = RandomGen.GetEntropy( 5, true ) % 30;
-							float P2 = RandomGen.GetEntropy( 5, true ) % 30;
-							float P3 = RandomGen.GetEntropy( 5, true ) % 30;
-							float P4 = RandomGen.GetEntropy( 5, true ) % 30;
+							float P1 = ( RandomGen.GetNumber( rx ) + RandomGen.GetNumber( rz ) ) % 30;
+							float P2 = ( RandomGen.GetNumber( rx + 1 ) + RandomGen.GetNumber( rz ) ) % 30;
+							float P3 = ( RandomGen.GetNumber( rx ) + RandomGen.GetNumber( rz + 1 ) ) % 30;
+							float P4 = ( RandomGen.GetNumber( rx + 1 ) + RandomGen.GetNumber( rz + 1 ) ) % 30;
 
 							int height = (int)Interpolation_2d( P1, P2, P3, P4, Coef1, Coef2 ) - 15 + BlackWoods_Level;
 							return ( height );
@@ -711,18 +533,13 @@ namespace Voxelarium.Core.Voxels
 
 							int sx = (int)( ( SecPos_x << VoxelSector.ZVOXELBLOCSHIFT_X ) + ( x & VoxelSector.ZVOXELBLOCMASK_X ) );
 							int sz = (int)( ( SecPos_z << VoxelSector.ZVOXELBLOCSHIFT_Z ) + ( z & VoxelSector.ZVOXELBLOCMASK_Z ) );
-							int rx = sx >> 4; float Coef1 = ( sx % 16 ) * ( 1.0f / 16.0f );
-							int rz = sz >> 4; float Coef2 = ( sz % 16 ) * ( 1.0f / 16.0f );
+							uint rx = (uint)sx >> VoxelSector.ZVOXELBLOCSHIFT_X; float Coef1 = ( sx % 16 ) * ( 1.0f / 16.0f );
+							uint rz = (uint)sz >> VoxelSector.ZVOXELBLOCSHIFT_Z; float Coef2 = ( sz % 16 ) * ( 1.0f / 16.0f );
 
-							RandomGen.Reset();
-							random_seed[0] = rx;
-							random_seed[1] = rz;
-							random_seed[2] = rx;
-							random_seed[3] = 0;
-							P1 = RandomGen.GetEntropy( 5, true ) % 30;
-							P2 = RandomGen.GetEntropy( 5, true ) % 30;
-							P3 = RandomGen.GetEntropy( 5, true ) % 30;
-							P4 = RandomGen.GetEntropy( 5, true ) % 30;
+							P1 = ( RandomGen.GetNumber( rx ) + RandomGen.GetNumber( rz ) ) % 30;
+							P2 = ( RandomGen.GetNumber( rx + 1 ) + RandomGen.GetNumber( rz ) ) % 30;
+							P3 = ( RandomGen.GetNumber( rx ) + RandomGen.GetNumber( rz + 1 ) ) % 30;
+							P4 = ( RandomGen.GetNumber( rx + 1 ) + RandomGen.GetNumber( rz + 1 ) ) % 30;
 
 							int height2 = (int)Interpolation_2d( P1 + height, P2 + height, P3 + height, P4 + height, Coef1, Coef2 ) - 15;
 
@@ -757,8 +574,8 @@ namespace Voxelarium.Core.Voxels
 
 			VoxelSector.Flag_Void_Regular = true; VoxelSector.Flag_Void_Transparent = true;
 
-			int XSel = ( ( ( x ) >> 4 ) + 64 );
-			int ZSel = ( ( ( z ) >> 4 ) + 64 );
+			int XSel = ( ( ( x ) >> VoxelSector.ZVOXELBLOCSHIFT_X ) + 64 );
+			int ZSel = ( ( ( z ) >> VoxelSector.ZVOXELBLOCSHIFT_Z ) + 64 );
 
 			if( ( XSel >= 0 && XSel < 128 )
 				&& ( ZSel >= 0 && ZSel < 128 ) )
@@ -953,22 +770,18 @@ namespace Voxelarium.Core.Voxels
 
 			VoxelSector.Flag_IsActiveVoxels = true;
 
-			RandomGen.Reset();
-			random_seed[2] = 0;
-			random_seed[3] = 0;
 			for( z = 0; z < VoxelSector.ZVOXELBLOCSIZE_Z; z++ )
 				for( x = 0; x < VoxelSector.ZVOXELBLOCSIZE_X; x++ )
 				{
 					int sx = ( Sector_x << VoxelSector.ZVOXELBLOCSHIFT_X ) + x;
 					int sz = ( Sector_z << VoxelSector.ZVOXELBLOCSHIFT_Z ) + z;
-					int rx = sx >> 4; float Coef1 = ( sx % 16 ) * ( 1.0f / 16.0f );
-					int rz = sz >> 4; float Coef2 = ( sz % 16 ) * ( 1.0f / 16.0f );
-					random_seed[0] = rx;
-					random_seed[1] = rz;
-					P1 = ( RandomGen.GetEntropy( 6, true ) ) % 60;
-					P2 = ( RandomGen.GetEntropy( 6, true ) ) % 60;
-					P3 = ( RandomGen.GetEntropy( 6, true ) ) % 60;
-					P4 = ( RandomGen.GetEntropy( 6, true ) ) % 60;
+					uint rx = (uint)sx >> VoxelSector.ZVOXELBLOCSHIFT_X; float Coef1 = ( sx % 16 ) * ( 1.0f / 16.0f );
+					uint rz = (uint)sz >> VoxelSector.ZVOXELBLOCSHIFT_Z; float Coef2 = ( sz % 16 ) * ( 1.0f / 16.0f );
+
+					P1 = ( RandomGen.GetNumber( rx ) + RandomGen.GetNumber( rz ) ) % 60;
+					P2 = ( RandomGen.GetNumber( rx + 1 ) + RandomGen.GetNumber( rz ) ) % 60;
+					P3 = ( RandomGen.GetNumber( rx ) + RandomGen.GetNumber( rz + 1 ) ) % 60;
+					P4 = ( RandomGen.GetNumber( rx + 1 ) + RandomGen.GetNumber( rz + 1 ) ) % 60;
 
 					height = (int)Interpolation_2d( P1, P2, P3, P4, Coef1, Coef2 ) - 15;
 
@@ -1016,23 +829,19 @@ namespace Voxelarium.Core.Voxels
 
 			VoxelSector.Flag_IsActiveVoxels = true;
 
-			RandomGen.Reset();
-			random_seed[2] = 0;
-			random_seed[3] = 0;
+
 			for( z = 0; z < VoxelSector.ZVOXELBLOCSIZE_Z; z++ )
 				for( x = 0; x < VoxelSector.ZVOXELBLOCSIZE_X; x++ )
 				{
 					int sx = ( Sector_x << VoxelSector.ZVOXELBLOCSHIFT_X ) + x;
 					int sz = ( Sector_z << VoxelSector.ZVOXELBLOCSHIFT_Z ) + z;
-					int rx = sx >> 4; float Coef1 = ( sx % 16 ) * ( 1.0f / 16.0f );
-					int rz = sz >> 4; float Coef2 = ( sz % 16 ) * ( 1.0f / 16.0f );
+					uint rx = (uint)sx >> VoxelSector.ZVOXELBLOCSHIFT_X; float Coef1 = ( sx % VoxelSector.ZVOXELBLOCSIZE_X ) * ( 1.0f / 16.0f );
+					uint rz = (uint)sz >> VoxelSector.ZVOXELBLOCSHIFT_Y; float Coef2 = ( sz % VoxelSector.ZVOXELBLOCSIZE_Z ) * ( 1.0f / 16.0f );
 
-					random_seed[0] = rx;
-					random_seed[1] = rz;
-					P1 = ( RandomGen.GetEntropy( 6, true ) ) % 30;
-					P2 = ( RandomGen.GetEntropy( 6, true ) ) % 30;
-					P3 = ( RandomGen.GetEntropy( 6, true ) ) % 30;
-					P4 = ( RandomGen.GetEntropy( 6, true ) ) % 30;
+					P1 = ( RandomGen.GetNumber( rx ) + RandomGen.GetNumber( rz ) ) % 30;
+					P2 = ( RandomGen.GetNumber( rx + 1 ) + RandomGen.GetNumber( rz ) ) % 30;
+					P3 = ( RandomGen.GetNumber( rx ) + RandomGen.GetNumber( rz + 1 ) ) % 30;
+					P4 = ( RandomGen.GetNumber( rx + 1 ) + RandomGen.GetNumber( rz + 1 ) ) % 30;
 
 					height = (int)Interpolation_2d( P1, P2, P3, P4, Coef1, Coef2 ) - 15 + HeightOffset;
 
@@ -1065,67 +874,6 @@ namespace Voxelarium.Core.Voxels
 					}
 				}
 		}
-		/*
-		void GenerateZone_WaterLands(ZVoxelSector * VoxelSector, int HeightOffset, int Sector_x, int Sector_y, int Sector_z)
-		{
-		  int x,y,z, Voxel_y, Deep;
-		  ushort VoxelType;
-		  int height;
-		  double P1, P2,P3,P4;
-		  // ZGenericByteCanva Canva;
-		  ZVector3L SectorStart;
-		  byte Stencil;
-		  //ZLineCoords LineCoords;
-
-		  SectorStart.x = (VoxelSector.Pos_x << VoxelSector.ZVOXELBLOCSHIFT_X) & 255;
-		  SectorStart.z = (VoxelSector.Pos_z << VoxelSector.ZVOXELBLOCSHIFT_Z) & 255;
-		  SectorStart.y = (VoxelSector.Pos_y << VoxelSector.ZVOXELBLOCSHIFT_Y);
-
-		  VoxelSector.Flag_IsActiveVoxels = true;
-
-		  for (z=0 ; z<ZVOXELBLOCSIZE_Z ; z++)
-			for (x=0 ; x<ZVOXELBLOCSIZE_X ; x++)
-			{
-			  uint sx = (Sector_x << VoxelSector.ZVOXELBLOCSHIFT_X) + x;
-			  uint sz = (Sector_z << VoxelSector.ZVOXELBLOCSHIFT_Z) + z;
-			  uint rx = sx >> 4; double Coef1 = (sx % 16) * (1.0 / 16.0);
-			  uint rz = sz >> 4; double Coef2 = (sz % 16) * (1.0 / 16.0);
-
-			  P1 = (RandomGen.GetNumber(rx) + RandomGen.GetNumber(rz) ) % 30 ;
-			  P2 = (RandomGen.GetNumber(rx+1) + RandomGen.GetNumber(rz) ) % 30 ;
-			  P3 = (RandomGen.GetNumber(rx) + RandomGen.GetNumber(rz+1) ) % 30 ;
-			  P4 = (RandomGen.GetNumber(rx+1) + RandomGen.GetNumber(rz+1) ) % 30 ;
-
-			  height = Interpolation_2d(P1,P2,P3,P4,Coef1,Coef2) - 15 + HeightOffset;
-
-			  // height = (RandomGen.GetNumber(sx) + RandomGen.GetNumber(sz) ) % 15;
-
-			  Stencil = Canva_1.GetPoint_Fast( SectorStart.x + x, SectorStart.z + z );
-
-			  for (y=0, Voxel_y = Sector_y << VoxelSector.ZVOXELBLOCSHIFT_Y ; y<ZVOXELBLOCSIZE_Y ; y++, Voxel_y++)
-			  {
-				Deep = Voxel_y - height;
-				VoxelType = 0;
-
-				if (Deep >=0)
-				{
-				  if (Voxel_y > 0) VoxelType = 0;
-				  else VoxelType = 0;
-				}
-				else          VoxelType = 3;
-
-				if (Stencil==0)
-				{
-				  if (Voxel_y < -10 && Voxel_y >=-20 )  VoxelType = 85;//86;
-				  else if (Voxel_y < -20 ) VoxelType = 3;
-				  else               VoxelType = 0;
-				}
-
-				VoxelSector.SetCube(x,y,z, VoxelType);
-			  }
-			}
-		}
-		*/
 
 		void GenerateZone_AcidHills( VoxelSector VoxelSector, int HeightOffset, int Sector_x, int Sector_y, int Sector_z )
 		{
@@ -1138,42 +886,25 @@ namespace Voxelarium.Core.Voxels
 			byte Stencil;
 			//  ZLineCoords LineCoords;
 
-			/*
-			  Canva.SetSize(256,256);
-			  Canva.Clear(0);
-			  // Canva.DrawCircleFilled(128.0,128.0,128.0,1);
-			  Canva.Polygon_Start();
-			  LineCoords = {{0.0  ,128.0},{128.0,255.0}}; Canva.Polygon_Segment(&LineCoords);
-			  LineCoords = {{128.0,255.0},{255.0,128.0}}; Canva.Polygon_Segment(&LineCoords);
-			  LineCoords = {{255.0,128.0},{128.0,0.0  }}; Canva.Polygon_Segment(&LineCoords);
-			  LineCoords = {{128.0,0.0  },{0.0,128.0  }}; Canva.Polygon_Segment(&LineCoords);
-			  Canva.Polygon_Render(1);
-			*/
-
 
 			SectorStart.x = ( VoxelSector.Pos_x << VoxelSector.ZVOXELBLOCSHIFT_X ) & 255;
 			SectorStart.z = ( VoxelSector.Pos_z << VoxelSector.ZVOXELBLOCSHIFT_Z ) & 255;
 			SectorStart.y = ( VoxelSector.Pos_y << VoxelSector.ZVOXELBLOCSHIFT_Y );
 
 			VoxelSector.Flag_IsActiveVoxels = true;
-			RandomGen.Reset();
-			random_seed[2] = 0;
-			random_seed[3] = 0;
 
 			for( z = 0; z < VoxelSector.ZVOXELBLOCSIZE_Z; z++ )
 				for( x = 0; x < VoxelSector.ZVOXELBLOCSIZE_X; x++ )
 				{
 					int sx = ( Sector_x << VoxelSector.ZVOXELBLOCSHIFT_X ) + x;
 					int sz = ( Sector_z << VoxelSector.ZVOXELBLOCSHIFT_Z ) + z;
-					int rx = sx >> 4; float Coef1 = ( sx % 16 ) * ( 1.0f / 16.0f );
-					int rz = sz >> 4; float Coef2 = ( sz % 16 ) * ( 1.0f / 16.0f );
+					uint rx = (uint)sx >> VoxelSector.ZVOXELBLOCSHIFT_X; float Coef1 = ( sx % 16 ) * ( 1.0f / 16.0f );
+					uint rz = (uint)sz >> VoxelSector.ZVOXELBLOCSHIFT_Z; float Coef2 = ( sz % 16 ) * ( 1.0f / 16.0f );
 
-					random_seed[0] = rx;
-					random_seed[1] = rz;
-					P1 = ( RandomGen.GetEntropy( 6, true ) ) % 30;
-					P2 = ( RandomGen.GetEntropy( 6, true ) ) % 30;
-					P3 = ( RandomGen.GetEntropy( 6, true ) ) % 30;
-					P4 = ( RandomGen.GetEntropy( 6, true ) ) % 30;
+					P1 = ( RandomGen.GetNumber( rx ) + RandomGen.GetNumber( rz ) ) % 30;
+					P2 = ( RandomGen.GetNumber( rx + 1 ) + RandomGen.GetNumber( rz ) ) % 30;
+					P3 = ( RandomGen.GetNumber( rx ) + RandomGen.GetNumber( rz + 1 ) ) % 30;
+					P4 = ( RandomGen.GetNumber( rx + 1 ) + RandomGen.GetNumber( rz + 1 ) ) % 30;
 
 					height = (int)Interpolation_2d( P1, P2, P3, P4, Coef1, Coef2 ) - 15;
 
@@ -1268,11 +999,6 @@ namespace Voxelarium.Core.Voxels
 
 			sx = Sector_x << VoxelSector.ZVOXELBLOCSHIFT_X;
 			sz = Sector_z << VoxelSector.ZVOXELBLOCSHIFT_Z;
-			RandomGen.Reset();
-			random_seed[2] = 0;
-			random_seed[3] = 0;
-			random_seed[0] = Sector_x;
-			random_seed[1] = Sector_z;
 
 			for( z = 0; z < VoxelSector.ZVOXELBLOCSIZE_Z; z++ )
 				for( x = 0; x < VoxelSector.ZVOXELBLOCSIZE_X; x++ )
@@ -1284,13 +1010,15 @@ namespace Voxelarium.Core.Voxels
 					// Chaotic relief
 					sx = ( Sector_x << VoxelSector.ZVOXELBLOCSHIFT_X ) + x;
 					sz = ( Sector_z << VoxelSector.ZVOXELBLOCSHIFT_Z ) + z;
+					uint rx = (uint)sx >> VoxelSector.ZVOXELBLOCSHIFT_X;
+					uint rz = (uint)sz >> VoxelSector.ZVOXELBLOCSHIFT_Z;
 					float Coef1 = ( sx % 16 ) * ( 1.0f / 16.0f );
 					float Coef2 = ( sz % 16 ) * ( 1.0f / 16.0f );
 					float P1, P2, P3, P4;
-					P1 = ( RandomGen.GetEntropy( 5, true ) ) % 30;
-					P2 = ( RandomGen.GetEntropy( 5, true ) ) % 30;
-					P3 = ( RandomGen.GetEntropy( 5, true ) ) % 30;
-					P4 = ( RandomGen.GetEntropy( 5, true ) ) % 30;
+					P1 = ( RandomGen.GetNumber( rx ) + RandomGen.GetNumber( rz ) ) % 30;
+					P2 = ( RandomGen.GetNumber( rx + 1 ) + RandomGen.GetNumber( rz ) ) % 30;
+					P3 = ( RandomGen.GetNumber( rx ) + RandomGen.GetNumber( rz + 1 ) ) % 30;
+					P4 = ( RandomGen.GetNumber( rx + 1 ) + RandomGen.GetNumber( rz + 1 ) ) % 30;
 
 					height2 = (int)Interpolation_2d( P1 + height, P2 + height, P3 + height, P4 + height, Coef1, Coef2 ) - 15;
 
@@ -1322,23 +1050,20 @@ namespace Voxelarium.Core.Voxels
 			int height;
 			float P1, P2, P3, P4;
 
-			RandomGen.Reset();
-			random_seed[0] = Sector_x;
-			random_seed[1] = Sector_z;
-			random_seed[2] = 0;
-			random_seed[3] = 0;
 			for( z = 0; z < VoxelSector.ZVOXELBLOCSIZE_Z; z++ )
 				for( x = 0; x < VoxelSector.ZVOXELBLOCSIZE_X; x++ )
 				{
 					int sx = ( Sector_x << VoxelSector.ZVOXELBLOCSHIFT_X ) + x;
 					int sz = ( Sector_z << VoxelSector.ZVOXELBLOCSHIFT_Z ) + z;
+					uint rx = (uint)sx >> VoxelSector.ZVOXELBLOCSHIFT_X;
+					uint rz = (uint)sz >> VoxelSector.ZVOXELBLOCSHIFT_Z;
 					float Coef1 = ( sx % 16 ) * ( 1.0f / 16.0f );
 					float Coef2 = ( sz % 16 ) * ( 1.0f / 16.0f );
 
-					P1 = ( RandomGen.GetEntropy( 5, true ) ) % 30;
-					P2 = ( RandomGen.GetEntropy( 5, true ) ) % 30;
-					P3 = ( RandomGen.GetEntropy( 5, true ) ) % 30;
-					P4 = ( RandomGen.GetEntropy( 5, true ) ) % 30;
+					P1 = ( RandomGen.GetNumber( rx ) + RandomGen.GetNumber( rz ) ) % 30;
+					P2 = ( RandomGen.GetNumber( rx + 1 ) + RandomGen.GetNumber( rz ) ) % 30;
+					P3 = ( RandomGen.GetNumber( rx ) + RandomGen.GetNumber( rz + 1 ) ) % 30;
+					P4 = ( RandomGen.GetNumber( rx + 1 ) + RandomGen.GetNumber( rz + 1 ) ) % 30;
 
 					height = (int)Interpolation_2d( P1, P2, P3, P4, Coef1, Coef2 ) - 15 + BlackWoods_Level;
 
@@ -1366,17 +1091,12 @@ namespace Voxelarium.Core.Voxels
 			VoxelSector Template;
 			ZVector3L Pos;
 			i = 0;
-			RandomGen.Reset();
-			random_seed[0] = i;
-			random_seed[1] = 0;
-			random_seed[2] = 0;
-			random_seed[3] = 0;
+
 			for( z = 0; z < VoxelSector.ZVOXELBLOCSIZE_Z; z++ )
 				for( x = 0; x < VoxelSector.ZVOXELBLOCSIZE_X; x++ )
 					for( y = 0; y < VoxelSector.ZVOXELBLOCSIZE_Y; y++ )
 					{
-						random_seed[0] = i;
-						Rnd = (uint)RandomGen.GetEntropy( 32, false );
+						Rnd = RandomGen.GetNumber( (uint)i );
 						if( Sector.Data.Data[i] == VoxelType && y < 60 && ( Rnd < 200000000 ) ) //100000000
 						{
 							if( Sector.Data.Data[i + 1] == 0 )
@@ -1399,7 +1119,7 @@ namespace Voxelarium.Core.Voxels
 			ushort VoxelType;
 			float dns, cns, reduce, Coef1, Coef2, Coef3;
 			float[] P = new float[8], C = new float[8];
-			int Rx, Ry, Rz;
+			uint Rx, Ry, Rz;
 			VoxelSector.Flag_NeedSortedRendering = true;
 
 			ushort[] Textures = new ushort[16];
@@ -1414,8 +1134,6 @@ namespace Voxelarium.Core.Voxels
 			int sx = ( ( Sector_x + 8192 ) << VoxelSector.ZVOXELBLOCSHIFT_X );
 			int sy = ( ( Sector_y + 8192 ) << VoxelSector.ZVOXELBLOCSHIFT_Y );
 			int sz = ( ( Sector_z + 8192 ) << VoxelSector.ZVOXELBLOCSHIFT_Z );
-			RandomGen.Reset();
-			random_seed[3] = 0;
 
 			for( z = 0; z < VoxelSector.ZVOXELBLOCSIZE_Z; z++ )
 				for( x = 0; x < VoxelSector.ZVOXELBLOCSIZE_X; x++ )
@@ -1425,32 +1143,32 @@ namespace Voxelarium.Core.Voxels
 						ny = sy + y;
 						nz = sz + z;
 
-						Rx = ( sx + x ) >> 4; Ry = ( sy + y ) >> 4; Rz = ( sz + z ) >> 4;
-						random_seed[0] = Rx;
-						random_seed[1] = Ry;
-						random_seed[2] = Rz;
-						P[0] = ( RandomGen.GetEntropy( 5, true ) ) % 30;
-						P[1] = ( RandomGen.GetEntropy( 5, true ) ) % 30;
-						P[2] = ( RandomGen.GetEntropy( 5, true ) ) % 30;
-						P[3] = ( RandomGen.GetEntropy( 5, true ) ) % 30;
-						P[4] = ( RandomGen.GetEntropy( 5, true ) ) % 30;
-						P[5] = ( RandomGen.GetEntropy( 5, true ) ) % 30;
-						P[6] = ( RandomGen.GetEntropy( 5, true ) ) % 30;
-						P[7] = ( RandomGen.GetEntropy( 5, true ) ) % 30;
+						Rx = (uint)( sx + x ) >> VoxelSector.ZVOXELBLOCSHIFT_X;
+						Ry = (uint)( sy + y ) >> VoxelSector.ZVOXELBLOCSHIFT_Y;
+						Rz = (uint)( sz + z ) >> VoxelSector.ZVOXELBLOCSHIFT_Z;
+
+						P[0] = ( RandomGen.GetNumber( Rx ) + RandomGen.GetNumber( Ry ) + RandomGen.GetNumber( Rz ) ) % 30;
+						P[1] = ( RandomGen.GetNumber( Rx + 1 ) + RandomGen.GetNumber( Ry ) + RandomGen.GetNumber( Rz ) ) % 30;
+						P[2] = ( RandomGen.GetNumber( Rx ) + RandomGen.GetNumber( Ry ) + RandomGen.GetNumber( Rz + 1 ) ) % 30;
+						P[3] = ( RandomGen.GetNumber( Rx + 1 ) + RandomGen.GetNumber( Ry ) + RandomGen.GetNumber( Rz + 1 ) ) % 30;
+						P[4] = ( RandomGen.GetNumber( Rx ) + RandomGen.GetNumber( Ry + 1 ) + RandomGen.GetNumber( Rz ) ) % 30;
+						P[5] = ( RandomGen.GetNumber( Rx + 1 ) + RandomGen.GetNumber( Ry + 1 ) + RandomGen.GetNumber( Rz ) ) % 30;
+						P[6] = ( RandomGen.GetNumber( Rx ) + RandomGen.GetNumber( Ry + 1 ) + RandomGen.GetNumber( Rz + 1 ) ) % 30;
+						P[7] = ( RandomGen.GetNumber( Rx + 1 ) + RandomGen.GetNumber( Ry + 1 ) + RandomGen.GetNumber( Rz + 1 ) ) % 30;
 						Coef1 = ( ( sx + x ) % 16 ) * ( 1.0f / 16.0f );
 						Coef3 = ( ( sy + y ) % 16 ) * ( 1.0f / 16.0f );
 						Coef2 = ( ( sz + z ) % 16 ) * ( 1.0f / 16.0f );
 						dns = Interpolation_3d( P, Coef1, Coef2, Coef3 );
 
-						Ry = ( sy + y + 1 ) >> 4;
-						C[0] = ( RandomGen.GetEntropy( 5, true ) ) % 30;
-						C[1] = ( RandomGen.GetEntropy( 5, true ) ) % 30;
-						C[2] = ( RandomGen.GetEntropy( 5, true ) ) % 30;
-						C[3] = ( RandomGen.GetEntropy( 5, true ) ) % 30;
-						C[4] = ( RandomGen.GetEntropy( 5, true ) ) % 30;
-						C[5] = ( RandomGen.GetEntropy( 5, true ) ) % 30;
-						C[6] = ( RandomGen.GetEntropy( 5, true ) ) % 30;
-						C[7] = ( RandomGen.GetEntropy( 5, true ) ) % 30;
+						Ry = (uint)( sy + y + 1 ) >> VoxelSector.ZVOXELBLOCSHIFT_Y;
+						C[0] = ( RandomGen.GetNumber( Rx ) + RandomGen.GetNumber( Ry ) + RandomGen.GetNumber( Rz ) ) % 30;
+						C[1] = ( RandomGen.GetNumber( Rx + 1 ) + RandomGen.GetNumber( Ry ) + RandomGen.GetNumber( Rz ) ) % 30;
+						C[2] = ( RandomGen.GetNumber( Rx ) + RandomGen.GetNumber( Ry ) + RandomGen.GetNumber( Rz + 1 ) ) % 30;
+						C[3] = ( RandomGen.GetNumber( Rx + 1 ) + RandomGen.GetNumber( Ry ) + RandomGen.GetNumber( Rz + 1 ) ) % 30;
+						C[4] = ( RandomGen.GetNumber( Rx ) + RandomGen.GetNumber( Ry + 1 ) + RandomGen.GetNumber( Rz ) ) % 30;
+						C[5] = ( RandomGen.GetNumber( Rx + 1 ) + RandomGen.GetNumber( Ry + 1 ) + RandomGen.GetNumber( Rz ) ) % 30;
+						C[6] = ( RandomGen.GetNumber( Rx ) + RandomGen.GetNumber( Ry + 1 ) + RandomGen.GetNumber( Rz + 1 ) ) % 30;
+						C[7] = ( RandomGen.GetNumber( Rx + 1 ) + RandomGen.GetNumber( Ry + 1 ) + RandomGen.GetNumber( Rz + 1 ) ) % 30;
 
 						Coef3 = ( ( sy + y + 1 ) % 16 ) * ( 1.0f / 16.0f );
 						cns = Interpolation_3d( C, Coef1, Coef2, Coef3 );
@@ -1467,7 +1185,7 @@ namespace Voxelarium.Core.Voxels
 						{
 							if( ( dns - cns ) > 0.3 ) VoxelType = Textures[0];
 							else if( dns - cns < -0.2 ) VoxelType = Textures[2];
-							else { VoxelType = Textures[1]; if( ( RandomGen.GetEntropy( 1, false ) ) == 0 ) VoxelType = 46; }
+							else { VoxelType = Textures[1]; if( ( RandomGen.GetNumber( (uint)nx ) + RandomGen.GetNumber( (uint)ny ) + RandomGen.GetNumber( (uint)nz ) ) < 10000000 ) VoxelType = 46; }
 						}
 
 						// if (Sector_y > 1) VoxelType = 0;
@@ -1581,23 +1299,20 @@ namespace Voxelarium.Core.Voxels
 			int height;
 			float P1, P2, P3, P4;
 
-			RandomGen.Reset();
-			random_seed[0] = Sector_x;
-			random_seed[1] = Sector_y;
-			random_seed[2] = 0;
-			random_seed[3] = 0;
 			for( z = 0; z < VoxelSector.ZVOXELBLOCSIZE_Z; z++ )
 				for( x = 0; x < VoxelSector.ZVOXELBLOCSIZE_X; x++ )
 				{
 					int sx = ( Sector_x << VoxelSector.ZVOXELBLOCSHIFT_X ) + x;
 					int sz = ( Sector_z << VoxelSector.ZVOXELBLOCSHIFT_Z ) + z;
+					uint rx = (uint)sx >> VoxelSector.ZVOXELBLOCSHIFT_X;
+					uint rz = (uint)sz >> VoxelSector.ZVOXELBLOCSHIFT_Z;
 					float Coef1 = ( sx % 16 ) * ( 1.0f / 16.0f );
 					float Coef2 = ( sz % 16 ) * ( 1.0f / 16.0f );
 
-					P1 = ( RandomGen.GetEntropy( 5, true ) ) % 30;
-					P2 = ( RandomGen.GetEntropy( 5, true ) ) % 30;
-					P3 = ( RandomGen.GetEntropy( 5, true ) ) % 30;
-					P4 = ( RandomGen.GetEntropy( 5, true ) ) % 30;
+					P1 = ( RandomGen.GetNumber( rx ) + RandomGen.GetNumber( rz ) ) % 30;
+					P2 = ( RandomGen.GetNumber( rx + 1 ) + RandomGen.GetNumber( rz ) ) % 30;
+					P3 = ( RandomGen.GetNumber( rx ) + RandomGen.GetNumber( rz + 1 ) ) % 30;
+					P4 = ( RandomGen.GetNumber( rx + 1 ) + RandomGen.GetNumber( rz + 1 ) ) % 30;
 
 					height = (int)Interpolation_2d( P1, P2, P3, P4, Coef1, Coef2 ) - 15;
 
@@ -1641,17 +1356,12 @@ namespace Voxelarium.Core.Voxels
 			ushort VoxelType;
 			int height;
 
-			RandomGen.Reset();
-			random_seed[2] = 0;
-			random_seed[3] = 0;
 			for( z = 0; z < VoxelSector.ZVOXELBLOCSIZE_Z; z++ )
 				for( x = 0; x < VoxelSector.ZVOXELBLOCSIZE_X; x++ )
 				{
-					double sx = ( ( ( Sector_x & 15 ) << 4 ) + x ); //Sx and Sz range from 0 to 255
-					double sz = ( ( ( Sector_z & 15 ) << 4 ) + z );
-					random_seed[0] = (int)sx;
-					random_seed[1] = (int)sz;
-					height = ( RandomGen.GetEntropy( 4, false ) % 15 ) + HeightOffset;
+					float sx = ( ( ( Sector_x & 15 ) << 4 ) + x ); //Sx and Sz range from 0 to 255
+					float sz = ( ( ( Sector_z & 15 ) << 4 ) + z );
+					height = (int)( ( RandomGen.GetNumber( (uint)sx ) + RandomGen.GetNumber( (uint)sz ) ) % 15 ) + HeightOffset;
 
 					for( y = 0, Voxel_y = Sector_y << VoxelSector.ZVOXELBLOCSHIFT_Y; y < VoxelSector.ZVOXELBLOCSIZE_Y; y++, Voxel_y++ )
 					{
@@ -1707,7 +1417,6 @@ namespace Voxelarium.Core.Voxels
 
 			int Voxel_y, Deep;
 			ushort VoxelType;
-			RandomGen.Reset();
 			for( z = 0; z < VoxelSector.ZVOXELBLOCSIZE_Z; z++ )
 				for( x = 0; x < VoxelSector.ZVOXELBLOCSIZE_X; x++ )
 				{
@@ -1721,17 +1430,12 @@ namespace Voxelarium.Core.Voxels
 					int F2p = ( Sector_z + 1 ) >> 2;
 					double F2_Coef = ( Cube_z & 0x3F ) / 64.0;
 
-					random_seed[0] = F1;
-					random_seed[1] = F2;
-					random_seed[2] = F1p;
-					random_seed[3] = F2p;
-
-					double Mult1_1 = ( (double)RandomGen.GetEntropy( 16, true ) ) / 163.0;
-					double Mult1_2 = ( (double)RandomGen.GetEntropy( 16, true ) ) / 163.0;
+					double Mult1_1 = ( (double)RandomGen.GetNumber( (uint)F1 ) ) / 42949672.0;
+					double Mult1_2 = ( (double)RandomGen.GetNumber( (uint)F1p ) ) / 42949672.0;
 					double Mult1 = Mult1_1 * F1_Coef + Mult1_2 * ( 1.0 - F1_Coef );
 
-					double Mult2_1 = ( (double)RandomGen.GetEntropy( 16, true ) ) / 163.0;
-					double Mult2_2 = ( (double)RandomGen.GetEntropy( 16, true ) ) / 163.0;
+					double Mult2_1 = ( (double)RandomGen.GetNumber( (uint)F2 ) ) / 42949672.0;
+					double Mult2_2 = ( (double)RandomGen.GetNumber( (uint)F2p ) ) / 42949672.0;
 					double Mult2 = Mult2_1 * F2_Coef + Mult2_2 * ( 1.0 - F2_Coef );
 
 
@@ -1767,6 +1471,7 @@ namespace Voxelarium.Core.Voxels
 			VoxelGfx_Tree TreeMaker = new VoxelGfx_Tree();
 			VoxelGfx_Tree_Straight TreeMaker_2 = new VoxelGfx_Tree_Straight();
 			VoxelGfx_Tree_Giant TreeMaker_3 = new VoxelGfx_Tree_Giant();
+			LightSpeedRandom Random = new LightSpeedRandom();
 			//int Seed;
 			ushort ZoneType = 0;
 			uint RandNum, TreeType;
@@ -1782,22 +1487,17 @@ namespace Voxelarium.Core.Voxels
 			  Sector.SetCube(15,20,15, 2);
 			  return;
 			*/
+
 			GenerationRadius = 150;
-			RandomGen.Reset();
-			random_seed[2] = 0;
-			random_seed[3] = 0;
 			for( x = xs - GenerationRadius; x < xs + GenerationRadius; x++ )
 				for( z = zs - GenerationRadius; z < zs + GenerationRadius; z++ )
 				{
-					random_seed[0] = x;
-					random_seed[1] = z;
-					RandNum = (uint)RandomGen.GetEntropy( 10, false );
-					if( RandNum < 10 )
+					if( ( RandNum = Random.GetNumber( (uint)(Math.Abs( x ) + ( Math.Abs( z ) << 8 ) )) ) < ( 4194304 / 3 ) ) // 6
 					{
 						ZVector3f Position;
 						Position.x = x - xs;
 						Position.z = z - zs;
-						Position.y = GetZoneHeight( x, z, ZoneType ) - ys;
+						Position.y = GetZoneHeight( x, z, out ZoneType ) - ys;
 						TreeMaker.Seed = (uint)( Math.Abs( x ) * 3 + ( ( Math.Abs( z ) << 9 ) * 5 ) );
 						TreeMaker_2.Seed = TreeMaker.Seed;
 						TreeType = RandNum & 7;
@@ -1838,7 +1538,7 @@ namespace Voxelarium.Core.Voxels
 			VoxelSector.Flag_Void_Transparent = true;
 			VoxelSector.Flag_Void_Regular = true;
 
-			RandomGen.Reset();
+			SaltyRandomGen.Reset();
 			random_seed[0] = Sector_x;
 			random_seed[1] = Sector_y;
 			random_seed[2] = Sector_z;
@@ -1870,7 +1570,7 @@ namespace Voxelarium.Core.Voxels
 				Data[i] = TypeTable[i & VoxelSector.ZVOXELBLOCMASK_Y];
 				if( MineralInclude[i & VoxelSector.ZVOXELBLOCMASK_Y] )
 				{
-					RandomNumber = (uint)RandomGen.GetEntropy( 10, false );
+					RandomNumber = (uint)SaltyRandomGen.GetEntropy( 10, false );
 
 					//if (RandomNumber < 42949672UL) Data[i]=26;
 					//if (RandomNumber < 4294967UL)  Data[i]=27;
@@ -1909,21 +1609,6 @@ namespace Voxelarium.Core.Voxels
 				}
 			}
 
-			// if (Pos_y<0) {Cnt=1;Flag_Void_Regular=false;Flag_Void_Transparent=true;}
-			// if (Pos_y>=0){Cnt=0;Flag_Void_Regular=true;Flag_Void_Transparent=true;}
-			/*
-						if( VoxelSector.Pos_x == 0 && VoxelSector.Pos_y == 0 && VoxelSector.Pos_z == -2 && VoxelGlobalSettings.COMPILEOPTION_ALLOWSTARTINGSTORAGE )
-						{
-							VoxelExtension_Storage StorageExtension;
-
-							StorageExtension = new ZVoxelExtension_Storage();
-							StorageExtension.VoxelType[0] = 42; StorageExtension.VoxelQuantity[0] = 1;
-							StorageExtension.VoxelType[1] = 75; StorageExtension.VoxelQuantity[1] = 1;
-
-							VoxelSector.SetCube_WithExtension( 8, 0, 8, 49, StorageExtension );
-						}
-						*/
-
 		}
 
 
@@ -1959,7 +1644,7 @@ namespace Voxelarium.Core.Voxels
 			InclusionProbabilizer Probabilizer = new InclusionProbabilizer();
 
 			int Deepness = Sector_y;
-			RandomGen.Reset();
+			SaltyRandomGen.Reset();
 			random_seed[0] = Sector_x;
 			random_seed[1] = Sector_y;
 			random_seed[2] = Sector_z;
@@ -1974,7 +1659,7 @@ namespace Voxelarium.Core.Voxels
 					Probabilizer.AddEntry( 60, 50, 1.0f );   // Charbon
 					Probabilizer.AddEntry( 112, 50, 1.0f );   // Cuivre
 					Probabilizer.AddEntry( 127, 50, 0.4f );   // Etain
-															// Rare ores
+															  // Rare ores
 					Probabilizer.AddEntry( 26, 0, 0.1f );  // Or
 					Probabilizer.AddEntry( 74, 0, 0.05f ); // Fer
 					break;
@@ -2175,14 +1860,14 @@ namespace Voxelarium.Core.Voxels
 				Data[i] = TypeTable[i & VoxelSector.ZVOXELBLOCMASK_Y];
 				if( MineralInclude[i & VoxelSector.ZVOXELBLOCMASK_Y] )
 				{
-					if( Probabilizer.IsBelowFence( RandomGen ) )
+					if( Probabilizer.IsBelowFence( SaltyRandomGen ) )
 					{
-						Num = Probabilizer.GetTypeNum( RandomGen );
+						Num = Probabilizer.GetTypeNum( SaltyRandomGen );
 						Data[i] = LastMineral = Probabilizer.GetVoxelType( Num );
 					}
 					else if( LastMineral != 0 )
 					{
-						if( Probabilizer.AllowRepeat( Num, RandomGen ) ) Data[i] = LastMineral;
+						if( Probabilizer.AllowRepeat( Num, SaltyRandomGen ) ) Data[i] = LastMineral;
 						else LastMineral = 0;
 					}
 					// LastMineral = 0;
@@ -2222,11 +1907,6 @@ namespace Voxelarium.Core.Voxels
 			// Probabilizer
 
 			InclusionProbabilizer Probabilizer = new InclusionProbabilizer();
-			RandomGen.Reset();
-			random_seed[0] = Sector_x;
-			random_seed[1] = Sector_y;
-			random_seed[2] = Sector_z;
-			random_seed[3] = 0;
 
 			int Deepness = Sector_y;
 
@@ -2240,7 +1920,7 @@ namespace Voxelarium.Core.Voxels
 					Probabilizer.AddEntry( 112, 50.0f, 1.0f );   // Cuivre
 					Probabilizer.AddEntry( 127, 50.0f, 0.4f );   // Etain
 					Probabilizer.AddEntry( 44, 0, 0.10f ); // Vitrail
-														  // Rare ores
+														   // Rare ores
 					Probabilizer.AddEntry( 74, 0, 0.05f );  // Fer
 					Probabilizer.AddEntry( 26, 0, 0.1f ); // Or
 					break;
@@ -2257,10 +1937,10 @@ namespace Voxelarium.Core.Voxels
 			uint FenceBound = Probabilizer.ComputeProbabilities( 1.0f );
 
 			// Random Seed for that particular sector.
-			RandomGen.Reset();
+			SaltyRandomGen.Reset();
 			random_seed[0] = Sector_x;
 			random_seed[1] = Sector_z;
-			random_seed[2] = 0;
+			random_seed[2] = Sector_y;
 			random_seed[3] = 0;
 
 			// Layers of ground.
@@ -2295,14 +1975,14 @@ namespace Voxelarium.Core.Voxels
 				Data[i] = TypeTable[i & VoxelSector.ZVOXELBLOCMASK_Y];
 				if( MineralInclude[i & VoxelSector.ZVOXELBLOCMASK_Y] )
 				{
-					if( Probabilizer.IsBelowFence( RandomGen ) )
+					if( Probabilizer.IsBelowFence( SaltyRandomGen ) )
 					{
-						Num = Probabilizer.GetTypeNum( RandomGen );
+						Num = Probabilizer.GetTypeNum( SaltyRandomGen );
 						Data[i] = LastMineral = Probabilizer.GetVoxelType( Num );
 					}
 					else if( LastMineral != 0 )
 					{
-						if( Probabilizer.AllowRepeat( Num, RandomGen ) ) Data[i] = LastMineral;
+						if( Probabilizer.AllowRepeat( Num, SaltyRandomGen ) ) Data[i] = LastMineral;
 						else LastMineral = 0;
 					}
 					// LastMineral = 0;
@@ -2314,18 +1994,18 @@ namespace Voxelarium.Core.Voxels
 		{
 			ushort[] Data;
 
-			RandomGen.Reset();
+			SaltyRandomGen.Reset();
 			random_seed[0] = Sector_x;
 			random_seed[1] = Sector_z;
-			random_seed[2] = 0;
+			random_seed[2] = Sector_y;
 			random_seed[3] = 0;
 			int n;
 
 			n = 0;
 			Data = VoxelSector.Data.Data;
-            for( n = 0; n < VoxelSector.ZVOXELBLOCSIZE_X* VoxelSector.ZVOXELBLOCSIZE_Y * VoxelSector.ZVOXELBLOCSIZE_Z; n++ )
+			for( n = 0; n < VoxelSector.ZVOXELBLOCSIZE_X * VoxelSector.ZVOXELBLOCSIZE_Y * VoxelSector.ZVOXELBLOCSIZE_Z; n++ )
 			{
-				Data[n++] = ( RandomGen.GetEntropy( 10, true ) < 10 ) ? (ushort)0 : (ushort)203; // 255
+				Data[n++] = ( SaltyRandomGen.GetEntropy( 10, true ) < 100 ) ? (ushort)0 : (ushort)203; // 255
 			}
 
 		}
@@ -2373,7 +2053,7 @@ namespace Voxelarium.Core.Voxels
 			//ZLightSpeedRandom Random;
 			VoxelGfx_Tree TreeMaker = new VoxelGfx_Tree();
 			//int Seed;
-			ushort ZoneType= 0 ;
+			ushort ZoneType = 0;
 			// uint RandNum;
 
 
@@ -2399,7 +2079,7 @@ namespace Voxelarium.Core.Voxels
 					//if ((RandNum = Random.GetNumber( abs(x) + ( abs(z) << 8 ) )) < (4194304 * 50)) // 6
 					// if ( (((x & 7) == 0) && ((z & 7) == 0)) )
 
-					if( LocationMap.GetPoint_Fast( (int)(SizeMask - ( ( x + Offset ) & SizeMask )), (int)(( z + Offset ) & SizeMask) ) > 128 )
+					if( LocationMap.GetPoint_Fast( (int)( SizeMask - ( ( x + Offset ) & SizeMask ) ), (int)( ( z + Offset ) & SizeMask ) ) > 128 )
 					{
 
 						ZVector3L Position;
@@ -2407,7 +2087,7 @@ namespace Voxelarium.Core.Voxels
 
 						Position.x = x - xs;
 						Position.z = z - zs;
-						Position.y = GetZoneHeight( x, z, ZoneType ) - ys;
+						Position.y = GetZoneHeight( x, z, out ZoneType ) - ys;
 
 						OffsetRec.x = Position.x;
 						OffsetRec.y = Position.y;
@@ -2451,13 +2131,13 @@ namespace Voxelarium.Core.Voxels
 				{
 					// if ((RandNum = Random.GetNumber( abs(x) + ( abs(z) << 8 ) )) < (Ratio)) // 6
 					// if ( (((x & 31) == 0) && ((z & 31) == 0)) )
-					if( LocationMap.GetPoint_Fast( (int)( SizeMask - ( ( x + Offset ) & SizeMask )), (int)(( z + Offset ) & SizeMask) ) > 128 )
+					if( LocationMap.GetPoint_Fast( (int)( SizeMask - ( ( x + Offset ) & SizeMask ) ), (int)( ( z + Offset ) & SizeMask ) ) > 128 )
 					{
 						ZVector3L Position;
 
 						Position.x = x - xs;
 						Position.z = z - zs;
-						Position.y = ( GetZoneHeight( x, z, ZoneType ) - ys ) + RelativeHeight;
+						Position.y = ( GetZoneHeight( x, z, out ZoneType ) - ys ) + RelativeHeight;
 
 						if( Position.y < 64 && Position.y > 0 )
 						{
@@ -2497,9 +2177,9 @@ namespace Voxelarium.Core.Voxels
 			for( x = xs - GenerationRadius; x < ( xs + 16 + GenerationRadius ); x++ )
 				for( z = zs - GenerationRadius; z < ( zs + 16 + GenerationRadius ); z++ )
 				{
-					if( ( RandNum = (uint)RandomGen.GetEntropy( 10, false ) ) < ( Ratio ) ) // 6
-																							// if ( (((x & 31) == 0) && ((z & 31) == 0)) )
-																							// if ( Canva_4.GetPoint_Fast( x & 255, z & 255 ) != 0)
+					if( ( RandNum = (uint)SaltyRandomGen.GetEntropy( 10, false ) ) < ( Ratio ) ) // 6
+																								 // if ( (((x & 31) == 0) && ((z & 31) == 0)) )
+																								 // if ( Canva_4.GetPoint_Fast( x & 255, z & 255 ) != 0)
 					{
 
 						ZVector3L Position;
@@ -2507,7 +2187,7 @@ namespace Voxelarium.Core.Voxels
 
 						Position.x = x - xs;
 						Position.z = z - zs;
-						Position.y = ( GetZoneHeight( x, z, ZoneType ) - ys );
+						Position.y = ( GetZoneHeight( x, z, out ZoneType ) - ys );
 
 						if( Position.y < 64 && Position.y > 0 )
 						{
@@ -2550,7 +2230,7 @@ namespace Voxelarium.Core.Voxels
 		{
 			this.voxelTypeManager = voxelTypeManager;
 			string MiscDirectory, FileName;
-			MiscDirectory = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH + "/Misc" ;
+			MiscDirectory = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH + "/Misc";
 
 			FileName = MiscDirectory + "/tmplt_1.dat";
 			if( ( Template_1 = new Bitmap( FileName ) ) == null ) return false;
@@ -2713,76 +2393,6 @@ namespace Voxelarium.Core.Voxels
 
 		}
 
-		/*
-
-		void Generate_Terrain_1536(ZVoxelSector * VoxelSector, int HeightOffset, int Sector_x, int Sector_y, int Sector_z)
-		{
-		  int x,y,z;
-		  ushort VoxelType;
-		  double nx,ny,nz, dns,cns, reduce, P[8], C[8], Coef1,Coef2,Coef3;
-		  uint Rx,Ry,Rz;
-		  VoxelSector.Flag_NeedSortedRendering = true;
-
-		  ushort Textures[16];
-		  Textures[0] = 32767 + 3;
-		  Textures[1] = 32767 + 2;
-		  Textures[2] = 32767 + 1;
-
-		  int sx = ((Sector_x+8192) << VoxelSector.ZVOXELBLOCSHIFT_X);
-		  int sy = ((Sector_y+8192) << VoxelSector.ZVOXELBLOCSHIFT_Y);
-		  int sz = ((Sector_z+8192) << VoxelSector.ZVOXELBLOCSHIFT_Z);
-
-		  for (z=0 ; z<ZVOXELBLOCSIZE_Z ; z++)
-			for (x=0 ; x<ZVOXELBLOCSIZE_X ; x++)
-			  for (y=0 ; y<ZVOXELBLOCSIZE_Y ; y++)
-			  {
-				nx = sx + x;
-				ny = sy + y;
-				nz = sz + z;
-
-				Rx = (sx + x) >> 4; Ry = (sy + y) >> 4; Rz = (sz + z) >> 4;
-				P[0] = ( RandomGen.GetNumber(Rx   ) + RandomGen.GetNumber(Ry)   + RandomGen.GetNumber(Rz  ) ) % 30 ;
-				P[1] = ( RandomGen.GetNumber(Rx+1 ) + RandomGen.GetNumber(Ry)   + RandomGen.GetNumber(Rz  ) ) % 30 ;
-				P[2] = ( RandomGen.GetNumber(Rx   ) + RandomGen.GetNumber(Ry)   + RandomGen.GetNumber(Rz+1) ) % 30 ;
-				P[3] = ( RandomGen.GetNumber(Rx+1 ) + RandomGen.GetNumber(Ry)   + RandomGen.GetNumber(Rz+1) ) % 30 ;
-				P[4] = ( RandomGen.GetNumber(Rx   ) + RandomGen.GetNumber(Ry+1) + RandomGen.GetNumber(Rz  ) ) % 30 ;
-				P[5] = ( RandomGen.GetNumber(Rx+1 ) + RandomGen.GetNumber(Ry+1) + RandomGen.GetNumber(Rz  ) ) % 30 ;
-				P[6] = ( RandomGen.GetNumber(Rx   ) + RandomGen.GetNumber(Ry+1) + RandomGen.GetNumber(Rz+1) ) % 30 ;
-				P[7] = ( RandomGen.GetNumber(Rx+1 ) + RandomGen.GetNumber(Ry+1) + RandomGen.GetNumber(Rz+1) ) % 30 ;
-				double Coef1 = ((sx + x) % 16) * (1.0 / 16.0);
-				// Coef1 = 1.0 - Coef1;
-				double Coef3 = ((sy + y) % 16) * (1.0 / 16.0);
-				// Coef3 = 1.0 - Coef3;
-				double Coef2 = ((sz + z) % 16) * (1.0 / 16.0);
-				dns = Interpolation_3d(P,Coef1,Coef2,Coef3);
-
-				C[0] = ( RandomGen.GetNumber(Rx+200   ) + RandomGen.GetNumber(Ry + 200) + RandomGen.GetNumber(Rz+200  ) ) % 30 ;
-				C[1] = ( RandomGen.GetNumber(Rx+201 )   + RandomGen.GetNumber(Ry + 200) + RandomGen.GetNumber(Rz+200  ) ) % 30 ;
-				C[2] = ( RandomGen.GetNumber(Rx+200   ) + RandomGen.GetNumber(Ry + 200) + RandomGen.GetNumber(Rz+201) ) % 30 ;
-				C[3] = ( RandomGen.GetNumber(Rx+201 )   + RandomGen.GetNumber(Ry + 200) + RandomGen.GetNumber(Rz+201) ) % 30 ;
-				C[4] = ( RandomGen.GetNumber(Rx+200   ) + RandomGen.GetNumber(Ry + 201) + RandomGen.GetNumber(Rz+200  ) ) % 30 ;
-				C[5] = ( RandomGen.GetNumber(Rx+201 )   + RandomGen.GetNumber(Ry + 201) + RandomGen.GetNumber(Rz+200  ) ) % 30 ;
-				C[6] = ( RandomGen.GetNumber(Rx+200   ) + RandomGen.GetNumber(Ry + 201) + RandomGen.GetNumber(Rz+201) ) % 30 ;
-				C[7] = ( RandomGen.GetNumber(Rx+201 )   + RandomGen.GetNumber(Ry + 201) + RandomGen.GetNumber(Rz+201) ) % 30 ;
-
-				cns = Interpolation_3d(C,Coef1,Coef2,Coef3);
-
-
-				VoxelType = Textures[(uint)floor((cns/20.0))];
-
-				// VoxelType = 32768;
-				reduce = ( ((double)(sy + y -524288.0)) / 10.0);
-				if (reduce < 0.0) reduce = 0.0;
-				dns -= reduce;
-				if   (dns< 15.0) {dns = 0.0;VoxelType=0;} //15.0
-
-				// if (Sector_y > 1) VoxelType = 0;
-				VoxelSector.SetCube(x,y,z, VoxelType);
-
-			  }
-		}
-
-		*/
 
 		void Generate_Terrain_1537( VoxelSector VoxelSector, int HeightOffset, int Sector_x, int Sector_y, int Sector_z )
 		{
@@ -2799,11 +2409,6 @@ namespace Voxelarium.Core.Voxels
 			int sy = ( ( Sector_y + 8192 ) << VoxelSector.ZVOXELBLOCSHIFT_Y );
 			int sz = ( ( Sector_z + 8192 ) << VoxelSector.ZVOXELBLOCSHIFT_Z );
 
-			RandomGen.Reset();
-			random_seed[0] = Sector_x;
-			random_seed[1] = Sector_z;
-			random_seed[2] = 0;
-			random_seed[3] = 0;
 			for( z = 0; z < VoxelSector.ZVOXELBLOCSIZE_Z; z++ )
 				for( x = 0; x < VoxelSector.ZVOXELBLOCSIZE_X; x++ )
 					for( y = 0; y < VoxelSector.ZVOXELBLOCSIZE_Y; y++ )
@@ -2814,8 +2419,8 @@ namespace Voxelarium.Core.Voxels
 
 						double Den = //sin(nx/(50.0+nx/10000.0)) * sin(ny/(50.0+ny/10000.0)) * sin(nz/(50.0+nz/10000.0)) *
 									 Math.Sin( nx / ( 30.0 ) ) * Math.Sin( ny / ( 30.0 ) ) * Math.Sin( nz / ( 30.0 ) )
-									 /*(1.0 + 0.6 * (sin(nx/(1.3)) * sin(ny/(2.8)) * sin(nz/(1.63)))) */
-									 * ( 1.0 + 0.4 * ( (double)RandomGen.GetEntropy( 10, false ) / 1024.0 ) );
+								 /*(1.0 + 0.6 * (sin(nx/(1.3)) * sin(ny/(2.8)) * sin(nz/(1.63)))) */
+								 * ( 1.0 + 0.4 * ( ( (double)RandomGen.GetNumber( (uint)( ( nx >> 2 ) + ( ny >> 2 ) + ( nz >> 2 ) ) ) ) / 4294967296.0 ) );
 						if( Den > 0.3 ) { VoxelType = 233; if( Den > 0.35 ) VoxelType = 232; }
 						else VoxelType = 0;
 						VoxelSector.SetCube( x, y, z, VoxelType );
@@ -2827,6 +2432,7 @@ namespace Voxelarium.Core.Voxels
 			int x, y, z, nx, ny, nz;
 			ushort VoxelType;
 			float dns, cns, reduce, Coef1, Coef2, Coef3;
+			uint Rx, Ry, Rz;
 			float[] P = new float[8], C = new float[8];
 			VoxelSector.Flag_NeedSortedRendering = true;
 
@@ -2842,11 +2448,6 @@ namespace Voxelarium.Core.Voxels
 			int sx = ( ( Sector_x + 8192 ) << VoxelSector.ZVOXELBLOCSHIFT_X );
 			int sy = ( ( Sector_y + 8192 ) << VoxelSector.ZVOXELBLOCSHIFT_Y );
 			int sz = ( ( Sector_z + 8192 ) << VoxelSector.ZVOXELBLOCSHIFT_Z );
-			RandomGen.Reset();
-			random_seed[0] = sx;
-			random_seed[1] = sz;
-			random_seed[2] = sx;
-			random_seed[3] = 0;
 
 			for( z = 0; z < VoxelSector.ZVOXELBLOCSIZE_Z; z++ )
 				for( x = 0; x < VoxelSector.ZVOXELBLOCSIZE_X; x++ )
@@ -2856,27 +2457,29 @@ namespace Voxelarium.Core.Voxels
 						ny = sy + y;
 						nz = sz + z;
 
-						P[0] = ( RandomGen.GetEntropy( 5, false ) ) % 30;
-						P[1] = ( RandomGen.GetEntropy( 5, false ) ) % 30;
-						P[2] = ( RandomGen.GetEntropy( 5, false ) ) % 30;
-						P[3] = ( RandomGen.GetEntropy( 5, false ) ) % 30;
-						P[4] = ( RandomGen.GetEntropy( 5, false ) ) % 30;
-						P[5] = ( RandomGen.GetEntropy( 5, false ) ) % 30;
-						P[6] = ( RandomGen.GetEntropy( 5, false ) ) % 30;
-						P[7] = ( RandomGen.GetEntropy( 5, false ) ) % 30;
+						Rx = (uint)( sx + x ) >> VoxelSector.ZVOXELBLOCSHIFT_X; Ry = (uint)( sy + y ) >> VoxelSector.ZVOXELBLOCSHIFT_Y; Rz = (uint)( sz + z ) >> VoxelSector.ZVOXELBLOCSHIFT_Z;
+						P[0] = ( RandomGen.GetNumber( Rx ) + RandomGen.GetNumber( Ry ) + RandomGen.GetNumber( Rz ) ) % 30;
+						P[1] = ( RandomGen.GetNumber( Rx + 1 ) + RandomGen.GetNumber( Ry ) + RandomGen.GetNumber( Rz ) ) % 30;
+						P[2] = ( RandomGen.GetNumber( Rx ) + RandomGen.GetNumber( Ry ) + RandomGen.GetNumber( Rz + 1 ) ) % 30;
+						P[3] = ( RandomGen.GetNumber( Rx + 1 ) + RandomGen.GetNumber( Ry ) + RandomGen.GetNumber( Rz + 1 ) ) % 30;
+						P[4] = ( RandomGen.GetNumber( Rx ) + RandomGen.GetNumber( Ry + 1 ) + RandomGen.GetNumber( Rz ) ) % 30;
+						P[5] = ( RandomGen.GetNumber( Rx + 1 ) + RandomGen.GetNumber( Ry + 1 ) + RandomGen.GetNumber( Rz ) ) % 30;
+						P[6] = ( RandomGen.GetNumber( Rx ) + RandomGen.GetNumber( Ry + 1 ) + RandomGen.GetNumber( Rz + 1 ) ) % 30;
+						P[7] = ( RandomGen.GetNumber( Rx + 1 ) + RandomGen.GetNumber( Ry + 1 ) + RandomGen.GetNumber( Rz + 1 ) ) % 30;
 						Coef1 = ( ( sx + x ) % 16 ) * ( 1.0f / 16.0f );
 						Coef3 = ( ( sy + y ) % 16 ) * ( 1.0f / 16.0f );
 						Coef2 = ( ( sz + z ) % 16 ) * ( 1.0f / 16.0f );
 						dns = Interpolation_3d( P, Coef1, Coef2, Coef3 );
 
-						C[0] = ( RandomGen.GetEntropy( 5, false ) ) % 30;
-						C[1] = ( RandomGen.GetEntropy( 5, false ) ) % 30;
-						C[2] = ( RandomGen.GetEntropy( 5, false ) ) % 30;
-						C[3] = ( RandomGen.GetEntropy( 5, false ) ) % 30;
-						C[4] = ( RandomGen.GetEntropy( 5, false ) ) % 30;
-						C[5] = ( RandomGen.GetEntropy( 5, false ) ) % 30;
-						C[6] = ( RandomGen.GetEntropy( 5, false ) ) % 30;
-						C[7] = ( RandomGen.GetEntropy( 5, false ) ) % 30;
+						Ry = (uint)( sy + y + 1 ) >> VoxelSector.ZVOXELBLOCSHIFT_Y;
+						C[0] = ( RandomGen.GetNumber( Rx ) + RandomGen.GetNumber( Ry ) + RandomGen.GetNumber( Rz ) ) % 30;
+						C[1] = ( RandomGen.GetNumber( Rx + 1 ) + RandomGen.GetNumber( Ry ) + RandomGen.GetNumber( Rz ) ) % 30;
+						C[2] = ( RandomGen.GetNumber( Rx ) + RandomGen.GetNumber( Ry ) + RandomGen.GetNumber( Rz + 1 ) ) % 30;
+						C[3] = ( RandomGen.GetNumber( Rx + 1 ) + RandomGen.GetNumber( Ry ) + RandomGen.GetNumber( Rz + 1 ) ) % 30;
+						C[4] = ( RandomGen.GetNumber( Rx ) + RandomGen.GetNumber( Ry + 1 ) + RandomGen.GetNumber( Rz ) ) % 30;
+						C[5] = ( RandomGen.GetNumber( Rx + 1 ) + RandomGen.GetNumber( Ry + 1 ) + RandomGen.GetNumber( Rz ) ) % 30;
+						C[6] = ( RandomGen.GetNumber( Rx ) + RandomGen.GetNumber( Ry + 1 ) + RandomGen.GetNumber( Rz + 1 ) ) % 30;
+						C[7] = ( RandomGen.GetNumber( Rx + 1 ) + RandomGen.GetNumber( Ry + 1 ) + RandomGen.GetNumber( Rz + 1 ) ) % 30;
 
 						Coef3 = ( ( sy + y + 1 ) % 16 ) * ( 1.0f / 16.0f );
 						cns = Interpolation_3d( C, Coef1, Coef2, Coef3 );
@@ -2897,7 +2500,7 @@ namespace Voxelarium.Core.Voxels
 						{
 							if( ( dns - cns ) > 0.3 ) VoxelType = Textures[0];
 							else if( dns - cns < -0.2 ) VoxelType = Textures[2];
-							else { VoxelType = Textures[1]; if( ( RandomGen.GetEntropy( 10, false ) ) < 256 ) VoxelType = 46; }
+							else { VoxelType = Textures[1]; if( ( RandomGen.GetNumber( (uint)nx ) + RandomGen.GetNumber( (uint)ny ) + RandomGen.GetNumber( (uint)nz ) ) < 10000000 ) VoxelType = 46; }
 						}
 
 						// if (Sector_y > 1) VoxelType = 0;

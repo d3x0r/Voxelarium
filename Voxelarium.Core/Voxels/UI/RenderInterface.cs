@@ -301,7 +301,7 @@ namespace Voxelarium.Core.Voxels.UI
 			Frustum_V = 0.0;
 			Frustum_H = 0.0;
 			//Aspect_Ratio = 0.0;
-			Frustum_CullingLimit = 50.0;
+			Frustum_CullingLimit = 90.0;
 		}
 
 		internal void SetPixelAspectRatio( float AspectRatio = 1.0f ) { PixelAspectRatio = AspectRatio; }
@@ -375,11 +375,14 @@ namespace Voxelarium.Core.Voxels.UI
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 #endif
 		// point fed to this is relative to the camera origin already.
-		internal bool Is_PointVisible( ref btMatrix3x3 TransformParam, ref btVector3 Point )
+		internal bool Is_PointVisible( ref btTransform TransformParam, ref btVector3 Point )
 		{
 			btVector3 Cv;
+			btVector3 Cv2;
 			bool Visible;
-			TransformParam.ApplyRotation( ref Point, out Cv );
+			Point.Sub( ref TransformParam.m_origin, out Cv2);
+			TransformParam.m_basis.Apply( ref Cv2, out Cv );
+			//Cv.Sub(
 
 			// Projection
 			if( Cv.z > 0 )

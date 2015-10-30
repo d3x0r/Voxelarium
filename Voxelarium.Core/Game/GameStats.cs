@@ -15,7 +15,6 @@ namespace Voxelarium.Core.Voxels
 				data = new uint[count];
 			}
 		}
-		VoxelGameEnvironment GameEnv;
 		Buffer[] Log_Buffer = new Buffer[64];
 		uint BufferOffset;
 
@@ -42,7 +41,6 @@ namespace Voxelarium.Core.Voxels
 			SectorRender_Count = 0;
 			SectorRender_TotalTime = 0;
 			SectorRefresh_Waiting = 0;
-			GameEnv = null;
 			BufferOffset = 0;
 
 			for( i = 0; i < 64; i++ ) Log_Buffer[i] = null;

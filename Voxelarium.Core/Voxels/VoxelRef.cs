@@ -447,11 +447,17 @@ namespace Voxelarium.Core.Voxels
 			return not_zero ? 1 : 0;
 		}
 
-
 		internal void GetVoxelRefs( out VoxelSector[] ResultSectors, out uint[] ResultOffsets, bool nearOnly = false )
 		{
 			ResultSectors = new VoxelSector[nearOnly ? 7 : 19];
 			ResultOffsets = new uint[nearOnly ? 7 : 19];
+			GetVoxelRefs( ResultSectors, ResultOffsets, nearOnly );
+		}
+
+		internal void GetVoxelRefs( VoxelSector[] ResultSectors, uint[] ResultOffsets, bool nearOnly = false )
+		{
+			//ResultSectors = new VoxelSector[nearOnly ? 7 : 19];
+			//ResultOffsets = new uint[nearOnly ? 7 : 19];
 
 			ResultSectors[(int)VoxelSector.RelativeVoxelOrds.INCENTER] = this.Sector;
 			uint origin = this.Offset;//( this.x <<VoxelSector.ZVOXELBLOCSHIFT_Y ) + this.y + ( this.z << (VoxelSector.ZVOXELBLOCSHIFT_X +VoxelSector.ZVOXELBLOCSHIFT_Y ) );

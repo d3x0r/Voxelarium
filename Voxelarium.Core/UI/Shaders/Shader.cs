@@ -72,10 +72,7 @@ namespace Voxelarium.Core.UI.Shaders
 				GL.UseProgram( Program );
 				//if( !parameters_set )
 				{
-					if( Display.CheckErr() )
-					{
-						return false;
-					}
+					Display.CheckErr();
 					GL.UniformMatrix4( projection_id, false, ref Display.projection );
 					Display.CheckErr();
 					unsafe

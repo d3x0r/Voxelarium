@@ -21,11 +21,8 @@ namespace Voxelarium.Core.Game.Screens
 		Frame LogoBlackvoxel;
 		FontFrame Frame_MainTitle;
 
-		int ChoosedSlot;
-
 		public ScreenSlotSelect( VoxelGameEnvironment.Pages page_id ) : base( page_id )
 		{
-			ChoosedSlot = 0;
 			LogoBlackvoxel = new Frame();
 			Frame_MainTitle = new FontFrame();
 			for( int i = 0; i < 16; i++ )

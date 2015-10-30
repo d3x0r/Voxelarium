@@ -85,7 +85,8 @@ namespace Voxelarium.Core
 				foreach( byte[] data in salt_data.salt_data )
 				{
 					System.Array.Copy( data, 0, inbuf, total_bytes, data.Length );
-				}
+					total_bytes += data.Length;
+                }
 
 				entropy = bits.ComputeHash( inbuf );
 

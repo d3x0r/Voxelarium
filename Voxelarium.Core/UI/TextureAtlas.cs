@@ -18,7 +18,6 @@ namespace Voxelarium.Core.UI
 		int texture_count;
 		int texture_size;
 		Bitmap atlas;
-		int size;
 		int x_ofs, y_ofs;
 
 		int _OpenGl_TextureRef = -1;

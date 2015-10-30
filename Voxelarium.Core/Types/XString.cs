@@ -107,7 +107,7 @@ namespace Voxelarium.Core.Types
 			internal char CloseChar; // to locate end
 			internal StringBuilder sb_previous; // 
 			internal XString outdata_previous; // these are segs contained within.
-			internal XString outdata; // these are segs contained within.
+			//internal XString outdata; // these are segs contained within.
 		}
 
 		class ParenStack : Stack<BurstParenState>

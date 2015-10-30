@@ -8,8 +8,6 @@ namespace Voxelarium.Core.Voxels.Types
 {
 	public class GenericCharCanvas : GenericCanvas<byte>
 	{
-		public class MinMax { public float Min, Max; };
-		internal enum CLIP { IN = 0, LEFT = 1, RIGHT = 2, TOP = 4, BOTTOM = 8 };
 
 		uint ElementCount;
 		byte[] Canvas;
@@ -68,7 +66,6 @@ namespace Voxelarium.Core.Voxels.Types
 		public byte GetPoint_Fast( int x, int y )
 		{
 			return ( Canvas[x + y * Width] );
-
 		}
 #if ALLOW_INLINE
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]

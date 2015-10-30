@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Voxelarium.Core.Types;
 using Voxelarium.Core.Voxels.Types;
 
 namespace Voxelarium.Core.Voxels.Utils
@@ -8,7 +9,7 @@ namespace Voxelarium.Core.Voxels.Utils
 	public class VoxelGfx_Tree_Giant
 	{
 		VoxelSector Sector;
-		SaltyRandomGenerator Random;
+		LightSpeedRandom Random;
 		LinearInterpolator ThicknessInterpolator_SecundTrunk = new LinearInterpolator();
 		LinearInterpolator ThicknessInterpolator_Branch = new LinearInterpolator();
 		public ZPolar3f StartingDirection;
@@ -46,7 +47,7 @@ namespace Voxelarium.Core.Voxels.Utils
 			if( HasFolliage && NewTotalBranchLen > FolliageLenght ) Sector.Draw_safe_Sphere( Rect.End.x, Rect.End.y, Rect.End.z, 10.0, 70, false );
 
 
-			if( RandomSubdivs ) nSubDivisions = MinSubDivisionsPerNode + (uint)Random.GetEntropy( 16, false ) % MaxSubDivisionsPerNode;
+			if( RandomSubdivs ) nSubDivisions = MinSubDivisionsPerNode + (uint)Random.GetNumber() % MaxSubDivisionsPerNode;
 			else nSubDivisions = MinSubDivisionsPerNode;
 			//if (TotalBranchLen > (MaxBranchLenght/10.0) && nSubDivisions > 2 ) nSubDivisions=2;
 			//if (nSubDivisions>2) nSubDivisions = 2;
@@ -62,8 +63,8 @@ namespace Voxelarium.Core.Voxels.Utils
 
 					NewBranchVector = BranchVector;
 					NewBranchVector.Len = BrancheLen;
-					Angle1 = (float)( Random.GetEntropy( 16, true ) ) / 8192.0f;
-					Angle2 = (float)( Random.GetEntropy( 16, true ) ) / 8192.0f;
+					Angle1 = (float)( Random.GetNumber() ) / 23860929 / 6;
+					Angle2 = (float)( Random.GetNumber() ) / 23860929 / 6;
 					NewBranchVector.pitch += Angle1; NewBranchVector.yaw += Angle2;
 					DrawBranch( ref NewPosition, ref NewBranchVector, NewTotalBranchLen );
 					break;
@@ -74,8 +75,8 @@ namespace Voxelarium.Core.Voxels.Utils
 					NewBranchVector.Len = BrancheLen;
 					do
 					{
-						Angle1 = (float)( Random.GetEntropy( 16, true ) ) / 8192.0f;
-						Angle2 = (float)( Random.GetEntropy( 16, true ) ) / 8192.0f;
+						Angle1 = (float)( Random.GetNumber() ) / 23860929 / 3;
+						Angle2 = (float)( Random.GetNumber() ) / 23860929 / 3;
 					} while( Math.Abs( Angle1 ) < 15.0 && Math.Abs( Angle2 ) < 15.0 );
 
 
@@ -112,8 +113,8 @@ namespace Voxelarium.Core.Voxels.Utils
 
 			NewBranchVector = BranchVector;
 			NewBranchVector.Len = BrancheLen;
-			Angle1 = (float)( Random.GetEntropy( 16, true ) ) / 8192.0f;
-			Angle2 = (float)( Random.GetEntropy( 16, true ) ) / 8192.0f;
+			Angle1 = (float)( Random.GetNumber() ) / 23860929 / 3;
+			Angle2 = (float)( Random.GetNumber() ) / 23860929 / 3;
 			if( Angle1 > 0.0 ) Angle1 += 15.0f;
 			if( Angle1 < 0.0 ) Angle1 -= 15.0f;
 			if( Angle2 > 0.0 ) Angle2 += 15.0f;
@@ -148,8 +149,11 @@ namespace Voxelarium.Core.Voxels.Utils
 			//TruncHeight = 10+( Number / 71582788);
 
 			Rect.Start = Position + 0.5f;
+			float savelen = Direction.Len;
+
 			Direction.Len *= TruncHeight;
 			Position = Position +  Direction ;
+			Direction.Len = savelen;
 			Rect.End = Position + 0.5f;
 
 			//Sector.Draw_safe_VoxelLine(&Rect,&Thickness,67);
@@ -180,8 +184,8 @@ namespace Voxelarium.Core.Voxels.Utils
 
 		public VoxelGfx_Tree_Giant()
 		{
-			Random = new SaltyRandomGenerator();
-			Random.getsalt += Random_getsalt;
+			Random = new LightSpeedRandom();
+			Random.Init( Seed );
 			// Trunc starting direction : Vertical absolute.
 			StartingDirection.Len = 1;
 			StartingDirection.pitch = 90;

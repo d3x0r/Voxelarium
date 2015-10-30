@@ -148,11 +148,11 @@ namespace Voxelarium.Core.Voxels.UI
 		void LoadBuffer( bool transparent )
 		{
 			bool setup_array = false;
-			if( used == 0 )
-				return;
 
 			if( !transparent )
 			{
+				if( solid_used == 0 )
+					return;
 				if( vbo_solid == -1 )
 					vbo_solid = GL.GenBuffer();
 
@@ -183,6 +183,8 @@ namespace Voxelarium.Core.Voxels.UI
 			}
 			else
 			{
+				if( transparent_used == 0 )
+					return;
 				if( vbo_transparent == -1 )
 					vbo_transparent = GL.GenBuffer();
 
@@ -203,7 +205,7 @@ namespace Voxelarium.Core.Voxels.UI
 					transparent_dirty = false;
 					unsafe
 					{
-						fixed ( float* data = &solid_buffer[0].p1 )
+						fixed ( float* data = &transparent_buffer[0].p1 )
 						{
 							GL.BufferData( BufferTarget.ArrayBuffer, (IntPtr)( VertexSize * transparent_used), (IntPtr)data, BufferUsageHint.StaticDraw );
 							Display.CheckErr();
@@ -215,16 +217,9 @@ namespace Voxelarium.Core.Voxels.UI
 			if( setup_array )
 			{
 				GL.VertexAttribPointer( Shader.vertex_attrib_id, 3, VertexAttribPointerType.Float, false, VertexSize, 0 );
-				if( Display.CheckErr() )
-				{
-				}
+				Display.CheckErr();
 				GL.EnableVertexAttribArray( Shader.vertex_attrib_id );
-				if( Display.CheckErr() )
-				{
-					Log.log( "Geometry vertex attrib failed to get set." );
-					GL.BindVertexArray( 0 );
-					return;
-				}
+				Display.CheckErr();
 				if( Shader.texture_attrib_id >= 0 )
 				{
 					GL.EnableVertexAttribArray( Shader.texture_attrib_id );
@@ -287,13 +282,15 @@ namespace Voxelarium.Core.Voxels.UI
 				GL.BindVertexArray( 0 );
 #endif
 				GL.BindBuffer( BufferTarget.ArrayBuffer, 0 );
+				Display.CheckErr();
 			}
 
 			if( !transparent )
 			{
-				if( transparent_dirty )
+				if( solid_dirty )
 				{
 					GL.BindBuffer( BufferTarget.ArrayBuffer, vbo_solid );
+					Display.CheckErr();
 					unsafe
 					{
 						fixed ( float* data = &solid_buffer[0].p1 )
@@ -306,12 +303,13 @@ namespace Voxelarium.Core.Voxels.UI
 			}
 			else
 			{
-				if( solid_dirty )
+				if( transparent_dirty )
 				{
-					GL.BindBuffer( BufferTarget.ArrayBuffer, vbo_solid );
+					GL.BindBuffer( BufferTarget.ArrayBuffer, vbo_transparent );
+					Display.CheckErr();
 					unsafe
 					{
-						fixed ( float* data = &solid_buffer[0].p1 )
+						fixed ( float* data = &transparent_buffer[0].p1 )
 						{
 							GL.BufferData( BufferTarget.ArrayBuffer, (IntPtr)( VertexSize * transparent_used ), (IntPtr)data, BufferUsageHint.StaticDraw );
 							Display.CheckErr();

@@ -32,6 +32,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -75,6 +76,9 @@
     <Compile Include="Game\Settings_Hardware.cs" />
     <Compile Include="Game\VoxelGameEngine.cs" />
     <Compile Include="Game\VoxelGameEnvironment.cs" />
+    <Compile Include="Types\FastRandom.cs" />
+    <Compile Include="Types\LightSpeedRandom.cs" />
+    <Compile Include="Types\Random_LFSR.cs" />
     <Compile Include="Types\SaltyRandomGenerator.cs" />
     <Compile Include="Math\Transform.cs" />
     <Compile Include="Support\HighPerfTimer.cs" />

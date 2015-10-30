@@ -26,9 +26,9 @@ namespace Voxelarium.Core
 		};
 		//HighPerfTimer Timer;
 		HighPerfTimer Timer_Draw;
-		HighPerfTimer PhysicsTimer;
-		HighPerfTimer PhysicsTimer_Compute;
-		uint FrameTime;
+		//HighPerfTimer PhysicsTimer;
+		//HighPerfTimer PhysicsTimer_Compute;
+		//uint FrameTime;
 		//		Screen_ChooseOption Screen_ChooseOption;
 		//Screen_SlotSelection Screen_SlotSelection;
 		//Screen_Loading Screen_Loading;
@@ -77,6 +77,7 @@ namespace Voxelarium.Core
 				Screen.ScreenChoices Result = _active_screen.ProcessScreen( this );
 				if( Result >= Screen.ScreenChoices.SlotChoice1 && Result <= Screen.ScreenChoices.SlotChoice16 )
 				{
+					Display.HideMouse();
 					active_screen = Screen_Loading;
 					Thread thread = new Thread( LoadGame );
 					thread.Start( this );

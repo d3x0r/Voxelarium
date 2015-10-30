@@ -100,7 +100,7 @@ namespace Voxelarium.Core.Voxels
 			VoxelType.SetProperties( new VoxelProperties( 0 ) );
 			AddVoxelType( i++, VoxelType );
 
-			for( ; i < 100; i++ )
+			for( ; i < 300; i++ )
 			{
 				VoxelProperties props = VoxelProperties.Load( i );
 				if( Compiler.LoadVoxelCode( props.Type ) )

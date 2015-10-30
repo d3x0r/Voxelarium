@@ -13,8 +13,8 @@ namespace Voxelarium.Core.Voxels
 		public int Type;
 
 		public string VoxelClassName;
-		Type VoxelExtension;
-		Type VoxelType;
+		//Type VoxelExtension;
+		//Type VoxelType;
 		Box2D texture_coords;
 		
 
@@ -156,7 +156,7 @@ namespace Voxelarium.Core.Voxels
 
 			// Get the right folder path
 
-			string FileSpec, FileName;
+			string FileName;
 			if( Type < 32768 )
 			{
 				FileName = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH + "/VoxelTypes/voxelinfo/" + String.Format( "voxelinfo_" + (ulong)Type + ".txt" );
@@ -175,6 +175,8 @@ namespace Voxelarium.Core.Voxels
 					string input;
 					while( ( input = sr.ReadLine() ) != null )
 					{
+						if( input.Length == 0 )
+							continue;
 						XString line = XString.Burst( input );
 						string Token = line.firstseg.Text;
 						XStringSeg value = line.firstseg.Next.Next;

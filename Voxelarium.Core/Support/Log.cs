@@ -35,7 +35,7 @@ namespace Voxelarium.Core.Support
 			int idx1 = Application.ExecutablePath.LastIndexOfAny( new char[] { '/', '\\' } );
 			int idx2 = Application.ExecutablePath.LastIndexOfAny( new char[] { '.' } );
 			if( ApplicationName == null )
-				ApplicationName = Application.ExecutablePath.Substring( idx1 + 1, (idx2 - idx1) - 1 );
+				ApplicationName = Application.ExecutablePath.Substring( idx1 + 1, ( idx2 - idx1 ) - 1 );
 			//return;
 			string logpath = LoggingRoot
 							+ "/" + ApplicationProducer + "/"
@@ -46,28 +46,28 @@ namespace Voxelarium.Core.Support
 			retry:
 			try
 			{
-				
+
 				AutoBackup( logname );
 				fs = new FileStream( logname, FileMode.Create );
 				sw = new StreamWriter( fs );
 			}
 			catch( IOException )
 			{
-				logname = Application.CommonAppDataPath 
+				logname = Application.CommonAppDataPath
 							+ Application.ExecutablePath.Substring( idx1 ) + "-" + ( retry++ ) + ".Log";
 				//Log.log( "In use, attempting new name..." + logname );
 				goto retry;
 			}
-			LogToConsole = true || Settings.Read("Log to debug console", 0) != 0;
-			LogToFile = false || Settings.Read( "Log to debug file", 1) != 0;
-            LogTimeDelta = ( Settings.Read( "Log Time Delta", 1) != 0 );
+			LogToConsole = true || Settings.Read( "Log to debug console", 0 ) != 0;
+			LogToFile = false || Settings.Read( "Log to debug file", 1 ) != 0;
+			LogTimeDelta = ( Settings.Read( "Log Time Delta", 1 ) != 0 );
 		}
 		static DateTime then;
 
 		static bool LogToConsole = true;
 		static bool LogToFile = true;
-        static bool LogTimeDelta = false;
-	
+		static bool LogTimeDelta = false;
+
 		public static void log( string s, System.Diagnostics.StackFrame sf )
 		{
 			String time = "";
@@ -75,40 +75,40 @@ namespace Voxelarium.Core.Support
 			//if( file != null )
 			//file = file.Substring( file.LastIndexOf( "\\" ) + 1 );
 			if( LogToFile )
-				lock( sw )
+				lock ( sw )
 				{
-                    if (LogTimeDelta)
-                    {
-                        TimeSpan delta = DateTime.Now.Subtract(then);
-                        sw.WriteLine((time = delta.ToString())
-                            //DateTime.Now.ToString("hh.mm.ss.fff")
-                            + "@" + file + "(" + sf.GetFileLineNumber() + "):" + s);
-                        then = DateTime.Now;
-                        sw.Flush();
-                    }
-                    else
-                    {
-                        sw.WriteLine((DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"))
-                            + "@" + file + "(" + sf.GetFileLineNumber() + "):" + s);
-                        sw.Flush();
-                    }
+					if( LogTimeDelta )
+					{
+						TimeSpan delta = DateTime.Now.Subtract( then );
+						sw.WriteLine( ( time = delta.ToString() )
+							//DateTime.Now.ToString("hh.mm.ss.fff")
+							+ "@" + file + "(" + sf.GetFileLineNumber() + "):" + s );
+						then = DateTime.Now;
+						sw.Flush();
+					}
+					else
+					{
+						sw.WriteLine( ( DateTime.Now.ToString( "yyyy-MM-dd HH:mm:ss.fff" ) )
+							+ "@" + file + "(" + sf.GetFileLineNumber() + "):" + s );
+						sw.Flush();
+					}
 				}
 
 			if( LogToConsole )
 			{
 				System.Diagnostics.Debug.WriteLine(
-					//Console.WriteLine( //"{0}{1}"
+					 //Console.WriteLine( //"{0}{1}"
 					 file + "(" + sf.GetFileLineNumber() + "):"
 					 + System.Threading.Thread.CurrentThread.ManagedThreadId + "|"
 					+ s );
 			}
-			 
+
 		}
 
-        /// <summary>
-        /// adds the given string as an entry in the log
-        /// </summary>
-        /// <param name="s"></param>
+		/// <summary>
+		/// adds the given string as an entry in the log
+		/// </summary>
+		/// <param name="s"></param>
 		public static void log( string s )
 		{
 			log( s, new System.Diagnostics.StackFrame( 1, true ) );
@@ -132,79 +132,79 @@ namespace Voxelarium.Core.Support
 		/// Adds a hex dump of the given string to the log.
 		/// </summary>
 		/// <param name="s"></param>
-		public static void LogBinary(string s)
-        {
-            string sHex = "Hex breakdown of "+s.Length.ToString()+" byte(s):", sDisp = "";
-            byte charAsByte = 0;
+		public static void LogBinary( string s )
+		{
+			string sHex = "Hex breakdown of " + s.Length.ToString() + " byte(s):", sDisp = "";
+			byte charAsByte = 0;
 
-            for (int n = 0; n < s.Length; n++)
-            {
-                if (n % 16 == 0)
-                {
-                    sHex += "   " + sDisp;
-                    sDisp = "";
+			for( int n = 0; n < s.Length; n++ )
+			{
+				if( n % 16 == 0 )
+				{
+					sHex += "   " + sDisp;
+					sDisp = "";
 
-                    sHex += "\r\n\t\t";
-                }
+					sHex += "\r\n\t\t";
+				}
 
-                charAsByte = Convert.ToByte(s[n]);
+				charAsByte = Convert.ToByte( s[n] );
 
-                sHex += charAsByte.ToString("X2")+" ";
+				sHex += charAsByte.ToString( "X2" ) + " ";
 
-                if (charAsByte < ' ' || charAsByte > '~')
-                    sDisp += '.';
-                else
-                    sDisp += s[n];
-            }
+				if( charAsByte < ' ' || charAsByte > '~' )
+					sDisp += '.';
+				else
+					sDisp += s[n];
+			}
 
-            if (sDisp != "")
-            {
-                for (int x = s.Length % 16; x < 16; x++)
-                    sHex += "   ";
+			if( sDisp != "" )
+			{
+				for( int x = s.Length % 16; x < 16; x++ )
+					sHex += "   ";
 
-                sHex += "   " + sDisp;
-            }
+				sHex += "   " + sDisp;
+			}
 
-            System.Diagnostics.StackFrame sf = new System.Diagnostics.StackFrame(1, true);
-            log(sHex, sf);
-        }
+			System.Diagnostics.StackFrame sf = new System.Diagnostics.StackFrame( 1, true );
+			log( sHex, sf );
+		}
 
-        /// <summary>
-        /// Adds a hex dump of the given byte array to the log.
-        /// </summary>
-        /// <param name="byteArray"></param>
-        public static void LogBinary(byte[] byteArray)
-        {
-            string sHex = "Hex breakdown of " + byteArray.GetLength(0).ToString() + " byte(s):", sDisp = "";
+		/// <summary>
+		/// Adds a hex dump of the given byte array to the log.
+		/// </summary>
+		/// <param name="byteArray"></param>
+		public static void LogBinary( byte[] byteArray )
+		{
+			string sHex = "Hex breakdown of " + byteArray.GetLength( 0 ).ToString() + " byte(s):", sDisp = "";
 
-            for (int n = 0; n < byteArray.GetLength(0); n++)
-            {
-                if (n % 16 == 0)
-                {
-                    sHex += "   " + sDisp;
-                    sDisp = "";
+			for( int n = 0; n < byteArray.GetLength( 0 ); n++ )
+			{
+				if( n % 16 == 0 )
+				{
+					sHex += "   " + sDisp;
+					sDisp = "";
 
-                    sHex += "\r\n\t\t";
-                }
+					sHex += "\r\n\t\t";
+				}
 
-                sHex += byteArray[n].ToString("X2") + " ";
+				sHex += byteArray[n].ToString( "X2" ) + " ";
 
-                if (byteArray[n] < ' ' || byteArray[n] > '~')
-                    sDisp += '.';
-                else
-                    sDisp += (char) byteArray[n];
-            }
+				if( byteArray[n] < ' ' || byteArray[n] > '~' )
+					sDisp += '.';
+				else
+					sDisp += (char)byteArray[n];
+			}
 
-            if (sDisp != "")
-            {
-                for (int x = byteArray.GetLength(0) % 16; x < 16; x++)
-                    sHex += "   ";
+			if( sDisp != "" )
+			{
+				for( int x = byteArray.GetLength( 0 ) % 16; x < 16; x++ )
+					sHex += "   ";
 
-                sHex += "   " + sDisp;
-            }
+				sHex += "   " + sDisp;
+			}
 
-            System.Diagnostics.StackFrame sf = new System.Diagnostics.StackFrame(1, true);
-            log(sHex, sf);
-        }
-    }
+			System.Diagnostics.StackFrame sf = new System.Diagnostics.StackFrame( 1, true );
+			log( sHex, sf );
+		}
+	}
 }

@@ -59,7 +59,6 @@ namespace Voxelarium.Core.UI
 
 		static bool InitializedGame;
 		static bool game_loaded;
-		static bool textures_loaded;
 
 		internal static Camera free_camera;
 		internal static Camera active_camera;
@@ -87,7 +86,7 @@ namespace Voxelarium.Core.UI
 			// generic fly camera not attached to any object
 			free_camera = new Camera();
 			active_camera = free_camera; // default to freecam;
-			free_camera.MoveTo( 0, 0, -5 );
+			free_camera.MoveTo( 0, 32, 3948 );
 			debug_cube_transform = btTransform.Identity;
 
 			shaders.Add( new SimpleShader() );
@@ -447,35 +446,36 @@ namespace Voxelarium.Core.UI
 
 			Vector4 color = new Vector4( 0.5f, 0.5f, 0.2f, 1 );
 			Vector4 face_color = new Vector4( 0f, 0f, 1f, 1 );
-			edge.Activate();
-			Display.CheckErr();
-			edge.DrawQuad( verts, text, ref face_color, ref color );
-
-			for( int i = 0; i < 4; i++ )
+			if( edge.Activate() )
 			{
-				text[i].X *= 2;
-				text[i].Y *= 2;
-				verts[i].X += 10;
-			}
-			face_color = new Vector4( 0.5f, 0.5f, 0.5f, 1 );
-			color = new Vector4( 0.0f, 0.0f, 0.0f, 1 );
-			edge.Activate();
-			Display.CheckErr();
-			edge.DrawQuad( verts, text, ref face_color, ref color );
+				Display.CheckErr();
+				edge.DrawQuad( verts, text, ref face_color, ref color );
 
-			for( int i = 0; i < 4; i++ )
-			{
-				text[i].X *= 2;
-				text[i].Y *= 2;
-				verts[i].X += 10;
-			}
-			color = new Vector4( 0.0f, 0.5f, 0.9f, 1 );
-			color_edge.Activate();
-			Display.CheckErr();
-			color_edge.DrawQuad( verts, text, ref face_color, colors, 800 );
-			//edge.DrawQuad( verts, ref color );
-			Display.CheckErr();
+				for( int i = 0; i < 4; i++ )
+				{
+					text[i].X *= 2;
+					text[i].Y *= 2;
+					verts[i].X += 10;
+				}
+				face_color = new Vector4( 0.5f, 0.5f, 0.5f, 1 );
+				color = new Vector4( 0.0f, 0.0f, 0.0f, 1 );
+				edge.Activate();
+				Display.CheckErr();
+				edge.DrawQuad( verts, text, ref face_color, ref color );
 
+				for( int i = 0; i < 4; i++ )
+				{
+					text[i].X *= 2;
+					text[i].Y *= 2;
+					verts[i].X += 10;
+				}
+				color = new Vector4( 0.0f, 0.5f, 0.9f, 1 );
+				color_edge.Activate();
+				Display.CheckErr();
+				color_edge.DrawQuad( verts, text, ref face_color, colors, 800 );
+				//edge.DrawQuad( verts, ref color );
+				Display.CheckErr();
+			}
 			GL.UseProgram( 0 );
 
 			{
@@ -537,16 +537,16 @@ namespace Voxelarium.Core.UI
 		}
 
 
-		//[Conditional( "DEBUG" )]
-		internal static bool CheckErr()
+		[Conditional( "DEBUG" )]
+		internal static void CheckErr()
 		{
 			ErrorCode code = GL.GetError();
 			if( code != 0 )
 			{
 				Log.log( "error " + code, 1  );
-				return true;
+				//return true;
 			}
-			return false;
+			//return false;
 		}
 	}
 }

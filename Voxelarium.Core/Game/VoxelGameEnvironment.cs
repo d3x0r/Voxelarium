@@ -18,7 +18,6 @@ namespace Voxelarium.Core
 	{
 
 		internal int percent_done;
-		internal int percent_started;
 		//ZVector3L ShipCenter; // Test
 
 		public VoxelGameEnvironment()
@@ -65,8 +64,6 @@ namespace Voxelarium.Core
 			//OptionScreen_Up = false;
 			Game_Run = false;
 				Initialized_GameStats = false;
-				Mouse_captured = false;
-				Mouse_relative = false;
 				Enable_MVI = true;
 				Enable_NewSectorRendering = true;
 				frames = 0;
@@ -79,23 +76,15 @@ namespace Voxelarium.Core
 		}
 		~VoxelGameEnvironment() { UniverseNum = 0; }
 
-		//ZLog InitLog;
-
-		//
-		SaltyRandomGenerator Random;
-
-		//ZPointList PointList;
 
 		// Usefull directory
 
-		string Path_GameFiles;
 		string Path_UserData;
 
 		string Path_Universes;
 		string Path_ActualUniverse;
 		string Path_UserTextures;
 		string Path_UserScripts;
-		string Path_UserScripts_Squirrel;
 		string Path_UserScripts_UserData;
 
 		// Flags
@@ -104,11 +93,6 @@ namespace Voxelarium.Core
 		internal bool Enable_LoadNewSector; // Enable new sector loading and rendering. Disable Locks to only loaded sectors.
 		internal bool Enable_NewSectorRendering; // Enable to make display lists for new incoming sectors.
 		internal bool Stop_Programmable_Robots; // This flag signal to user programmable robots to stop running as soon as possible.
-
-
-		// Game Loop continue flag
-		bool Mouse_relative;
-		bool Mouse_captured;
 
 		/* controlled directly by screens */
 		Pages _page_up;
@@ -131,6 +115,8 @@ namespace Voxelarium.Core
 		internal TileSet.TileSetStyles TileSetStyles;
 		internal RenderInterface Basic_Renderer;
 		internal Sound Sound;
+
+
 		Actor ActiveActor;
 		internal Actor GetActiveActor() { return ActiveActor; }
 
@@ -318,10 +304,13 @@ namespace Voxelarium.Core
 			start_percent = ( ++start_step * 100 ) / start_steps;
 			result = Start_Game_Events(); if( !result ) return ( false );
 			start_percent = ( ++start_step * 100 ) / start_steps;
-			result = Start_World(); if( !result ) return ( false );
 
+			result = Start_World(); if( !result ) return ( false );
 			start_percent = ( ++start_step * 100 ) / start_steps;
 			result = Start_SectorLoader(); if( !result ) return ( false );
+			start_percent = ( ++start_step * 100 ) / start_steps;
+			result = Start_WorldSectors(); if( !result ) return ( false );
+
 			start_percent = ( ++start_step * 100 ) / start_steps;
 			result = Start_VoxelProcessor(); if( !result ) return ( false );
 #if FINISHED_PORTING
@@ -456,9 +445,6 @@ namespace Voxelarium.Core
 			Path_UserData += "/" + VoxelGlobalSettings.COMPILEOPTION_SAVEFOLDERNAME;
 			System.IO.Directory.CreateDirectory( Path_UserData );
 
-			// Directory for game files
-
-			Path_GameFiles = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH;
 
 			// Subdirectories
 
@@ -732,18 +718,17 @@ namespace Voxelarium.Core
 
 			World.renderer = Basic_Renderer;
 
-			//Basic_Renderer.SetWorld( World );
-
 			World.SetUniverseNum( UniverseNum );
 			World.SetVoxelTypeManager( VoxelTypeManager );
-			World.CreateDemoWorld();
-			World.SetVoxel( 0, 0, 0, 1 );// World.SetVoxel(0,1,0,1); World.SetVoxel(1,0,0,1); World.SetVoxel(0,2,0,2); World.SetVoxel(0,2,1,2);
-										  //World.SetVoxel(0,2,-1,2);World.SetVoxel(10,0,10,1); World.SetVoxel(10,1,10,1); World.SetVoxel(10,2,10,1); World.SetVoxel(5,3,0,1); World.SetVoxel(0,3,5,2);
-			World.Load();
-			// GameEnv.VoxelTypeManager.DumpInfos();
-			World.WorldUpdateFaceCulling();
 
-
+			Initialized_World = true;
+			return ( true );
+		}
+		bool Start_WorldSectors()
+		{
+			World.CreateDemoWorld(); // force load initial zone.
+									 //World.SetVoxel( 0, 0, 0, 1 );// World.SetVoxel(0,1,0,1); World.SetVoxel(1,0,0,1); World.SetVoxel(0,2,0,2); World.SetVoxel(0,2,1,2);
+									 //World.SetVoxel(0,2,-1,2);World.SetVoxel(10,0,10,1); World.SetVoxel(10,1,10,1); World.SetVoxel(10,2,10,1); World.SetVoxel(5,3,0,1); World.SetVoxel(0,3,5,2);
 			Initialized_World = true;
 			return ( true );
 		}

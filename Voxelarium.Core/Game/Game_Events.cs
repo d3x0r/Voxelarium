@@ -240,22 +240,20 @@ namespace Voxelarium.Core.Game
 			Actor Actor;
 
 			Keyboard_Matrix[(int)KeySym] = 0;
+
+			Actor = GameEnv.GetActiveActor();
+
+			switch( KeySym )
 			{
-				Actor = GameEnv.GetActiveActor();
+				case Key.C: { Mouse_Matrix[1] = false; Actor.Action_MouseButtonRelease( 0 ); break; }
+				case Key.V: { Mouse_Matrix[2] = false; Actor.Action_MouseButtonRelease( 1 ); break; }
+				case Key.B: { Mouse_Matrix[3] = false; Actor.Action_MouseButtonRelease( 2 ); break; }
+				case Key.X: { Mouse_Matrix[4] = false; Actor.Action_MouseButtonRelease( 3 ); break; }
+				case Key.N: { Mouse_Matrix[5] = false; Actor.Action_MouseButtonRelease( 4 ); break; }
+				case Key.U: { GameEnv.Stop_Programmable_Robots = false; break; }
 
-				switch( KeySym )
-				{
-					case Key.C: { Mouse_Matrix[1] = false; Actor.Action_MouseButtonRelease( 0 ); break; }
-					case Key.V: { Mouse_Matrix[2] = false; Actor.Action_MouseButtonRelease( 1 ); break; }
-					case Key.B: { Mouse_Matrix[3] = false; Actor.Action_MouseButtonRelease( 2 ); break; }
-					case Key.X: { Mouse_Matrix[4] = false; Actor.Action_MouseButtonRelease( 3 ); break; }
-					case Key.N: { Mouse_Matrix[5] = false; Actor.Action_MouseButtonRelease( 4 ); break; }
-					case Key.U: { GameEnv.Stop_Programmable_Robots = false; break; }
-
-				}
-				return ( true );
 			}
-			return false;
+			return ( true );
 		}
 
 		public bool MouseMove( float Relative_x, float Relative_y, float Absolute_x, float Absolute_y )

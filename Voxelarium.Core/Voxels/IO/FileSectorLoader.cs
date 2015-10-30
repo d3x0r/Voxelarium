@@ -244,7 +244,7 @@ namespace Voxelarium.Core.Voxels.IO
 
 		ushort[][] BlocMatrix = new ushort[3][] { new ushort[9], new ushort[9], new ushort[9] };
 		ushort[] tmpp;
-		VoxelSector[] SectorTable = new VoxelSector[27];
+		ushort[][] SectorDataTable = new ushort[27][];
 		VoxelType[] Vt = new VoxelType[6 + 12];
 
 		void LimitedUpdateFaceCulling( VoxelSector Sector )
@@ -255,8 +255,11 @@ namespace Voxelarium.Core.Voxels.IO
 			ushort Temp;
 			uint i;
 
-			for( i = 0; i < 27; i++ ) SectorTable[i] = WorkingFullSector;
-			SectorTable[0] = Sector;
+			for( i = 0; i < 27; i++ )
+			{
+				SectorDataTable[i] = WorkingFullSector.Data.Data;
+			}
+			SectorDataTable[0] = Sector.Data.Data;
 			//SectorTable[1] = WorkingFullSector;
 			//SectorTable[2] = WorkingFullSector;
 			//SectorTable[3] = WorkingFullSector;
@@ -267,6 +270,12 @@ namespace Voxelarium.Core.Voxels.IO
 			int xc, yc, zc;
 			int xp, yp, zp;
 			int xpp, ypp, zpp;
+			int sec_xc, sec_zc;
+			int sec_xp, sec_zp;
+			int sec_xpp, sec_ypp, sec_zpp;
+			int off_xc, off_zc;
+			int off_xp, off_zp;
+			int off_xpp, off_ypp, off_zpp;
 			VoxelSector.FACEDRAW_Operations info;
 			bool TransparentVoxel;
 
@@ -275,44 +284,52 @@ namespace Voxelarium.Core.Voxels.IO
 			for( xc = 0; xc < VoxelSector.ZVOXELBLOCSIZE_X; xc++ )
 			{
 				xp = xc + 1; xpp = xc + 2;
+				sec_xc = VoxelSector.STableX[xc]; sec_xp = VoxelSector.STableX[xp]; sec_xpp = VoxelSector.STableX[xpp];
+				off_xc = VoxelSector.OfTableX[xc]; off_xp = VoxelSector.OfTableX[xp]; off_xpp = VoxelSector.OfTableX[xpp];
 				for( zc = 0; zc < VoxelSector.ZVOXELBLOCSIZE_Z; zc++ )
 				{
 					zp = zc + 1; zpp = zc + 2;
-
+					sec_zc = VoxelSector.STableZ[zc]; sec_zp = VoxelSector.STableZ[zp]; sec_zpp = VoxelSector.STableZ[zpp];
+					off_zc = VoxelSector.OfTableZ[zc]; off_zp = VoxelSector.OfTableZ[zp]; off_zpp = VoxelSector.OfTableZ[zpp];
+					byte sec_y0 = VoxelSector.STableY[0];
+					byte sec_y1 = VoxelSector.STableY[1];
+					ushort off_y0 = VoxelSector.OfTableY[0];
+					ushort off_y1 = VoxelSector.OfTableY[1];
 					// Prefetching the bloc matrix (only 2 rows)
 					// left/ahead (below)
-					BlocMatrix[1][0] = SectorTable[( VoxelSector.STableX[xc] + VoxelSector.STableY[0] + VoxelSector.STableZ[zc] )].Data.Data[VoxelSector.OfTableX[xc] + VoxelSector.OfTableY[0] + VoxelSector.OfTableZ[zc]];
+					//BlocMatrix[1][0] = SectorDataTable[( sec_xc + sec_y0 + sec_zc )][xc + off_y0 + off_zc];
 					// center/ahead (below)
-					BlocMatrix[1][1] = SectorTable[( VoxelSector.STableX[xp] + VoxelSector.STableY[0] + VoxelSector.STableZ[zc] )].Data.Data[VoxelSector.OfTableX[xp] + VoxelSector.OfTableY[0] + VoxelSector.OfTableZ[zc]];
+					BlocMatrix[1][1] = SectorDataTable[( sec_xp + sec_y0 + sec_zc )][xp + off_y0 + off_zc];
 					// right/ahead (below)
-					BlocMatrix[1][2] = SectorTable[( VoxelSector.STableX[xpp] + VoxelSector.STableY[0] + VoxelSector.STableZ[zc] )].Data.Data[VoxelSector.OfTableX[xpp] + VoxelSector.OfTableY[0] + VoxelSector.OfTableZ[zc]];
+					//BlocMatrix[1][2] = SectorDataTable[( sec_xpp + sec_y0 + sec_zc )][xpp + off_y0 + off_zc];
 					// left/center (below)
-					BlocMatrix[1][3] = SectorTable[( VoxelSector.STableX[xc] + VoxelSector.STableY[0] + VoxelSector.STableZ[zp] )].Data.Data[VoxelSector.OfTableX[xc] + VoxelSector.OfTableY[0] + VoxelSector.OfTableZ[zp]];
+					BlocMatrix[1][3] = SectorDataTable[( sec_xc + sec_y0 + sec_zp )][xc + off_y0 + off_zp];
 					// cneter/center (below)
-					BlocMatrix[1][4] = SectorTable[( VoxelSector.STableX[xp] + VoxelSector.STableY[0] + VoxelSector.STableZ[zp] )].Data.Data[VoxelSector.OfTableX[xp] + VoxelSector.OfTableY[0] + VoxelSector.OfTableZ[zp]];
+					BlocMatrix[1][4] = SectorDataTable[( sec_xp + sec_y0 + sec_zp )][xp + off_y0 + off_zp];
 					// right/center (below)
-					BlocMatrix[1][5] = SectorTable[( VoxelSector.STableX[xpp] + VoxelSector.STableY[0] + VoxelSector.STableZ[zp] )].Data.Data[VoxelSector.OfTableX[xpp] + VoxelSector.OfTableY[0] + VoxelSector.OfTableZ[zp]];
+					BlocMatrix[1][5] = SectorDataTable[( sec_xpp + sec_y0 + sec_zp )][xpp + off_y0 + off_zp];
 					// left/behind (below)
-					BlocMatrix[1][6] = SectorTable[( VoxelSector.STableX[xc] + VoxelSector.STableY[0] + VoxelSector.STableZ[zpp] )].Data.Data[VoxelSector.OfTableX[xc] + VoxelSector.OfTableY[0] + VoxelSector.OfTableZ[zpp]];
+					//BlocMatrix[1][6] = SectorDataTable[( sec_xc + sec_y0 + sec_zpp )][xc + off_y0 + off_zpp];
 					// center/behind (below)
-					BlocMatrix[1][7] = SectorTable[( VoxelSector.STableX[xp] + VoxelSector.STableY[0] + VoxelSector.STableZ[zpp] )].Data.Data[VoxelSector.OfTableX[xp] + VoxelSector.OfTableY[0] + VoxelSector.OfTableZ[zpp]];
+					BlocMatrix[1][7] = SectorDataTable[( sec_xp + sec_y0 + sec_zpp )][xp + off_y0 + off_zpp];
 					// right/behind (below)
-					BlocMatrix[1][8] = SectorTable[( VoxelSector.STableX[xpp] + VoxelSector.STableY[0] + VoxelSector.STableZ[zpp] )].Data.Data[VoxelSector.OfTableX[xpp] + VoxelSector.OfTableY[0] + VoxelSector.OfTableZ[zpp]];
+					//BlocMatrix[1][8] = SectorDataTable[( sec_xpp + sec_y0 + sec_zpp )][xpp + off_y0 + off_zpp];
 
-					BlocMatrix[2][0] = SectorTable[( VoxelSector.STableX[xc] + VoxelSector.STableY[1] + VoxelSector.STableZ[zc] )].Data.Data[VoxelSector.OfTableX[xc] + VoxelSector.OfTableY[1] + VoxelSector.OfTableZ[zc]];
-					BlocMatrix[2][1] = SectorTable[( VoxelSector.STableX[xp] + VoxelSector.STableY[1] + VoxelSector.STableZ[zc] )].Data.Data[VoxelSector.OfTableX[xp] + VoxelSector.OfTableY[1] + VoxelSector.OfTableZ[zc]];
-					BlocMatrix[2][2] = SectorTable[( VoxelSector.STableX[xpp] + VoxelSector.STableY[1] + VoxelSector.STableZ[zc] )].Data.Data[VoxelSector.OfTableX[xpp] + VoxelSector.OfTableY[1] + VoxelSector.OfTableZ[zc]];
-					BlocMatrix[2][3] = SectorTable[( VoxelSector.STableX[xc] + VoxelSector.STableY[1] + VoxelSector.STableZ[zp] )].Data.Data[VoxelSector.OfTableX[xc] + VoxelSector.OfTableY[1] + VoxelSector.OfTableZ[zp]];
-					BlocMatrix[2][4] = SectorTable[( VoxelSector.STableX[xp] + VoxelSector.STableY[1] + VoxelSector.STableZ[zp] )].Data.Data[VoxelSector.OfTableX[xp] + VoxelSector.OfTableY[1] + VoxelSector.OfTableZ[zp]];
-					BlocMatrix[2][5] = SectorTable[( VoxelSector.STableX[xpp] + VoxelSector.STableY[1] + VoxelSector.STableZ[zp] )].Data.Data[VoxelSector.OfTableX[xpp] + VoxelSector.OfTableY[1] + VoxelSector.OfTableZ[zp]];
-					BlocMatrix[2][6] = SectorTable[( VoxelSector.STableX[xc] + VoxelSector.STableY[1] + VoxelSector.STableZ[zpp] )].Data.Data[VoxelSector.OfTableX[xc] + VoxelSector.OfTableY[1] + VoxelSector.OfTableZ[zpp]];
-					BlocMatrix[2][7] = SectorTable[( VoxelSector.STableX[xp] + VoxelSector.STableY[1] + VoxelSector.STableZ[zpp] )].Data.Data[VoxelSector.OfTableX[xp] + VoxelSector.OfTableY[1] + VoxelSector.OfTableZ[zpp]];
-					BlocMatrix[2][8] = SectorTable[( VoxelSector.STableX[xpp] + VoxelSector.STableY[1] + VoxelSector.STableZ[zpp] )].Data.Data[VoxelSector.OfTableX[xpp] + VoxelSector.OfTableY[1] + VoxelSector.OfTableZ[zpp]];
+					//BlocMatrix[2][0] = SectorDataTable[( sec_xc + sec_y1 + sec_zc )][xc + off_y1 + off_zc];
+					BlocMatrix[2][1] = SectorDataTable[( sec_xp + sec_y1 + sec_zc )][xp + off_y1 + off_zc];
+					//BlocMatrix[2][2] = SectorDataTable[( sec_xpp + sec_y1 + sec_zc )][xpp + off_y1 + off_zc];
+					BlocMatrix[2][3] = SectorDataTable[( sec_xc + sec_y1 + sec_zp )][xc + off_y1 + off_zp];
+					BlocMatrix[2][4] = SectorDataTable[( sec_xp + sec_y1 + sec_zp )][xp + off_y1 + off_zp];
+					BlocMatrix[2][5] = SectorDataTable[( sec_xpp + sec_y1 + sec_zp )][xpp + off_y1 + off_zp];
+					//BlocMatrix[2][6] = SectorDataTable[( sec_xc + sec_y1 + sec_zpp )][xc + off_y1 + off_zpp];
+					BlocMatrix[2][7] = SectorDataTable[( sec_xp + sec_y1 + sec_zpp )][xp + off_y1 + off_zpp];
+					//BlocMatrix[2][8] = SectorDataTable[( sec_xpp + sec_y1 + sec_zpp )][xpp + off_y1 + off_zpp];
 
 					for( yc = 0; yc < VoxelSector.ZVOXELBLOCSIZE_Y; yc++ )
 					{
 						yp = yc + 1; ypp = yc + 2;
-
+						sec_ypp = VoxelSector.STableY[ypp];
+						off_ypp = VoxelSector.OfTableY[ypp];
 						// Scrolling bloc matrix by exchanging references.
 						tmpp = BlocMatrix[0];
 						BlocMatrix[0] = BlocMatrix[1];
@@ -321,15 +338,15 @@ namespace Voxelarium.Core.Voxels.IO
 
 						// Fetching a new bloc of data slice;
 
-						BlocMatrix[2][0] = SectorTable[( VoxelSector.STableX[xc] + VoxelSector.STableY[ypp] + VoxelSector.STableZ[zc] )].Data.Data[VoxelSector.OfTableX[xc] + VoxelSector.OfTableY[ypp] + VoxelSector.OfTableZ[zc]];
-						BlocMatrix[2][1] = SectorTable[( VoxelSector.STableX[xp] + VoxelSector.STableY[ypp] + VoxelSector.STableZ[zc] )].Data.Data[VoxelSector.OfTableX[xp] + VoxelSector.OfTableY[ypp] + VoxelSector.OfTableZ[zc]];
-						BlocMatrix[2][2] = SectorTable[( VoxelSector.STableX[xpp] + VoxelSector.STableY[ypp] + VoxelSector.STableZ[zc] )].Data.Data[VoxelSector.OfTableX[xpp] + VoxelSector.OfTableY[ypp] + VoxelSector.OfTableZ[zc]];
-						BlocMatrix[2][3] = SectorTable[( VoxelSector.STableX[xc] + VoxelSector.STableY[ypp] + VoxelSector.STableZ[zp] )].Data.Data[VoxelSector.OfTableX[xc] + VoxelSector.OfTableY[ypp] + VoxelSector.OfTableZ[zp]];
-						BlocMatrix[2][4] = SectorTable[( VoxelSector.STableX[xp] + VoxelSector.STableY[ypp] + VoxelSector.STableZ[zp] )].Data.Data[VoxelSector.OfTableX[xp] + VoxelSector.OfTableY[ypp] + VoxelSector.OfTableZ[zp]];
-						BlocMatrix[2][5] = SectorTable[( VoxelSector.STableX[xpp] + VoxelSector.STableY[ypp] + VoxelSector.STableZ[zp] )].Data.Data[VoxelSector.OfTableX[xpp] + VoxelSector.OfTableY[ypp] + VoxelSector.OfTableZ[zp]];
-						BlocMatrix[2][6] = SectorTable[( VoxelSector.STableX[xc] + VoxelSector.STableY[ypp] + VoxelSector.STableZ[zpp] )].Data.Data[VoxelSector.OfTableX[xc] + VoxelSector.OfTableY[ypp] + VoxelSector.OfTableZ[zpp]];
-						BlocMatrix[2][7] = SectorTable[( VoxelSector.STableX[xp] + VoxelSector.STableY[ypp] + VoxelSector.STableZ[zpp] )].Data.Data[VoxelSector.OfTableX[xp] + VoxelSector.OfTableY[ypp] + VoxelSector.OfTableZ[zpp]];
-						BlocMatrix[2][8] = SectorTable[( VoxelSector.STableX[xpp] + VoxelSector.STableY[ypp] + VoxelSector.STableZ[zpp] )].Data.Data[VoxelSector.OfTableX[xpp] + VoxelSector.OfTableY[ypp] + VoxelSector.OfTableZ[zpp]];
+						//BlocMatrix[2][0] = SectorDataTable[( sec_xc + sec_ypp + sec_zc )][xc + off_ypp + off_zc];
+						BlocMatrix[2][1] = SectorDataTable[( sec_xp + sec_ypp + sec_zc )][xp + off_ypp + off_zc];
+						//BlocMatrix[2][2] = SectorDataTable[( sec_xpp + sec_ypp + sec_zc )][xpp + off_ypp + off_zc];
+						BlocMatrix[2][3] = SectorDataTable[( sec_xc + sec_ypp + sec_zp )][xc + off_ypp + off_zp];
+						BlocMatrix[2][4] = SectorDataTable[( sec_xp + sec_ypp + sec_zp )][xp + off_ypp + off_zp];
+						BlocMatrix[2][5] = SectorDataTable[( sec_xpp + sec_ypp + sec_zp )][xpp + off_ypp + off_zp];
+						//BlocMatrix[2][6] = SectorDataTable[( sec_xc + sec_ypp + sec_zpp )][xc + off_ypp + off_zpp];
+						BlocMatrix[2][7] = SectorDataTable[( sec_xp + sec_ypp + sec_zpp )][xp + off_ypp + off_zpp];
+						//BlocMatrix[2][8] = SectorDataTable[( sec_xpp + sec_ypp + sec_zpp )][xpp + off_ypp + off_zpp];
 
 						info = 0;
 						if( BlocMatrix[1][4] > 0 )
@@ -340,7 +357,7 @@ namespace Voxelarium.Core.Voxels.IO
 							Vt[3] = VoxelTypeTable[BlocMatrix[1][5]];
 							Vt[4] = VoxelTypeTable[BlocMatrix[0][4]];
 							Vt[5] = VoxelTypeTable[BlocMatrix[2][4]];
-
+#if asdfasdf
 							Vt[6] = VoxelTypeTable[BlocMatrix[0][1]];
 							Vt[7] = VoxelTypeTable[BlocMatrix[0][7]];
 							Vt[8] = VoxelTypeTable[BlocMatrix[2][1]];
@@ -353,6 +370,7 @@ namespace Voxelarium.Core.Voxels.IO
 							Vt[15] = VoxelTypeTable[BlocMatrix[1][2]];
 							Vt[16] = VoxelTypeTable[BlocMatrix[1][6]];
 							Vt[17] = VoxelTypeTable[BlocMatrix[1][8]];
+#endif
 
 							Temp = BlocMatrix[1][4];
 							TransparentVoxel = VoxelTypeTable[Temp].properties.Draw_TransparentRendering;
@@ -364,6 +382,7 @@ namespace Voxelarium.Core.Voxels.IO
 							info |= ( Vt[4].properties.Draw_FullVoxelOpacity || ( TransparentVoxel && Vt[4].properties.Draw_TransparentRendering ) ) ? 0 : VoxelSector.FACEDRAW_Operations.BELOW;
 							info |= ( Vt[5].properties.Draw_FullVoxelOpacity || ( TransparentVoxel && Vt[5].properties.Draw_TransparentRendering ) ) ? 0 : VoxelSector.FACEDRAW_Operations.ABOVE;
 
+#if asdfasdf
 							if( Temp != 0 )
 							{
 								//if( info & VoxelSector.FACEDRAW_Operations.AHEAD )
@@ -381,6 +400,7 @@ namespace Voxelarium.Core.Voxels.IO
 								info |= ( Vt[16].properties.Draw_FullVoxelOpacity ) ? VoxelSector.FACEDRAW_Operations.LEFT_HAS_BEHIND : 0;
 								info |= ( Vt[17].properties.Draw_FullVoxelOpacity ) ? VoxelSector.FACEDRAW_Operations.RIGHT_HAS_BEHIND : 0;
 							}
+#endif
 						}
 
 						// if ( (y==-1) && (yc==63) ) info = 255;
@@ -392,8 +412,8 @@ namespace Voxelarium.Core.Voxels.IO
 						}
 						*/
 						// Write face culling info to face culling table
-						if( SectorTable[0].Culler != null )
-							SectorTable[0].Culler.setFaceCulling( SectorTable[0], VoxelSector.OfTableX[xp] + VoxelSector.OfTableY[yp] + VoxelSector.OfTableZ[zp], info );
+						if( Sector.Culler != null )
+							Sector.Culler.setFaceCulling( Sector, off_xp + VoxelSector.OfTableY[yp] + off_zp, info );
 
 					}
 				}

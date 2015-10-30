@@ -156,7 +156,7 @@ namespace Voxelarium.Core.Voxels
 
 			//uint64_t CullingResult;
 
-			if( Sector.PartialCulling != null )
+			if( Sector.PartialCulling != 0 )
 			{
 				//CullingResult = 
 				Sector.Culler.CullSector( Sector, false, Sector.PartialCulling );
