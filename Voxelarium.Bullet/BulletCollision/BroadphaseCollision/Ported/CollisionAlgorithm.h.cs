@@ -24,11 +24,11 @@ namespace Bullet.Collision.BroadPhase
 	{
 	}
 
-	public struct btCollisionAlgorithmConstructionInfo
+	internal struct btCollisionAlgorithmConstructionInfo
 	{
-		public btDispatcher m_dispatcher1;
+		internal btDispatcher m_dispatcher1;
 		public btPersistentManifold m_manifold;
-		public btCollisionAlgorithmConstructionInfo( btDispatcher dispatcher, int temp )
+		internal btCollisionAlgorithmConstructionInfo( btDispatcher dispatcher, int temp )
 		{
 			m_dispatcher1 = dispatcher;
 			m_manifold = null;
@@ -39,22 +39,23 @@ namespace Bullet.Collision.BroadPhase
 
 	///btCollisionAlgorithm is an collision interface that is compatible with the Broadphase and btDispatcher.
 	///It is persistent over frames
-	public abstract class btCollisionAlgorithm
+	internal abstract class btCollisionAlgorithm
 	{
 		protected btDispatcher m_dispatcher;
 
 		//	protected int	getDispatcherId();
+		public btCollisionAlgorithm() { }
 
-		public btCollisionAlgorithm( btCollisionAlgorithmConstructionInfo ci)
+		internal void Initialize( btCollisionAlgorithmConstructionInfo ci)
 		{
 			m_dispatcher = ci.m_dispatcher1;
 		}
+		internal abstract void Cleanup();
+		internal abstract void processCollision( btCollisionObjectWrapper body0Wrap, btCollisionObjectWrapper body1Wrap, btDispatcherInfo dispatchInfo, btManifoldResult resultOut );
 
-		public abstract void processCollision( btCollisionObjectWrapper body0Wrap, btCollisionObjectWrapper body1Wrap, btDispatcherInfo dispatchInfo, btManifoldResult resultOut );
+		internal abstract double calculateTimeOfImpact( btCollisionObject body0, btCollisionObject body1, btDispatcherInfo dispatchInfo, btManifoldResult resultOut );
 
-		public abstract double calculateTimeOfImpact( btCollisionObject body0, btCollisionObject body1, btDispatcherInfo dispatchInfo, btManifoldResult resultOut );
-
-		public abstract void getAllContactManifolds( btManifoldArray	manifoldArray);
+		internal abstract void getAllContactManifolds( btManifoldArray	manifoldArray);
 	};
 
 }

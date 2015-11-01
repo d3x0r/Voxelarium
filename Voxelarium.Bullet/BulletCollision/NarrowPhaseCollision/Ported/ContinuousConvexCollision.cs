@@ -35,6 +35,8 @@ namespace Bullet.Collision.NarrowPhase
 		btConvexShape m_convexB1;
 		btStaticPlaneShape m_planeShape;
 
+		public btContinuousConvexCollision() { }
+
 		internal void Initialize( btConvexShape convexA, btStaticPlaneShape plane )
 		{
 			m_simplexSolver = ( null );
@@ -42,7 +44,7 @@ namespace Bullet.Collision.NarrowPhase
 			m_convexA = ( convexA ); m_convexB1 = ( null ); m_planeShape = ( plane );
 		}
 
-		public btContinuousConvexCollision( btConvexShape convexA, btConvexShape convexB, btSimplexSolverInterface simplexSolver, btConvexPenetrationDepthSolver penetrationDepthSolver )
+		internal void Initialize( btConvexShape convexA, btConvexShape convexB, btSimplexSolverInterface simplexSolver, btConvexPenetrationDepthSolver penetrationDepthSolver )
 		{
 			m_simplexSolver = ( simplexSolver );
 			m_penetrationDepthSolver = ( penetrationDepthSolver );
@@ -66,11 +68,13 @@ namespace Bullet.Collision.NarrowPhase
 			if( m_convexB1 != null)
 			{
 				m_simplexSolver.reset();
-				btGjkPairDetector gjk = new btGjkPairDetector( m_convexA, m_convexB1, m_convexA.getShapeType(), m_convexB1.getShapeType(), m_convexA.getMargin(), m_convexB1.getMargin(), m_simplexSolver, m_penetrationDepthSolver);
+				btGjkPairDetector gjk = BulletGlobals.GjkPairDetectorPool.Get();
+				gjk.Initialize( m_convexA, m_convexB1, m_convexA.getShapeType(), m_convexB1.getShapeType(), m_convexA.getMargin(), m_convexB1.getMargin(), m_simplexSolver, m_penetrationDepthSolver);
 				btGjkPairDetector.ClosestPointInput input = new btDiscreteCollisionDetectorInterface.ClosestPointInput();
-				input.m_transformA = transA;
-				input.m_transformB = transB;
+				input.m_transformA = transA.T;
+				input.m_transformB = transB.T;
 				gjk.getClosestPoints( input, pointCollector, null );
+				BulletGlobals.GjkPairDetectorPool.Free( gjk );
 			}
 			else
 			{
@@ -111,7 +115,7 @@ namespace Bullet.Collision.NarrowPhase
 			}
 		}
 
-		public override bool calcTimeOfImpact(
+		internal override bool calcTimeOfImpact(
 						btITransform fromA,
 						btITransform toA,
 						btITransform fromB,
@@ -210,8 +214,6 @@ namespace Bullet.Collision.NarrowPhase
 					if( lambda <= lastLambda )
 					{
 						return false;
-						//n.setValue(0,0,0);
-						break;
 					}
 					lastLambda = lambda;
 
@@ -220,8 +222,8 @@ namespace Bullet.Collision.NarrowPhase
 					//interpolate to next lambda
 					btTransform interpolatedTransA, interpolatedTransB, relativeTrans;
 
-					btTransformUtil.integrateTransform( fromA, ref linVelA, ref angVelA, lambda, out interpolatedTransA );
-					btTransformUtil.integrateTransform( fromB, ref linVelB, ref angVelB, lambda, out interpolatedTransB );
+					btTransformUtil.integrateTransform( fromA, linVelA, angVelA, lambda, out interpolatedTransA );
+					btTransformUtil.integrateTransform( fromB, linVelB, angVelB, lambda, out interpolatedTransB );
 					interpolatedTransB.inverseTimes( ref interpolatedTransA, out relativeTrans );
 
 					if( result.m_debugDrawer != null )

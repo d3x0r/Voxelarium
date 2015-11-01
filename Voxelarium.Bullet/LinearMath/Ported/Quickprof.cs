@@ -20,7 +20,7 @@
 *
 * by Greg Hjelstrom & Byon Garrabrant
 *
-****************************************[]/
+*****************************************/
 
 // Credits: The Clock class was inspired by the Timer classes in 
 // Ogre (www.ogre3d.org).

@@ -273,7 +273,7 @@ namespace Bullet.Collision.Dispatch
 
 		//public void setActivationState( ActivationState newState );
 
-		void setDeactivationTime( double time )
+		internal void setDeactivationTime( double time )
 		{
 			m_deactivationTime = time;
 		}
@@ -362,6 +362,11 @@ namespace Bullet.Collision.Dispatch
 			result = m_interpolationWorldTransform;
 		}
 
+		public btITransform getInterpolationWorldTransform( )
+		{
+			return m_interpolationWorldTransform;
+		}
+
 		public void setInterpolationWorldTransform( ref btTransform trans )
 		{
 			m_updateRevision++;
@@ -388,6 +393,15 @@ namespace Bullet.Collision.Dispatch
 		public void getInterpolationAngularVelocity( out btVector3 result )
 		{
 			result = m_interpolationAngularVelocity;
+		}
+		public btIVector3 getInterpolationLinearVelocity( )
+		{
+			return m_interpolationLinearVelocity;
+		}
+
+		public btIVector3 getInterpolationAngularVelocity( )
+		{
+			return m_interpolationAngularVelocity;
 		}
 
 		public int getIslandTag()

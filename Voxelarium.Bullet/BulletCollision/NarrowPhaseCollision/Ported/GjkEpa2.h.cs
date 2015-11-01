@@ -180,11 +180,11 @@ namespace Bullet.Collision.NarrowPhase
 			internal sSimplex m_simplex;
 			internal eStatus._ m_status;
 			/* Methods		*/
-			internal GJK()
+			public GJK()
 			{
 				Initialize();
 			}
-			void Initialize()
+			internal void Initialize()
 			{
 				m_ray = btVector3.Zero;
 				m_nfree = 0;
@@ -928,14 +928,16 @@ namespace Bullet.Collision.NarrowPhase
 		//
 		static void Initialize( btConvexShape shape0, ref btTransform wtrs0,
 			btConvexShape shape1, ref btTransform wtrs1,
-			btGjkEpaSolver2.sResults results,
+			out btGjkEpaSolver2.sResults results,
 			tShape shape,
 			bool withmargins )
 		{
 			/* Results		*/
+			results.normal = btVector3.xAxis;
 			results.witness0 =
 				results.witness1 = btVector3.Zero;
 			results.status = btGjkEpaSolver2.sResults.eStatus.Separated;
+			results.distance = 0;
 			/* Shape		*/
 			shape.m_shapes[0] = shape0;
 			shape.m_shapes[1] = shape1;
@@ -958,10 +960,13 @@ namespace Bullet.Collision.NarrowPhase
 											  btConvexShape shape1,
 											  ref btTransform wtrs1,
 											  ref btVector3 guess,
-											  sResults results )
+											  out sResults results )
 		{
 			tShape shape = new tShape();
-			Initialize( shape0, ref wtrs0, shape1, ref wtrs1, results, shape, false );
+			results.witness0 =
+				results.witness1 = btVector3.Zero;
+			results.status = btGjkEpaSolver2.sResults.eStatus.Separated;
+			Initialize( shape0, ref wtrs0, shape1, ref wtrs1, out results, shape, false );
 			GJK gjk = new GJK();
 			GJK.eStatus._ gjk_status = gjk.Evaluate( shape, ref guess );
 			if( gjk_status == GJK.eStatus._.Valid )
@@ -1001,11 +1006,11 @@ namespace Bullet.Collision.NarrowPhase
 											 btConvexShape shape1,
 											 ref btTransform wtrs1,
 											 ref btVector3 guess,
-											 sResults results,
+											 out sResults results,
 											 bool usemargins = false )
 		{
 			tShape shape = new tShape();
-			Initialize( shape0, ref wtrs0, shape1, ref wtrs1, results, shape, usemargins );
+			Initialize( shape0, ref wtrs0, shape1, ref wtrs1, out results, shape, usemargins );
 			GJK gjk = new GJK();
 			btVector3 tmp;
 			guess.Invert( out tmp );
@@ -1054,7 +1059,7 @@ namespace Bullet.Collision.NarrowPhase
 			tShape shape = new tShape();
 			btSphereShape shape1 = new btSphereShape( margin );
 			btTransform wtrs1 = new btTransform( ref btQuaternion.Zero, ref position );
-			Initialize( shape0, ref wtrs0, shape1, ref wtrs1, results, shape, false );
+			Initialize( shape0, ref wtrs0, shape1, ref wtrs1, out results, shape, false );
 			GJK gjk = new GJK();
 			GJK.eStatus._ gjk_status = gjk.Evaluate( shape, ref btVector3.One );
 			if( gjk_status == GJK.eStatus._.Valid )
@@ -1086,7 +1091,7 @@ namespace Bullet.Collision.NarrowPhase
 			{
 				if( gjk_status == GJK.eStatus._.Inside )
 				{
-					if( Penetration( shape0, ref wtrs0, shape1, ref wtrs1, ref gjk.m_ray, results ) )
+					if( Penetration( shape0, ref wtrs0, shape1, ref wtrs1, ref gjk.m_ray, out results ) )
 					{
 						btVector3 delta; results.witness0.Sub(
 							ref results.witness1, out delta );
@@ -1106,12 +1111,14 @@ namespace Bullet.Collision.NarrowPhase
 												btConvexShape shape1,
 												ref btTransform wtrs1,
 												ref btVector3 guess,
-												sResults results )
+												out sResults results )
 		{
-			if( !Distance( shape0, ref wtrs0, shape1, ref wtrs1, ref guess, results ) )
-				return ( Penetration( shape0, ref wtrs0, shape1, ref wtrs1, ref guess, results, false ) );
+			if( !Distance( shape0, ref wtrs0, shape1, ref wtrs1, ref guess, out results ) )
+				return ( Penetration( shape0, ref wtrs0, shape1, ref wtrs1, ref guess, out results, false ) );
 			else
+			{
 				return ( true );
+			}
 		}
 
 	};

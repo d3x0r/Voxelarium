@@ -35,7 +35,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 	*/
 
 
-		enum btConstraintParams
+		internal enum btConstraintParams
 		{
 			BT_CONSTRAINT_ERP = 1,
 			BT_CONSTRAINT_STOP_ERP,
@@ -75,8 +75,8 @@ namespace Bullet.Dynamics.ConstraintSolver
 	}
 	*/
 
-		protected btRigidBody m_rbA;
-		protected btRigidBody m_rbB;
+		internal btRigidBody m_rbA;
+		internal btRigidBody m_rbB;
 		protected double m_appliedImpulse;
 		protected double m_dbgDrawSize;
 		protected btJointFeedback m_jointFeedback;
@@ -88,16 +88,17 @@ namespace Bullet.Dynamics.ConstraintSolver
 		};
 
 
-		unsafe public struct btConstraintInfo2
+		public class btConstraintInfo2
 		{
 			// integrator parameters: frames per second (1/stepsize), default error
 			// reduction parameter (0..1).
 			public double fps, erp;
+#if false
 			// for the first and second body, pointers to two (linear and angular)
 			// n*3 jacobian sub matrices, stored by rows. these matrices will have
 			// been initialized to 0 on entry. if the second body is zero then the
 			// J2xx pointers may be 0.
-			public btIVector3 m_J1linearAxis, m_J1angularAxis, m_J2linearAxis, m_J2angularAxis;
+			public btVector3 m_J1linearAxis, m_J1angularAxis, m_J2linearAxis, m_J2angularAxis;
 
 			// elements to jump from one row to the next in J's
 			public int rowskip;
@@ -109,12 +110,16 @@ namespace Bullet.Dynamics.ConstraintSolver
 
 			// lo and hi limits for variables (set to -/+ infinity on entry).
 			public btIScalar m_lowerLimit, m_upperLimit;
+#endif
+			public const int maxConstraints = 6;
+			public btSolverConstraint[] m_solverConstraints = new btSolverConstraint[maxConstraints];
+			public int m_numRows;
 
 			// findex vector for variables. see the LCP solver interface for a
 			// description of what this does. this is set to -1 on entry.
 			// note that the returned indexes are relative to the first index of
 			// the constraint.
-			public int* findex;
+			public int findex;
 
 			// number of solver iterations
 			public int m_numIterations;
@@ -122,6 +127,12 @@ namespace Bullet.Dynamics.ConstraintSolver
 			//damping of the velocity
 			public double m_damping;
 		};
+
+		[Conditional( "DEBUG" )]
+		internal static void btAssertConstrParams( bool condition )
+		{
+			Debug.Assert( condition, "Constraint parameter" );
+		}
 
 		public int getOverrideNumSolverIterations()
 		{
@@ -136,7 +147,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 		}
 
 		///internal method used by the constraint solver, don't use them directly
-		public virtual void buildJacobian() { }
+		internal virtual void buildJacobian() { }
 
 		///internal method used by the constraint solver, don't use them directly
 		protected virtual void setupSolverConstraint( btConstraintArray ca
@@ -145,10 +156,10 @@ namespace Bullet.Dynamics.ConstraintSolver
 		}
 
 		///internal method used by the constraint solver, don't use them directly
-		public abstract void getInfo1( ref btConstraintInfo1 info );
+		internal abstract void getInfo1( ref btConstraintInfo1 info );
 
 		///internal method used by the constraint solver, don't use them directly
-		public abstract void getInfo2( ref btConstraintInfo2 info );
+		internal abstract void getInfo2(  btConstraintInfo2 info );
 
 		///internal method used by the constraint solver, don't use them directly
 		public void internalSetAppliedImpulse( double appliedImpulse )
@@ -266,21 +277,21 @@ namespace Bullet.Dynamics.ConstraintSolver
 			return m_objectType;
 		}
 
-		void setDbgDrawSize( double dbgDrawSize )
+		internal void setDbgDrawSize( double dbgDrawSize )
 		{
 			m_dbgDrawSize = dbgDrawSize;
 		}
-		double getDbgDrawSize()
+		internal double getDbgDrawSize()
 		{
 			return m_dbgDrawSize;
 		}
 
 		///override the default global value of a parameter (such as ERP or CFM), optionally provide the axis (0..5). 
 		///If no axis is provided, it uses the default axis for this constraint.
-		public abstract void setParam( int num, double value, int axis = -1 );
+		internal abstract void setParam( btConstraintParams num, double value, int axis = -1 );
 
 		///return the local value of parameter
-		public abstract double getParam( int num, int axis = -1 );
+		internal abstract double getParam( btConstraintParams num, int axis = -1 );
 
 #if SERIALIZE_DONE
 		public int calculateSerializeBufferSize();
@@ -290,7 +301,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 #endif
 		static btRigidBody s_fixed = new btRigidBody( 0, null, null, ref btVector3.zAxis );
 
-		static btRigidBody getFixedBody()
+		internal static btRigidBody getFixedBody()
 		{
 			s_fixed.setMassProps( (double)( 0.0 ), ref btVector3.Zero );
 			return s_fixed;
@@ -298,8 +309,9 @@ namespace Bullet.Dynamics.ConstraintSolver
 
 
 
-		btTypedConstraint( btObjectTypes type, btRigidBody rbA ) : base( type )
+		internal btTypedConstraint( btObjectTypes type, btRigidBody rbA ) 
 		{
+			base.Initialize( type );
 			m_userConstraintType = ( -1 );
 			m_userConstraintPtr = ( (object)-1 );
 			m_breakingImpulseThreshold = ( btScalar.SIMD_INFINITY );
@@ -314,8 +326,9 @@ namespace Bullet.Dynamics.ConstraintSolver
 		}
 
 
-		btTypedConstraint( btObjectTypes type, btRigidBody rbA, btRigidBody rbB ) : base( type )
+		internal btTypedConstraint( btObjectTypes type, btRigidBody rbA, btRigidBody rbB )
 		{
+			base.Initialize( type );
 			m_userConstraintType = ( -1 );
 			m_userConstraintPtr = ( (object)-1 );
 			m_breakingImpulseThreshold = ( btScalar.SIMD_INFINITY );
@@ -331,7 +344,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 
 
 		///internal method used by the constraint solver, don't use them directly
-		double getMotorFactor( double pos, double lowLim, double uppLim, double vel, double timeFact )
+		internal double getMotorFactor( double pos, double lowLim, double uppLim, double vel, double timeFact )
 		{
 			if( lowLim > uppLim )
 			{
@@ -446,6 +459,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 				return angleInRadians;
 			}
 		}
+
 	};
 
 

@@ -81,7 +81,7 @@ namespace Bullet.Collision.Shapes
 		}
 
 
-		public unsafe virtual void InternalProcessAllTriangles( btInternalTriangleIndexCallback callback, ref btVector3 aabbMin, ref btVector3 aabbMax )
+		internal unsafe virtual void InternalProcessAllTriangles( btInternalTriangleIndexCallback callback, ref btVector3 aabbMin, ref btVector3 aabbMax )
 		{
 			int numtotalphysicsverts = 0;
 			int part, graphicssubparts = getNumSubParts();
@@ -275,7 +275,7 @@ namespace Bullet.Collision.Shapes
 			}
 		}
 
-		public class AabbCalculationCallback : btInternalTriangleIndexCallback
+		internal class AabbCalculationCallback : btInternalTriangleIndexCallback
 		{
 			public btVector3 m_aabbMin;
 			public btVector3 m_aabbMax;
@@ -286,7 +286,7 @@ namespace Bullet.Collision.Shapes
 				m_aabbMax.setValue( (double)( -btScalar.BT_LARGE_FLOAT ), (double)( -btScalar.BT_LARGE_FLOAT ), (double)( -btScalar.BT_LARGE_FLOAT ) );
 			}
 
-			public override void internalProcessTriangleIndex( btVector3[] triangle, int partId, int triangleIndex )
+			internal override void internalProcessTriangleIndex( btVector3[] triangle, int partId, int triangleIndex )
 			{
 				//(void)partId;
 				//(void)triangleIndex;

@@ -25,10 +25,10 @@ using Bullet.Types;
 namespace Bullet.Dynamics.ConstraintSolver
 {
 
-	public delegate double btSingleConstraintRowSolver( btSolverBody a, btSolverBody b, btSolverConstraint c );
+	internal delegate double btSingleConstraintRowSolver( btSolverBody a, btSolverBody b, btSolverConstraint c );
 
 	///The btSequentialImpulseConstraintSolver is a fast SIMD implementation of the Projected Gauss Seidel (iterative LCP) method.
-	public class btSequentialImpulseConstraintSolver : btConstraintSolver
+	internal class btSequentialImpulseConstraintSolver : btConstraintSolver
 	{
 		protected btList<btSolverBody> m_tmpSolverBodyPool;
 		protected btConstraintArray m_tmpSolverContactConstraintPool;
@@ -40,6 +40,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 		protected btList<int> m_orderNonContactConstraintPool;
 		protected btList<int> m_orderFrictionConstraintPool;
 		protected btList<btTypedConstraint.btConstraintInfo1> m_tmpConstraintSizesPool;
+		protected PooledType<btTypedConstraint.btConstraintInfo2> m_tmpConstraintInfo2Pool;
 		protected int m_maxOverrideNumSolverIterations;
 		protected int m_fixedBodyId;
 
@@ -58,10 +59,10 @@ namespace Bullet.Dynamics.ConstraintSolver
 			return m_btSeed2;
 		}
 
-		public  void prepareSolve( int numBodies, int numManifolds ) { }
-		public void allSolved( btContactSolverInfo info, btIDebugDraw debugDrawer ) {; }
+		internal override void prepareSolve( int numBodies, int numManifolds ) { }
+		internal override void allSolved( btContactSolverInfo info, btIDebugDraw debugDrawer ) {; }
 
-		public btConstraintSolverType getSolverType()
+		internal override btConstraintSolverType getSolverType()
 		{
 			return btConstraintSolverType.BT_SEQUENTIAL_IMPULSE_SOLVER;
 		}
@@ -401,7 +402,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 
 
 
-		protected void setupFrictionConstraint( btSolverConstraint solverConstraint, ref btVector3 normalAxis, int solverBodyIdA, int solverBodyIdB, btManifoldPoint cp, ref btVector3 rel_pos1, ref btVector3 rel_pos2, btCollisionObject colObj0, btCollisionObject colObj1, double relaxation, double desiredVelocity = 0, double cfmSlip = 0.0 )
+		internal void setupFrictionConstraint( btSolverConstraint solverConstraint, ref btVector3 normalAxis, int solverBodyIdA, int solverBodyIdB, btManifoldPoint cp, ref btVector3 rel_pos1, ref btVector3 rel_pos2, btCollisionObject colObj0, btCollisionObject colObj1, double relaxation, double desiredVelocity = 0, double cfmSlip = 0.0 )
 		{
 			btSolverBody solverBodyA = m_tmpSolverBodyPool[solverBodyIdA];
 			btSolverBody solverBodyB = m_tmpSolverBodyPool[solverBodyIdB];
@@ -488,7 +489,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 			}
 		}
 
-		protected btSolverConstraint addFrictionConstraint( ref btVector3 normalAxis, int solverBodyIdA, int solverBodyIdB, int frictionIndex, btManifoldPoint cp, ref btVector3 rel_pos1, ref btVector3 rel_pos2, btCollisionObject colObj0, btCollisionObject colObj1, double relaxation, double desiredVelocity = 0, double cfmSlip = 0 )
+		internal btSolverConstraint addFrictionConstraint( ref btVector3 normalAxis, int solverBodyIdA, int solverBodyIdB, int frictionIndex, btManifoldPoint cp, ref btVector3 rel_pos1, ref btVector3 rel_pos2, btCollisionObject colObj0, btCollisionObject colObj1, double relaxation, double desiredVelocity = 0, double cfmSlip = 0 )
 		{
 			btSolverConstraint solverConstraint;
 			m_tmpSolverContactFrictionConstraintPool.Add( solverConstraint = new btSolverConstraint() );
@@ -499,7 +500,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 		}
 
 
-		protected void setupRollingFrictionConstraint( btSolverConstraint solverConstraint, ref btVector3 normalAxis1, int solverBodyIdA, int solverBodyIdB,
+		internal void setupRollingFrictionConstraint( btSolverConstraint solverConstraint, ref btVector3 normalAxis1, int solverBodyIdA, int solverBodyIdB,
 											btManifoldPoint cp, ref btVector3 rel_pos1, ref btVector3 rel_pos2,
 											btCollisionObject colObj0, btCollisionObject colObj1, double relaxation,
 											double desiredVelocity = 0, double cfmSlip = 0.0 )
@@ -576,7 +577,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 
 
 
-		protected btSolverConstraint addRollingFrictionConstraint( ref btVector3 normalAxis, int solverBodyIdA, int solverBodyIdB, int frictionIndex, btManifoldPoint cp, ref btVector3 rel_pos1, ref btVector3 rel_pos2, btCollisionObject colObj0, btCollisionObject colObj1, double relaxation, double desiredVelocity = 0, double cfmSlip = 0 )
+		internal btSolverConstraint addRollingFrictionConstraint( ref btVector3 normalAxis, int solverBodyIdA, int solverBodyIdB, int frictionIndex, btManifoldPoint cp, ref btVector3 rel_pos1, ref btVector3 rel_pos2, btCollisionObject colObj0, btCollisionObject colObj1, double relaxation, double desiredVelocity = 0, double cfmSlip = 0 )
 		{
 			btSolverConstraint solverConstraint;
 			m_tmpSolverContactRollingFrictionConstraintPool.Add( solverConstraint = new btSolverConstraint() );
@@ -605,7 +606,8 @@ namespace Bullet.Dynamics.ConstraintSolver
 				if( rb && ( rb.getInvMass() != 0 || rb.isKinematicObject() ) )
 				{
 					solverBodyIdA = m_tmpSolverBodyPool.Count;
-					btSolverBody solverBody = m_tmpSolverBodyPool.Add( new btSolverBody() );
+					btSolverBody solverBody;
+						 m_tmpSolverBodyPool.Add( solverBody = new btSolverBody() );
 					initSolverBody( solverBody, body, timeStep );
 					body.setCompanionId( solverBodyIdA );
 				}
@@ -615,7 +617,8 @@ namespace Bullet.Dynamics.ConstraintSolver
 					if( m_fixedBodyId < 0 )
 					{
 						m_fixedBodyId = m_tmpSolverBodyPool.Count;
-						btSolverBody fixedBody = m_tmpSolverBodyPool.Add( new btSolverBody() );
+						btSolverBody fixedBody;
+						m_tmpSolverBodyPool.Add( fixedBody= new btSolverBody() );
 						initSolverBody( fixedBody, null, timeStep );
 					}
 					return m_fixedBodyId;
@@ -628,7 +631,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 		}
 
 
-		protected void setupContactConstraint( btSolverConstraint solverConstraint,
+		internal void setupContactConstraint( btSolverConstraint solverConstraint,
 											int solverBodyIdA, int solverBodyIdB,
 											btManifoldPoint cp, btContactSolverInfo infoGlobal,
 											//double relaxation,
@@ -813,7 +816,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 
 
 
-		protected void setFrictionConstraintImpulse( btSolverConstraint solverConstraint,
+		internal void setFrictionConstraintImpulse( btSolverConstraint solverConstraint,
 																				int solverBodyIdA, int solverBodyIdB,
 																		 btManifoldPoint cp, btContactSolverInfo infoGlobal )
 		{
@@ -912,7 +915,8 @@ namespace Bullet.Dynamics.ConstraintSolver
 
 
 					int frictionIndex = m_tmpSolverContactConstraintPool.Count;
-					btSolverConstraint solverConstraint = m_tmpSolverContactConstraintPool.Add( new btSolverConstraint() );
+					btSolverConstraint solverConstraint;
+					m_tmpSolverContactConstraintPool.Add( solverConstraint = new btSolverConstraint() );
 					btRigidBody rb0 = btRigidBody.upcast( colObj0 );
 					btRigidBody rb1 = btRigidBody.upcast( colObj1 );
 					solverConstraint.m_solverBodyIdA = solverBodyIdA;
@@ -1061,7 +1065,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 			}
 		}
 
-		protected void convertContacts( btPersistentManifold[] manifoldPtr, int numManifolds, btContactSolverInfo infoGlobal )
+		protected void convertContacts( btPersistentManifold[] manifoldPtr, int start_manifold, int numManifolds, btContactSolverInfo infoGlobal )
 		{
 			int i;
 			btPersistentManifold manifold;
@@ -1070,12 +1074,14 @@ namespace Bullet.Dynamics.ConstraintSolver
 
 			for( i = 0; i < numManifolds; i++ )
 			{
-				manifold = manifoldPtr[i];
+				manifold = manifoldPtr[i+start_manifold];
 				convertContact( manifold, infoGlobal );
 			}
 		}
 
-		protected virtual double solveGroupCacheFriendlySetup( btCollisionObject[] bodies, int numBodies, btPersistentManifold[] manifoldPtr, int numManifolds, btTypedConstraint[] constraints, int numConstraints, btContactSolverInfo infoGlobal, btIDebugDraw debugDrawer )
+		protected virtual double solveGroupCacheFriendlySetup( btCollisionObject[] bodies, int numBodies
+			, btPersistentManifold[] manifoldPtr, int start_manifold, int numManifolds
+			, btTypedConstraint[] constraints, int startConstraint, int numConstraints, btContactSolverInfo infoGlobal, btIDebugDraw debugDrawer )
 		{
 			m_fixedBodyId = -1;
 			CProfileSample sample = new CProfileSample( "solveGroupCacheFriendlySetup" );
@@ -1200,7 +1206,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 				int j;
 				for( j = 0; j < numConstraints; j++ )
 				{
-					btTypedConstraint constraint = constraints[j];
+					btTypedConstraint constraint = constraints[j+ startConstraint];
 					constraint.buildJacobian();
 					constraint.internalSetAppliedImpulse( 0.0f );
 				}
@@ -1220,7 +1226,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 					for( i = 0; i < numConstraints; i++ )
 					{
 						btTypedConstraint.btConstraintInfo1  info1 = m_tmpConstraintSizesPool[i];
-						btTypedConstraint.btJointFeedback fb = constraints[i].getJointFeedback();
+						btTypedConstraint.btJointFeedback fb = constraints[i + startConstraint].getJointFeedback();
 						if( fb != null )
 						{
 							fb.m_appliedForceBodyA.setZero();
@@ -1229,12 +1235,12 @@ namespace Bullet.Dynamics.ConstraintSolver
 							fb.m_appliedTorqueBodyB.setZero();
 						}
 
-						if( constraints[i].isEnabled() )
+						if( constraints[i + startConstraint].isEnabled() )
 						{
 						}
-						if( constraints[i].isEnabled() )
+						if( constraints[i + startConstraint].isEnabled() )
 						{
-							constraints[i].getInfo1( ref info1 );
+							constraints[i + startConstraint].getInfo1( ref info1 );
 						}
 						else
 						{
@@ -1258,7 +1264,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 							Debug.Assert( currentRow < totalNumRows );
 
 							btSolverConstraint currentConstraintRow = m_tmpSolverNonContactConstraintPool[currentRow];
-							btTypedConstraint constraint = constraints[i];
+							btTypedConstraint constraint = constraints[i + startConstraint];
 							btRigidBody rbA = constraint.getRigidBodyA();
 							btRigidBody rbB = constraint.getRigidBodyB();
 
@@ -1293,9 +1299,17 @@ namespace Bullet.Dynamics.ConstraintSolver
 							bodyAPtr.Clear();
 
 
-							btTypedConstraint.btConstraintInfo2 info2 = new btTypedConstraint.btConstraintInfo2();
+							btTypedConstraint.btConstraintInfo2 info2 = m_tmpConstraintInfo2Pool.Get();// new btTypedConstraint.btConstraintInfo2();
+							info2.m_numRows = info1.m_numConstraintRows;
+
+							for( j = 0; j < info1.m_numConstraintRows; ++j )
+							{
+								info2.m_solverConstraints[j] = m_tmpSolverNonContactConstraintPool[currentRow + j];
+							}
+
 							info2.fps = 1 / infoGlobal.m_timeStep;
 							info2.erp = infoGlobal.m_erp;
+#if OLD_CONSTRAINT_INFO_INIT
 							info2.m_J1linearAxis = currentConstraintRow.m_contactNormal1;
 							info2.m_J1angularAxis = currentConstraintRow.m_relpos1CrossNormal;
 							info2.m_J2linearAxis = currentConstraintRow.m_contactNormal2;
@@ -1307,25 +1321,26 @@ namespace Bullet.Dynamics.ConstraintSolver
 							info2.cfm = currentConstraintRow.m_cfm;
 							info2.m_lowerLimit = currentConstraintRow.m_lowerLimit;
 							info2.m_upperLimit = currentConstraintRow.m_upperLimit;
+#endif
 
 							currentConstraintRow.m_cfm = infoGlobal.m_globalCfm;
 							info2.m_damping = infoGlobal.m_damping;
 							info2.m_numIterations = infoGlobal.m_numIterations;
-							constraints[i].getInfo2( ref info2 );
+							constraints[i + startConstraint].getInfo2( info2 );
 
 							///finalize the constraint setup
 							for( j = 0; j < info1.m_numConstraintRows; j++ )
 							{
 								btSolverConstraint solverConstraint = m_tmpSolverNonContactConstraintPool[currentRow + j];
 
-								if( solverConstraint.m_upperLimit >= constraints[i].getBreakingImpulseThreshold() )
+								if( solverConstraint.m_upperLimit >= constraints[i + startConstraint].getBreakingImpulseThreshold() )
 								{
-									solverConstraint.m_upperLimit = constraints[i].getBreakingImpulseThreshold();
+									solverConstraint.m_upperLimit = constraints[i + startConstraint].getBreakingImpulseThreshold();
 								}
 
-								if( solverConstraint.m_lowerLimit <= -constraints[i].getBreakingImpulseThreshold() )
+								if( solverConstraint.m_lowerLimit <= -constraints[i + startConstraint].getBreakingImpulseThreshold() )
 								{
-									solverConstraint.m_lowerLimit = -constraints[i].getBreakingImpulseThreshold();
+									solverConstraint.m_lowerLimit = -constraints[i + startConstraint].getBreakingImpulseThreshold();
 								}
 
 								solverConstraint.m_originalContactPoint = constraint;
@@ -1380,8 +1395,6 @@ namespace Bullet.Dynamics.ConstraintSolver
 									double velocityImpulse = velocityError * solverConstraint.m_jacDiagABInv;
 									solverConstraint.m_rhs = penetrationImpulse + velocityImpulse;
 									solverConstraint.m_appliedImpulse = 0;
-
-
 								}
 							}
 						}
@@ -1389,7 +1402,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 					}
 				}
 
-				convertContacts( manifoldPtr, numManifolds, infoGlobal );
+				convertContacts( manifoldPtr, start_manifold, numManifolds, infoGlobal );
 
 			}
 
@@ -1430,8 +1443,8 @@ namespace Bullet.Dynamics.ConstraintSolver
 
 
 		protected virtual double solveSingleIteration( int iteration, btCollisionObject[] bodies , int numBodies
-			, btPersistentManifold[] manifoldPtr, int numManifolds
-			, btTypedConstraint[] constraints, int numConstraints
+			, btPersistentManifold[] manifoldPtr, int start_manifold, int numManifolds
+			, btTypedConstraint[] constraints, int startConstraint, int numConstraints
 			, btContactSolverInfo infoGlobal, btIDebugDraw debugDrawer )
 		{
 
@@ -1489,13 +1502,13 @@ namespace Bullet.Dynamics.ConstraintSolver
 				{
 					for( int j = 0; j < numConstraints; j++ )
 					{
-						if( constraints[j].isEnabled() )
+						if( constraints[j + startConstraint].isEnabled() )
 						{
-							int bodyAid = getOrInitSolverBody( constraints[j].getRigidBodyA(), infoGlobal.m_timeStep );
-							int bodyBid = getOrInitSolverBody( constraints[j].getRigidBodyB(), infoGlobal.m_timeStep );
+							int bodyAid = getOrInitSolverBody( constraints[j + startConstraint].getRigidBodyA(), infoGlobal.m_timeStep );
+							int bodyBid = getOrInitSolverBody( constraints[j + startConstraint].getRigidBodyB(), infoGlobal.m_timeStep );
 							btSolverBody bodyA = m_tmpSolverBodyPool[bodyAid];
 							btSolverBody bodyB = m_tmpSolverBodyPool[bodyBid];
-							constraints[j].solveConstraintObsolete( bodyA, bodyB, infoGlobal.m_timeStep );
+							constraints[j + startConstraint].solveConstraintObsolete( bodyA, bodyB, infoGlobal.m_timeStep );
 						}
 					}
 
@@ -1618,13 +1631,13 @@ namespace Bullet.Dynamics.ConstraintSolver
 				{
 					for( int j = 0; j < numConstraints; j++ )
 					{
-						if( constraints[j].isEnabled() )
+						if( constraints[j + startConstraint].isEnabled() )
 						{
-							int bodyAid = getOrInitSolverBody( constraints[j].getRigidBodyA(), infoGlobal.m_timeStep );
-							int bodyBid = getOrInitSolverBody( constraints[j].getRigidBodyB(), infoGlobal.m_timeStep );
+							int bodyAid = getOrInitSolverBody( constraints[j + startConstraint].getRigidBodyA(), infoGlobal.m_timeStep );
+							int bodyBid = getOrInitSolverBody( constraints[j + startConstraint].getRigidBodyB(), infoGlobal.m_timeStep );
 							btSolverBody  bodyA = m_tmpSolverBodyPool[bodyAid];
 							btSolverBody  bodyB = m_tmpSolverBodyPool[bodyBid];
-							constraints[j].solveConstraintObsolete( bodyA, bodyB, infoGlobal.m_timeStep );
+							constraints[j + startConstraint].solveConstraintObsolete( bodyA, bodyB, infoGlobal.m_timeStep );
 						}
 					}
 					///solve all contact constraints
@@ -1673,7 +1686,9 @@ namespace Bullet.Dynamics.ConstraintSolver
 		}
 
 
-		protected virtual void solveGroupCacheFriendlySplitImpulseIterations( btCollisionObject[] bodies, int numBodies, btPersistentManifold[] manifoldPtr, int numManifolds, btTypedConstraint[] constraints, int numConstraints, btContactSolverInfo infoGlobal, btIDebugDraw debugDrawer )
+		protected virtual void solveGroupCacheFriendlySplitImpulseIterations( btCollisionObject[] bodies, int numBodies
+			, btPersistentManifold[] manifoldPtr, int start_manifold, int numManifolds
+			, btTypedConstraint[] constraints, int startConstraint, int numConstraints, btContactSolverInfo infoGlobal, btIDebugDraw debugDrawer )
 		{
 			int iteration;
 			if( infoGlobal.m_splitImpulse )
@@ -1713,20 +1728,23 @@ namespace Bullet.Dynamics.ConstraintSolver
 			}
 		}
 
-		protected virtual double solveGroupCacheFriendlyIterations( btCollisionObject[] bodies, int numBodies, btPersistentManifold[] manifoldPtr, int numManifolds, btTypedConstraint[] constraints, int numConstraints, btContactSolverInfo infoGlobal, btIDebugDraw debugDrawer )
+		protected virtual double solveGroupCacheFriendlyIterations( btCollisionObject[] bodies, int numBodies
+			, btPersistentManifold[] manifoldPtr, int start_manifold, int numManifolds
+			, btTypedConstraint[] constraints, int startConstraint, int numConstraints
+			, btContactSolverInfo infoGlobal, btIDebugDraw debugDrawer )
 		{
 			CProfileSample sample = new CProfileSample( "solveGroupCacheFriendlyIterations" );
 
 			{
 				///this is a special step to resolve penetrations (just for contacts)
-				solveGroupCacheFriendlySplitImpulseIterations( bodies, numBodies, manifoldPtr, numManifolds, constraints, numConstraints, infoGlobal, debugDrawer );
+				solveGroupCacheFriendlySplitImpulseIterations( bodies, numBodies, manifoldPtr, start_manifold, numManifolds, constraints, startConstraint, numConstraints, infoGlobal, debugDrawer );
 
 				int maxIterations = m_maxOverrideNumSolverIterations > infoGlobal.m_numIterations ? m_maxOverrideNumSolverIterations : infoGlobal.m_numIterations;
 
 				for( int iteration = 0; iteration < maxIterations; iteration++ )
 				//for ( int iteration = maxIterations-1  ; iteration >= 0;iteration--)
 				{
-					solveSingleIteration( iteration, bodies, numBodies, manifoldPtr, numManifolds, constraints, numConstraints, infoGlobal, debugDrawer );
+					solveSingleIteration( iteration, bodies, numBodies, manifoldPtr, start_manifold, numManifolds, constraints, startConstraint, numConstraints, infoGlobal, debugDrawer );
 				}
 
 			}
@@ -1820,18 +1838,18 @@ namespace Bullet.Dynamics.ConstraintSolver
 
 
 		/// btSequentialImpulseConstraintSolver Sequentially applies impulses
-		public double solveGroup( btCollisionObject[] bodies, int numBodies
-			, btPersistentManifold[] manifoldPtr, int numManifolds
-			, btTypedConstraint[] constraints, int numConstraints
+		internal override double solveGroup( btCollisionObject[] bodies, int numBodies
+			, btPersistentManifold[] manifoldPtr, int start_manifold, int numManifolds
+			, btTypedConstraint[] constraints, int startConstraint, int numConstraints
 			, btContactSolverInfo infoGlobal
 			, btIDebugDraw debugDrawer, btDispatcher dispatcher )
 		{
 			CProfileSample sample = new CProfileSample( "solveGroup" );
 			//you need to provide at least some bodies
 
-			solveGroupCacheFriendlySetup( bodies, numBodies, manifoldPtr, numManifolds, constraints, numConstraints, infoGlobal, debugDrawer );
+			solveGroupCacheFriendlySetup( bodies, numBodies, manifoldPtr, start_manifold, numManifolds, constraints, startConstraint, numConstraints, infoGlobal, debugDrawer );
 
-			solveGroupCacheFriendlyIterations( bodies, numBodies, manifoldPtr, numManifolds, constraints, numConstraints, infoGlobal, debugDrawer );
+			solveGroupCacheFriendlyIterations( bodies, numBodies, manifoldPtr, start_manifold, numManifolds, constraints, startConstraint, numConstraints, infoGlobal, debugDrawer );
 
 			solveGroupCacheFriendlyFinish( bodies, numBodies, infoGlobal );
 
@@ -1839,7 +1857,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 		}
 
 		///clear internal cached data and reset random seed
-		public void reset()
+		internal override void reset()
 		{
 			m_btSeed2 = 0;
 		}

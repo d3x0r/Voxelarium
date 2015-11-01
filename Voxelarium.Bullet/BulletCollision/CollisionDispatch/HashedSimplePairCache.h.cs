@@ -104,7 +104,7 @@ public:
 	
 	btSimplePair* findPair(int indexA,int indexB);
 
-	int GetCount() string  return m_overlappingPairArray.Count; }
+	int GetCount() {  return m_overlappingPairArray.Count; }
 
 	int	getNumOverlappingPairs()
 	{

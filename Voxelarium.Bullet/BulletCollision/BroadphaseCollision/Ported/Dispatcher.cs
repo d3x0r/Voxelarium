@@ -59,21 +59,21 @@ namespace Bullet.Collision.BroadPhase
 
 	///The btDispatcher interface class can be used in combination with broadphase to dispatch calculations for overlapping pairs.
 	///For example for pairwise collision detection, calculating contact points stored in btPersistentManifold or user callbacks (game logic).
-	public interface btDispatcher
+	internal abstract class btDispatcher
 	{
-		btCollisionAlgorithm findAlgorithm( btCollisionObjectWrapper body0Wrap, btCollisionObjectWrapper body1Wrap, btPersistentManifold sharedManifold );
-		btPersistentManifold getNewManifold( btCollisionObject b0, btCollisionObject b1 );
-		void releaseManifold( btPersistentManifold manifold );
-		void clearManifold( btPersistentManifold manifold );
-		bool needsCollision( btCollisionObject body0, btCollisionObject body1 );
-		bool needsResponse( btCollisionObject body0, btCollisionObject body1 );
-		void dispatchAllCollisionPairs( btOverlappingPairCache pairCache, btDispatcherInfo dispatchInfo, btDispatcher dispatcher );
-		int getNumManifolds();
-		btPersistentManifold getManifoldByIndexInternal( int index );
-		btPersistentManifold getInternalManifoldPointer();
+		internal abstract btCollisionAlgorithm findAlgorithm( btCollisionObjectWrapper body0Wrap, btCollisionObjectWrapper body1Wrap, btPersistentManifold sharedManifold );
+		internal abstract btPersistentManifold getNewManifold( btCollisionObject b0, btCollisionObject b1 );
+		internal abstract void releaseManifold( btPersistentManifold manifold );
+		internal abstract void clearManifold( btPersistentManifold manifold );
+		internal abstract bool needsCollision( btCollisionObject body0, btCollisionObject body1 );
+		internal abstract bool needsResponse( btCollisionObject body0, btCollisionObject body1 );
+		internal abstract void dispatchAllCollisionPairs( btOverlappingPairCache pairCache, btDispatcherInfo dispatchInfo, btDispatcher dispatcher );
+		internal abstract int getNumManifolds();
+		internal abstract btPersistentManifold getManifoldByIndexInternal( int index );
+		internal abstract btPersistentManifold[] getInternalManifoldPointer();
 		//btPoolAllocator getInternalManifoldPool();
-		void allocateCollisionAlgorithm( int size );
-		void freeCollisionAlgorithm( object ptr );
+		//btCollisionAlgorithm allocateCollisionAlgorithm( int size );
+		internal abstract void freeCollisionAlgorithm( btCollisionAlgorithm ptr );
 	};
 
 }

@@ -33,6 +33,7 @@ namespace Bullet.Collision.Shapes
 			m_implicitShapeDimensions.x = ( radius );
 			m_collisionMargin = radius;
 		}
+
 		public btSphereShape( double radius )
 		{
 			m_shapeType = BroadphaseNativeTypes.SPHERE_SHAPE_PROXYTYPE;

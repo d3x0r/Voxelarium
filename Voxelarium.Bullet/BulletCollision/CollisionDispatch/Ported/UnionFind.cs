@@ -28,7 +28,7 @@ namespace Bullet.Collision.Dispatch
 	// optimization: could use short ints instead of ints (halving memory, would limit the number of rigid bodies to 64k, sounds reasonable)
 	public class btUnionFind
 	{
-		struct btElement
+		internal struct btElement
 		{
 			public int m_id;
 			public int m_sz;
@@ -45,7 +45,7 @@ namespace Bullet.Collision.Dispatch
 			return ( x == m_elements[x].m_id );
 		}
 
-		btElement getElement( int index )
+		internal btElement getElement( int index )
 		{
 			return m_elements[index];
 		}

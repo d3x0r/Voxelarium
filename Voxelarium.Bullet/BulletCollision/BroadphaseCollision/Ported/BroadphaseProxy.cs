@@ -206,24 +206,25 @@ namespace Bullet.Collision.BroadPhase
 
 	///The btBroadphasePair class contains a pair of aabb-overlapping objects.
 	///A btDispatcher can search a btCollisionAlgorithm that performs exact/narrowphase collision detection on the actual collision shapes.
-	public class btBroadphasePair
+	internal class btBroadphasePair
 	{
 		internal btBroadphaseProxy m_pProxy0;
 		internal btBroadphaseProxy m_pProxy1;
 
 		internal btCollisionAlgorithm m_algorithm;
-		object m_internalInfo1;
-		internal btBroadphasePair(  )
+		internal object m_internalInfo1;
+		public btBroadphasePair(  )
 		{
 		}
-		btBroadphasePair( ref btBroadphasePair other )
+        internal btBroadphasePair( ref btBroadphasePair other )
 		{
 			m_pProxy0 = other.m_pProxy0;
 			m_pProxy1 = other.m_pProxy1;
 			m_algorithm = other.m_algorithm;
 			m_internalInfo1 = other.m_internalInfo1;
 		}
-		btBroadphasePair( btBroadphaseProxy proxy0, btBroadphaseProxy proxy1 )
+
+		public void Initialize( btBroadphaseProxy proxy0, btBroadphaseProxy proxy1 )
 		{
 
 			//keep them sorted, so the std::set operations work
@@ -242,12 +243,16 @@ namespace Bullet.Collision.BroadPhase
 			m_internalInfo1 = 0;
 
 		}
-		public bool Equals( btBroadphasePair a, btBroadphasePair b )
+		internal btBroadphasePair( btBroadphaseProxy proxy0, btBroadphaseProxy proxy1 )
+		{
+			Initialize( proxy0, proxy1 );
+		}
+		internal bool Equals( btBroadphasePair a, btBroadphasePair b )
 		{
 			return ( a.m_pProxy0 == b.m_pProxy0 ) && ( a.m_pProxy1 == b.m_pProxy1 );
 		}
 
-		public static bool qsCompare( btBroadphasePair a, btBroadphasePair b )
+		internal static bool qsCompare( btBroadphasePair a, btBroadphasePair b )
 		{
 			int uidA0 = a.m_pProxy0 != null ? a.m_pProxy0.m_uniqueId : -1;
 			int uidB0 = b.m_pProxy0 != null ? b.m_pProxy0.m_uniqueId : -1;

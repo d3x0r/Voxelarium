@@ -14,22 +14,19 @@ subject to the following restrictions:
 */
 using System.Collections;
 
-namespace Bullet.BulletCollision
+namespace Bullet.Collision.Dispatch
 {
 
 	///btCollisionConfiguration allows to configure Bullet collision detection
 	///stack allocator size, default collision algorithms and persistent manifold pool size
 	///@todo: describe the meaning
-	public interface btCollisionConfiguration
+	internal abstract class btCollisionConfiguration
 	{
-
 		///memory pools
-		IList getPersistentManifoldPool();
+		//IList getPersistentManifoldPool();
+		//IList getCollisionAlgorithmPool();
 
-		IList getCollisionAlgorithmPool();
-
-
-		btCollisionAlgorithmCreateFunc getCollisionAlgorithmCreateFunc( int proxyType0, int proxyType1 );
+		internal abstract btCollisionAlgorithmCreateFunc getCollisionAlgorithmCreateFunc( int proxyType0, int proxyType1 );
 
 	};
 

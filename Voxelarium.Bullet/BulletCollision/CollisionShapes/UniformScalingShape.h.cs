@@ -73,7 +73,7 @@ internal class btUniformScalingShape : btConvexShape
 	virtual void getAabbSlow(ref btTransform t,ref btVector3 aabbMin,ref btVector3 aabbMax);
 
 	virtual void	setLocalScaling(ref btVector3 scaling) ;
-	virtual ref btVector3 getLocalScaling() string 
+	virtual btIVector3 getLocalScaling();
 
 	virtual void	setMargin(double margin);
 	virtual double	getMargin();

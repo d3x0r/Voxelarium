@@ -170,7 +170,7 @@ namespace Bullet.Collision.Shapes
 			return 2;
 		}
 
-		public virtual void getPreferredPenetrationDirection( int index, out btVector3 penetrationVector )
+		public override void getPreferredPenetrationDirection( int index, out btVector3 penetrationVector )
 		{
 			calcNormal( out penetrationVector );
 			if( index > 0 )

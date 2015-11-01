@@ -14,9 +14,8 @@ subject to the following restrictions:
 */
 
 using Bullet.Collision.BroadPhase;
-using Bullet.Collision.Dispatch;
 
-namespace Bullet.BulletCollision
+namespace Bullet.Collision.Dispatch
 {
 
 	///Used by the btCollisionDispatcher to register and create instances for btCollisionAlgorithm

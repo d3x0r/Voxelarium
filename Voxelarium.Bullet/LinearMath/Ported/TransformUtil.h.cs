@@ -23,7 +23,7 @@ namespace Bullet.LinearMath
 
 
 
-		public static void integrateTransform( btITransform curTrans, ref btVector3 linvel, ref btVector3 angvel
+		public static void integrateTransform( btITransform curTrans, btIVector3 linvel, btIVector3 angvel
 			, double timeStep, out btTransform predictedTransform )
 		{
 			btVector3 tmp;

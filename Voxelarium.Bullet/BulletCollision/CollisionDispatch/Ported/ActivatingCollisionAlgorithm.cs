@@ -19,16 +19,17 @@ namespace Bullet.Collision.Dispatch
 {
 
 	///This class is not enabled yet (work-in-progress) to more aggressively activate objects.
-	public abstract class btActivatingCollisionAlgorithm : btCollisionAlgorithm
+	internal abstract class btActivatingCollisionAlgorithm : btCollisionAlgorithm
 	{
 		//	btCollisionObject m_colObj0;
 		//	btCollisionObject m_colObj1;
-
-		public btActivatingCollisionAlgorithm( btCollisionAlgorithmConstructionInfo ci ) :
+		public btActivatingCollisionAlgorithm() { }
+		/*
+		btActivatingCollisionAlgorithm( btCollisionAlgorithmConstructionInfo ci ) :
 			base(ci)
 		{
 		}
-		public btActivatingCollisionAlgorithm( btCollisionAlgorithmConstructionInfo ci, btCollisionObjectWrapper body0Wrap, btCollisionObjectWrapper body1Wrap )
+		btActivatingCollisionAlgorithm( btCollisionAlgorithmConstructionInfo ci, btCollisionObjectWrapper body0Wrap, btCollisionObjectWrapper body1Wrap )
 			: base( ci )
 		{
 			//		m_colObj0 = colObj0;
@@ -37,6 +38,16 @@ namespace Bullet.Collision.Dispatch
 			//		m_colObj0.activate();
 			//		m_colObj1.activate();
 		}
+		*/
 
+		new internal void Initialize( btCollisionAlgorithmConstructionInfo ci )
+		{
+			base.Initialize( ci );
+		}
+
+		internal void Initialize( btCollisionAlgorithmConstructionInfo ci, btCollisionObjectWrapper body0Wrap, btCollisionObjectWrapper body1Wrap )
+		{
+			base.Initialize( ci );
+		}
 	};
 }

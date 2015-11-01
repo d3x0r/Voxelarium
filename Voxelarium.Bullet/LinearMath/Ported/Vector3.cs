@@ -257,6 +257,13 @@ namespace Bullet.LinearMath
 			result.z = z + b.z;
 			result.w = w + b.w;
 		}
+		public void Add( btIVector3 b, out btVector3 result )
+		{
+			result.x = x + b.X;
+			result.y = y + b.Y;
+			result.z = z + b.Z;
+			result.w = w + b.W;
+		}
 		public void AddScale( ref btVector3 b, double s, out btVector3 result )
 		{
 			result.x = x + b.x * s;

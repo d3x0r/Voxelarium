@@ -13,7 +13,6 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-using Bullet.BulletCollision;
 using Bullet.Collision.BroadPhase;
 using Bullet.Collision.Dispatch;
 using Bullet.Dynamics.ConstraintSolver;
@@ -44,17 +43,12 @@ namespace Bullet.Dynamics
 	///The btDynamicsWorld is the interface class for several dynamics implementation, basic, discrete, parallel, and continuous etc.
 	public abstract class btDynamicsWorld : btCollisionWorld
 	{
-
 		protected btInternalTickCallback m_internalTickCallback;
 		protected btInternalTickCallback m_internalPreTickCallback;
 		protected object m_worldUserInfo;
-
 		protected btContactSolverInfo m_solverInfo;
 
-
-
-
-		public btDynamicsWorld( btDispatcher dispatcher, btBroadphaseInterface broadphase
+		internal btDynamicsWorld( btDispatcher dispatcher, btBroadphaseInterface broadphase
 								, btCollisionConfiguration collisionConfiguration )
 					: base( dispatcher, broadphase, collisionConfiguration )
 		{

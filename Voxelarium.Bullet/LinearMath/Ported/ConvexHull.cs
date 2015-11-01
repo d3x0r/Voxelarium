@@ -1020,7 +1020,7 @@ namespace Bullet.LinearMath
 				{
 					//if( scale )
 					{
-						scale = dx;
+						scale[0] = dx;
 						scale[1] = dy;
 						scale[2] = dz;
 

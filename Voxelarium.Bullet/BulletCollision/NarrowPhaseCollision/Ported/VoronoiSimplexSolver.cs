@@ -161,8 +161,6 @@ namespace Bullet.Collision.NarrowPhase
 
 
 
-
-
 		//clear the simplex, remove all the vertices
 		public void reset()
 		{

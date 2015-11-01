@@ -300,8 +300,8 @@ namespace Bullet.Dynamics.ConstraintSolver
 					btVector3 tmp;
 					m_turnVelocity.Mult( splitImpulseTurnErp, out tmp );
 					//	btQuaternion orn = m_worldTransform.getRotation();
-					btTransformUtil.integrateTransform( m_worldTransform, ref m_pushVelocity
-						, ref tmp
+					btTransformUtil.integrateTransform( m_worldTransform, m_pushVelocity
+						, tmp
 						, timeStep, out newTransform );
 					m_worldTransform = newTransform;
 				}

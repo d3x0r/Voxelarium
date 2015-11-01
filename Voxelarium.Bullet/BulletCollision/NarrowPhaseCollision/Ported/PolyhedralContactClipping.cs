@@ -256,7 +256,7 @@ void InverseTransformPoint3x3(ref btVector3 out, ref btVector3 in, ref btTransfo
 
 
 
-		public static bool findSeparatingAxis( btConvexPolyhedron hullA, btConvexPolyhedron hullB
+		internal static bool findSeparatingAxis( btConvexPolyhedron hullA, btConvexPolyhedron hullB
 			, btITransform transA, btITransform transB, out btVector3 sep
 			, btDiscreteCollisionDetectorInterface.Result resultOut )
 		{
@@ -438,7 +438,7 @@ void InverseTransformPoint3x3(ref btVector3 out, ref btVector3 in, ref btTransfo
 			return true;
 		}
 
-		public static void clipFaceAgainstHull( ref btVector3 separatingNormal
+		internal static void clipFaceAgainstHull( ref btVector3 separatingNormal
 				, btConvexPolyhedron hullA, btITransform transA
 				, btVertexArray worldVertsB1, double minDist, double maxDist
 				, btDiscreteCollisionDetectorInterface.Result resultOut )
@@ -559,7 +559,7 @@ void InverseTransformPoint3x3(ref btVector3 out, ref btVector3 in, ref btTransfo
 
 
 
-		public static void clipHullAgainstHull( ref btVector3 separatingNormal1, btConvexPolyhedron hullA
+		internal static void clipHullAgainstHull( ref btVector3 separatingNormal1, btConvexPolyhedron hullA
 			, btConvexPolyhedron hullB
 			, btITransform transA, btITransform transB, double minDist, double maxDist, btDiscreteCollisionDetectorInterface.Result resultOut)
 		{

@@ -21,7 +21,7 @@ namespace Bullet.Collision.Dispatch
 		public int m_partId;
 		public int m_index;
 
-		public btCollisionObjectWrapper( btCollisionObjectWrapper parent, btCollisionShape shape, btCollisionObject collisionObject, btITransform worldTransform, int partId, int index )
+		public void Initialize( btCollisionObjectWrapper parent, btCollisionShape shape, btCollisionObject collisionObject, btITransform worldTransform, int partId, int index )
 		{
 			m_parent = ( parent );
 			m_shape = ( shape );

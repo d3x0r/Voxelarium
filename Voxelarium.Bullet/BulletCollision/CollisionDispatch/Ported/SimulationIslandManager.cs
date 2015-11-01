@@ -19,6 +19,8 @@ using System.Collections.Generic;
 using Bullet.Collision.BroadPhase;
 using Bullet.Collision.NarrowPhase;
 using Bullet.Types;
+using System.Diagnostics;
+using Bullet.LinearMath;
 
 namespace Bullet.Collision.Dispatch
 {
@@ -38,7 +40,7 @@ namespace Bullet.Collision.Dispatch
 
 		internal abstract class IslandCallback
 		{
-			internal abstract void processIsland( btCollisionObject[] bodies, int numBodies,btPersistentManifold[]	manifolds,int numManifolds, int islandId) ;
+			internal abstract void processIsland( btCollisionObject[] bodies, int numBodies,btPersistentManifold[]	manifolds,int first_manifold, int numManifolds, int islandId) ;
 		};
 
 
@@ -64,7 +66,7 @@ namespace Bullet.Collision.Dispatch
 		}
 
 
-		public void findUnions( btDispatcher dispatcher, btCollisionWorld colWorld )
+		internal void findUnions( btDispatcher dispatcher, btCollisionWorld colWorld )
 		{
 
 			{
@@ -146,7 +148,7 @@ public void void   btSimulationIslandManager::storeIslandActivationState(btColli
 
 
 #else //STATIC_SIMULATION_ISLAND_OPTIMIZATION
-		public virtual void updateActivationState( btCollisionWorld colWorld, btDispatcher dispatcher )
+		internal virtual void updateActivationState( btCollisionWorld colWorld, btDispatcher dispatcher )
 		{
 
 			initUnionFind( colWorld.getCollisionObjectArray().Count );
@@ -171,7 +173,7 @@ public void void   btSimulationIslandManager::storeIslandActivationState(btColli
 			findUnions( dispatcher, colWorld );
 		}
 
-		public virtual void btSimulationIslandManager::storeIslandActivationState( btCollisionWorld* colWorld )
+		public virtual void storeIslandActivationState( btCollisionWorld colWorld )
 		{
 			// put the islandId ('find' value) into m_tag	
 			{
@@ -199,11 +201,14 @@ public void void   btSimulationIslandManager::storeIslandActivationState(btColli
 
 #endif //STATIC_SIMULATION_ISLAND_OPTIMIZATION
 
-		inline int getIslandId( btPersistentManifold* lhs )
+#if ALLOW_INLINE
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+#endif
+		static int getIslandId( btPersistentManifold lhs )
 		{
 			int islandId;
-			btCollisionObject rcolObj0 = static_cast<btCollisionObject>( lhs.getBody0() );
-			btCollisionObject rcolObj1 = static_cast<btCollisionObject>( lhs.getBody1() );
+			btCollisionObject rcolObj0 = lhs.getBody0();
+			btCollisionObject rcolObj1 = lhs.getBody1();
 			islandId = rcolObj0.getIslandTag() >= 0 ? rcolObj0.getIslandTag() : rcolObj1.getIslandTag();
 			return islandId;
 
@@ -214,7 +219,7 @@ public void void   btSimulationIslandManager::storeIslandActivationState(btColli
 		/// function object that routes calls to operator<
 		class btPersistentManifoldSortPredicate : IComparer<btPersistentManifold>
 		{
-			int IComparer<btPersistentManifold>.Compare( btPersistentManifold x, btPersistentManifold y )
+			int IComparer<btPersistentManifold>.Compare( btPersistentManifold lhs, btPersistentManifold rhs )
 			{
 				return getIslandId( lhs ) < getIslandId( rhs ) ? -1 :
 					getIslandId( lhs ) < getIslandId( rhs ) ? 1 : 0;
@@ -222,14 +227,14 @@ public void void   btSimulationIslandManager::storeIslandActivationState(btColli
 		};
 
 
-		public void buildIslands( btDispatcher dispatcher, btCollisionWorld collisionWorld )
+		internal void buildIslands( btDispatcher dispatcher, btCollisionWorld collisionWorld )
 		{
 
 			CProfileSample sample = new CProfileSample( "islandUnionFindAndQuickSort" );
 
-			btCollisionObjectArray & collisionObjects = collisionWorld.getCollisionObjectArray();
+			btCollisionObjectArray collisionObjects = collisionWorld.getCollisionObjectArray();
 
-			m_islandmanifold.resize( 0 );
+			m_islandmanifold.Count =( 0 );
 
 			//we are going to sort the unionfind array, and store the element id in the size
 			//afterwards, we clean unionfind, to make sure no-one uses it anymore
@@ -256,9 +261,9 @@ public void void   btSimulationIslandManager::storeIslandActivationState(btColli
 				int idx;
 				for( idx = startIslandIndex; idx < endIslandIndex; idx++ )
 				{
-					int i = getUnionFind().getElement( idx ).m_sz;
+					int i2 = getUnionFind().getElement( idx ).m_sz;
 
-					btCollisionObject colObj0 = collisionObjects[i];
+					btCollisionObject colObj0 = collisionObjects[i2];
 					if( ( colObj0.getIslandTag() != islandId ) && ( colObj0.getIslandTag() != -1 ) )
 					{
 						//				Console.WriteLine("error in island management\n");
@@ -267,11 +272,11 @@ public void void   btSimulationIslandManager::storeIslandActivationState(btColli
 					Debug.Assert( ( colObj0.getIslandTag() == islandId ) || ( colObj0.getIslandTag() == -1 ) );
 					if( colObj0.getIslandTag() == islandId )
 					{
-						if( colObj0.getActivationState() == ACTIVE_TAG )
+						if( colObj0.getActivationState() ==  ActivationState.ACTIVE_TAG )
 						{
 							allSleeping = false;
 						}
-						if( colObj0.getActivationState() == DISABLE_DEACTIVATION )
+						if( colObj0.getActivationState() == ActivationState.DISABLE_DEACTIVATION )
 						{
 							allSleeping = false;
 						}
@@ -281,11 +286,11 @@ public void void   btSimulationIslandManager::storeIslandActivationState(btColli
 
 				if( allSleeping )
 				{
-					int idx;
-					for( idx = startIslandIndex; idx < endIslandIndex; idx++ )
+					int idx2;
+					for( idx2 = startIslandIndex; idx2 < endIslandIndex; idx2++ )
 					{
-						int i = getUnionFind().getElement( idx ).m_sz;
-						btCollisionObject colObj0 = collisionObjects[i];
+						int i2 = getUnionFind().getElement( idx2 ).m_sz;
+						btCollisionObject colObj0 = collisionObjects[i2];
 						if( ( colObj0.getIslandTag() != islandId ) && ( colObj0.getIslandTag() != -1 ) )
 						{
 							//					Console.WriteLine("error in island management\n");
@@ -295,19 +300,19 @@ public void void   btSimulationIslandManager::storeIslandActivationState(btColli
 
 						if( colObj0.getIslandTag() == islandId )
 						{
-							colObj0.setActivationState( ISLAND_SLEEPING );
+							colObj0.setActivationState( ActivationState.ISLAND_SLEEPING );
 						}
 					}
 				}
 				else
 				{
 
-					int idx;
-					for( idx = startIslandIndex; idx < endIslandIndex; idx++ )
+					int idx2;
+					for( idx2 = startIslandIndex; idx2 < endIslandIndex; idx2++ )
 					{
-						int i = getUnionFind().getElement( idx ).m_sz;
+						int i2 = getUnionFind().getElement( idx2 ).m_sz;
 
-						btCollisionObject colObj0 = collisionObjects[i];
+						btCollisionObject colObj0 = collisionObjects[i2];
 						if( ( colObj0.getIslandTag() != islandId ) && ( colObj0.getIslandTag() != -1 ) )
 						{
 							//					Console.WriteLine("error in island management\n");
@@ -317,9 +322,9 @@ public void void   btSimulationIslandManager::storeIslandActivationState(btColli
 
 						if( colObj0.getIslandTag() == islandId )
 						{
-							if( colObj0.getActivationState() == ISLAND_SLEEPING )
+							if( colObj0.getActivationState() == ActivationState.ISLAND_SLEEPING )
 							{
-								colObj0.setActivationState( WANTS_DEACTIVATION );
+								colObj0.setActivationState( ActivationState.WANTS_DEACTIVATION );
 								colObj0.setDeactivationTime( 0 );
 							}
 						}
@@ -340,23 +345,23 @@ public void void   btSimulationIslandManager::storeIslandActivationState(btColli
 
 			for( i = 0; i < maxNumManifolds; i++ )
 			{
-				btPersistentManifold* manifold = dispatcher.getManifoldByIndexInternal( i );
+				btPersistentManifold manifold = dispatcher.getManifoldByIndexInternal( i );
 
-				btCollisionObject colObj0 = static_cast<btCollisionObject>( manifold.getBody0() );
-				btCollisionObject colObj1 = static_cast<btCollisionObject>( manifold.getBody1() );
+				btCollisionObject colObj0 = manifold.getBody0();
+				btCollisionObject colObj1 = manifold.getBody1();
 
 				///@todo: check sleeping conditions!
-				if( ( ( colObj0 ) && colObj0.getActivationState() != ISLAND_SLEEPING ) ||
-				   ( ( colObj1 ) && colObj1.getActivationState() != ISLAND_SLEEPING ) )
+				if( ( ( colObj0 != null ) && colObj0.getActivationState() != ActivationState.ISLAND_SLEEPING ) ||
+				   ( ( colObj1 != null ) && colObj1.getActivationState() != ActivationState.ISLAND_SLEEPING ) )
 				{
 
 					//kinematic objects don't merge islands, but wake up all connected objects
-					if( colObj0.isKinematicObject() && colObj0.getActivationState() != ISLAND_SLEEPING )
+					if( colObj0.isKinematicObject() && colObj0.getActivationState() != ActivationState.ISLAND_SLEEPING )
 					{
 						if( colObj0.hasContactResponse() )
 							colObj1.activate();
 					}
-					if( colObj1.isKinematicObject() && colObj1.getActivationState() != ISLAND_SLEEPING )
+					if( colObj1.isKinematicObject() && colObj1.getActivationState() != ActivationState.ISLAND_SLEEPING )
 					{
 						if( colObj1.hasContactResponse() )
 							colObj0.activate();
@@ -374,9 +379,9 @@ public void void   btSimulationIslandManager::storeIslandActivationState(btColli
 
 
 		///@todo: this is random access, it can be walked 'cache friendly'!
-		void buildAndProcessIslands( btDispatcher dispatcher, btCollisionWorld collisionWorld, IslandCallback callback )
+		internal void buildAndProcessIslands( btDispatcher dispatcher, btCollisionWorld collisionWorld, IslandCallback callback )
 		{
-			btCollisionObjectArray & collisionObjects = collisionWorld.getCollisionObjectArray();
+			btCollisionObjectArray collisionObjects = collisionWorld.getCollisionObjectArray();
 
 			buildIslands( dispatcher, collisionWorld );
 
@@ -390,7 +395,7 @@ public void void   btSimulationIslandManager::storeIslandActivationState(btColli
 			{
 				btPersistentManifold[] manifold = dispatcher.getInternalManifoldPointer();
 				int maxNumManifolds = dispatcher.getNumManifolds();
-				callback( collisionObjects[0], collisionObjects.Count, manifold, maxNumManifolds, -1 );
+				callback.processIsland( collisionObjects.InternalArray, collisionObjects.Count, manifold, 0, maxNumManifolds, -1 );
 			}
 			else
 			{
@@ -398,11 +403,11 @@ public void void   btSimulationIslandManager::storeIslandActivationState(btColli
 				// Sort the vector using predicate and std::sort
 				//std::sort(islandmanifold.begin(), islandmanifold.end(), btPersistentManifoldSortPredicate);
 
-				int numManifolds = int( m_islandmanifold.Count );
+				int numManifolds = m_islandmanifold.Count;
 
 				//tried a radix sort, but quicksort/heapsort seems still faster
 				//@todo rewrite island management
-				m_islandmanifold.quickSort( btPersistentManifoldSortPredicate() );
+				m_islandmanifold.Sort( new btPersistentManifoldSortPredicate() );
 				//m_islandmanifold.heapSort(btPersistentManifoldSortPredicate());
 
 				//now process all active islands (sets of manifolds for now)
@@ -436,14 +441,16 @@ public void void   btSimulationIslandManager::storeIslandActivationState(btColli
 
 					//find the accompanying contact manifold for this islandId
 					int numIslandManifolds = 0;
-					btPersistentManifold[] startManifold = 0;
+					int start_manifold_offset = 0;
+					//btPersistentManifold startManifold = null;
 
 					if( startManifoldIndex < numManifolds )
 					{
 						int curIslandId = getIslandId( m_islandmanifold[startManifoldIndex] );
 						if( curIslandId == islandId )
 						{
-							startManifold = &m_islandmanifold[startManifoldIndex];
+							start_manifold_offset = startManifoldIndex;
+							//startManifold = m_islandmanifold[startManifoldIndex];
 
 							for( endManifoldIndex = startManifoldIndex + 1; ( endManifoldIndex < numManifolds ) && ( islandId == getIslandId( m_islandmanifold[endManifoldIndex] ) ); endManifoldIndex++ )
 							{
@@ -457,16 +464,16 @@ public void void   btSimulationIslandManager::storeIslandActivationState(btColli
 
 					if( !islandSleeping )
 					{
-						callback.processIsland( m_islandBodies, m_islandBodies.Count, startManifold, numIslandManifolds, islandId );
+						callback.processIsland( m_islandBodies.InternalArray, m_islandBodies.Count, m_islandmanifold.InternalArray, start_manifold_offset, numIslandManifolds, islandId );
 						//			Console.WriteLine("Island callback of size:%d bodies, %d manifolds\n",islandBodies.Count,numIslandManifolds);
 					}
 
-					if( numIslandManifolds )
+					if( numIslandManifolds != 0 )
 					{
 						startManifoldIndex = endManifoldIndex;
 					}
 
-					m_islandBodies.resize( 0 );
+					m_islandBodies.Count = ( 0 );
 				}
 			} // else if(!splitIslands) 
 

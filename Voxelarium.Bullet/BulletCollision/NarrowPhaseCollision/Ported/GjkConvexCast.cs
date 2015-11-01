@@ -32,9 +32,9 @@ namespace Bullet.Collision.NarrowPhase
 		btConvexShape m_convexA;
 		btConvexShape m_convexB;
 
+		public btGjkConvexCast() { }
 
-
-		public btGjkConvexCast(btConvexShape convexA, btConvexShape convexB, btSimplexSolverInterface simplexSolver)
+		public void Initialize(btConvexShape convexA, btConvexShape convexB, btSimplexSolverInterface simplexSolver)
 		{
 			m_simplexSolver = ( simplexSolver );
 			m_convexA = ( convexA );
@@ -42,7 +42,7 @@ namespace Bullet.Collision.NarrowPhase
         }
 
 		/// cast a convex against another convex object
-		public override bool calcTimeOfImpact(
+		internal override bool calcTimeOfImpact(
 							btITransform fromA,
 							btITransform toA,
 							btITransform fromB,
@@ -75,33 +75,29 @@ namespace Bullet.Collision.NarrowPhase
 
 			int numIter = 0;
 			//first solution, using GJK
-
-
 			//	result.drawCoordSystem(sphereTr);
 
 			btPointCollector pointCollector = new btPointCollector();
 
-
-			btGjkPairDetector gjk = new btGjkPairDetector( m_convexA, m_convexB, m_simplexSolver, null);//m_penetrationDepthSolver);		
+			btGjkPairDetector gjk = BulletGlobals.GjkPairDetectorPool.Get();
+			gjk.Initialize( m_convexA, m_convexB, m_simplexSolver, null);//m_penetrationDepthSolver);		
 			btGjkPairDetector.ClosestPointInput input = new btDiscreteCollisionDetectorInterface.ClosestPointInput();
 
 			//we don't use margins during CCD
 			//	gjk.setIgnoreMargin(true);
 
-			input.m_transformA = fromA;
-			input.m_transformB = fromB;
+			input.m_transformA = fromA.T;
+			input.m_transformB = fromB.T;
 			gjk.getClosestPoints( input, pointCollector, null );
 
 			hasResult = pointCollector.m_hasResult;
 			c = pointCollector.m_pointInWorld;
 
-			if( hasResult )
+            if( hasResult )
 			{
 				double dist;
 				dist = pointCollector.m_distance;
 				n = pointCollector.m_normalOnBInWorld;
-
-
 
 				//not close enough
 				while( dist > radius )
@@ -109,6 +105,7 @@ namespace Bullet.Collision.NarrowPhase
 					numIter++;
 					if( numIter > maxIter )
 					{
+						BulletGlobals.GjkPairDetectorPool.Free( gjk );
 						return false; //todo: report a failure
 					}
 					double dLambda = btScalar.BT_ZERO;
@@ -120,14 +117,21 @@ namespace Bullet.Collision.NarrowPhase
 					lambda = lambda - dLambda;
 
 					if( lambda > btScalar.BT_ONE )
+					{
+						BulletGlobals.GjkPairDetectorPool.Free( gjk );
 						return false;
+					}
 
 					if( lambda < btScalar.BT_ZERO )
+					{
+						BulletGlobals.GjkPairDetectorPool.Free( gjk );
 						return false;
+					}
 
 					//todo: next check with relative epsilon
 					if( lambda <= lastLambda )
 					{
+						BulletGlobals.GjkPairDetectorPool.Free( gjk );
 						return false;
 						//n.setValue(0,0,0);
 						//break;
@@ -151,6 +155,7 @@ namespace Bullet.Collision.NarrowPhase
 							n = pointCollector.m_normalOnBInWorld;
 							result.m_normal = n;
 							result.m_hitPoint = pointCollector.m_pointInWorld;
+							BulletGlobals.GjkPairDetectorPool.Free( gjk );
 							return true;
 						}
 						c = pointCollector.m_pointInWorld;
@@ -160,6 +165,7 @@ namespace Bullet.Collision.NarrowPhase
 					else
 					{
 						//??
+						BulletGlobals.GjkPairDetectorPool.Free( gjk );
 						return false;
 					}
 
@@ -168,14 +174,19 @@ namespace Bullet.Collision.NarrowPhase
 				//is n normalized?
 				//don't report time of impact for motion away from the contact normal (or causes minor penetration)
 				if( n.dot( ref r ) >= -result.m_allowedPenetration )
+				{
+					BulletGlobals.GjkPairDetectorPool.Free( gjk );
 					return false;
+				}
 
 				result.m_fraction = lambda;
 				result.m_normal = n;
 				result.m_hitPoint = c;
+				BulletGlobals.GjkPairDetectorPool.Free( gjk );
 				return true;
 			}
 
+			BulletGlobals.GjkPairDetectorPool.Free( gjk );
 			return false;
 
 

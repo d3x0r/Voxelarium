@@ -35,19 +35,19 @@ namespace Bullet.Collision.NarrowPhase
 			m_hasResult = ( false );
         }
 
-		internal virtual void setShapeIdentifiersA( int partId0, int index0 )
+		public virtual void setShapeIdentifiersA( int partId0, int index0 )
 		{
 			//(void)partId0;
 			//(void)index0;
 
 		}
-		internal virtual void setShapeIdentifiersB( int partId1, int index1 )
+		public virtual void setShapeIdentifiersB( int partId1, int index1 )
 		{
 			//(void)partId1;
 			//(void)index1;
 		}
 
-		internal virtual void addContactPoint( ref btVector3 normalOnBInWorld, ref btVector3 pointInWorld, double depth )
+		public virtual void addContactPoint( ref btVector3 normalOnBInWorld, ref btVector3 pointInWorld, double depth )
 		{
 			if( depth < m_distance )
 			{

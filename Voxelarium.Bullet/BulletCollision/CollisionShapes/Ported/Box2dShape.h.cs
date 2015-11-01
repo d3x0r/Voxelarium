@@ -77,7 +77,7 @@ namespace Bullet.Collision.Shapes
 		///a btBox2dShape is a flat 2D box in the X-Y plane (Z extents are zero)
 		btBox2dShape( ref btVector3 boxHalfExtents )
 		{
-			m_centroid = new btVector3.Zero;
+			m_centroid = btVector3.Zero;
 			m_vertices[0].setValue( -boxHalfExtents.x, -boxHalfExtents.y, 0 );
 			m_vertices[1].setValue( boxHalfExtents.x, -boxHalfExtents.y, 0 );
 			m_vertices[2].setValue( boxHalfExtents.x, boxHalfExtents.y, 0 );

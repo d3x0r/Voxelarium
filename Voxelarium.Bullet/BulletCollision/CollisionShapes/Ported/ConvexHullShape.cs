@@ -185,9 +185,11 @@ namespace Bullet.Collision.Shapes
 			return 0;
 		}
 
-		public override void getPlane( ref btVector3 normal, ref btVector3 support, int i )
+		public override void getPlane( out btVector3 normal, out btVector3 support, int i )
 		{
 			Debug.Assert( false );
+			normal = btVector3.xAxis;
+			support = btVector3.Zero;
 		}
 
 		//not yet

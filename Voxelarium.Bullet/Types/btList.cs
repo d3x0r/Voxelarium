@@ -305,6 +305,15 @@ namespace Bullet.Types
 			return Array.BinarySearch<T>( _items, index, count, item, comparer );
 		}
 
+		public int LinearSearch( T thing )
+		{
+			int i;
+			for( i = 0; i < _size; i++ )
+				if( _items[i].Equals( thing ) )
+					break;
+			return i;
+        }
+
 		public int BinarySearch( T item )
 		{
 			return BinarySearch( 0, Count, item, null );

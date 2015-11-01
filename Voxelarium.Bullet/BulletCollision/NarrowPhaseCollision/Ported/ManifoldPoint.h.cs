@@ -21,7 +21,7 @@ namespace Bullet.Collision.NarrowPhase
 
 	internal class btManifoldPoint
 	{
-		internal btManifoldPoint()
+		public btManifoldPoint()
 		{
 		}
 
@@ -29,12 +29,39 @@ namespace Bullet.Collision.NarrowPhase
 				ref btVector3 normal,
 				double distance )
 		{
+			m_lateralFrictionDir1 = btVector3.Zero;
+			m_lateralFrictionDir2 = btVector3.Zero;
+			m_lifeTime = 0;
+			m_appliedImpulseLateral1 = 0f;
+			m_appliedImpulseLateral2 = 0f;
+			m_contactMotion1 = 0f;
+			m_contactMotion2 = 0f;
+			m_contactCFM1 = 0f;
+			m_contactCFM2 = 0f;
+
+			m_lateralFrictionInitialized = false;
+			m_userPersistentData = null;
+			m_appliedImpulse = 0f;
+			m_partId0 = 0;
+			m_partId1 = 0;
+			m_index0 = 0;
+			m_index1 = 0;
+			m_combinedRestitution = 0f;
+			m_combinedFriction = 0f;
+			m_positionWorldOnA = btVector3.Zero;
+			m_positionWorldOnB = btVector3.Zero;
+
 			m_localPointA = pointA;
 			m_localPointB = pointB;
 			m_normalWorldOnB = normal;
 			m_distance1 = distance;
+
+			//m_constraintRow[0].Reset();
+			//m_constraintRow[1].Reset();
+			//m_constraintRow[2].Reset();
 		}
-		internal btManifoldPoint( ref btVector3 pointA, ref btVector3 pointB,
+
+		 btManifoldPoint( ref btVector3 pointA, ref btVector3 pointB,
 				ref btVector3 normal,
 				double distance )
 		{
@@ -93,9 +120,6 @@ namespace Bullet.Collision.NarrowPhase
 
 		internal btVector3 m_lateralFrictionDir1;
 		internal btVector3 m_lateralFrictionDir2;
-
-
-
 
 		internal double getDistance()
 		{

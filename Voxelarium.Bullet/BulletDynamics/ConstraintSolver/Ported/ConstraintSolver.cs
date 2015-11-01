@@ -31,25 +31,25 @@ namespace Bullet.Dynamics.ConstraintSolver
 		BT_NNCG_SOLVER = 4
 	};
 
-	internal interface btConstraintSolver
+	internal abstract class btConstraintSolver
 	{
 
-		void prepareSolve( int numBodies, int numManifolds );
+		internal abstract void prepareSolve( int numBodies, int numManifolds );
 
 		///solve a group of constraints
-		double solveGroup( btCollisionObject[] bodies, int numBodies
-					, btPersistentManifold[] manifold, int numManifolds
+		internal abstract double solveGroup( btCollisionObject[] bodies, int numBodies
+					, btPersistentManifold[] manifold, int first_manifold, int numManifolds
 					, btTypedConstraint[] constraints, int startConstraint, int numConstraints
 					, btContactSolverInfo info
 					, btIDebugDraw debugDrawer
 					, btDispatcher dispatcher );
 
-		void allSolved( btContactSolverInfo info, btIDebugDraw debugDrawer );
-	
-	///clear internal cached data and reset random seed
-		void reset();
+		internal abstract void allSolved( btContactSolverInfo info, btIDebugDraw debugDrawer );
 
-		btConstraintSolverType getSolverType();
+		///clear internal cached data and reset random seed
+		internal abstract void reset();
+
+		internal abstract btConstraintSolverType getSolverType();
 
 
 	};

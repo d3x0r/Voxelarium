@@ -512,7 +512,7 @@ public void deSerializeDouble(stringstruct btQuaternionDoubleData& dataIn);
 			q.Mult( ref tmp, out result );
 		}
 
-		public void shortestArcQuat( ref btVector3 v0, ref btVector3 v1, out btQuaternion result ) // Game Programming Gems 2.10 make sure v0,v1 are normalized
+		public static void shortestArcQuat( ref btVector3 v0, ref btVector3 v1, out btQuaternion result ) // Game Programming Gems 2.10 make sure v0,v1 are normalized
 		{
 			btVector3 c;
 			v0.cross( ref v1, out c );

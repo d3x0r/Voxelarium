@@ -20,12 +20,12 @@ using Bullet.LinearMath;
 namespace Bullet.Collision.NarrowPhase
 {
 
-	public abstract class btConvexPenetrationDepthSolver
+	internal abstract class btConvexPenetrationDepthSolver
 	{
 		///ConvexPenetrationDepthSolver provides an interface for penetration depth calculation.
-		public abstract bool calcPenDepth( btSimplexSolverInterface simplexSolver,
+		internal abstract bool calcPenDepth( btSimplexSolverInterface simplexSolver,
 			btConvexShape convexA, btConvexShape convexB,
-						btITransform transA, btITransform transB,
+						ref btTransform transA, ref btTransform transB,
 					ref btVector3 v, out btVector3 pa, out btVector3 pb,
 					btIDebugDraw debugDraw );
 	}

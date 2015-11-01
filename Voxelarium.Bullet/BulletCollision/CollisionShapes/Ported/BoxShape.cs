@@ -271,30 +271,31 @@ namespace Bullet.Collision.Shapes
 			return 6;
 		}
 
-		public override void getPreferredPenetrationDirection( int index, ref btVector3 penetrationVector )
+		public override void getPreferredPenetrationDirection( int index, out btVector3 penetrationVector )
 		{
 			switch( index )
 			{
 				case 0:
-					penetrationVector.setValue( (double)( 1.0 ), btScalar.BT_ZERO, btScalar.BT_ZERO );
+					btVector3.setValue( out penetrationVector, (double)( 1.0 ), btScalar.BT_ZERO, btScalar.BT_ZERO );
 					break;
 				case 1:
-					penetrationVector.setValue( (double)( -1.0 ), btScalar.BT_ZERO, btScalar.BT_ZERO );
+					btVector3.setValue( out penetrationVector, (double)( -1.0 ), btScalar.BT_ZERO, btScalar.BT_ZERO );
 					break;
 				case 2:
-					penetrationVector.setValue( btScalar.BT_ZERO, (double)( 1.0 ), btScalar.BT_ZERO );
+					btVector3.setValue( out penetrationVector, btScalar.BT_ZERO, (double)( 1.0 ), btScalar.BT_ZERO );
 					break;
 				case 3:
-					penetrationVector.setValue( btScalar.BT_ZERO, (double)( -1.0 ), btScalar.BT_ZERO );
+					btVector3.setValue( out penetrationVector, btScalar.BT_ZERO, (double)( -1.0 ), btScalar.BT_ZERO );
 					break;
 				case 4:
-					penetrationVector.setValue( btScalar.BT_ZERO, btScalar.BT_ZERO, (double)( 1.0 ) );
+					btVector3.setValue( out penetrationVector, btScalar.BT_ZERO, btScalar.BT_ZERO, (double)( 1.0 ) );
 					break;
 				case 5:
-					penetrationVector.setValue( btScalar.BT_ZERO, btScalar.BT_ZERO, (double)( -1.0 ) );
+					btVector3.setValue( out penetrationVector, btScalar.BT_ZERO, btScalar.BT_ZERO, (double)( -1.0 ) );
 					break;
 				default:
 					Debug.Assert( false );
+					penetrationVector = btVector3.Zero;
 					break;
 			}
 		}
@@ -325,9 +326,9 @@ namespace Bullet.Collision.Shapes
 			//double margin = btScalar.BT_ZERO;
 			btVector3 halfExtents; getHalfExtentsWithMargin( out halfExtents );
 
-			double lx = (double)( 2.0) * ( halfExtents.x );
-			double ly = (double)( 2.0) * ( halfExtents.y );
-			double lz = (double)( 2.0) * ( halfExtents.z );
+			double lx = (double)( 2.0 ) * ( halfExtents.x );
+			double ly = (double)( 2.0 ) * ( halfExtents.y );
+			double lz = (double)( 2.0 ) * ( halfExtents.z );
 
 			inertia = new btVector3( mass / ( (double)( 12.0 ) ) * ( ly * ly + lz * lz ),
 							mass / ( (double)( 12.0 ) ) * ( lx * lx + lz * lz ),

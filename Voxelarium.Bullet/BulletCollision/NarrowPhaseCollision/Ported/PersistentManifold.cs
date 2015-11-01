@@ -57,10 +57,20 @@ namespace Bullet.Collision.NarrowPhase
 
 		internal int m_index1a;
 
-		internal btPersistentManifold()
-			: base( btObjectTypes.BT_PERSISTENT_MANIFOLD_TYPE )
+		public btPersistentManifold() { }
+
+		internal void Initialize(btCollisionObject body0,btCollisionObject body1,int unused, double contactBreakingThreshold, double contactProcessingThreshold )
 		{
-			m_body0 = null;
+			base.Initialize(  btObjectTypes.BT_PERSISTENT_MANIFOLD_TYPE );
+			m_body0 = ( body0 ); m_body1 = ( body1 ); m_cachedPoints = ( 0 );
+			m_contactBreakingThreshold = ( contactBreakingThreshold );
+			m_contactProcessingThreshold = ( contactProcessingThreshold );
+        }
+
+		internal void Initialize()
+		{
+			base.Initialize( btObjectTypes.BT_PERSISTENT_MANIFOLD_TYPE );
+            m_body0 = null;
 			m_body1 = null;
 			m_cachedPoints = ( 0 );
 			m_index1a = ( 0 );
@@ -236,7 +246,7 @@ namespace Bullet.Collision.NarrowPhase
 			return nearestPoint;
 		}
 
-		public int addManifoldPoint( btManifoldPoint newPoint, bool isPredictive = false )
+		internal int addManifoldPoint( btManifoldPoint newPoint, bool isPredictive = false )
 		{
 			if( !isPredictive )
 			{
@@ -367,7 +377,7 @@ namespace Bullet.Collision.NarrowPhase
 		}
 
 
-		public btManifoldPoint getContactPoint( int index )
+		internal btManifoldPoint getContactPoint( int index )
 		{
 			Debug.Assert( index < m_cachedPoints );
 			return m_pointCache[index];

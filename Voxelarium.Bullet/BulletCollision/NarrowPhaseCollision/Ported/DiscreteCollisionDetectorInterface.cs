@@ -27,24 +27,23 @@ namespace Bullet.Collision.NarrowPhase
 	public abstract class btDiscreteCollisionDetectorInterface
 	{
 
-		public interface Result
+		internal interface Result
 		{
-
 			///setShapeIdentifiersA/B provides experimental support for per-triangle material / custom material combiner
 			void setShapeIdentifiersA( int partId0, int index0 );
 			void setShapeIdentifiersB( int partId1, int index1 );
-			void addContactPoint( ref btVector3 normalOnBInWorld, ref btVector3 pointInWorld, double depth );
+			void addContactPoint(  ref btVector3 normalOnBInWorld, ref btVector3 pointInWorld, double depth );
 		};
 
-		public class ClosestPointInput
+		internal class ClosestPointInput
 		{
 			internal ClosestPointInput()
 			{
 				m_maximumDistanceSquared = btScalar.BT_LARGE_FLOAT;
 			}
 
-			internal btITransform m_transformA;
-			internal btITransform m_transformB;
+			internal btTransform m_transformA;
+			internal btTransform m_transformB;
 			internal double m_maximumDistanceSquared;
 		};
 
@@ -52,7 +51,7 @@ namespace Bullet.Collision.NarrowPhase
 		// give either closest points (distance > 0) or penetration (distance)
 		// the normal always points from B towards A
 		//
-		public abstract void getClosestPoints( ClosestPointInput input, Result output, btIDebugDraw debugDraw
+		internal abstract void getClosestPoints( ClosestPointInput input, Result output, btIDebugDraw debugDraw
 						, bool swapResults = false );
 
 	};

@@ -76,17 +76,21 @@ namespace Bullet.LinearMath
 		///the default implementation for setDefaultColors has no effect. A derived class can implement it and store the colors.
 		public virtual void setDefaultColors( DefaultColors c ) { }
 
-		public abstract void drawLine( ref btVector3 from, ref btVector3 to, ref btVector3 color );
-
-		public virtual void drawLine( ref btVector3 from, ref btVector3 to, ref btVector3 fromColor, ref btVector3 toColor )
+		public virtual void drawLine( ref btVector3 from, ref btVector3 to, ref btVector3 color )
 		{
-			drawLine( ref from, ref to, ref fromColor );
+			drawLine( from, to, ref color, ref color );
 		}
+		public virtual void drawLine( btIVector3 from, ref btVector3 to, ref btVector3 color )
+		{
+			drawLine( from, to, ref color, ref color );
+		}
+
+		//public abstract void drawLine( ref btVector3 from, ref btVector3 to, ref btVector3 fromColor, ref btVector3 toColor );
+		public abstract void drawLine( btIVector3 from, btIVector3 to, ref btVector3 fromColor, ref btVector3 toColor );
 
 		public virtual void drawSphere( double radius, ref btTransform transform, ref btVector3 color )
 		{
-
-			btVector3 center = transform.getOrigin();
+			btIVector3 center = transform.getOrigin();
 			btVector3 up = transform.getBasis().getColumn( 1 );
 			btVector3 axis = transform.getBasis().getColumn( 0 );
 			double minTh = -btScalar.SIMD_HALF_PI;
@@ -94,10 +98,10 @@ namespace Bullet.LinearMath
 			double minPs = -btScalar.SIMD_HALF_PI;
 			double maxPs = btScalar.SIMD_HALF_PI;
 			double stepDegrees = 30;
-			drawSpherePatch( ref center, ref up, ref axis, radius, minTh, maxTh, minPs, maxPs, ref color, stepDegrees, false );
+			drawSpherePatch( center, ref up, ref axis, radius, minTh, maxTh, minPs, maxPs, ref color, stepDegrees, false );
 			btVector3 tmp;
 			axis.Invert( out tmp );
-			drawSpherePatch( ref center, ref up, ref tmp, radius, minTh, maxTh, minPs, maxPs, ref color, stepDegrees, false );
+			drawSpherePatch( center, ref up, ref tmp, radius, minTh, maxTh, minPs, maxPs, ref color, stepDegrees, false );
 		}
 
 		public virtual void drawSphere( ref btVector3 p, double radius, ref btVector3 color )
@@ -158,24 +162,33 @@ namespace Bullet.LinearMath
 		}
 		public virtual void drawTransform( ref btTransform transform, double orthoLen )
 		{
-			btVector3 start = transform.getOrigin();
+			drawTransform( transform, orthoLen );
+		}
+        public virtual void drawTransform( btITransform transform, double orthoLen )
+		{
+			btIVector3 start = transform.getOrigin();
 			btVector3 a;
 			btVector3 b;
 			btVector3.setValue( out b, orthoLen, 0, 0 );
 			transform.Apply( ref b, out a );
 			b.setValue( 0.7, 0, 0 );
-			drawLine( ref start, ref a, ref b );
+			drawLine( start, ref a, ref b );
 			btVector3.setValue( out b, 0, orthoLen, 0 );
 			transform.Apply( ref b, out a );
 			b.setValue( 0, 0.7, 0 );
-			drawLine( ref start, ref a, ref b );
+			drawLine( start, ref a, ref b );
 			btVector3.setValue( out b, 0, 0, orthoLen );
 			transform.Apply( ref b, out a );
 			b.setValue( 0, 0, 0.7 );
-			drawLine( ref start, ref a, ref b );
+			drawLine( start, ref a, ref b );
 		}
-
 		public virtual void drawArc( ref btVector3 center, ref btVector3 normal, ref btVector3 axis, double radiusA, double radiusB, double minAngle, double maxAngle,
+					ref btVector3 color, bool drawSect, double stepDegrees = btScalar.BT_TEN )
+		{
+			drawArc( center, ref normal, ref axis, radiusA, radiusB, minAngle, maxAngle, ref color, drawSect, stepDegrees );
+		}
+		public virtual void drawArc( btIVector3 center, ref btVector3 normal, ref btVector3 axis
+			, double radiusA, double radiusB, double minAngle, double maxAngle,
 					ref btVector3 color, bool drawSect, double stepDegrees = btScalar.BT_TEN )
 		{
 			btVector3 vx = axis;
@@ -188,7 +201,7 @@ namespace Bullet.LinearMath
 			prev.AddScale( ref vy, radiusB * btScalar.btSin( minAngle ), out prev );
 			if( drawSect )
 			{
-				drawLine( ref center, ref prev, ref color );
+				drawLine( center, ref prev, ref color );
 			}
 			for( int i = 1; i <= nSteps; i++ )
 			{
@@ -201,10 +214,19 @@ namespace Bullet.LinearMath
 			}
 			if( drawSect )
 			{
-				drawLine( ref center, ref prev, ref color );
+				drawLine( center, ref prev, ref color );
 			}
 		}
 		public virtual void drawSpherePatch( ref btVector3 center, ref btVector3 up, ref btVector3 axis, double radius,
+			double minTh, double maxTh, double minPs, double maxPs, ref btVector3 color
+			, double stepDegrees = btScalar.BT_TEN
+			, bool drawCenter = true )
+		{
+			drawSpherePatch( center, ref up, ref axis, radius
+				, minTh, maxTh, minPs, maxPs
+				, ref color, stepDegrees, drawCenter );
+		}
+        public virtual void drawSpherePatch( btIVector3 center, ref btVector3 up, ref btVector3 axis, double radius,
 			double minTh, double maxTh, double minPs, double maxPs, ref btVector3 color
 			, double stepDegrees = btScalar.BT_TEN
 			, bool drawCenter = true )
@@ -309,7 +331,7 @@ namespace Bullet.LinearMath
 						{
 							if( ( ( i== 0 ) || ( i == ( n_hor - 1 ) ) ) && ( ( j == 0 ) || ( j == ( n_vert - 1 ) ) ) )
 							{
-								drawLine( ref center, ref vB[j], ref color );
+								drawLine( center, ref vB[j], ref color );
 							}
 						}
 					}
@@ -339,8 +361,11 @@ namespace Bullet.LinearMath
 			putLine( new btVector3( bbMax[0], bbMax[1], bbMax[2] ), new btVector3( bbMin[0], bbMax[1], bbMax[2] ), ref color );
 			putLine( new btVector3( bbMin[0], bbMax[1], bbMax[2] ), new btVector3( bbMin[0], bbMin[1], bbMax[2] ), ref color );
 		}
-
 		public void putLine( ref btTransform trans, double a, double b, double c, double d, double e, double f, ref btVector3 color )
+		{
+			putLine( trans, a, b, c, d, e, f, ref color );
+		}
+		public void putLine( btITransform trans, double a, double b, double c, double d, double e, double f, ref btVector3 color )
 		{
 			btVector3 av;
 			btVector3 bv;
@@ -351,18 +376,22 @@ namespace Bullet.LinearMath
 		}
 		public virtual void drawBox( ref btVector3 bbMin, ref btVector3 bbMax, ref btTransform trans, ref btVector3 color )
 		{
-			putLine( ref trans, bbMin[0], bbMin[1], bbMin[2], bbMax[0], bbMin[1], bbMin[2], ref color );
-			putLine( ref trans, bbMax[0], bbMin[1], bbMin[2], bbMax[0], bbMax[1], bbMin[2], ref color );
-			putLine( ref trans, bbMax[0], bbMax[1], bbMin[2], bbMin[0], bbMax[1], bbMin[2], ref color );
-			putLine( ref trans, bbMin[0], bbMax[1], bbMin[2], bbMin[0], bbMin[1], bbMin[2], ref color );
-			putLine( ref trans, bbMin[0], bbMin[1], bbMin[2], bbMin[0], bbMin[1], bbMax[2], ref color );
-			putLine( ref trans, bbMax[0], bbMin[1], bbMin[2], bbMax[0], bbMin[1], bbMax[2], ref color );
-			putLine( ref trans, bbMax[0], bbMax[1], bbMin[2], bbMax[0], bbMax[1], bbMax[2], ref color );
-			putLine( ref trans, bbMin[0], bbMax[1], bbMin[2], bbMin[0], bbMax[1], bbMax[2], ref color );
-			putLine( ref trans, bbMin[0], bbMin[1], bbMax[2], bbMax[0], bbMin[1], bbMax[2], ref color );
-			putLine( ref trans, bbMax[0], bbMin[1], bbMax[2], bbMax[0], bbMax[1], bbMax[2], ref color );
-			putLine( ref trans, bbMax[0], bbMax[1], bbMax[2], bbMin[0], bbMax[1], bbMax[2], ref color );
-			putLine( ref trans, bbMin[0], bbMax[1], bbMax[2], bbMin[0], bbMin[1], bbMax[2], ref color );
+			drawBox( ref bbMin, ref bbMax, trans, ref color );
+		}
+        public virtual void drawBox( ref btVector3 bbMin, ref btVector3 bbMax, btITransform trans, ref btVector3 color )
+		{
+			putLine( trans, bbMin[0], bbMin[1], bbMin[2], bbMax[0], bbMin[1], bbMin[2], ref color );
+			putLine( trans, bbMax[0], bbMin[1], bbMin[2], bbMax[0], bbMax[1], bbMin[2], ref color );
+			putLine( trans, bbMax[0], bbMax[1], bbMin[2], bbMin[0], bbMax[1], bbMin[2], ref color );
+			putLine( trans, bbMin[0], bbMax[1], bbMin[2], bbMin[0], bbMin[1], bbMin[2], ref color );
+			putLine( trans, bbMin[0], bbMin[1], bbMin[2], bbMin[0], bbMin[1], bbMax[2], ref color );
+			putLine( trans, bbMax[0], bbMin[1], bbMin[2], bbMax[0], bbMin[1], bbMax[2], ref color );
+			putLine( trans, bbMax[0], bbMax[1], bbMin[2], bbMax[0], bbMax[1], bbMax[2], ref color );
+			putLine( trans, bbMin[0], bbMax[1], bbMin[2], bbMin[0], bbMax[1], bbMax[2], ref color );
+			putLine( trans, bbMin[0], bbMin[1], bbMax[2], bbMax[0], bbMin[1], bbMax[2], ref color );
+			putLine( trans, bbMax[0], bbMin[1], bbMax[2], bbMax[0], bbMax[1], bbMax[2], ref color );
+			putLine( trans, bbMax[0], bbMax[1], bbMax[2], bbMin[0], bbMax[1], bbMax[2], ref color );
+			putLine( trans, bbMin[0], bbMax[1], bbMax[2], bbMin[0], bbMin[1], bbMax[2], ref color );
 		}
 
 		public virtual void drawCapsule( double radius, double halfHeight, int upAxis, ref btTransform transform, ref btVector3 color )
@@ -380,7 +409,7 @@ namespace Bullet.LinearMath
 				btTransform childTransform = transform;
 				transform.Apply( ref capStart, out childTransform.m_origin );
 				{
-					btVector3 center = childTransform.getOrigin();
+					btIVector3 center = childTransform.getOrigin();
 					btVector3 up = childTransform.getBasis().getColumn( ( upAxis + 1 ) % 3 );
 					btVector3 axis = childTransform.getBasis().getColumn( upAxis );
 					axis.Invert( out axis );
@@ -389,7 +418,7 @@ namespace Bullet.LinearMath
 					double minPs = -btScalar.SIMD_HALF_PI;
 					double maxPs = btScalar.SIMD_HALF_PI;
 
-					drawSpherePatch( ref center, ref up, ref axis, radius, minTh, maxTh, minPs, maxPs, ref color, (double)stepDegrees, false );
+					drawSpherePatch( center, ref up, ref axis, radius, minTh, maxTh, minPs, maxPs, ref color, (double)stepDegrees, false );
 				}
 			}
 
@@ -397,19 +426,19 @@ namespace Bullet.LinearMath
 				btTransform childTransform = transform;
 				transform.Apply( ref capEnd, out childTransform.m_origin );
 				{
-					btVector3 center = childTransform.getOrigin();
+					btIVector3 center = childTransform.getOrigin();
 					btVector3 up = childTransform.getBasis().getColumn( ( upAxis + 1 ) % 3 );
 					btVector3 axis = childTransform.getBasis().getColumn( upAxis );
 					double minTh = -btScalar.SIMD_HALF_PI;
 					double maxTh = btScalar.SIMD_HALF_PI;
 					double minPs = -btScalar.SIMD_HALF_PI;
 					double maxPs = btScalar.SIMD_HALF_PI;
-					drawSpherePatch( ref center, ref up, ref axis, radius, minTh, maxTh, minPs, maxPs, ref color, (double)stepDegrees, false );
+					drawSpherePatch( center, ref up, ref axis, radius, minTh, maxTh, minPs, maxPs, ref color, (double)stepDegrees, false );
 				}
 			}
 
 			// Draw some additional lines
-			btVector3 start = transform.getOrigin();
+			btIVector3 start = transform.getOrigin();
 
 			for( int i = 0; i < 360; i += stepDegrees )
 			{
@@ -417,9 +446,9 @@ namespace Bullet.LinearMath
 				capEnd[( upAxis + 2 ) % 3] = capStart[( upAxis + 2 ) % 3] = btScalar.btCos( (double)i * btScalar.SIMD_RADS_PER_DEG ) * radius;
 				btVector3 a, b;
 				transform.m_basis.Apply( ref capStart, out a );
-				a.Add( ref start, out a );
+				a.Add( start, out a );
 				transform.m_basis.Apply( ref capEnd, out b );
-				a.Add( ref start, out b );
+				a.Add( start, out b );
 				drawLine( ref a, ref b, ref color );
 			}
 
@@ -427,7 +456,7 @@ namespace Bullet.LinearMath
 
 		public virtual void drawCylinder( double radius, double halfHeight, int upAxis, ref btTransform transform, ref btVector3 color )
 		{
-			btVector3 start = transform.getOrigin();
+			btIVector3 start = transform.getOrigin();
 			btVector3 offsetHeight = btVector3.Zero;
 			offsetHeight[upAxis] = halfHeight;
 			int stepDegrees = 30;
@@ -441,9 +470,9 @@ namespace Bullet.LinearMath
 				capEnd[( upAxis + 1 ) % 3] = capStart[( upAxis + 1 ) % 3] = btScalar.btSin( (double)( i ) * btScalar.SIMD_RADS_PER_DEG ) * radius;
 				capEnd[( upAxis + 2 ) % 3] = capStart[( upAxis + 2 ) % 3] = btScalar.btCos( (double)( i ) * btScalar.SIMD_RADS_PER_DEG ) * radius;
 				transform.m_basis.Apply( ref capStart, out a );
-				a.Add( ref start, out a );
+				a.Add( start, out a );
 				transform.m_basis.Apply( ref capEnd, out b );
-				b.Add( ref start, out b );
+				b.Add( start, out b );
 				drawLine( ref a, ref b, ref color );
 			}
 			// Drawing top and bottom caps of the cylinder
@@ -464,7 +493,7 @@ namespace Bullet.LinearMath
 		public virtual void drawCone( double radius, double height, int upAxis, ref btTransform transform, ref btVector3 color )
 		{
 			int stepDegrees = 30;
-			btVector3 start = transform.getOrigin();
+			btIVector3 start = transform.getOrigin();
 
 			btVector3 offsetHeight = btVector3.Zero;
 			double halfHeight = height * (double)0.5;
@@ -484,9 +513,9 @@ namespace Bullet.LinearMath
 				capEnd[( upAxis + 1 ) % 3] = btScalar.btSin( (double)i * btScalar.SIMD_RADS_PER_DEG ) * radius;
 				capEnd[( upAxis + 2 ) % 3] = btScalar.btCos( (double)i * btScalar.SIMD_RADS_PER_DEG ) * radius;
 				transform.m_basis.Apply( ref offsetHeight, out a );
-				a.Add( ref start, out a );
+				a.Add( start, out a );
 				transform.m_basis.Apply( ref capEnd, out b );
-				b.Add( ref start, out b );
+				b.Add( start, out b );
 				drawLine( ref a, ref b, ref color );
 			}
 			transform.m_basis.Apply( ref offsetHeight, out a );

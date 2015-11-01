@@ -40,11 +40,11 @@ namespace Bullet.Dynamics
 
 		internal double m_friction;
 		internal double m_jacDiagABInv;
-		internal btScalar m_rhs;
-		internal btScalar m_cfm;
+		internal double m_rhs;
+		internal double m_cfm;
 
-		internal btScalar m_lowerLimit;
-		internal btScalar m_upperLimit;
+		internal double m_lowerLimit;
+		internal double m_upperLimit;
 		internal double m_rhsPenetration;
 		//union
 		//{

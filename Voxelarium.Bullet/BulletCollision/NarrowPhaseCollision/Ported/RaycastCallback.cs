@@ -52,12 +52,10 @@ namespace Bullet.Collision.NarrowPhase
 			//@BP Mod
 			m_flags = ( flags );
 			m_hitFraction = ( btScalar.BT_ONE );
-
 		}
 
 
-
-		internal override void processTriangle( btVector3[] triangle, int partId, int triangleIndex )
+		public void processTriangle( btVector3[] triangle, int partId, int triangleIndex )
 		{
 			btVector3 vert0 = triangle[0];
 			btVector3 vert1 = triangle[1];
@@ -157,7 +155,9 @@ namespace Bullet.Collision.NarrowPhase
 
 		internal abstract double reportHit( ref btVector3 hitNormalLocal, ref btVector3 hitPointLocal, double hitFraction, int partId, int triangleIndex );
 
-		public btTriangleConvexcastCallback( btConvexShape convexShape, ref btTransform convexShapeFrom, ref btTransform convexShapeTo, btITransform triangleToWorld, double triangleCollisionMargin )
+		public btTriangleConvexcastCallback() { }
+
+		internal void Initialize( btConvexShape convexShape, ref btTransform convexShapeFrom, ref btTransform convexShapeTo, btITransform triangleToWorld, double triangleCollisionMargin )
 		{
 			m_convexShape = convexShape;
 			m_convexShapeFrom = convexShapeFrom;
@@ -168,7 +168,7 @@ namespace Bullet.Collision.NarrowPhase
 			m_allowedPenetration = 0;
 		}
 
-		internal override void processTriangle( btVector3[] triangle, int partId, int triangleIndex )
+		public void processTriangle( btVector3[] triangle, int partId, int triangleIndex )
 		{
 			btTriangleShape triangleShape = new btTriangleShape( ref triangle[0], ref triangle[1], ref triangle[2] );
 			triangleShape.setMargin( m_triangleCollisionMargin );
@@ -182,13 +182,15 @@ namespace Bullet.Collision.NarrowPhase
 	btSubsimplexConvexCast convexCaster(m_convexShape, &triangleShape, &simplexSolver);
 #else
 			//btGjkConvexCast	convexCaster(m_convexShape,&triangleShape,&simplexSolver);
-			btContinuousConvexCollision convexCaster = new btContinuousConvexCollision( m_convexShape, triangleShape, simplexSolver, gjkEpaPenetrationSolver );
+			btContinuousConvexCollision convexCaster = BulletGlobals.ContinuousConvexCollisionPool.Get();
+			convexCaster.Initialize( m_convexShape, triangleShape, simplexSolver, gjkEpaPenetrationSolver );
 #endif //#USE_SUBSIMPLEX_CONVEX_CAST
 
-			btConvexCast.CastResult castResult = new btConvexCast.CastResult();
+			btConvexCast.CastResult castResult = BulletGlobals.CastResultPool.Get();
+			castResult.Initialize();
 			castResult.m_fraction = btScalar.BT_ONE;
 			castResult.m_allowedPenetration = m_allowedPenetration;
-			if( convexCaster.calcTimeOfImpact( ref m_convexShapeFrom, ref m_convexShapeTo, ref m_triangleToWorld, ref m_triangleToWorld, castResult ) )
+			if( convexCaster.calcTimeOfImpact( m_convexShapeFrom, m_convexShapeTo, m_triangleToWorld, m_triangleToWorld, castResult ) )
 			{
 				//add hit
 				if( castResult.m_normal.length2() > (double)( 0.0001 ) )
@@ -212,6 +214,8 @@ namespace Bullet.Collision.NarrowPhase
 					}
 				}
 			}
+			BulletGlobals.CastResultPool.Free( castResult );
+			BulletGlobals.ContinuousConvexCollisionPool.Free( convexCaster );
 		}
 	};
 }

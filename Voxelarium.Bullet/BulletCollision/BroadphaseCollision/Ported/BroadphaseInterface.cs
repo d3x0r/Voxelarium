@@ -37,7 +37,7 @@ namespace Bullet.Collision.BroadPhase
 	///The btBroadphaseInterface class provides an interface to detect aabb-overlapping object pairs.
 	///Some implementations for this broadphase interface include btAxisSweep3, bt32BitAxisSweep3 and btDbvtBroadphase.
 	///The actual overlapping pair management, storage, adding and removing of pairs is dealt by the btOverlappingPairCache class.
-	public interface btBroadphaseInterface
+	internal interface btBroadphaseInterface
 	{
 
 		btBroadphaseProxy createProxy( ref btVector3 aabbMin, ref btVector3 aabbMax, BroadphaseNativeTypes shapeType
@@ -70,4 +70,22 @@ namespace Bullet.Collision.BroadPhase
 
 	};
 
+	internal abstract class btBroadphaseDefault : btBroadphaseInterface
+	{
+		public abstract void aabbTest( ref btVector3 aabbMin, ref btVector3 aabbMax, btBroadphaseAabbCallback callback );
+		public abstract void calculateOverlappingPairs( btDispatcher dispatcher );
+		public abstract btBroadphaseProxy createProxy( ref btVector3 aabbMin, ref btVector3 aabbMax, BroadphaseNativeTypes shapeType, object userPtr, btBroadphaseProxy.CollisionFilterGroups collisionFilterGroup, btBroadphaseProxy.CollisionFilterGroups collisionFilterMask, btDispatcher dispatcher, object multiSapProxy );
+		public abstract void destroyProxy( btBroadphaseProxy proxy, btDispatcher dispatcher );
+		public abstract void getAabb( btBroadphaseProxy proxy, ref btVector3 aabbMin, ref btVector3 aabbMax );
+		public abstract void getBroadphaseAabb( out btVector3 aabbMin, out btVector3 aabbMax );
+		public abstract btOverlappingPairCache getOverlappingPairCache();
+		public abstract void printStats();
+		public virtual void rayTest( ref btVector3 rayFrom, ref btVector3 rayTo, btBroadphaseRayCallback rayCallback )
+		{
+			rayTest( ref rayFrom, ref rayTo, rayCallback, ref btVector3.Min, ref btVector3.Max );
+		}
+		public abstract void rayTest( ref btVector3 rayFrom, ref btVector3 rayTo, btBroadphaseRayCallback rayCallback, ref btVector3 aabbMin, ref btVector3 aabbMax );
+		public abstract void resetPool( btDispatcher dispatcher );
+		public abstract void setAabb( btBroadphaseProxy proxy, ref btVector3 aabbMin, ref btVector3 aabbMax, btDispatcher dispatcher );
+	}
 }

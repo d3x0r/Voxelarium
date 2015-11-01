@@ -60,8 +60,8 @@ namespace Bullet.Dynamics
 		///maxSubSteps/fixedTimeStep for interpolation is currently ignored for btSimpleDynamicsWorld, use btDiscreteDynamicsWorld instead
 		int stepSimulation( double timeStep, int maxSubSteps = 1, double fixedTimeStep = btScalar.BT_ONE_OVER_SIXTY )
 		{
-			(void)fixedTimeStep;
-			(void)maxSubSteps;
+			//(void)fixedTimeStep;
+			//(void)maxSubSteps;
 
 
 			///apply gravity, predict motion
@@ -131,7 +131,7 @@ namespace Bullet.Dynamics
 			}
 		}
 
-		public virtual getGravity( out btVector3 result )
+		public virtual void getGravity( out btVector3 result )
 		{
 			result = m_gravity;
 		}

@@ -75,7 +75,7 @@ namespace Bullet.Collision.NarrowPhase
 			return m_cachedSeparatingDistance;
 		}
 
-		public void setPenetrationDepthSolver( btConvexPenetrationDepthSolver penetrationDepthSolver )
+		internal void setPenetrationDepthSolver( btConvexPenetrationDepthSolver penetrationDepthSolver )
 		{
 			m_penetrationDepthSolver = penetrationDepthSolver;
 		}
@@ -93,7 +93,11 @@ namespace Bullet.Collision.NarrowPhase
 		public int gNumGjkChecks = 0;
 
 
-		public btGjkPairDetector( btConvexShape objectA, btConvexShape objectB, btSimplexSolverInterface simplexSolver
+		public btGjkPairDetector()
+		{
+		}
+
+		internal void Initialize( btConvexShape objectA, btConvexShape objectB, btSimplexSolverInterface simplexSolver
 			, btConvexPenetrationDepthSolver penetrationDepthSolver )
 		{
 			m_cachedSeparatingAxis = btVector3.yAxis;
@@ -111,7 +115,7 @@ namespace Bullet.Collision.NarrowPhase
 			m_fixContactNormalDirection = ( 1 );
 		}
 
-		public btGjkPairDetector( btConvexShape objectA, btConvexShape objectB
+		internal void Initialize( btConvexShape objectA, btConvexShape objectB
 			, BroadphaseNativeTypes shapeTypeA, BroadphaseNativeTypes shapeTypeB, double marginA, double marginB
 			, btSimplexSolverInterface simplexSolver, btConvexPenetrationDepthSolver penetrationDepthSolver )
 		{
@@ -130,7 +134,7 @@ namespace Bullet.Collision.NarrowPhase
 			m_fixContactNormalDirection = ( 1 );
 		}
 
-		public override void getClosestPoints( btDiscreteCollisionDetectorInterface.ClosestPointInput input
+		internal override void getClosestPoints( btDiscreteCollisionDetectorInterface.ClosestPointInput input
 											, btDiscreteCollisionDetectorInterface.Result output
 											, btIDebugDraw debugDraw, bool swapResults = false )
 		{
@@ -142,7 +146,7 @@ namespace Bullet.Collision.NarrowPhase
 #if __SPU__
 void btGjkPairDetector::getClosestPointsNonVirtual(string losestPointInput& input,Result& output,btIDebugDraw debugDraw)
 #else
-		public virtual void getClosestPointsNonVirtual( btDiscreteCollisionDetectorInterface.ClosestPointInput input
+		internal  void getClosestPointsNonVirtual( btDiscreteCollisionDetectorInterface.ClosestPointInput input
 			, btDiscreteCollisionDetectorInterface.Result output, btIDebugDraw debugDraw )
 #endif
 		{
@@ -152,11 +156,11 @@ void btGjkPairDetector::getClosestPointsNonVirtual(string losestPointInput& inpu
 			btVector3 normalInB = btVector3.Zero;
 
 			btVector3 pointOnA, pointOnB = btVector3.Zero;
-			btITransform localTransA = input.m_transformA;
-			btITransform localTransB = input.m_transformB;
+			btTransform localTransA = input.m_transformA;
+			btTransform localTransB = input.m_transformB;
 			btVector3 originA, originB;
-			localTransB.getOrigin( out originB );
-			localTransA.getOrigin( out originA );
+			input.m_transformB.getOrigin( out originB );
+			input.m_transformA.getOrigin( out originA );
 			btVector3 positionOffset; originA.Add( ref originB, out positionOffset );
 			positionOffset.Mult( (double)( 0.5 ), out positionOffset );
 
@@ -216,8 +220,8 @@ void btGjkPairDetector::getClosestPointsNonVirtual(string losestPointInput& inpu
 					btVector3 pInA; m_minkowskiA.localGetSupportVertexWithoutMarginNonVirtual( ref seperatingAxisInA, out pInA );
 					btVector3 qInB; m_minkowskiB.localGetSupportVertexWithoutMarginNonVirtual( ref seperatingAxisInB, out qInB );
 
-					btVector3 pWorld; localTransA.Apply( ref pInA, out pWorld );
-					btVector3 qWorld; localTransB.Apply( ref qInB, out qWorld );
+					btVector3 pWorld; input.m_transformA.Apply( ref pInA, out pWorld );
+					btVector3 qWorld; input.m_transformB.Apply( ref qInB, out qWorld );
 
 
 					if( check2d )
@@ -401,7 +405,7 @@ void btGjkPairDetector::getClosestPointsNonVirtual(string losestPointInput& inpu
 						bool isValid2 = m_penetrationDepthSolver.calcPenDepth(
 							m_simplexSolver,
 							m_minkowskiA, m_minkowskiB,
-							localTransA, localTransB,
+							ref input.m_transformA, ref input.m_transformB,
 							ref m_cachedSeparatingAxis, out tmpPointOnA, out tmpPointOnB,
 							debugDraw
 							);

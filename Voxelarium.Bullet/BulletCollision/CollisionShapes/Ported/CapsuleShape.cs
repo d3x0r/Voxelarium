@@ -54,8 +54,8 @@ namespace Bullet.Collision.Shapes
 
 			halfExtents.Add( ref tmp, out halfExtents );
 
-			btMatrix3x3 abs_b = t.getBasis().absolute();
-			btVector3 center = t.getOrigin();
+			btMatrix3x3 abs_b; t.m_basis.absolute( out abs_b );
+			btVector3 center = t.m_origin;
 			btVector3 extent; halfExtents.dot3( ref abs_b.m_el0, ref abs_b.m_el1, ref abs_b.m_el2, out extent );
 
 			center.Sub( ref extent, out aabbMin );

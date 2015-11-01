@@ -91,7 +91,7 @@ namespace Bullet.Collision.Dispatch
 
 		internal btDispatcherInfo m_dispatchInfo;
 
-		protected btBroadphaseInterface m_broadphasePairCache;
+		internal btBroadphaseInterface m_broadphasePairCache;
 
 		protected btIDebugDraw m_debugDrawer;
 
@@ -115,23 +115,23 @@ namespace Bullet.Collision.Dispatch
 
 		//virtual ~btCollisionWorld();
 
-		public void setBroadphase( btBroadphaseInterface pairCache )
+		internal void setBroadphase( btBroadphaseInterface pairCache )
 		{
 			m_broadphasePairCache = pairCache;
 		}
 
-		public btBroadphaseInterface getBroadphase()
+		internal btBroadphaseInterface getBroadphase()
 		{
 			return m_broadphasePairCache;
 		}
 
-		public btOverlappingPairCache getPairCache()
+		internal btOverlappingPairCache getPairCache()
 		{
 			return m_broadphasePairCache.getOverlappingPairCache();
 		}
 
 
-		public btDispatcher getDispatcher()
+		internal btDispatcher getDispatcher()
 		{
 			return m_dispatcher1;
 		}
@@ -219,7 +219,9 @@ namespace Bullet.Collision.Dispatch
 
 		public class ClosestRayResultCallback : RayResultCallback
 		{
-			public ClosestRayResultCallback( ref btVector3 rayFromWorld, ref btVector3 rayToWorld )
+			public ClosestRayResultCallback() { }
+
+			public void Initiailize( ref btVector3 rayFromWorld, ref btVector3 rayToWorld )
 			{
 				m_rayFromWorld = ( rayFromWorld );
 				m_rayToWorld = ( rayToWorld );
@@ -349,21 +351,22 @@ namespace Bullet.Collision.Dispatch
 			public abstract double addSingleResult( ref LocalConvexResult convexResult, bool normalInWorldSpace );
 		};
 
-		public class ClosestConvexResultCallback : ConvexResultCallback
+		internal class ClosestConvexResultCallback : ConvexResultCallback
 		{
-			public ClosestConvexResultCallback( ref btVector3 convexFromWorld, ref btVector3 convexToWorld )
+			public ClosestConvexResultCallback() { }
+			public void Initialize( ref btVector3 convexFromWorld, ref btVector3 convexToWorld )
 			{
 				m_convexFromWorld = ( convexFromWorld );
 				m_convexToWorld = ( convexToWorld );
 				m_hitCollisionObject = null;
 			}
 
-			btVector3 m_convexFromWorld;//used to calculate hitPointWorld from hitFraction
-			btVector3 m_convexToWorld;
+			internal btVector3 m_convexFromWorld;//used to calculate hitPointWorld from hitFraction
+			internal btVector3 m_convexToWorld;
 
-			btVector3 m_hitNormalWorld;
-			btVector3 m_hitPointWorld;
-			btCollisionObject m_hitCollisionObject;
+			internal btVector3 m_hitNormalWorld;
+			internal btVector3 m_hitPointWorld;
+			internal btCollisionObject m_hitCollisionObject;
 
 			public override double addSingleResult( ref LocalConvexResult convexResult, bool normalInWorldSpace )
 			{
@@ -417,7 +420,7 @@ namespace Bullet.Collision.Dispatch
 		}
 
 
-		btCollisionObjectArray getCollisionObjectArray()
+		internal btCollisionObjectArray getCollisionObjectArray()
 		{
 			return m_collisionObjects;
 		}

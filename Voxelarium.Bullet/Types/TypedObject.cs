@@ -27,7 +27,8 @@ namespace Bullet.Types
 	///rudimentary class to provide type info
 	public class btTypedObject
 	{
-		internal btTypedObject( btObjectTypes objectType )
+		public btTypedObject() { }
+		internal void Initialize( btObjectTypes objectType )
 		{
 			m_objectType = objectType;
 		}

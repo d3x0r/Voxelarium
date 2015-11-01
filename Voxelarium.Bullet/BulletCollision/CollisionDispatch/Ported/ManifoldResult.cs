@@ -28,7 +28,7 @@ namespace Bullet.Collision.Dispatch
 
 
 	///btManifoldResult is a helper class to manage  contact results.
-	public class btManifoldResult : btDiscreteCollisionDetectorInterface.Result
+	internal class btManifoldResult : btDiscreteCollisionDetectorInterface.Result
 	{
 		static double MAX_FRICTION = (double)( 10.0 );
 		static ContactAddedCallback gContactAddedCallback = null;
@@ -145,7 +145,7 @@ namespace Bullet.Collision.Dispatch
 
 
 		///User can override this material combiner by implementing gContactAddedCallback and setting body0.m_collisionFlags |= btCollisionObject::customMaterialCallback;
-		public virtual double calculateCombinedFriction( btCollisionObject body0, btCollisionObject body1 )
+		public static double calculateCombinedFriction( btCollisionObject body0, btCollisionObject body1 )
 		{
 			double friction = body0.getFriction() * body1.getFriction();
 
@@ -157,14 +157,14 @@ namespace Bullet.Collision.Dispatch
 
 		}
 
-		public double calculateCombinedRestitution( btCollisionObject body0, btCollisionObject body1 )
+		public static double calculateCombinedRestitution( btCollisionObject body0, btCollisionObject body1 )
 		{
 			return body0.getRestitution() * body1.getRestitution();
 		}
 
 
 
-		public btManifoldResult( btCollisionObjectWrapper body0Wrap, btCollisionObjectWrapper body1Wrap )
+		internal void Initialize( btCollisionObjectWrapper body0Wrap, btCollisionObjectWrapper body1Wrap )
 		{
 			m_manifoldPtr = null;
 			m_body0Wrap = ( body0Wrap );

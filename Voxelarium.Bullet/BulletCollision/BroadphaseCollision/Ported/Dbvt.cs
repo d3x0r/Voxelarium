@@ -631,7 +631,7 @@ namespace Bullet.Collision.BroadPhase
 		}
 
 
-		public void rayTestInternal( btDbvtNode root,
+		public static void rayTestInternal( btDbvtNode root,
 									ref btVector3 rayFrom,
 									ref btVector3 rayTo,
 									ref btVector3 rayDirectionInverse,
@@ -716,14 +716,13 @@ namespace Bullet.Collision.BroadPhase
 		}
 
 		//
-		public static btDbvtVolume Bounds( btList<btDbvtNode> leafs )
+		public static void Bounds( btList<btDbvtNode> leafs, out btDbvtVolume volume )
 		{
-			btDbvtVolume volume = leafs[0].volume;
-			for( int i = 1, ni = leafs.Count; i < ni; ++i )
+			volume = leafs[0].volume;
+			foreach( btDbvtNode node in leafs )
 			{
-				btDbvtVolume.Merge( ref volume, ref leafs[i].volume, ref volume );
+				btDbvtVolume.Merge( ref volume, ref node.volume, out volume );
 			}
-			return ( volume );
 		}
 
 
@@ -771,7 +770,7 @@ namespace Bullet.Collision.BroadPhase
 			{
 				if( leaves.Count > bu_treshold )
 				{
-					btDbvtVolume vol = Bounds( leaves );
+					btDbvtVolume vol; Bounds( leaves, out vol );
 					btVector3 org = vol.Center();
 					btList<btDbvtNode>[] sets = { new btList<btDbvtNode>(), new btList<btDbvtNode>() };
 					int bestaxis = -1;
@@ -910,7 +909,7 @@ namespace Bullet.Collision.BroadPhase
 									Object data )
 		{
 			btDbvtNode node = CreateNode( pdbvt, parent, data );
-			btDbvtVolume.Merge( ref volume0, ref volume1, ref node.volume );
+			btDbvtVolume.Merge( ref volume0, ref volume1, out node.volume );
 			return ( node );
 		}
 
@@ -972,7 +971,7 @@ namespace Bullet.Collision.BroadPhase
 					{
 						if( !prev.volume.Contain( ref node.volume ) )
 						{
-							btDbvtVolume.Merge( ref prev._children[0].volume, ref prev._children[1].volume, ref prev.volume );
+							btDbvtVolume.Merge( ref prev._children[0].volume, ref prev._children[1].volume, out prev.volume );
 						}
 						else
 						{
@@ -1014,7 +1013,7 @@ namespace Bullet.Collision.BroadPhase
 					while( prev != null )
 					{
 						btDbvtVolume pb = prev.volume;
-						btDbvtVolume.Merge( ref prev._children[0].volume, ref prev._children[1].volume, ref prev.volume );
+						btDbvtVolume.Merge( ref prev._children[0].volume, ref prev._children[1].volume, out prev.volume );
 						if( btDbvtVolume.NotEqual( ref pb, ref prev.volume ) )
 						{
 							sibling = prev;

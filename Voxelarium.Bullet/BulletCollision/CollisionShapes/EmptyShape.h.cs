@@ -13,16 +13,7 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#if ! BT_EMPTY_SHAPE_H
-#define BT_EMPTY_SHAPE_H
-
-#include "btConcaveShape.h"
-
-#include "LinearMath/btVector3.h"
-#include "LinearMath/btTransform.h"
-#include "LinearMath/btMatrix3x3.h"
-#include "btCollisionMargin.h"
-
+namespace Bullet.Collision.Shapes {
 
 
 
@@ -30,7 +21,7 @@ subject to the following restrictions:
 /// It can be replaced by another shape during runtime, but the inertia tensor should be recomputed.
 internal class btEmptyShape	: btConcaveShape
 {
-public:
+public 
 	
 	
 	btEmptyShape();
@@ -42,11 +33,11 @@ public:
 	void getAabb(ref btTransform t,ref btVector3 aabbMin,ref btVector3 aabbMax);
 
 
-	virtual void	setLocalScaling(ref btVector3 scaling)
+		public virtual void	setLocalScaling(ref btVector3 scaling)
 	{
 		m_localScaling = scaling;
 	}
-	virtual ref btVector3 getLocalScaling() string 	{
+	virtual ref btVector3 getLocalScaling() { 	{
 		return m_localScaling;
 	}
 
@@ -67,5 +58,4 @@ protected:
 };
 
 
-
-#endif //BT_EMPTY_SHAPE_H
+}

@@ -191,7 +191,7 @@ namespace Bullet.Dynamics
 
 		public void predictIntegratedTransform( double timeStep, out btTransform predictedTransform )
 		{
-			btTransformUtil.integrateTransform( m_worldTransform, ref m_linearVelocity, ref m_angularVelocity, timeStep, out predictedTransform );
+			btTransformUtil.integrateTransform( m_worldTransform, m_linearVelocity,  m_angularVelocity, timeStep, out predictedTransform );
 		}
 
 		/// continuous collision detection needs prediction
@@ -305,7 +305,7 @@ namespace Bullet.Dynamics
 		}
 
 
-		void applyGravity()
+		internal void applyGravity()
 		{
 			if( isStaticOrKinematicObject() )
 				return;
@@ -314,7 +314,7 @@ namespace Bullet.Dynamics
 
 		}
 
-		public void proceedToTransform( ref btTransform newTrans )
+		internal void proceedToTransform( ref btTransform newTrans )
 		{
 			setCenterOfMassTransform( ref newTrans );
 		}
@@ -598,7 +598,7 @@ namespace Bullet.Dynamics
 
 
 
-		void addConstraintRef( btTypedConstraint c )
+		internal void addConstraintRef( btTypedConstraint c )
 		{
 			///disable collision with the 'other' body
 
@@ -847,6 +847,10 @@ namespace Bullet.Dynamics
 			result = m_invInertiaLocal;
 		}
 
+		public btIVector3 getInvInertiaDiagLocal( )
+		{
+			return m_invInertiaLocal;
+		}
 		public void setInvInertiaDiagLocal( ref btVector3 diagInvInertia )
 		{
 			m_invInertiaLocal = diagInvInertia;
@@ -921,6 +925,10 @@ namespace Bullet.Dynamics
 		public void getCenterOfMassTransform( out btTransform result )
 		{
 			result = m_worldTransform;
+		}
+		public btITransform getCenterOfMassTransform(  )
+		{
+			return m_worldTransform;
 		}
 		public void getLinearVelocity( out btVector3 result )
 		{

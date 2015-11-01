@@ -17,7 +17,6 @@ subject to the following restrictions:
 
 using System;
 using System.Diagnostics;
-using Bullet.BulletCollision;
 using Bullet.Collision.BroadPhase;
 using Bullet.Collision.NarrowPhase;
 using Bullet.Collision.Shapes;
@@ -38,7 +37,6 @@ namespace Bullet.Collision.Dispatch
 	///This idea was described by Gino van den Bergen in this forum topic http://www.bulletphysics.com/Bullet/phpBB3/viewtopic.php?f=4&t=288&p=888#p888
 	internal class btConvexConvexAlgorithm : btActivatingCollisionAlgorithm
 	{
-
 
 		internal class btDummyResult : btDiscreteCollisionDetectorInterface.Result
 		{
@@ -102,10 +100,17 @@ namespace Bullet.Collision.Dispatch
 
 
 		///cache separating vector to speedup collision detection
+		internal override void Cleanup()
+		{
+			BulletGlobals.PersistentManifoldPool.Free( m_manifoldPtr );
+
+			m_simplexSolver = null;
+			m_pdSolver = null;
+			m_manifoldPtr = null;
+		}
 
 
-
-		public override void getAllContactManifolds( btManifoldArray manifoldArray )
+		internal override void getAllContactManifolds( btManifoldArray manifoldArray )
 		{
 			///should we use m_ownManifold to avoid adding duplicates?
 			if( m_manifoldPtr != null && m_ownManifold )
@@ -136,7 +141,9 @@ namespace Bullet.Collision.Dispatch
 
 			internal override btCollisionAlgorithm CreateCollisionAlgorithm( btCollisionAlgorithmConstructionInfo ci, btCollisionObjectWrapper body0Wrap, btCollisionObjectWrapper body1Wrap )
 			{
-				return new btConvexConvexAlgorithm( ci.m_manifold, ci, body0Wrap, body1Wrap, m_simplexSolver, m_pdSolver, m_numPerturbationIterations, m_minimumPointsPerturbationThreshold );
+				btConvexConvexAlgorithm ca = BulletGlobals.ConvexConvexAlgorithmPool.Get();
+				ca.Initialize( ci.m_manifold, ci, body0Wrap, body1Wrap, m_simplexSolver, m_pdSolver, m_numPerturbationIterations, m_minimumPointsPerturbationThreshold );
+				return ca;
 			}
 		};
 
@@ -271,10 +278,11 @@ namespace Bullet.Collision.Dispatch
 
 
 		//////////
+		public btConvexConvexAlgorithm() { }
 
-		public btConvexConvexAlgorithm( btPersistentManifold mf, btCollisionAlgorithmConstructionInfo ci, btCollisionObjectWrapper body0Wrap, btCollisionObjectWrapper body1Wrap, btSimplexSolverInterface simplexSolver, btConvexPenetrationDepthSolver pdSolver, int numPerturbationIterations, int minimumPointsPerturbationThreshold )
-			: base( ci, body0Wrap, body1Wrap )
+		public void Initialize( btPersistentManifold mf, btCollisionAlgorithmConstructionInfo ci, btCollisionObjectWrapper body0Wrap, btCollisionObjectWrapper body1Wrap, btSimplexSolverInterface simplexSolver, btConvexPenetrationDepthSolver pdSolver, int numPerturbationIterations, int minimumPointsPerturbationThreshold )
 		{
+			base.Initialize( ci, body0Wrap, body1Wrap );
 			m_simplexSolver = ( simplexSolver );
 			m_pdSolver = ( pdSolver );
 			m_ownManifold = ( false );
@@ -378,7 +386,7 @@ m_sepDistance((static_cast<btConvexShape*>(body0.getCollisionShape())).getAngula
 		//
 		// Convex-Convex collision algorithm
 		//
-		public override void processCollision( btCollisionObjectWrapper body0Wrap, btCollisionObjectWrapper body1Wrap
+		internal override void processCollision( btCollisionObjectWrapper body0Wrap, btCollisionObjectWrapper body1Wrap
 							, btDispatcherInfo dispatchInfo, btManifoldResult resultOut )
 		{
 
@@ -441,7 +449,8 @@ m_sepDistance((static_cast<btConvexShape*>(body0.getCollisionShape())).getAngula
 			{
 				btGjkPairDetector.ClosestPointInput input = new btDiscreteCollisionDetectorInterface.ClosestPointInput();
 
-				btGjkPairDetector gjkPairDetector = new btGjkPairDetector( min0, min1, m_simplexSolver, m_pdSolver );
+				btGjkPairDetector gjkPairDetector = BulletGlobals.GjkPairDetectorPool.Get();
+				gjkPairDetector.Initialize( min0, min1, m_simplexSolver, m_pdSolver );
 				//TODO: if (dispatchInfo.m_useContinuous)
 				gjkPairDetector.setMinkowskiA( min0 );
 				gjkPairDetector.setMinkowskiB( min1 );
@@ -464,8 +473,8 @@ m_sepDistance((static_cast<btConvexShape*>(body0.getCollisionShape())).getAngula
 					input.m_maximumDistanceSquared *= input.m_maximumDistanceSquared;
 				}
 
-				input.m_transformA = body0Wrap.getWorldTransform();
-				input.m_transformB = body1Wrap.getWorldTransform();
+				input.m_transformA = body0Wrap.m_worldTransform.T;
+				input.m_transformB = body1Wrap.m_worldTransform.T;
 
 
 
@@ -556,6 +565,7 @@ m_sepDistance((static_cast<btConvexShape*>(body0.getCollisionShape())).getAngula
 						{
 							resultOut.refreshContactPoints();
 						}
+						BulletGlobals.GjkPairDetectorPool.Free( gjkPairDetector );
 						return;
 
 					}
@@ -630,6 +640,7 @@ m_sepDistance((static_cast<btConvexShape*>(body0.getCollisionShape())).getAngula
 							{
 								resultOut.refreshContactPoints();
 							}
+							BulletGlobals.GjkPairDetectorPool.Free( gjkPairDetector );
 
 							return;
 						}
@@ -644,7 +655,7 @@ m_sepDistance((static_cast<btConvexShape*>(body0.getCollisionShape())).getAngula
 				//now perform 'm_numPerturbationIterations' collision queries with the perturbated collision objects
 
 				//perform perturbation when more then 'm_minimumPointsPerturbationThreshold' points
-				if( m_numPerturbationIterations != 0 
+				if( m_numPerturbationIterations != 0
 					&& resultOut.getPersistentManifold().getNumContacts() < m_minimumPointsPerturbationThreshold )
 				{
 
@@ -655,7 +666,7 @@ m_sepDistance((static_cast<btConvexShape*>(body0.getCollisionShape())).getAngula
 
 					if( l2 > btScalar.SIMD_EPSILON )
 					{
-						gjkPairDetector.getCachedSeparatingAxis().Mult(  ( 1 / l2 ), out sepNormalWorldSpace );
+						gjkPairDetector.getCachedSeparatingAxis().Mult( ( 1 / l2 ), out sepNormalWorldSpace );
 
 						btVector3.btPlaneSpace1( ref sepNormalWorldSpace, out v0, out v1 );
 
@@ -692,7 +703,7 @@ m_sepDistance((static_cast<btConvexShape*>(body0.getCollisionShape())).getAngula
 						{
 							if( v0.length2() > btScalar.SIMD_EPSILON )
 							{
-								btQuaternion perturbeRot = new btQuaternion(ref  v0, perturbeAngle );
+								btQuaternion perturbeRot = new btQuaternion( ref v0, perturbeAngle );
 								double iterationAngle = i * ( btScalar.SIMD_2_PI / (double)( m_numPerturbationIterations ) );
 								btQuaternion rotq = new btQuaternion( ref sepNormalWorldSpace, iterationAngle );
 
@@ -709,7 +720,7 @@ m_sepDistance((static_cast<btConvexShape*>(body0.getCollisionShape())).getAngula
 									btMatrix3x3 m3;
 									btMatrix3x3.Mult( ref m, ref m2, out m3 );
 									input.m_transformA.setBasis( ref m3 );
-									input.m_transformB = body1Wrap.getWorldTransform();
+									input.m_transformB = body1Wrap.getWorldTransform().T;
 #if DEBUG_CONTACTS
 					dispatchInfo.m_debugDraw.drawTransform(input.m_transformA,10.0);
 #endif //DEBUG_CONTACTS
@@ -726,7 +737,7 @@ m_sepDistance((static_cast<btConvexShape*>(body0.getCollisionShape())).getAngula
 									btMatrix3x3 m3;
 									btMatrix3x3.Mult( ref m, ref m2, out m3 );
 
-									input.m_transformA = body0Wrap.getWorldTransform();
+									input.m_transformA = body0Wrap.getWorldTransform().T;
 									input.m_transformB.setBasis( ref m3 );
 #if DEBUG_CONTACTS
 					dispatchInfo.m_debugDraw.drawTransform(input.m_transformB,10.0);
@@ -752,6 +763,7 @@ m_sepDistance((static_cast<btConvexShape*>(body0.getCollisionShape())).getAngula
 	}
 #endif //USE_SEPDISTANCE_UTIL2
 
+				BulletGlobals.GjkPairDetectorPool.Free( gjkPairDetector );
 
 			}
 
@@ -765,7 +777,7 @@ m_sepDistance((static_cast<btConvexShape*>(body0.getCollisionShape())).getAngula
 
 
 		bool disableCcd = false;
-		public override double calculateTimeOfImpact( btCollisionObject col0, btCollisionObject col1, btDispatcherInfo dispatchInfo, btManifoldResult resultOut )
+		internal override double calculateTimeOfImpact( btCollisionObject col0, btCollisionObject col1, btDispatcherInfo dispatchInfo, btManifoldResult resultOut )
 		{
 			//(void)resultOut;
 			//(void)dispatchInfo;
@@ -777,7 +789,7 @@ m_sepDistance((static_cast<btConvexShape*>(body0.getCollisionShape())).getAngula
 
 			btVector3 tmp;
 			col0.m_interpolationWorldTransform.m_origin.Sub( ref col0.m_worldTransform.m_origin, out tmp );
-            double squareMot0 = ( tmp ).length2();
+			double squareMot0 = ( tmp ).length2();
 			col1.m_interpolationWorldTransform.m_origin.Sub( ref col1.m_worldTransform.m_origin, out tmp );
 			double squareMot1 = ( tmp ).length2();
 
@@ -801,14 +813,15 @@ m_sepDistance((static_cast<btConvexShape*>(body0.getCollisionShape())).getAngula
 				btConvexShape convex0 = (btConvexShape)col0.getCollisionShape();
 
 				btSphereShape sphere1 = new btSphereShape( col1.getCcdSweptSphereRadius() ); //todo: allow non-zero sphere sizes, for better approximation
-				btConvexCast.CastResult result = BulletGlobals.CastResultPool.Get(); 
+				btConvexCast.CastResult result = BulletGlobals.CastResultPool.Get();
 				btVoronoiSimplexSolver voronoiSimplex = BulletGlobals.VoronoiSimplexSolverPool.Get();
 				//SubsimplexConvexCast ccd0(&sphere,min0,&voronoiSimplex);
 				///Simplification, one object is simplified as a sphere
-				btGjkConvexCast ccd1 = new btGjkConvexCast( convex0, sphere1,  voronoiSimplex);
+				btGjkConvexCast ccd1 = BulletGlobals.GjkConvexCastPool.Get();
+				ccd1.Initialize( convex0, sphere1, voronoiSimplex );
 				//ContinuousConvexCollision ccd(min0,min1,&voronoiSimplex,0);
-				if( ccd1.calcTimeOfImpact( ref col0.m_worldTransform, ref col0.m_interpolationWorldTransform,
-						ref col1.m_worldTransform, ref col1.m_interpolationWorldTransform, result ) )
+				if( ccd1.calcTimeOfImpact( col0.m_worldTransform, col0.m_interpolationWorldTransform,
+						col1.m_worldTransform, col1.m_interpolationWorldTransform, result ) )
 				{
 
 					//store result.m_fraction in both bodies
@@ -823,10 +836,7 @@ m_sepDistance((static_cast<btConvexShape*>(body0.getCollisionShape())).getAngula
 						resultFraction = result.m_fraction;
 
 				}
-
-
-
-
+				BulletGlobals.GjkConvexCastPool.Free( ccd1 );
 			}
 
 			/// Sphere (for convex0) against Convex1
@@ -838,10 +848,11 @@ m_sepDistance((static_cast<btConvexShape*>(body0.getCollisionShape())).getAngula
 				btVoronoiSimplexSolver voronoiSimplex = BulletGlobals.VoronoiSimplexSolverPool.Get();
 				//SubsimplexConvexCast ccd0(&sphere,min0,&voronoiSimplex);
 				///Simplification, one object is simplified as a sphere
-				btGjkConvexCast ccd1 = new btGjkConvexCast( sphere0, convex1, voronoiSimplex );
+				btGjkConvexCast ccd1 = BulletGlobals.GjkConvexCastPool.Get();
+				ccd1.Initialize( sphere0, convex1, voronoiSimplex );
 				//ContinuousConvexCollision ccd(min0,min1,&voronoiSimplex,0);
-				if( ccd1.calcTimeOfImpact( ref col0.m_worldTransform, ref col0.m_interpolationWorldTransform,
-							ref col1.m_worldTransform, ref col1.m_interpolationWorldTransform, result ) )
+				if( ccd1.calcTimeOfImpact( col0.m_worldTransform, col0.m_interpolationWorldTransform,
+							col1.m_worldTransform, col1.m_interpolationWorldTransform, result ) )
 				{
 					//store result.m_fraction in both bodies
 
@@ -854,9 +865,10 @@ m_sepDistance((static_cast<btConvexShape*>(body0.getCollisionShape())).getAngula
 					if( resultFraction > result.m_fraction )
 						resultFraction = result.m_fraction;
 				}
+				BulletGlobals.GjkConvexCastPool.Free( ccd1 );
 			}
-
 			return resultFraction;
+
 		}
 	};
 

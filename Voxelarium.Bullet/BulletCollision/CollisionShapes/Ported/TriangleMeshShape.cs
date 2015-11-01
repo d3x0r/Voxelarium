@@ -119,7 +119,7 @@ namespace Bullet.Collision.Shapes
 				m_supportVecLocal = supportVecWorld * m_worldTrans.getBasis();
 			}
 
-			public override void processTriangle( btVector3[] triangle, int partId, int triangleIndex )
+			public void processTriangle( btVector3[] triangle, int partId, int triangleIndex )
 			{
 				for( int i = 0; i < 3; i++ )
 				{
@@ -176,7 +176,7 @@ namespace Bullet.Collision.Shapes
 				m_aabbMax = ( aabbMax );
 			}
 
-			public override void internalProcessTriangleIndex( btVector3[] triangle, int partId, int triangleIndex )
+			internal override void internalProcessTriangleIndex( btVector3[] triangle, int partId, int triangleIndex )
 			{
 				if( btAabbUtil.TestTriangleAgainstAabb2( triangle, m_aabbMin, m_aabbMax ) )
 				{
@@ -189,7 +189,7 @@ namespace Bullet.Collision.Shapes
 		};
 
 
-		public override void processAllTriangles( btTriangleCallback callback, ref btVector3 aabbMin, ref btVector3 aabbMax )
+		internal override void processAllTriangles( btTriangleCallback callback, ref btVector3 aabbMin, ref btVector3 aabbMax )
 		{
 			FilteredCallback filterCallback = new FilteredCallback( callback, aabbMin, aabbMax );
 

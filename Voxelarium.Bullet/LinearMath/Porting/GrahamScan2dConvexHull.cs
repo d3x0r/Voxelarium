@@ -29,7 +29,7 @@ namespace Bullet.LinearMath
 		public GrahamVector3( ref btVector3 org, int orgIndex )
 		{
 			v = org;
-			m_orgIndex = orgIndex;
+			m_orgIndex = (short)orgIndex;
 		}
 
 		public struct btAngleCompareFunc : IComparer<GrahamVector3>

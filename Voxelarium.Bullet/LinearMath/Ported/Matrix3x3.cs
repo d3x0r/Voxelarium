@@ -31,6 +31,9 @@ namespace Bullet.LinearMath
 		 * @param q The Quaternion to match */
 		void setRotation( ref btQuaternion q );
 
+		void setValue( double xx, double xy, double xz,
+			double yx, double yy, double yz,
+			double zx, double zy, double zz );
 
 		/* @brief Set the matrix from euler angles using YPR around YXZ respectively
 		 * @param yaw Yaw about Y axis
@@ -641,6 +644,54 @@ namespace Bullet.LinearMath
 			}
 		}
 
+#if false
+
+	static double btGetMatrixElem( ref btMatrix3x3 mat, int index )
+	{
+		int i = index % 3;
+		int j = index / 3;
+		return mat[i][j];
+	}
+
+
+		// method 2 - found in 6dof constraint
+		///MatrixToEulerXYZ from http://www.geometrictools.com/LibFoundation/Mathematics/Wm4Matrix3.inl.html
+		static bool matrixToEulerXYZ( btMatrix3x3& mat, ref btVector3 xyz )
+		{
+			//	// rot =  cy*cz          -cy*sz           sy
+			//	//        cz*sx*sy+cx*sz  cx*cz-sx*sy*sz -cy*sx
+			//	//       -cx*cz*sy+sx*sz  cz*sx+cx*sy*sz  cx*cy
+			//
+
+			double fi = btGetMatrixElem( mat, 2 );
+			if( fi < (double)( 1.0f ) )
+			{
+				if( fi > (double)( -1.0f ) )
+				{
+					xyz[0] = btAtan2( -btGetMatrixElem( mat, 5 ), btGetMatrixElem( mat, 8 ) );
+					xyz[1] = btAsin( btGetMatrixElem( mat, 2 ) );
+					xyz[2] = btAtan2( -btGetMatrixElem( mat, 1 ), btGetMatrixElem( mat, 0 ) );
+					return true;
+				}
+				else
+				{
+					// WARNING.  Not unique.  XA - ZA = -atan2(r10,r11)
+					xyz[0] = -btAtan2( btGetMatrixElem( mat, 3 ), btGetMatrixElem( mat, 4 ) );
+					xyz[1] = -SIMD_HALF_PI;
+					xyz[2] = (double)( 0.0 );
+					return false;
+				}
+			}
+			else
+			{
+				// WARNING.  Not unique.  XAngle + ZAngle = atan2(r10,r11)
+				xyz[0] = btAtan2( btGetMatrixElem( mat, 3 ), btGetMatrixElem( mat, 4 ) );
+				xyz[1] = SIMD_HALF_PI;
+				xyz[2] = 0.0;
+			}
+			return false;
+		}
+#endif
 
 		struct Euler
 		{
@@ -648,10 +699,16 @@ namespace Bullet.LinearMath
 			internal double pitch;
 			internal double roll;
 		};
+
+		public void getEulerXYZ( out btVector3 result )
+		{
+			result.w = 0;
+			getEulerYPR( out result.y, out result.x, out result.z );
+		}
 		/*@brief Get the matrix represented as euler angles around ZYX
-		 @param yaw Yaw around X axis
-		 @param pitch Pitch around Y axis
-		 @param roll around X axis 
+		 @param yaw Yaw around Y axis
+		 @param pitch Pitch around X axis
+		 @param roll around Z axis 
 		 @param solution_number Which solution of two possible solutions ( 1 or 2) are possible values*/
 		public void getEulerZYX( out double yaw, out double pitch, out double roll, int solution_number = 1 )
 		{
@@ -1023,9 +1080,9 @@ namespace Bullet.LinearMath
 				{
 					btVector3 co = new btVector3( cofac( 1, 1, 2, 2 ), cofac( 1, 2, 2, 0 ), cofac( 1, 0, 2, 1 ) );
 					double det = m_el0.dot( ref co );
-		#if PARANOID_ASSERTS
+#if PARANOID_ASSERTS
 					Debug.Assert( det != 0 );
-		#endif
+#endif
 					double s = 1.0 / det;
 					return new btMatrix3x3( co.x * s, cofac( 0, 2, 2, 1 ) * s, cofac( 0, 1, 1, 2 ) * s,
 							co.y * s, cofac( 0, 0, 2, 2 ) * s, cofac( 0, 2, 1, 0 ) * s,

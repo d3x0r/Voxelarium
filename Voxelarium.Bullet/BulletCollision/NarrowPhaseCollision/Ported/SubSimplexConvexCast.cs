@@ -44,19 +44,14 @@ namespace Bullet.Collision.NarrowPhase
 			m_convexA = ( convexA );
 			m_convexB = ( convexB );
 		}
-		public btSubsimplexConvexCast (btConvexShape convexA, btConvexShape convexB,btSimplexSolverInterface simplexSolver)
-		{
-			m_simplexSolver = ( simplexSolver);
-			m_convexA = ( convexA);
-			m_convexB = ( convexB);
-        }
+
 
 		///SimsimplexConvexCast calculateTimeOfImpact calculates the time of impact+normal for the linear cast (sweep) between two moving objects.
 		///Precondition is that objects should not penetration/overlap at the start from the interval. Overlap can be tested using btGjkPairDetector.
 		/// 
 		///Typically the conservative advancement reaches solution in a few iterations, clip it to 32 for degenerate cases.
 		///See discussion about this here http://continuousphysics.com/Bullet/phpBB2/viewtopic.php?t=565
-		public override bool calcTimeOfImpact(
+		internal override bool calcTimeOfImpact(
 				btITransform fromA,
 				btITransform toA,
 				btITransform fromB,

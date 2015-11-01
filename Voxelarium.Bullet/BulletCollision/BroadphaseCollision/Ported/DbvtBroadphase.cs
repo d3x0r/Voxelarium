@@ -57,7 +57,7 @@ namespace Bullet.Collision.BroadPhase
 	///The btDbvtBroadphase implements a broadphase using two dynamic AABB bounding volume hierarchies/trees (see btDbvt).
 	///One tree is used for static/non-moving objects, and another tree is used for dynamic objects. Objects can move from one tree to the other.
 	///This is a very fast broadphase, especially for very dynamic worlds where many objects are moving. Its insert/add and remove of objects is generally faster than the sweep and prune broadphases btAxisSweep3 and bt32BitAxisSweep3.
-	internal class btDbvtBroadphase : btBroadphaseInterface
+	internal class btDbvtBroadphase : btBroadphaseDefault
 	{
 #if DBVT_BP_PROFILE
 	const int DBVT_BP_PROFILING_RAT =256;
@@ -100,8 +100,6 @@ namespace Bullet.Collision.BroadPhase
 		/* Methods		*/
 
 #if asdfasdf
-		btDbvtBroadphase(btOverlappingPairCache* paircache=0);
-	~btDbvtBroadphase();
 	void							collide(btDispatcher dispatcher);
 	void							optimize();
 	
@@ -164,7 +162,8 @@ namespace Bullet.Collision.BroadPhase
 		{
 			internal btDbvtBroadphase pbp;
 			internal btDbvtProxy proxy;
-			internal btDbvtTreeCollider( btDbvtBroadphase p ) { pbp = p; }
+			public btDbvtTreeCollider() { }
+            internal void Initialize( btDbvtBroadphase p ) { pbp = p; }
 			public override void Process( btDbvtNode na, btDbvtNode nb )
 			{
 				if( na != nb )
@@ -190,7 +189,7 @@ namespace Bullet.Collision.BroadPhase
 		//
 
 		//
-		internal btDbvtBroadphase( btOverlappingPairCache paircache )
+		internal btDbvtBroadphase( btOverlappingPairCache paircache = null )
 		{
 			m_deferedcollide = false;
 			m_needcleanup = true;
@@ -230,7 +229,7 @@ namespace Bullet.Collision.BroadPhase
 		}
 
 		//
-		public  btBroadphaseProxy createProxy( ref btVector3 aabbMin,
+		public override btBroadphaseProxy createProxy( ref btVector3 aabbMin,
 																	  ref btVector3 aabbMax,
 																	  BroadphaseNativeTypes shapeType,
 																	  object userPtr,
@@ -253,16 +252,18 @@ namespace Bullet.Collision.BroadPhase
 			//listappend( proxy, m_stageRoots[m_stageCurrent] );
 			if( !m_deferedcollide )
 			{
-				btDbvtTreeCollider collider = new btDbvtTreeCollider( this );
+				btDbvtTreeCollider collider = BulletGlobals.DbvtTreeColliderPool.Get();
+				collider.Initialize( this );
 				collider.proxy = proxy;
 				btDbvt.CollideTV( m_sets[0].m_root, ref aabb, collider );
 				btDbvt.CollideTV( m_sets[1].m_root, ref aabb, collider );
+				BulletGlobals.DbvtTreeColliderPool.Free( collider );
 			}
 			return ( proxy );
 		}
 
 		//
-		public void destroyProxy( btBroadphaseProxy absproxy,
+		public override void destroyProxy( btBroadphaseProxy absproxy,
 																	   btDispatcher dispatcher )
 		{
 			btDbvtProxy proxy = (btDbvtProxy)absproxy;
@@ -277,7 +278,7 @@ namespace Bullet.Collision.BroadPhase
 			m_needcleanup = true;
 		}
 
-		public void getAabb( btBroadphaseProxy absproxy, ref btVector3 aabbMin, ref btVector3 aabbMax )
+		public override void getAabb( btBroadphaseProxy absproxy, ref btVector3 aabbMin, ref btVector3 aabbMax )
 		{
 			btDbvtProxy proxy = (btDbvtProxy)absproxy;
 			aabbMin = proxy.m_aabbMin;
@@ -287,7 +288,8 @@ namespace Bullet.Collision.BroadPhase
 		internal class BroadphaseRayTester : DefaultCollide, btDbvt.ICollide
 		{
 			btBroadphaseRayCallback m_rayCallback;
-			internal BroadphaseRayTester( btBroadphaseRayCallback orgCallback)
+			public BroadphaseRayTester() { }
+			internal void Initialize( btBroadphaseRayCallback orgCallback)
 			{
 				m_rayCallback = ( orgCallback );
             }
@@ -298,12 +300,13 @@ namespace Bullet.Collision.BroadPhase
 			}
 		};
 
-		public void rayTest( ref btVector3 rayFrom, ref btVector3 rayTo, btBroadphaseRayCallback rayCallback
+		public override void rayTest( ref btVector3 rayFrom, ref btVector3 rayTo, btBroadphaseRayCallback rayCallback
 			, ref btVector3 aabbMin, ref btVector3 aabbMax )
 		{
-			BroadphaseRayTester callback = new BroadphaseRayTester( rayCallback );
+			BroadphaseRayTester callback = BulletGlobals.BroadphaseRayTesterPool.Get();
+			callback.Initialize( rayCallback );
 
-			m_sets[0].rayTestInternal( m_sets[0].m_root,
+			btDbvt.rayTestInternal( m_sets[0].m_root,
 				ref rayFrom,
 				ref rayTo,
 				ref rayCallback.m_rayDirectionInverse,
@@ -313,7 +316,7 @@ namespace Bullet.Collision.BroadPhase
 				ref aabbMax,
 				callback );
 
-			m_sets[1].rayTestInternal( m_sets[1].m_root,
+			btDbvt.rayTestInternal( m_sets[1].m_root,
 				ref rayFrom,
 				ref rayTo,
 				ref rayCallback.m_rayDirectionInverse,
@@ -323,6 +326,7 @@ namespace Bullet.Collision.BroadPhase
 				ref aabbMax,
 				callback );
 
+			BulletGlobals.BroadphaseRayTesterPool.Free( callback );
 		}
 
 
@@ -340,7 +344,7 @@ namespace Bullet.Collision.BroadPhase
 			}
 		};
 
-		public void aabbTest( ref btVector3 aabbMin, ref btVector3 aabbMax, btBroadphaseAabbCallback aabbCallback)
+		public override void aabbTest( ref btVector3 aabbMin, ref btVector3 aabbMax, btBroadphaseAabbCallback aabbCallback)
 		{
 			BroadphaseAabbTester callback = new BroadphaseAabbTester( aabbCallback );
 
@@ -354,7 +358,7 @@ namespace Bullet.Collision.BroadPhase
 
 
 		//
-		public void setAabb( btBroadphaseProxy absproxy,
+		public override void setAabb( btBroadphaseProxy absproxy,
 																  ref btVector3 aabbMin,
 																  ref btVector3 aabbMax,
 																  btDispatcher dispatcher )
@@ -414,9 +418,11 @@ namespace Bullet.Collision.BroadPhase
 					m_needcleanup = true;
 					if( !m_deferedcollide )
 					{
-						btDbvtTreeCollider collider = new btDbvtTreeCollider( this );
+						btDbvtTreeCollider collider = BulletGlobals.DbvtTreeColliderPool.Get();
+						collider.Initialize( this );
 						btDbvt.CollideTTpersistentStack( m_sets[1].m_root, proxy.leaf, collider );
 						btDbvt.CollideTTpersistentStack( m_sets[0].m_root, proxy.leaf, collider );
+						BulletGlobals.DbvtTreeColliderPool.Free(collider);
 					}
 				}
 			}
@@ -462,15 +468,17 @@ namespace Bullet.Collision.BroadPhase
 				m_needcleanup = true;
 				if( !m_deferedcollide )
 				{
-					btDbvtTreeCollider collider = new btDbvtTreeCollider( this );
+					btDbvtTreeCollider collider = BulletGlobals.DbvtTreeColliderPool.Get();
+					collider.Initialize( this );
 					btDbvt.CollideTTpersistentStack( m_sets[1].m_root, proxy.leaf, collider );
 					btDbvt.CollideTTpersistentStack( m_sets[0].m_root, proxy.leaf, collider );
+					BulletGlobals.DbvtTreeColliderPool.Free( collider );
 				}
 			}
 		}
 
 		//
-		public void calculateOverlappingPairs( btDispatcher dispatcher )
+		public override void calculateOverlappingPairs( btDispatcher dispatcher )
 		{
 			collide( dispatcher );
 #if DBVT_BP_PROFILE
@@ -556,7 +564,7 @@ namespace Bullet.Collision.BroadPhase
 
 					if( needsRemoval )
 					{
-						m_paircache.cleanOverlappingPair( ref pair, dispatcher );
+						m_paircache.cleanOverlappingPair( pair, dispatcher );
 						pair.m_pProxy0 = null;
 						pair.m_pProxy1 = null;
 						invalidPair++;
@@ -603,7 +611,8 @@ namespace Bullet.Collision.BroadPhase
 			btDbvtProxy current = m_stageRoots[m_stageCurrent].First.Value;
 			if( current != null )
 			{
-				btDbvtTreeCollider collider = new btDbvtTreeCollider( this );
+				btDbvtTreeCollider collider = BulletGlobals.DbvtTreeColliderPool.Get();
+				collider.Initialize( this );
 				do
 				{
 					btDbvtProxy next = current.links[1];
@@ -625,10 +634,12 @@ namespace Bullet.Collision.BroadPhase
 				} while( current != null );
 				m_fixedleft = m_sets[1].m_leaves;
 				m_needcleanup = true;
+				BulletGlobals.DbvtTreeColliderPool.Free( collider );
 			}
 			/* collide dynamics		*/
 			{
-				btDbvtTreeCollider collider = new btDbvtTreeCollider( this );
+				btDbvtTreeCollider collider = BulletGlobals.DbvtTreeColliderPool.Get();
+				collider.Initialize( this );
 				if( m_deferedcollide )
 				{
 					//SPC( m_profiling.m_fdcollide );
@@ -639,6 +650,7 @@ namespace Bullet.Collision.BroadPhase
 					//SPC( m_profiling.m_ddcollide );
 					btDbvt.CollideTTpersistentStack( m_sets[0].m_root, m_sets[0].m_root, collider );
 				}
+				BulletGlobals.DbvtTreeColliderPool.Free( collider );
 			}
 			/* clean up				*/
 			if( m_needcleanup )
@@ -686,13 +698,13 @@ namespace Bullet.Collision.BroadPhase
 		}
 
 		//
-		public btOverlappingPairCache getOverlappingPairCache()
+		public override btOverlappingPairCache getOverlappingPairCache()
 		{
 			return ( m_paircache );
 		}
 
 		//
-		public void getBroadphaseAabb( out btVector3 aabbMin, out btVector3 aabbMax )
+		public override void getBroadphaseAabb( out btVector3 aabbMin, out btVector3 aabbMax )
 		{
 
 			btDbvtVolume   bounds;
@@ -710,7 +722,7 @@ namespace Bullet.Collision.BroadPhase
 			aabbMax = bounds.Maxs();
 		}
 
-		public void resetPool( btDispatcher dispatcher )
+		public override void resetPool( btDispatcher dispatcher )
 		{
 
 			int totalObjects = m_sets[0].m_leaves + m_sets[1].m_leaves;
@@ -743,7 +755,7 @@ namespace Bullet.Collision.BroadPhase
 		}
 
 		//
-		public void printStats()
+		public override void printStats()
 		{ }
 
 		//

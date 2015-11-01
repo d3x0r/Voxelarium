@@ -16,7 +16,7 @@ subject to the following restrictions:
 using Bullet.Collision.Dispatch;
 using Bullet.LinearMath;
 
-namespace Bullet.Dynamics.Charactr
+namespace Bullet.Dynamics.Character
 {
 
 	public interface btCharacterControllerInterface : btActionInterface

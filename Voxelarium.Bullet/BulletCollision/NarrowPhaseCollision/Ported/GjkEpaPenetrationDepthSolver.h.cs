@@ -31,7 +31,7 @@ namespace Bullet.Collision.NarrowPhase
 		internal override bool calcPenDepth( btSimplexSolverInterface simplexSolver,
 											btConvexShape pConvexA, btConvexShape pConvexB,
 											ref btTransform transformA, ref btTransform transformB,
-											ref btVector3 v, ref btVector3 wWitnessOnA, ref btVector3 wWitnessOnB,
+											ref btVector3 v, out btVector3 wWitnessOnA, out btVector3 wWitnessOnB,
 											btIDebugDraw debugDraw )
 		{
 
@@ -41,33 +41,34 @@ namespace Bullet.Collision.NarrowPhase
 
 			//	double				radialmargin(btScalar.BT_ZERO);
 
-			btVector3 guessVector( transformB.getOrigin() - transformA.getOrigin() );
+			btVector3 guessVector; transformB.m_origin.Sub( ref transformA.m_origin, out guessVector );
 			btGjkEpaSolver2.sResults results;
 
 
-			if( btGjkEpaSolver2::Penetration( pConvexA, transformA,
-										pConvexB, transformB,
-										guessVector, results ) )
+			if( btGjkEpaSolver2.Penetration( pConvexA, ref transformA,
+										pConvexB, ref transformB,
+										ref guessVector, out results ) )
 
 			{
 				//	debugDraw.drawLine(results.witnesses[1],results.witnesses[1]+results.normal,btVector3(255,0,0));
 				//resultOut.addContactPoint(results.normal,results.witnesses[1],-results.depth);
-				wWitnessOnA = results.witnesses[0];
-				wWitnessOnB = results.witnesses[1];
+				wWitnessOnA = results.witness0;
+				wWitnessOnB = results.witness1;
 				v = results.normal;
 				return true;
 			}
 			else
 			{
-				if( btGjkEpaSolver2.Distance( pConvexA, transformA, pConvexB, transformB, guessVector, results ) )
+				if( btGjkEpaSolver2.Distance( pConvexA, ref transformA, pConvexB, ref transformB, ref guessVector, out results ) )
 				{
-					wWitnessOnA = results.witnesses[0];
-					wWitnessOnB = results.witnesses[1];
+					wWitnessOnA = results.witness0;
+					wWitnessOnB = results.witness1;
 					v = results.normal;
 					return false;
 				}
 			}
-
+			wWitnessOnA = results.witness0;
+			wWitnessOnB = results.witness1;
 			return false;
 		}
 
