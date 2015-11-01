@@ -7,8 +7,6 @@ namespace Voxelarium.Core.Support
 {
 	public struct HighPerfTimer
 	{
-		long StartTime;
-		long EndTime;
 		long Result;
 		System.Diagnostics.Stopwatch sw;
 		static Stopwatch core = new Stopwatch();
@@ -22,9 +20,7 @@ namespace Voxelarium.Core.Support
 		public void End()
 		{
 			sw.Stop();
-			EndTime = sw.ElapsedTicks;
-			Result = EndTime - StartTime;
-			if( StartTime > EndTime ) Result = 1; // Workaround for timechange causing problems.
+			Result = sw.ElapsedTicks;
 		}
 
 		public int GetResult() { return (int)Result; }

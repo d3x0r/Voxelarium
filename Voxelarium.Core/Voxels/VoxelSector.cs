@@ -1128,9 +1128,8 @@ OutStream.Close();
 			string String;
 			string SectionName;
 
-			bool Ok;
 			string Directory;
-			int i, j;
+			int i;
 
 			//for(i=0;i<DataSize;i++) Data[i]=0;
 			string FileName;

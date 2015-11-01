@@ -22,7 +22,6 @@ namespace Voxelarium.Core.UI
 		internal override void Render( Display render, ref Box ParentPosition )
 		{
 			Vector3 TopLeft, BottomRight, BarBottomRight;
-			Frame Frame;
 
 			// Frame Position Computing
 			if( Flag_Show_Master )

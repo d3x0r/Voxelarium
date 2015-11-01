@@ -2181,9 +2181,7 @@ namespace Voxelarium.Core.Voxels
 																								 // if ( (((x & 31) == 0) && ((z & 31) == 0)) )
 																								 // if ( Canva_4.GetPoint_Fast( x & 255, z & 255 ) != 0)
 					{
-
 						ZVector3L Position;
-						ZVector3L Offset;
 
 						Position.x = x - xs;
 						Position.z = z - zs;
@@ -2293,105 +2291,9 @@ namespace Voxelarium.Core.Voxels
 			TreeTable[1] = Template_Vegetation_2;
 			TreeTable[2] = Template_Vegetation_3;
 
-
-			// Tools for ringmap manipulation.
-			/*
-			  int Ring=5;
-			  int Shift = 3;
-			  ZoneMap_Shift(ZoneMap_New, 128, 128, "const char * ZoneMap_New[]=", Ring, Shift, "Out_1.txt");
-			  ZoneMap_Shift(RingNum, 128, 128, "const char * RingNum[]=", Ring, Shift, "Out_2.txt",'5',2);
-			  ZoneMap_Shift(HeightMap_New, 32, 32, "const char * HeightMap_New[] =", Ring, Shift, "Out_3.txt");
-			*/
-
-			//ZoneMap_ChangeSize(ZoneMap_New,64,64,"const char * ZoneMap_New[]=",128,128,'B',"Out_1.txt");
-			//ZoneMap_ChangeSize(RingNum    ,64,64,"const char * RingNum[]="    ,128,128,'B',"Out_2.txt");
-			//ZoneMap_ChangeSize(HeightMap_New    ,32,32,"const char * HeightMap_New[] ="    ,128,128,'0',"Out_3.txt");
-
-
-
-
-
-
 			return ( true );
 		}
 
-		void ZoneMap_ChangeSize( string[] Table, int TableWidth, int TableHeight, string TableDecl, int NewTableWidth, int NewTableHeight, byte EmptyZonesValue, string OutputFile )
-		{
-			GenericCharCanvas Cv1, Cv2;
-#if asdfasdf
-			ZString As;
-			ZStream_File Stream;
-
-			Cv1.GetFromByteTable( Table, TableWidth, TableHeight );
-
-			Cv2.SetSize( NewTableWidth, NewTableHeight );
-			Cv2.Clear( EmptyZonesValue );
-			Cv2.Blit( &Cv1, 0, 0, Cv1.Width, Cv1.Height, ( Cv2.Width / 2 ) - ( Cv1.Width / 2 ), ( Cv2.Height / 2 ) - ( Cv1.Height / 2 ) );
-
-			Cv2.DumpAscii( As, TableDecl );
-			Stream.SetFileName( OutputFile );
-			Stream.PutFileContent( As );
-#endif
-		}
-
-
-		void ZoneMap_Shift( string[] Table, int TableWidth, int TableHeight, string TableDecl, int Ring, int Shift, string OutputFile, byte IncThreshold, byte IncAdd )
-		{
-			GenericCharCanvas Cv1, pCv2;
-#if asdfasdf
-			ZString As;
-			ZStream_File Stream;
-
-
-			// Load the table
-			Cv1.GetFromByteTable( Table, TableWidth, TableHeight );
-			int MWidth = Cv1.Width >> 1;
-			int MHeight = Cv1.Height >> 1;
-
-			// Partie Haute
-			pCv2 = Cv1.GetRectCopy( 0, 0, Cv1.Width, MHeight - Ring );
-			Cv1.DrawBox( 0, 0, Cv1.Width, MHeight - Ring - 1, 0 );
-			Cv1.Blit( pCv2, 0, 0, Cv1.Width, MHeight, 0, -Shift );
-			delete pCv2;
-
-			// Partie basse
-			pCv2 = Cv1.GetRectCopy( 0, MHeight + Ring, Cv1.Width, MHeight - Ring );
-			Cv1.DrawBox( 0, MHeight + Ring, Cv1.Width, Cv1.Height - 1, 0 );
-			Cv1.Blit( pCv2, 0, 0, Cv1.Width, Cv1.Height, 0, MHeight + Ring + Shift );
-			delete pCv2;
-
-			// Partie gauche
-			pCv2 = Cv1.GetRectCopy( 0, 0, MWidth - Ring, Cv1.Height );
-			Cv1.DrawBox( 0, 0, MWidth - Ring - 1, Cv1.Height - 1, 0 );
-			Cv1.Blit( pCv2, 0, 0, Cv1.Width, Cv1.Height, -Shift, 0 );
-			delete pCv2;
-
-			// Partie droite
-			pCv2 = Cv1.GetRectCopy( MWidth + Ring, 0, MWidth - Ring, Cv1.Height );
-			Cv1.DrawBox( MWidth + Ring, 0, Cv1.Width - 1, Cv1.Height - 1, 0 );
-			Cv1.Blit( pCv2, 0, 0, Cv1.Width, Cv1.Height, MWidth + Ring + Shift, 0 );
-			delete pCv2;
-
-			// Number shifting
-
-			if( IncThreshold != 255 )
-			{
-				byte i;
-				for( i = 60; i >= IncThreshold; i-- )
-				{
-					printf( "%d", i );
-					Cv1.SearchAndReplace( i, Cv1.Convert_NumToAsc( Cv1.Convert_AscToNum( i ) + IncAdd ) );
-				}
-			}
-
-			// Recording result
-
-			Cv1.DumpAscii( As, TableDecl );
-			Stream.SetFileName( OutputFile );
-			Stream.PutFileContent( As );
-#endif
-
-		}
 
 
 		void Generate_Terrain_1537( VoxelSector VoxelSector, int HeightOffset, int Sector_x, int Sector_y, int Sector_z )

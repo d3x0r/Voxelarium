@@ -53,7 +53,7 @@ namespace Voxelarium.Core
 			Enable_LoadNewSector = true;
 
 			TileSetStyles = null;
-				Time_GameLoop = 16.0;
+			//Time_GameLoop = 16.0;
 
 #if FINISHED_PORTING
 				for( int r = 0; r < 6; r++ )
@@ -68,9 +68,9 @@ namespace Voxelarium.Core
 				Enable_NewSectorRendering = true;
 				frames = 0;
 				frame_start = 0;
-				Time_FrameTime = 20;
-				Time_GameElapsedTime = 0;
-				VFov = 63.597825649;
+				//Time_FrameTime = 20;
+				//Time_GameElapsedTime = 0;
+				//VFov = 63.597825649;
 				Machine_Serial = 1;
 				Stop_Programmable_Robots = false;
 		}
@@ -175,17 +175,13 @@ namespace Voxelarium.Core
 		bool Initialized_WorldInfo;
 		bool Initialized_GameEventSequencer;
 
-		// Screen Informations
-
-		double VFov;               // Vertical Fov;
-
 		// timers
 
-		double Time_GameLoop;
+		//double Time_GameLoop;
 		long frame_start;
 		uint frames;
-		ulong Time_FrameTime; // Same as Time_GameLoop but in integer format;
-		ulong Time_GameElapsedTime;
+		//ulong Time_FrameTime; // Same as Time_GameLoop but in integer format;
+		//ulong Time_GameElapsedTime;
 
 		// Values
 
@@ -429,7 +425,6 @@ namespace Voxelarium.Core
 
 		bool Init_UserDataStorage()
 		{
-			string ErrorMsg;
 
 			Log.log( "Starting : UserDataStorage Initialization" );
 
@@ -593,7 +588,6 @@ namespace Voxelarium.Core
 
 		bool Init_Sound()
 		{
-			string Msg;
 			Log.log( "Starting : Sound Init" );
 			Sound = new Sound();
 

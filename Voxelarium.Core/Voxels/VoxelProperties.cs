@@ -15,8 +15,6 @@ namespace Voxelarium.Core.Voxels
 		public string VoxelClassName;
 		//Type VoxelExtension;
 		//Type VoxelType;
-		Box2D texture_coords;
-		
 
 		//byte CanPassThrough;
 		// Obsoleted

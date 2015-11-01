@@ -6,14 +6,16 @@ using System.Text;
 
 namespace Voxelarium.Core.Voxels.Types
 {
-	public class GenericCharCanvas : GenericCanvas<byte>
+	public class GenericCharCanvas //: GenericCanvas<byte>
 	{
+		public class MinMax { public float Min, Max; };
+		internal enum CLIP { IN = 0, LEFT = 1, RIGHT = 2, TOP = 4, BOTTOM = 8 };
 
 		uint ElementCount;
 		byte[] Canvas;
 		MinMax[] MinMax_H;
 		MinMax[] MinMax_V;
-		//public int Width, Height;
+		public int Width, Height;
 
 		public GenericCharCanvas( int Width, int Height )
 		{
@@ -50,7 +52,7 @@ namespace Voxelarium.Core.Voxels.Types
 			MinMax_V = null;
 		}
 
-		new public void Clear( byte ClearData = 0 )
+		public void Clear( byte ClearData = 0 )
 		{
 			uint i;
 			for( i = 0; i < ElementCount; i++ ) Canvas[i] = ClearData;
@@ -304,7 +306,7 @@ namespace Voxelarium.Core.Voxels.Types
 		{
 			GetFromBitmap( Image, true, 0 );
 		}
-		public override void GetFromBitmap( Bitmap Image, bool InitSizeFromImage = true, int Channel = 0 )
+		public void GetFromBitmap( Bitmap Image, bool InitSizeFromImage = true, int Channel = 0 )
 		{
 			int x, y;
 
@@ -433,7 +435,7 @@ namespace Voxelarium.Core.Voxels.Types
 				}
 		}
 
-		public override void DumpAscii( out string Out, string TableDecl )
+		public void DumpAscii( out string Out, string TableDecl )
 		{
 			int x, y;
 			int i;

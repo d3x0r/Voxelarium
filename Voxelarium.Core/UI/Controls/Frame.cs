@@ -138,7 +138,6 @@ namespace Voxelarium.Core.UI
 		internal virtual void Render( Display render, ref Box ParentPosition )
 		{
 			quad P;
-			LinkedListNode<Frame> Item;
 
 			// Frame Position Computing
 			if( Flag_Show_Master )

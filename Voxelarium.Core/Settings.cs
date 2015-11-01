@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Text;
+using Voxelarium.Core.Support;
 
 namespace Voxelarium.Core
 {
@@ -22,6 +23,7 @@ namespace Voxelarium.Core
 			}
 			catch( Exception e )
 			{
+				Log.log( "Error loading setitngs: " + e.Message );
 			}
 		}
 

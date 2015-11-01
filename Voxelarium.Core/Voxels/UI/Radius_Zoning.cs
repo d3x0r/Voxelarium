@@ -112,9 +112,9 @@ namespace Voxelarium.Core.Voxels.UI
 
 		internal void DebugOut()
 		{
+#if asdfasdf
 			int x, y, z;
 			uint Offset;
-#if asdfasdf
 			Log.log( "---------------------------------------------------\n" );
 			y = ArraySize.y / 2;
 			for( x = 0; x < ArraySize.x; x++ )

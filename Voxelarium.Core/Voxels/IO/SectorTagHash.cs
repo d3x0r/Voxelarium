@@ -32,8 +32,6 @@ namespace Voxelarium.Core.Voxels.IO
 
 		internal SectorTagHash()
 		{
-			int i;
-
 			TagHashSize = Tag_Size_x * Tag_Size_y * Tag_Size_z;
 			TagHash = new TagEntry[TagHashSize];
 		}

@@ -36,9 +36,7 @@ namespace Voxelarium.Core.Game.Screens
 		internal override ScreenMain.ScreenChoices ProcessScreen( VoxelGameEnvironment GameEnv )
 		{
 			Vector2 Size;
-			string As;
 			int i;
-			bool Loop;
 			ScreenMain.ScreenChoices ChoosedSlot = ScreenChoices.NONE;
 
 			// Effacer l'Ã©cran
@@ -159,7 +157,7 @@ namespace Voxelarium.Core.Game.Screens
 				{
 					if( Slot[i].Is_MouseIn() ) Slot[i].SetTexture( 12 );
 					if( Slot[i].Is_MouseOut() ) Slot[i].SetTexture( 11 );
-					if( Slot[i].Is_MouseClick() ) { ChoosedSlot = ScreenChoices.SlotChoice1+i; Loop = false; }
+					if( Slot[i].Is_MouseClick() ) { ChoosedSlot = ScreenChoices.SlotChoice1+i; }
 				}
 
 				// Demander au gestionnaire de boite d'effectuer le rendu graphique

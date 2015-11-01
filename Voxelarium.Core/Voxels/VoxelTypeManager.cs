@@ -26,7 +26,6 @@ namespace Voxelarium.Core.Voxels
 
 		internal VoxelTypeManager()
 		{
-			int i;
 			GameEnv = null;
 			LoadedTexturesCount = 0;
 			ActiveTable = new FastBit_Array_64k();

@@ -294,8 +294,6 @@ namespace Voxelarium.Core.Voxels
 		internal void CreateDemoWorld()
 		{
 			int x, y, z;
-			VoxelSector Sector;
-			
 			for( x = -1; x < 1; x++ )
 			{
 				for( y = -1; y < 1; y++ )

@@ -15,7 +15,6 @@ namespace Voxelarium.Core.UI.Shaders
 	{
 		int vertex_attrib_id;
 		int color_id;
-		int modelview_id;
 
 		const string Vertex =
 				"precision mediump float;\n"
@@ -50,7 +49,6 @@ namespace Voxelarium.Core.UI.Shaders
 			{
 				vertex_attrib_id = GL.GetAttribLocation( Program, "vPosition" );
 				color_id = GL.GetUniformLocation( Program, "in_Color" );
-				modelview_id = GL.GetUniformLocation( Program, "modelView" );
 			}
 		}
 

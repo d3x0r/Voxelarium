@@ -249,7 +249,7 @@ namespace Voxelarium.Core.UI
 
 			int i;
 			TileSet TileSet;
-			TileCoord Coord;
+			//TileCoord Coord;
 			byte c;
 
 			TileSet = TileStyle.TileSet;

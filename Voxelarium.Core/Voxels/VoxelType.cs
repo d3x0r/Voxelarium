@@ -11,18 +11,10 @@ namespace Voxelarium.Core.Voxels
 {
 	public class VoxelType
 	{
-		internal struct VoxelLocation
-		{
-			VoxelSector Sector;
-			uint Offset;
-		};
-
-
 		protected VoxelGameEnvironment GameEnv;
 		internal VoxelTypeManager VoxelTypeManager;
 
 		internal protected Bitmap MainTexture;
-		//internal protected int OpenGl_TextureRef;
 		internal Box2D TextureCoords;
 		public VoxelProperties properties;
 
@@ -77,13 +69,8 @@ namespace Voxelarium.Core.Voxels
 				else
 				{
 					FileName = "voxeltexture_" + ( properties.Type - 32767 ) + ( attempt == 1 ? ".bmp" : ".png" );
-					if( VoxelGlobalSettings.COMPILEOPTION_USEHOMEDIRSTORAGE )
-					{
-						FileSpec = VStreamFile.Get_Directory_UserData();
-						FileSpec += VoxelGlobalSettings.COMPILEOPTION_SAVEFOLDERNAME;
-					}
-					else
-						FileSpec = ".";
+					FileSpec = VStreamFile.Get_Directory_UserData();
+					FileSpec += "/" +  VoxelGlobalSettings.COMPILEOPTION_SAVEFOLDERNAME;
 					FileSpec += "/UserTextures/" + FileName;
 				}
 
@@ -125,16 +112,16 @@ namespace Voxelarium.Core.Voxels
 		public virtual void UserAction_Activate( uint VoxelInfo, int x, int y, int z ) { }
 
 		public virtual bool Interface_StoreBlock_Store( ushort VoxelType, uint Count ) { return ( false ); }
-		internal virtual uint Interface_PushBlock_Push( VoxelLocation DestLocation, ushort VoxelType, uint Count ) { return ( 0 ); }
-		internal virtual uint Interface_PushBlock_PushTest( VoxelLocation DestLocation, ushort VoxelType, uint Count ) { return ( Count ); }
-		internal virtual uint Interface_PushBlock_Pull( VoxelLocation DestLocation, out ushort VoxelType, uint Count ) { VoxelType = 0; return ( 0 ); }
-		internal virtual uint Interface_PushBlock_PullTest( VoxelLocation DestLocation, out ushort VoxelType, uint Count ) { VoxelType = 0; return ( 0 ); }
+		//internal virtual uint Interface_PushBlock_Push( VoxelLocation DestLocation, ushort VoxelType, uint Count ) { return ( 0 ); }
+		//internal virtual uint Interface_PushBlock_PushTest( VoxelLocation DestLocation, ushort VoxelType, uint Count ) { return ( Count ); }
+		//internal virtual uint Interface_PushBlock_Pull( VoxelLocation DestLocation, out ushort VoxelType, uint Count ) { VoxelType = 0; return ( 0 ); }
+		//internal virtual uint Interface_PushBlock_PullTest( VoxelLocation DestLocation, out ushort VoxelType, uint Count ) { VoxelType = 0; return ( 0 ); }
 
 		// Squirrel interface
 		//public virtual bool Interface_GetInfo( VoxelLocation VLoc, uint InfoNum, ZVar Out ) { return ( false ); }
 		//public virtual bool Interface_GetInfoDoc( uint InfoNum, uint DocType, ZVar Out ) { return ( false ); }
 		//public virtual bool Interface_SetInfo( VoxelLocation VLoc, uint InfoNum, ZVar In ) { return ( false ); }
-		internal virtual void GetBlockInformations( VoxelLocation DestLocation, string Infos ) { return; }
+		//internal virtual void GetBlockInformations( VoxelLocation DestLocation, string Infos ) { return; }
 
 		// When an active voxel should be processed. Note some voxels use "direct" faster way.
 		//public virtual void ActiveProcess( ActiveVoxelInterface AvData ) { };

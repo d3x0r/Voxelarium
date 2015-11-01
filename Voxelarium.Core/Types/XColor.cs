@@ -89,7 +89,7 @@ namespace Voxelarium.Core.Types
 			}
 			catch( Exception e )
 			{
-				Log.log( "Color format error in [{0]]", color);
+				Log.log( "Color format error in [{0]] : {1}", color, e.Message);
 			}
 			return Color.Empty;
 		}
