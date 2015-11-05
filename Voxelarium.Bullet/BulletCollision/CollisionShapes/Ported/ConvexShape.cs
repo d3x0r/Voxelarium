@@ -37,7 +37,11 @@ namespace Bullet.Collision.Shapes
 		///getAabb's default implementation is brute force, expected derived classes to implement a fast dedicated version
 		public override abstract void getAabb( ref btTransform t, out btVector3 aabbMin, out btVector3 aabbMax );
 
-		public abstract void getAabbSlow( ref btTransform t, out btVector3 aabbMin, out btVector3 aabbMax );
+		public virtual void getAabbSlow( ref btTransform t, out btVector3 aabbMin, out btVector3 aabbMax )
+		{
+			getAabbSlow( t, out aabbMin, out aabbMax );
+		}
+		public abstract void getAabbSlow( btITransform t, out btVector3 aabbMin, out btVector3 aabbMax );
 
 		public abstract override void setLocalScaling( ref btVector3 scaling );
 		public abstract override void getLocalScaling( out btVector3 result );
@@ -113,9 +117,10 @@ namespace Bullet.Collision.Shapes
 					{
 						btTriangleShape triangleShape = (btTriangleShape)this;
 						btVector3 dir = localDir;
-						btVector3[] vertices = triangleShape.m_vertices1;
-						btVector3 dots; dir.dot3( ref vertices[0], ref vertices[1], ref vertices[2], out dots );
-						result = vertices[dots.maxAxis()];
+						//btVector3[] vertices = triangleShape.m_vertices1;
+						btVector3 dots; dir.dot3( ref triangleShape.m_vertices1, ref triangleShape.m_vertices2
+							, ref triangleShape.m_vertices2, out dots );
+						triangleShape.getVertex( dots.maxAxis(), out result );
 						return;
 					}
 				case BroadphaseNativeTypes.CYLINDER_SHAPE_PROXYTYPE:

@@ -27,7 +27,7 @@ namespace Bullet.Collision.BroadPhase
 			DISPATCH_CONTINUOUS
 		};
 
-		btDispatcherInfo()
+		internal btDispatcherInfo()
 		{
 			m_timeStep = 0;
 			m_stepCount = 0;
@@ -59,7 +59,7 @@ namespace Bullet.Collision.BroadPhase
 
 	///The btDispatcher interface class can be used in combination with broadphase to dispatch calculations for overlapping pairs.
 	///For example for pairwise collision detection, calculating contact points stored in btPersistentManifold or user callbacks (game logic).
-	internal abstract class btDispatcher
+	public abstract class btDispatcher
 	{
 		internal abstract btCollisionAlgorithm findAlgorithm( btCollisionObjectWrapper body0Wrap, btCollisionObjectWrapper body1Wrap, btPersistentManifold sharedManifold );
 		internal abstract btPersistentManifold getNewManifold( btCollisionObject b0, btCollisionObject b1 );

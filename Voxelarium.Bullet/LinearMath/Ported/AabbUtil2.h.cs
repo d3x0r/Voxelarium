@@ -175,8 +175,6 @@ namespace Bullet.LinearMath
 			return false;
 		}
 
-
-
 		public static void btTransformAabb( ref btVector3 halfExtents, double margin, ref btTransform t
 				, out btVector3 aabbMinOut, out btVector3 aabbMaxOut )
 		{
@@ -187,7 +185,36 @@ namespace Bullet.LinearMath
 			center.Sub(ref extent, out aabbMinOut );
 			center.Add( ref extent, out aabbMaxOut );
 		}
+		public static void btTransformAabb( ref btVector3 halfExtents, double margin,  btITransform t
+				, out btVector3 aabbMinOut, out btVector3 aabbMaxOut )
+		{
+			btVector3 halfExtentsWithMargin; halfExtents.AddScale( ref btVector3.One, margin, out halfExtentsWithMargin );
+			btMatrix3x3 abs_b; t.getBasis().absolute( out abs_b );
+			btIVector3 center = t.getOrigin();
+			btVector3 extent; halfExtentsWithMargin.dot3( ref abs_b.m_el0, ref abs_b.m_el1, ref abs_b.m_el2, out extent );
+			center.Sub( ref extent, out aabbMinOut );
+			center.Add( ref extent, out aabbMaxOut );
+		}
 
+		public static void btTransformAabb( btIVector3 localAabbMin, btIVector3 localAabbMax, double margin, ref btTransform trans, out btVector3 aabbMinOut, out btVector3 aabbMaxOut )
+		{
+			Debug.Assert( localAabbMin.X <= localAabbMax.X );
+			Debug.Assert( localAabbMin.Y <= localAabbMax.Y );
+			Debug.Assert( localAabbMin.Z <= localAabbMax.Z );
+			btVector3 tmp;
+			localAabbMax.Sub( localAabbMin, out tmp );
+			btVector3 localHalfExtents; tmp.Mult( (double)( 0.5 ), out localHalfExtents );
+			btVector3 localCenter = localHalfExtents;
+			btVector3.Zero.Mult( margin, out tmp );
+			localHalfExtents.Add( ref tmp, out localHalfExtents );
+			//localHalfExtents += btVector3( margin, margin, margin );
+
+			btMatrix3x3 abs_b; trans.m_basis.absolute( out abs_b );
+			btVector3 center; trans.Apply( ref localCenter, out center );
+			btVector3 extent; localHalfExtents.dot3( ref abs_b.m_el0, ref abs_b.m_el1, ref abs_b.m_el2, out extent );
+			center.Sub( ref extent, out aabbMinOut );
+			center.Add( ref extent, out aabbMaxOut );
+		}
 
 		public static void btTransformAabb( ref btVector3 localAabbMin, ref btVector3 localAabbMax, double margin, ref btTransform trans, out btVector3 aabbMinOut, out btVector3 aabbMaxOut )
 		{

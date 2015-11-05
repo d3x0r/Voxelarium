@@ -71,9 +71,8 @@ namespace Bullet.Collision.Shapes
 
 
 
-		public override void getAabb( ref btTransform trans, out btVector3 aabbMin, out btVector3 aabbMax )
+		public override void getAabb( btITransform trans, out btVector3 aabbMin, out btVector3 aabbMax )
 		{
-
 			btVector3 localHalfExtents; btVector3.getHalfExtent( ref m_localAabbMin, ref m_localAabbMax, out localHalfExtents );
 			localHalfExtents += new btVector3( getMargin(), getMargin(), getMargin() );
 			btVector3 localCenter; btVector3.getCenter( ref m_localAabbMin, ref m_localAabbMax, out localCenter );

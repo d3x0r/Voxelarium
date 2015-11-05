@@ -28,9 +28,9 @@ namespace Bullet.Collision.NarrowPhase
 
 		//	double				radialmargin(btScalar.BT_ZERO);
 
-		btVector3 guessVector( b.getWorldTransform().getOrigin() - a.getWorldTransform().getOrigin() );//?? why not use the GJK input?
+		btVector3 guessVector( b.getOrigin() - a.getWorldTransform().getOrigin() );//?? why not use the GJK input?
 
-		btGjkEpaSolver3::sResults results;
+		btGjkEpaSolver3.sResults results;
 
 
 		if( btGjkEpaSolver3_Penetration( a, b, guessVector, results ) )

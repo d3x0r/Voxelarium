@@ -128,8 +128,8 @@ namespace Bullet.Collision.Dispatch
 
 			btConvexPenetrationDepthSolver m_pdSolver;
 			btSimplexSolverInterface m_simplexSolver;
-			int m_numPerturbationIterations;
-			int m_minimumPointsPerturbationThreshold;
+			internal int m_numPerturbationIterations;
+			internal int m_minimumPointsPerturbationThreshold;
 
 			internal CreateFunc( btSimplexSolverInterface simplexSolver, btConvexPenetrationDepthSolver pdSolver )
 			{
@@ -393,7 +393,7 @@ m_sepDistance((static_cast<btConvexShape*>(body0.getCollisionShape())).getAngula
 			if( m_manifoldPtr == null )
 			{
 				//swapped?
-				m_manifoldPtr = m_dispatcher.getNewManifold( body0Wrap.getCollisionObject(), body1Wrap.getCollisionObject() );
+				m_manifoldPtr = m_dispatcher.getNewManifold( body0Wrap.m_collisionObject, body1Wrap.m_collisionObject );
 				m_ownManifold = true;
 			}
 			resultOut.setPersistentManifold( m_manifoldPtr );
@@ -578,11 +578,11 @@ m_sepDistance((static_cast<btConvexShape*>(body0.getCollisionShape())).getAngula
 							btVertexArray vertices = new btVertexArray();
 							btTriangleShape tri = (btTriangleShape)polyhedronB;
 							btVector3 tmp;
-							body1Wrap.getWorldTransform().Apply( ref tri.m_vertices1[0], out tmp );
+							body1Wrap.getWorldTransform().Apply( ref tri.m_vertices1, out tmp );
 							vertices.Add( ref tmp );
-							body1Wrap.getWorldTransform().Apply( ref tri.m_vertices1[1], out tmp );
+							body1Wrap.getWorldTransform().Apply( ref tri.m_vertices2, out tmp );
 							vertices.Add( ref tmp );
-							body1Wrap.getWorldTransform().Apply( ref tri.m_vertices1[2], out tmp );
+							body1Wrap.getWorldTransform().Apply( ref tri.m_vertices3, out tmp );
 							vertices.Add( ref tmp );
 
 							//tri.initializePolyhedralFeatures();
@@ -656,7 +656,7 @@ m_sepDistance((static_cast<btConvexShape*>(body0.getCollisionShape())).getAngula
 
 				//perform perturbation when more then 'm_minimumPointsPerturbationThreshold' points
 				if( m_numPerturbationIterations != 0
-					&& resultOut.getPersistentManifold().getNumContacts() < m_minimumPointsPerturbationThreshold )
+					&& resultOut.m_manifoldPtr.m_cachedPoints < m_minimumPointsPerturbationThreshold )
 				{
 
 					int i;
@@ -812,60 +812,66 @@ m_sepDistance((static_cast<btConvexShape*>(body0.getCollisionShape())).getAngula
 			{
 				btConvexShape convex0 = (btConvexShape)col0.getCollisionShape();
 
-				btSphereShape sphere1 = new btSphereShape( col1.getCcdSweptSphereRadius() ); //todo: allow non-zero sphere sizes, for better approximation
-				btConvexCast.CastResult result = BulletGlobals.CastResultPool.Get();
-				btVoronoiSimplexSolver voronoiSimplex = BulletGlobals.VoronoiSimplexSolverPool.Get();
-				//SubsimplexConvexCast ccd0(&sphere,min0,&voronoiSimplex);
-				///Simplification, one object is simplified as a sphere
-				btGjkConvexCast ccd1 = BulletGlobals.GjkConvexCastPool.Get();
-				ccd1.Initialize( convex0, sphere1, voronoiSimplex );
-				//ContinuousConvexCollision ccd(min0,min1,&voronoiSimplex,0);
-				if( ccd1.calcTimeOfImpact( col0.m_worldTransform, col0.m_interpolationWorldTransform,
-						col1.m_worldTransform, col1.m_interpolationWorldTransform, result ) )
+				using( btSphereShape sphere1 = BulletGlobals.SphereShapePool.Get() )
 				{
+					sphere1.Initialize( col1.getCcdSweptSphereRadius() ); //todo: allow non-zero sphere sizes, for better approximation
+					btConvexCast.CastResult result = BulletGlobals.CastResultPool.Get();
+					btVoronoiSimplexSolver voronoiSimplex = BulletGlobals.VoronoiSimplexSolverPool.Get();
+					//SubsimplexConvexCast ccd0(&sphere,min0,&voronoiSimplex);
+					///Simplification, one object is simplified as a sphere
+					btGjkConvexCast ccd1 = BulletGlobals.GjkConvexCastPool.Get();
+					ccd1.Initialize( convex0, sphere1, voronoiSimplex );
+					//ContinuousConvexCollision ccd(min0,min1,&voronoiSimplex,0);
+					if( ccd1.calcTimeOfImpact( col0.m_worldTransform, col0.m_interpolationWorldTransform,
+							col1.m_worldTransform, col1.m_interpolationWorldTransform, result ) )
+					{
 
-					//store result.m_fraction in both bodies
+						//store result.m_fraction in both bodies
 
-					if( col0.getHitFraction() > result.m_fraction )
-						col0.setHitFraction( result.m_fraction );
+						if( col0.getHitFraction() > result.m_fraction )
+							col0.setHitFraction( result.m_fraction );
 
-					if( col1.getHitFraction() > result.m_fraction )
-						col1.setHitFraction( result.m_fraction );
+						if( col1.getHitFraction() > result.m_fraction )
+							col1.setHitFraction( result.m_fraction );
 
-					if( resultFraction > result.m_fraction )
-						resultFraction = result.m_fraction;
+						if( resultFraction > result.m_fraction )
+							resultFraction = result.m_fraction;
 
+					}
+					BulletGlobals.GjkConvexCastPool.Free( ccd1 );
 				}
-				BulletGlobals.GjkConvexCastPool.Free( ccd1 );
 			}
 
 			/// Sphere (for convex0) against Convex1
 			{
 				btConvexShape convex1 = (btConvexShape)( col1.getCollisionShape() );
 
-				btSphereShape sphere0 = new btSphereShape( col0.getCcdSweptSphereRadius() ); //todo: allow non-zero sphere sizes, for better approximation
-				btConvexCast.CastResult result = BulletGlobals.CastResultPool.Get();
-				btVoronoiSimplexSolver voronoiSimplex = BulletGlobals.VoronoiSimplexSolverPool.Get();
-				//SubsimplexConvexCast ccd0(&sphere,min0,&voronoiSimplex);
-				///Simplification, one object is simplified as a sphere
-				btGjkConvexCast ccd1 = BulletGlobals.GjkConvexCastPool.Get();
-				ccd1.Initialize( sphere0, convex1, voronoiSimplex );
-				//ContinuousConvexCollision ccd(min0,min1,&voronoiSimplex,0);
-				if( ccd1.calcTimeOfImpact( col0.m_worldTransform, col0.m_interpolationWorldTransform,
-							col1.m_worldTransform, col1.m_interpolationWorldTransform, result ) )
+				using( btSphereShape sphere0 = BulletGlobals.SphereShapePool.Get() )
 				{
-					//store result.m_fraction in both bodies
+					sphere0.Initialize( col0.getCcdSweptSphereRadius() ); //todo: allow non-zero sphere sizes, for better approximation
+					btConvexCast.CastResult result = BulletGlobals.CastResultPool.Get();
+					btVoronoiSimplexSolver voronoiSimplex = BulletGlobals.VoronoiSimplexSolverPool.Get();
+					//SubsimplexConvexCast ccd0(&sphere,min0,&voronoiSimplex);
+					///Simplification, one object is simplified as a sphere
+					btGjkConvexCast ccd1 = BulletGlobals.GjkConvexCastPool.Get();
+					ccd1.Initialize( sphere0, convex1, voronoiSimplex );
+					//ContinuousConvexCollision ccd(min0,min1,&voronoiSimplex,0);
+					if( ccd1.calcTimeOfImpact( col0.m_worldTransform, col0.m_interpolationWorldTransform,
+								col1.m_worldTransform, col1.m_interpolationWorldTransform, result ) )
+					{
+						//store result.m_fraction in both bodies
 
-					if( col0.getHitFraction() > result.m_fraction )
-						col0.setHitFraction( result.m_fraction );
+						if( col0.getHitFraction() > result.m_fraction )
+							col0.setHitFraction( result.m_fraction );
 
-					if( col1.getHitFraction() > result.m_fraction )
-						col1.setHitFraction( result.m_fraction );
+						if( col1.getHitFraction() > result.m_fraction )
+							col1.setHitFraction( result.m_fraction );
 
-					if( resultFraction > result.m_fraction )
-						resultFraction = result.m_fraction;
+						if( resultFraction > result.m_fraction )
+							resultFraction = result.m_fraction;
+					}
+					BulletGlobals.GjkConvexCastPool.Free( ccd1 );
 				}
-				BulletGlobals.GjkConvexCastPool.Free( ccd1 );
 			}
 			return resultFraction;
 

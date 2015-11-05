@@ -50,12 +50,12 @@ namespace Bullet.LinearMath
 			if( fAngle < 0.001 )
 			{
 				// use Taylor's expansions of sync function
-				angvel.Mult( ( 0.5 * timeStep - ( timeStep * timeStep * timeStep ) * ( 0.020833333333 ) * fAngle * fAngle ), out axis );
+				angvel.Mult( ( btScalar.BT_HALF * timeStep - ( timeStep * timeStep * timeStep ) * ( 0.020833333333 ) * fAngle * fAngle ), out axis );
 			}
 			else
 			{
 				// sync(fAngle) = sin(cfAngle)/t
-				angvel.Mult( ( btScalar.btSin( 0.5 * fAngle * timeStep ) / fAngle ), out axis );
+				angvel.Mult( ( btScalar.btSin( btScalar.BT_HALF * fAngle * timeStep ) / fAngle ), out axis );
 			}
 			btQuaternion dorn = new btQuaternion( axis.x, axis.y, axis.z, btScalar.btCos( fAngle * timeStep * 0.5 ) );
 			btQuaternion orn0;

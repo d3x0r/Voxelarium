@@ -1,3 +1,4 @@
+//#define DISABLE_NON_REF_CONSTRUCTORS
 //#define DISABLE_OPERATORS
 /*
 Copyright (c) 2003-2006 Gino van den Bergen / Erwin Coumans  http://continuousphysics.com/Bullet/
@@ -33,6 +34,7 @@ namespace Bullet.LinearMath
 
 		btTransform T { get; set; }
 		void Get( out btTransform tmp );
+
 		/*@brief Constructor from btQuaternion (optional btVector3 )
 		  @param q Rotation from quaternion 
 		  @param c Translation from Vector (default 0,0,0) */
@@ -111,9 +113,9 @@ namespace Bullet.LinearMath
 		public void Get( out btTransform tmp ) { tmp = this; }
 
 		///Storage for the rotation
-		internal btMatrix3x3 m_basis;
+		public btMatrix3x3 m_basis;
 		///Storage for the translation
-		internal btVector3 m_origin;
+		public btVector3 m_origin;
 
 		/*@brief Constructor from btQuaternion (optional btVector3 )
 		  @param q Rotation from quaternion 
@@ -146,6 +148,11 @@ namespace Bullet.LinearMath
 			m_basis = new btMatrix3x3( ref q );
 			m_origin = c;
 		}
+#if !DISABLE_NON_REF_CONSTRUCTORS
+		public btTransform( btQuaternion q, btVector3 c ) : this( ref q, ref c )
+		{
+		}
+#endif
 		/*@brief Constructor from btQuaternion (optional btVector3 )
 		  @param q Rotation from quaternion 
 		  @param c Translation from Vector (default 0,0,0) */
@@ -320,7 +327,9 @@ namespace Bullet.LinearMath
 		public void inverse( out btTransform result )
 		{
 			m_basis.transpose( out result.m_basis );
-			m_origin.Invert( out result.m_origin );
+			btVector3 tmp;
+			m_origin.Invert( out tmp );
+			result.m_basis.Apply( ref tmp, out result.m_origin );
 		}
 
 
@@ -413,6 +422,10 @@ namespace Bullet.LinearMath
 
 
 		*/
+		public override string ToString()
+		{
+			return string.Format( "Orientation: {0}\n Origin: {1}", m_basis, m_origin );
+		}
 
 	}
 

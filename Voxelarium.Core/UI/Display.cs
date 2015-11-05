@@ -12,7 +12,7 @@ using System.Text;
 using System.Windows.Forms;
 using Voxelarium.Core.UI.Shaders;
 using System.Diagnostics;
-using Bullet.LinearMath;
+using Voxelarium.LinearMath;
 using System.Threading;
 using Voxelarium.Core.Game.Screens;
 using Voxelarium.Core.Voxels;

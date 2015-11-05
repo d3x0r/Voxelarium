@@ -1057,48 +1057,51 @@ namespace Bullet.Collision.NarrowPhase
 													sResults results )
 		{
 			tShape shape = new tShape();
-			btSphereShape shape1 = new btSphereShape( margin );
-			btTransform wtrs1 = new btTransform( ref btQuaternion.Zero, ref position );
-			Initialize( shape0, ref wtrs0, shape1, ref wtrs1, out results, shape, false );
-			GJK gjk = new GJK();
-			GJK.eStatus._ gjk_status = gjk.Evaluate( shape, ref btVector3.One );
-			if( gjk_status == GJK.eStatus._.Valid )
+			using( btSphereShape shape1 = BulletGlobals.SphereShapePool.Get() )
 			{
-				btVector3 w0 = btVector3.Zero;
-				btVector3 w1 = btVector3.Zero;
-				for( uint i = 0; i < gjk.m_simplex.rank; ++i )
+				shape1.Initialize( margin );
+				btTransform wtrs1 = new btTransform( ref btQuaternion.Zero, ref position );
+				Initialize( shape0, ref wtrs0, shape1, ref wtrs1, out results, shape, false );
+				GJK gjk = new GJK();
+				GJK.eStatus._ gjk_status = gjk.Evaluate( shape, ref btVector3.One );
+				if( gjk_status == GJK.eStatus._.Valid )
 				{
-					double p = gjk.m_simplex.p[i];
-					btVector3 tmp;
-					shape.Support( ref gjk.m_simplex.c[i].d, 0, out tmp );
-					w0.AddScale( ref tmp, p, out w0 );
-					btVector3 tmp2;
-					gjk.m_simplex.c[i].d.Invert( out tmp2 );
-					shape.Support( ref tmp2, 1, out tmp );
-					w1.AddScale( ref tmp, p, out w1 );
-				}
-				wtrs0.Apply( ref w0, out results.witness0 );
-				wtrs0.Apply( ref w1, out results.witness1 );
-				btVector3 delta; results.witness1.Sub( ref results.witness0, out delta );
-				margin = shape0.getMarginNonVirtual() +
-					shape1.getMarginNonVirtual();
-				double length = delta.length();
-				delta.Div( length, out results.normal );
-				results.witness0.AddScale( ref results.normal, margin, out results.witness0 );
-				return ( length - margin );
-			}
-			else
-			{
-				if( gjk_status == GJK.eStatus._.Inside )
-				{
-					if( Penetration( shape0, ref wtrs0, shape1, ref wtrs1, ref gjk.m_ray, out results ) )
+					btVector3 w0 = btVector3.Zero;
+					btVector3 w1 = btVector3.Zero;
+					for( uint i = 0; i < gjk.m_simplex.rank; ++i )
 					{
-						btVector3 delta; results.witness0.Sub(
-							ref results.witness1, out delta );
-						double length = delta.length();
-						if( length >= btScalar.SIMD_EPSILON )
-							delta.Div( length, out results.normal );
-						return ( -length );
+						double p = gjk.m_simplex.p[i];
+						btVector3 tmp;
+						shape.Support( ref gjk.m_simplex.c[i].d, 0, out tmp );
+						w0.AddScale( ref tmp, p, out w0 );
+						btVector3 tmp2;
+						gjk.m_simplex.c[i].d.Invert( out tmp2 );
+						shape.Support( ref tmp2, 1, out tmp );
+						w1.AddScale( ref tmp, p, out w1 );
+					}
+					wtrs0.Apply( ref w0, out results.witness0 );
+					wtrs0.Apply( ref w1, out results.witness1 );
+					btVector3 delta; results.witness1.Sub( ref results.witness0, out delta );
+					margin = shape0.getMarginNonVirtual() +
+						shape1.getMarginNonVirtual();
+					double length = delta.length();
+					delta.Div( length, out results.normal );
+					results.witness0.AddScale( ref results.normal, margin, out results.witness0 );
+					return ( length - margin );
+				}
+				else
+				{
+					if( gjk_status == GJK.eStatus._.Inside )
+					{
+						if( Penetration( shape0, ref wtrs0, shape1, ref wtrs1, ref gjk.m_ray, out results ) )
+						{
+							btVector3 delta; results.witness0.Sub(
+								ref results.witness1, out delta );
+							double length = delta.length();
+							if( length >= btScalar.SIMD_EPSILON )
+								delta.Div( length, out results.normal );
+							return ( -length );
+						}
 					}
 				}
 			}

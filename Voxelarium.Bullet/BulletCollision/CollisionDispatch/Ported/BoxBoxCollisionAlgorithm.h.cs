@@ -57,9 +57,9 @@ namespace Bullet.Collision.Dispatch
 			base.Initialize( ci, body0Wrap, body1Wrap );
 			m_ownManifold = ( false );
 			m_manifoldPtr = ( mf );
-			if( m_manifoldPtr == null && m_dispatcher.needsCollision( body0Wrap.getCollisionObject(), body1Wrap.getCollisionObject() ) )
+			if( m_manifoldPtr == null && m_dispatcher.needsCollision( body0Wrap.m_collisionObject, body1Wrap.m_collisionObject ) )
 			{
-				m_manifoldPtr = m_dispatcher.getNewManifold( body0Wrap.getCollisionObject(), body1Wrap.getCollisionObject() );
+				m_manifoldPtr = m_dispatcher.getNewManifold( body0Wrap.m_collisionObject, body1Wrap.m_collisionObject );
 				m_ownManifold = true;
 			}
 		}

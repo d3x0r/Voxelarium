@@ -1,4 +1,5 @@
 //#define DISABLE_OPERATORS
+#define DISABLE_ROW4
 /*
 Copyright (c) 2003-2006 Gino van den Bergen / Erwin Coumans * http://continuousphysics.com/Bullet/
 
@@ -108,6 +109,8 @@ namespace Bullet.LinearMath
 		void timesTranspose( ref btMatrix3x3 m, out btMatrix3x3 result );
 
 		void Apply( ref btVector3 v, out btVector3 result );
+		void Apply( btIVector3 v, out btVector3 result );
+
 		void ApplyInverse( ref btVector3 v, out btVector3 result );
 
 		/*
@@ -120,8 +123,8 @@ namespace Bullet.LinearMath
 		void Apply( ref btMatrix3x3 m2, out btMatrix3x3 result );
 
 		double tdotx( ref btVector3 v );
-        double tdoty( ref btVector3 v );
-        double tdotz( ref btVector3 v );
+		double tdoty( ref btVector3 v );
+		double tdotz( ref btVector3 v );
 		/*
 		public btMatrix3x3 btMultTransposeLeft(btMatrix3x3 m1, btMatrix3x3 m2) {
 		return btMatrix3x3(
@@ -160,7 +163,7 @@ namespace Bullet.LinearMath
 		public btVector3 m_el0;
 		public btVector3 m_el1;
 		public btVector3 m_el2;
-		public btVector3 m_el3;
+		//public btVector3 m_el3;
 
 
 		//		explicit btMatrix3x3(stringbtScalar m) { setFromOpenGLSubMatrix(m); }
@@ -180,8 +183,9 @@ namespace Bullet.LinearMath
 			m_el0.x = 1.0 - ( yy + zz ); m_el0.y = xy - wz; m_el0.z = xz + wy; m_el0.w = 0;
 			m_el1.x = xy + wz; m_el1.y = 1.0 - ( xx + zz ); m_el1.z = yz - wx; m_el1.w = 0;
 			m_el2.x = xz - wy; m_el2.y = yz + wx; m_el2.z = 1.0 - ( xx + yy ); m_el2.w = 0;
+#if !DISABLE_ROW4
 			m_el3.x = 0; m_el3.y = 0; m_el3.z = 0; m_el3.w = 1;
-
+#endif
 		}
 		/*
 		template <typename double>
@@ -195,10 +199,16 @@ namespace Bullet.LinearMath
 			double yx, double yy, double yz,
 			double zx, double zy, double zz )
 		{
-			m_el0.x = xx; m_el1.x = xy; m_el2.x = xz; m_el3.x = 0;
-			m_el0.y = yx; m_el1.y = yy; m_el2.y = yz; m_el3.y = 0;
-			m_el0.z = zx; m_el1.z = zy; m_el2.z = zz; m_el3.z = 0;
-			m_el0.w = 0; m_el1.w = 0; m_el2.w = 0; m_el3.w = 1;
+			m_el0.x = xx; m_el1.x = xy; m_el2.x = xz;
+			m_el0.y = yx; m_el1.y = yy; m_el2.y = yz;
+			m_el0.z = zx; m_el1.z = zy; m_el2.z = zz;
+			m_el0.w = 0; m_el1.w = 0; m_el2.w = 0;
+#if !DISABLE_ROW4
+			m_el3.x = 0;
+			m_el3.y = 0;
+			m_el3.z = 0;
+			m_el3.w = 1;
+#endif
 		}
 
 		public btMatrix3x3( ref btVector3 v0, ref btVector3 v1, ref btVector3 v2 )
@@ -206,7 +216,9 @@ namespace Bullet.LinearMath
 			m_el0.x = v0.x; m_el0.y = v0.y; m_el0.z = v0.z; m_el0.w = 0;
 			m_el1.x = v1.x; m_el1.y = v1.y; m_el1.z = v1.z; m_el1.w = 0;
 			m_el2.x = v2.x; m_el2.y = v2.y; m_el2.z = v2.z; m_el2.w = 0;
+#if !DISABLE_ROW4
 			m_el3.x = 0; m_el3.y = 0; m_el3.z = 0; m_el3.w = 1;
+#endif
 		}
 
 		// Copy constructor
@@ -215,7 +227,9 @@ namespace Bullet.LinearMath
 			m_el0.x = rhs.m_el0.x; m_el0.y = rhs.m_el0.y; m_el0.z = rhs.m_el0.z; m_el0.w = rhs.m_el0.w;
 			m_el1.x = rhs.m_el1.x; m_el1.y = rhs.m_el1.y; m_el1.z = rhs.m_el1.z; m_el1.w = rhs.m_el1.w;
 			m_el2.x = rhs.m_el2.x; m_el2.y = rhs.m_el2.y; m_el2.z = rhs.m_el2.z; m_el2.w = rhs.m_el2.w;
+#if !DISABLE_ROW4
 			m_el3.x = rhs.m_el3.x; m_el3.y = rhs.m_el3.y; m_el3.z = rhs.m_el3.z; m_el3.w = rhs.m_el3.w;
+#endif
 		}
 
 
@@ -273,7 +287,9 @@ namespace Bullet.LinearMath
 				case 0: return m_el0;
 				case 1: return m_el1;
 				case 2: return m_el2;
+#if !DISABLE_ROW4
 				case 3: return m_el3;
+#endif
 			}
 		}
 
@@ -288,7 +304,9 @@ namespace Bullet.LinearMath
 				case 0: result = m_el0; return;
 				case 1: result = m_el1; return;
 				case 2: result = m_el2; return;
+#if !DISABLE_ROW4
 				case 3: result = m_el3; return;
+#endif
 			}
 		}
 
@@ -350,6 +368,7 @@ namespace Bullet.LinearMath
 							case 3: m_el2.w = value; break;
 						}
 						break;
+#if !DISABLE_ROW4
 					case 3:
 						switch( j )
 						{
@@ -363,6 +382,7 @@ namespace Bullet.LinearMath
 							case 3: m_el3.w = value; break;
 						}
 						break;
+#endif
 				}
 			}
 			get
@@ -409,6 +429,7 @@ namespace Bullet.LinearMath
 							case 2: return m_el2.z;
 							case 3: return m_el2.w;
 						}
+#if !DISABLE_ROW4
 					case 3:
 						switch( j )
 						{
@@ -421,6 +442,7 @@ namespace Bullet.LinearMath
 							case 2: return m_el3.z;
 							case 3: return m_el3.w;
 						}
+#endif
 				}
 			}
 		}
@@ -450,19 +472,25 @@ namespace Bullet.LinearMath
 			double yx, double yy, double yz,
 			double zx, double zy, double zz )
 		{
-			m_el0.x = xx; m_el1.x = xy; m_el2.x = xz;
-			m_el0.y = yx; m_el1.y = yy; m_el2.y = yz;
-			m_el0.z = zx; m_el1.z = zy; m_el2.z = zz;
+			m_el0.x = xx; m_el0.y = xy; m_el0.z = xz;
+			m_el1.x = yx; m_el1.y = yy; m_el1.z = yz;
+			m_el2.x = zx; m_el2.y = zy; m_el2.z = zz;
 		}
 
 		public static void setValue( out btMatrix3x3 m, double xx, double xy, double xz,
 			double yx, double yy, double yz,
 			double zx, double zy, double zz )
 		{
-			m.m_el0.x = xx; m.m_el1.x = xy; m.m_el2.x = xz; m.m_el3.x = 0;
-			m.m_el0.y = yx; m.m_el1.y = yy; m.m_el2.y = yz; m.m_el3.y = 0;
-			m.m_el0.z = zx; m.m_el1.z = zy; m.m_el2.z = zz; m.m_el3.z = 0;
-			m.m_el0.w = 0; m.m_el1.w = 0; m.m_el2.w = 0; m.m_el3.w = 1;
+			m.m_el0.x = xx; m.m_el0.y = xy; m.m_el0.z = xz;
+			m.m_el1.x = yx; m.m_el1.y = yy; m.m_el1.z = yz;
+			m.m_el2.x = zx; m.m_el2.y = zy; m.m_el2.z = zz;
+			m.m_el0.w = 0; m.m_el1.w = 0; m.m_el2.w = 0;
+#if !DISABLE_ROW4
+			m.m_el3.x = 0;
+			m.m_el3.y = 0;
+			m.m_el3.z = 0;
+			m.m_el3.w = 1;
+#endif
 		}
 
 		/* @brief Set the matrix from a quaternion
@@ -473,16 +501,16 @@ namespace Bullet.LinearMath
 #if PARANOID_ASSERTS
 			Debug.Assert( d != 0 );
 #endif
-			double s = 2.0 / d;
+			double s = btScalar.BT_TWO / d;
 
 			double xs = q.x * s, ys = q.y * s, zs = q.z * s;
 			double wx = q.w * xs, wy = q.w * ys, wz = q.w * zs;
 			double xx = q.x * xs, xy = q.x * ys, xz = q.x * zs;
 			double yy = q.y * ys, yz = q.y * zs, zz = q.z * zs;
 			setValue(
-				1.0 - ( yy + zz ), xy - wz, xz + wy,
-				xy + wz, 1.0 - ( xx + zz ), yz - wx,
-				xz - wy, yz + wx, 1.0 - ( xx + yy ) );
+				btScalar.BT_ONE - ( yy + zz ), xy - wz, xz + wy,
+				xy + wz, btScalar.BT_ONE - ( xx + zz ), yz - wx,
+				xz - wy, yz + wx, btScalar.BT_ONE - ( xx + yy ) );
 		}
 
 		public static void setRotation( out btMatrix3x3 result, ref btQuaternion q )
@@ -491,16 +519,16 @@ namespace Bullet.LinearMath
 #if PARANOID_ASSERTS
 			Debug.Assert( d != 0 );
 #endif
-			double s = 2.0 / d;
+			double s = btScalar.BT_TWO / d;
 
 			double xs = q.x * s, ys = q.y * s, zs = q.z * s;
 			double wx = q.w * xs, wy = q.w * ys, wz = q.w * zs;
 			double xx = q.x * xs, xy = q.x * ys, xz = q.x * zs;
 			double yy = q.y * ys, yz = q.y * zs, zz = q.z * zs;
 			btMatrix3x3.setValue( out result,
-				1.0 - ( yy + zz ), xy - wz, xz + wy,
-				xy + wz, 1.0 - ( xx + zz ), yz - wx,
-				xz - wy, yz + wx, 1.0 - ( xx + yy ) );
+				btScalar.BT_ONE - ( yy + zz ), xy - wz, xz + wy,
+				xy + wz, btScalar.BT_ONE - ( xx + zz ), yz - wx,
+				xz - wy, yz + wx, btScalar.BT_ONE - ( xx + yy ) );
 		}
 
 
@@ -927,21 +955,29 @@ namespace Bullet.LinearMath
 			m.m_el0.Mult( k, out result.m_el0 );
 			m.m_el1.Mult( k, out result.m_el1 );
 			m.m_el2.Mult( k, out result.m_el2 );
+#if !DISABLE_ROW4
 			m.m_el3.Mult( k, out result.m_el3 );
+#endif
 		}
 		public void Mult( double k, out btMatrix3x3 result )
 		{
 			m_el0.Mult( k, out result.m_el0 );
 			m_el1.Mult( k, out result.m_el1 );
 			m_el2.Mult( k, out result.m_el2 );
+#if !DISABLE_ROW4
 			m_el3.Mult( k, out result.m_el3 );
+#endif
 		}
 		public static void Mult( ref btMatrix3x3 m, ref btVector3 v, out btVector3 result )
 		{
 			result.x = m.m_el0.dot( ref v );
 			result.y = m.m_el1.dot( ref v );
 			result.z = m.m_el2.dot( ref v );
+#if !DISABLE_ROW4
 			result.w = m.m_el3.dot( ref v );
+#else
+			result.w = 0;
+#endif
 		}
 
 		public void Mult( ref btVector3 v, out btVector3 result )
@@ -949,7 +985,11 @@ namespace Bullet.LinearMath
 			result.x = m_el0.dot( ref v );
 			result.y = m_el1.dot( ref v );
 			result.z = m_el2.dot( ref v );
+#if !DISABLE_ROW4
 			result.w = m_el3.dot( ref v );
+#else
+			result.w = 0;
+#endif
 		}
 
 		public static void Mult( ref btMatrix3x3 m1, ref btMatrix3x3 m2, out btMatrix3x3 result )
@@ -966,10 +1006,12 @@ namespace Bullet.LinearMath
 			result.m_el2.y = m2.tdoty( ref m1.m_el2 );
 			result.m_el2.z = m2.tdotz( ref m1.m_el2 );
 			result.m_el2.w = 0;
+#if !DISABLE_ROW4
 			result.m_el3.x = 0;
 			result.m_el3.y = 0;
 			result.m_el3.z = 0;
 			result.m_el3.w = 1;
+#endif
 		}
 
 		public void Mult( ref btMatrix3x3 m2, out btMatrix3x3 result )
@@ -986,10 +1028,12 @@ namespace Bullet.LinearMath
 			result.m_el2.y = m2.tdoty( ref m_el2 );
 			result.m_el2.z = m2.tdotz( ref m_el2 );
 			result.m_el2.w = 0;
+#if !DISABLE_ROW4
 			result.m_el3.x = 0;
 			result.m_el3.y = 0;
 			result.m_el3.z = 0;
 			result.m_el3.w = 1;
+#endif
 		}
 
 		public static void Add( ref btMatrix3x3 m1, ref btMatrix3x3 m2, out btMatrix3x3 result )
@@ -997,14 +1041,18 @@ namespace Bullet.LinearMath
 			m1.m_el0.Add( ref m2.m_el0, out result.m_el0 );
 			m1.m_el1.Add( ref m2.m_el1, out result.m_el1 );
 			m1.m_el2.Add( ref m2.m_el2, out result.m_el2 );
+#if !DISABLE_ROW4
 			m1.m_el3.Add( ref m2.m_el3, out result.m_el3 );
+#endif
 		}
 		public void Add( ref btMatrix3x3 m2, out btMatrix3x3 result )
 		{
 			m_el0.Add( ref m2.m_el0, out result.m_el0 );
 			m_el1.Add( ref m2.m_el1, out result.m_el1 );
 			m_el2.Add( ref m2.m_el2, out result.m_el2 );
+#if !DISABLE_ROW4
 			m_el3.Add( ref m2.m_el3, out result.m_el3 );
+#endif
 		}
 
 		public static void Sub( ref btMatrix3x3 m1, ref btMatrix3x3 m2, out btMatrix3x3 result )
@@ -1012,7 +1060,9 @@ namespace Bullet.LinearMath
 			m1.m_el0.Sub( ref m2.m_el0, out result.m_el0 );
 			m1.m_el1.Sub( ref m2.m_el1, out result.m_el1 );
 			m1.m_el2.Sub( ref m2.m_el2, out result.m_el2 );
+#if !DISABLE_ROW4
 			m1.m_el3.Sub( ref m2.m_el3, out result.m_el3 );
+#endif
 		}
 
 
@@ -1021,7 +1071,9 @@ namespace Bullet.LinearMath
 			m_el0.Sub( ref m2.m_el0, out result.m_el0 );
 			m_el1.Sub( ref m2.m_el1, out result.m_el1 );
 			m_el2.Sub( ref m2.m_el2, out result.m_el2 );
+#if !DISABLE_ROW4
 			m_el3.Sub( ref m2.m_el3, out result.m_el3 );
+#endif
 		}
 
 
@@ -1044,22 +1096,28 @@ namespace Bullet.LinearMath
 			result.m_el0.x = m_el0.x;
 			result.m_el0.y = m_el1.x;
 			result.m_el0.z = m_el2.x;
-			result.m_el0.w = m_el3.x;
 
 			result.m_el1.x = m_el0.y;
 			result.m_el1.y = m_el1.y;
 			result.m_el1.z = m_el2.y;
-			result.m_el1.w = m_el3.y;
 
 			result.m_el2.x = m_el0.z;
 			result.m_el2.y = m_el1.z;
 			result.m_el2.z = m_el2.z;
-			result.m_el2.w = m_el3.z;
 
+#if !DISABLE_ROW4
+			result.m_el0.w = m_el3.x;
+			result.m_el1.w = m_el3.y;
+			result.m_el2.w = m_el3.z;
 			result.m_el3.x = m_el0.w;
 			result.m_el3.y = m_el1.w;
 			result.m_el3.z = m_el2.w;
 			result.m_el3.w = m_el3.w;
+#else
+			result.m_el0.w = 0;
+			result.m_el1.w = 0;
+			result.m_el2.w = 0;
+#endif
 		}
 
 		public btMatrix3x3 adjoint()
@@ -1110,10 +1168,12 @@ namespace Bullet.LinearMath
 			result.m_el2.z = cofac( 0, 0, 1, 1 ) * s;
 			result.m_el2.w = 0;
 
+#if !DISABLE_ROW4
 			result.m_el3.x = 0;
 			result.m_el3.y = 0;
 			result.m_el3.z = 0;
 			result.m_el3.w = 0;
+#endif
 		}
 
 		public void transposeTimes( ref btMatrix3x3 m, out btMatrix3x3 result )
@@ -1131,10 +1191,12 @@ namespace Bullet.LinearMath
 			result.m_el2.z = m_el0.z * m.m_el0.z + m_el1.z * m.m_el1.z + m_el2.z * m.m_el2.z;
 			result.m_el2.w = 0;
 
+#if !DISABLE_ROW4
 			result.m_el3.x = 0;
 			result.m_el3.y = 0;
 			result.m_el3.z = 0;
 			result.m_el3.w = 1;
+#endif
 		}
 
 		public void timesTranspose( ref btMatrix3x3 m, out btMatrix3x3 result )
@@ -1154,10 +1216,12 @@ namespace Bullet.LinearMath
 			result.m_el2.z = m_el2.dot( ref m.m_el2 );
 			result.m_el2.w = 0;
 
+#if !DISABLE_ROW4
 			result.m_el3.x = 0;
 			result.m_el3.y = 0;
 			result.m_el3.z = 0;
 			result.m_el3.w = 1;
+#endif
 		}
 
 #if !DISABLE_OPERATORS
@@ -1187,6 +1251,13 @@ namespace Bullet.LinearMath
 			result.x = m_el0.dot( ref v );
 			result.y = m_el1.dot( ref v );
 			result.z = m_el2.dot( ref v );
+			result.w = 0;
+		}
+		public void Apply( btIVector3 v, out btVector3 result )
+		{
+			result.x = m_el0.dot( v );
+			result.y = m_el1.dot( v );
+			result.z = m_el2.dot( v );
 			result.w = 0;
 		}
 		public void ApplyInverse( ref btVector3 v, out btVector3 result )
@@ -1221,10 +1292,12 @@ namespace Bullet.LinearMath
 			result.m_el2.z = m2.tdotz( ref m_el2 );
 			result.m_el2.w = 0;
 
+#if !DISABLE_ROW4
 			result.m_el3.x = 0;
 			result.m_el3.y = 0;
 			result.m_el3.z = 0;
 			result.m_el3.w = 1;
+#endif
 		}
 
 		public void Apply( btIMatrix3x3 m2, out btMatrix3x3 result )
@@ -1244,10 +1317,12 @@ namespace Bullet.LinearMath
 			result.m_el2.z = m2.tdotz( ref m_el2 );
 			result.m_el2.w = 0;
 
+#if !DISABLE_ROW4
 			result.m_el3.x = 0;
 			result.m_el3.y = 0;
 			result.m_el3.z = 0;
 			result.m_el3.w = 1;
+#endif
 		}
 
 		/*
@@ -1321,5 +1396,14 @@ namespace Bullet.LinearMath
 				m_el[i].deSerializeDouble( dataIn.m_el[i]);
 		}
 		*/
+		public override string ToString()
+		{
+			return string.Format( "{0}\n{1}\n{2}", m_el0, m_el1, m_el2 );
+		}
+		public string ToString( string leader )
+		{
+			return string.Format( "{0}\n{1}{2}\n{1}{3}", m_el0, leader, m_el1, m_el2 );
+		}
+
 	}
 }

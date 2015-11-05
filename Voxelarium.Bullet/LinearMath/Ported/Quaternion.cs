@@ -1,4 +1,3 @@
-//#define DISABLE_OPERATORS
 /*
 Copyright (c) 2003-2006 Gino van den Bergen / Erwin Coumans  http://continuousphysics.com/Bullet/
 
@@ -217,7 +216,7 @@ namespace Bullet.LinearMath
 			result.x = w * q2.x + x * q2.w + y * q2.z - z * q2.y;
 			result.y = w * q2.y + y * q2.w + z * q2.x - x * q2.z;
 			result.z = w * q2.z + z * q2.w + x * q2.y - y * q2.x;
-			result.w = w * q2.w - x * q2.x - y * q2.y - z * q2.z;
+			result.w = 0;// w * q2.w - x * q2.x - y * q2.y - z * q2.z;
 		}
 
 		public void Mult( ref btQuaternion q2, out btQuaternion result )
@@ -360,7 +359,7 @@ namespace Bullet.LinearMath
 			result.x = -x;
 			result.y = -y;
 			result.z = -z;
-			result.w = -w;
+			result.w = w;
 		}
 
 		/*@brief Return the negative of this quaternion 

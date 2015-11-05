@@ -170,52 +170,55 @@ namespace Bullet.Collision.NarrowPhase
 
 		public void processTriangle( btVector3[] triangle, int partId, int triangleIndex )
 		{
-			btTriangleShape triangleShape = new btTriangleShape( ref triangle[0], ref triangle[1], ref triangle[2] );
-			triangleShape.setMargin( m_triangleCollisionMargin );
+			using( btTriangleShape triangleShape = BulletGlobals.TriangleShapePool.Get() )
+			{
+				triangleShape.Initialize( ref triangle[0], ref triangle[1], ref triangle[2] );
+				triangleShape.setMargin( m_triangleCollisionMargin );
 
-			btVoronoiSimplexSolver simplexSolver = new btVoronoiSimplexSolver();
-			btGjkEpaPenetrationDepthSolver gjkEpaPenetrationSolver = new btGjkEpaPenetrationDepthSolver();
+				btVoronoiSimplexSolver simplexSolver = new btVoronoiSimplexSolver();
+				btGjkEpaPenetrationDepthSolver gjkEpaPenetrationSolver = new btGjkEpaPenetrationDepthSolver();
 
-			//#define  USE_SUBSIMPLEX_CONVEX_CAST 1
-			//if you reenable USE_SUBSIMPLEX_CONVEX_CAST see commented out code below
+				//#define  USE_SUBSIMPLEX_CONVEX_CAST 1
+				//if you reenable USE_SUBSIMPLEX_CONVEX_CAST see commented out code below
 #if USE_SUBSIMPLEX_CONVEX_CAST
 	btSubsimplexConvexCast convexCaster(m_convexShape, &triangleShape, &simplexSolver);
 #else
-			//btGjkConvexCast	convexCaster(m_convexShape,&triangleShape,&simplexSolver);
-			btContinuousConvexCollision convexCaster = BulletGlobals.ContinuousConvexCollisionPool.Get();
-			convexCaster.Initialize( m_convexShape, triangleShape, simplexSolver, gjkEpaPenetrationSolver );
+				//btGjkConvexCast	convexCaster(m_convexShape,&triangleShape,&simplexSolver);
+				btContinuousConvexCollision convexCaster = BulletGlobals.ContinuousConvexCollisionPool.Get();
+				convexCaster.Initialize( m_convexShape, triangleShape, simplexSolver, gjkEpaPenetrationSolver );
 #endif //#USE_SUBSIMPLEX_CONVEX_CAST
 
-			btConvexCast.CastResult castResult = BulletGlobals.CastResultPool.Get();
-			castResult.Initialize();
-			castResult.m_fraction = btScalar.BT_ONE;
-			castResult.m_allowedPenetration = m_allowedPenetration;
-			if( convexCaster.calcTimeOfImpact( m_convexShapeFrom, m_convexShapeTo, m_triangleToWorld, m_triangleToWorld, castResult ) )
-			{
-				//add hit
-				if( castResult.m_normal.length2() > (double)( 0.0001 ) )
+				btConvexCast.CastResult castResult = BulletGlobals.CastResultPool.Get();
+				castResult.Initialize();
+				castResult.m_fraction = btScalar.BT_ONE;
+				castResult.m_allowedPenetration = m_allowedPenetration;
+				if( convexCaster.calcTimeOfImpact( m_convexShapeFrom, m_convexShapeTo, m_triangleToWorld, m_triangleToWorld, castResult ) )
 				{
-					if( castResult.m_fraction < m_hitFraction )
+					//add hit
+					if( castResult.m_normal.length2() > (double)( 0.0001 ) )
 					{
-						/* btContinuousConvexCast's normal is already in world space */
-						/*
-						#if USE_SUBSIMPLEX_CONVEX_CAST
-										//rotate normal into worldspace
-										castResult.m_normal = m_convexShapeFrom.getBasis() * castResult.m_normal;
-						#endif //USE_SUBSIMPLEX_CONVEX_CAST
-						*/
-						castResult.m_normal.normalize();
+						if( castResult.m_fraction < m_hitFraction )
+						{
+							/* btContinuousConvexCast's normal is already in world space */
+							/*
+							#if USE_SUBSIMPLEX_CONVEX_CAST
+											//rotate normal into worldspace
+											castResult.m_normal = m_convexShapeFrom.getBasis() * castResult.m_normal;
+							#endif //USE_SUBSIMPLEX_CONVEX_CAST
+							*/
+							castResult.m_normal.normalize();
 
-						reportHit( ref castResult.m_normal,
-									ref castResult.m_hitPoint,
-									castResult.m_fraction,
-									partId,
-									triangleIndex );
+							reportHit( ref castResult.m_normal,
+										ref castResult.m_hitPoint,
+										castResult.m_fraction,
+										partId,
+										triangleIndex );
+						}
 					}
 				}
+				BulletGlobals.CastResultPool.Free( castResult );
+				BulletGlobals.ContinuousConvexCollisionPool.Free( convexCaster );
 			}
-			BulletGlobals.CastResultPool.Free( castResult );
-			BulletGlobals.ContinuousConvexCollisionPool.Free( convexCaster );
 		}
 	};
 }

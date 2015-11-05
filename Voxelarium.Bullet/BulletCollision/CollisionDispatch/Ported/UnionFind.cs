@@ -45,9 +45,22 @@ namespace Bullet.Collision.Dispatch
 			return ( x == m_elements[x].m_id );
 		}
 
-		internal btElement getElement( int index )
+		btElement getElement( int index )
 		{
 			return m_elements[index];
+		}
+		internal int getElementId( int index )
+		{
+			return m_elements.InternalArray[index].m_id;
+		}
+		internal int getElementSz( int index )
+		{
+			return m_elements.InternalArray[index].m_sz;
+		}
+
+		internal void setElementSz( int index, int sz )
+		{
+			m_elements.InternalArray[index].m_sz = sz;
 		}
 
 		bool find( int p, int q )
@@ -114,6 +127,8 @@ namespace Bullet.Collision.Dispatch
 
 		public void allocate( int N )
 		{
+			m_elements.Capacity = N;
+			m_elements.Count = N;
 			m_elements[N - 1] = new btElement();
 		}
 		public void Free()

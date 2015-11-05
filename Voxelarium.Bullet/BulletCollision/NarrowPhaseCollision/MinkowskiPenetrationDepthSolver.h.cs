@@ -1,3 +1,5 @@
+// if not __SPU__ 
+#define USE_BATCHED_SUPPORT
 /*
 Bullet Continuous Collision Detection and Physics Library
 Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
@@ -13,28 +15,361 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#if ! BT_MINKOWSKI_PENETRATION_DEPTH_SOLVER_H
-#define BT_MINKOWSKI_PENETRATION_DEPTH_SOLVER_H
+using Bullet.Collision.Shapes;
+using Bullet.LinearMath;
 
-#include "btConvexPenetrationDepthSolver.h"
-
-///MinkowskiPenetrationDepthSolver implements bruteforce penetration depth estimation.
-///Implementation is based on sampling the depth using support mapping, and using GJK step to get the witness points.
-class btMinkowskiPenetrationDepthSolver : btConvexPenetrationDepthSolver
+namespace Bullet.Collision.NarrowPhase
 {
-protected:
 
-	static btVector3*	getPenetrationDirections();
+	///MinkowskiPenetrationDepthSolver implements bruteforce penetration depth estimation.
+	///Implementation is based on sampling the depth using support mapping, and using GJK step to get the witness points.
+	class btMinkowskiPenetrationDepthSolver : btConvexPenetrationDepthSolver
+	{
+		const int NUM_UNITSPHERE_POINTS = 42;
 
-public:
+		internal class btIntermediateResult : btDiscreteCollisionDetectorInterface.Result
+		{
 
-	virtual bool calcPenDepth( btSimplexSolverInterface& simplexSolver,
-	btConvexShape* convexA,btConvexShape* convexB,
-				ref btTransform transA,ref btTransform transB,
-			ref btVector3 v, ref btVector3 pa, ref btVector3 pb,
-			btIDebugDraw debugDraw
-			);
-};
+			internal btIntermediateResult()
+			{
+				m_hasResult = false;
+			}
 
-#endif //BT_MINKOWSKI_PENETRATION_DEPTH_SOLVER_H
+			internal void Initialize()
+			{
+				m_hasResult = false;
+			}
+
+			btVector3 m_normalOnBInWorld;
+			btVector3 m_pointInWorld;
+			double m_depth;
+			bool m_hasResult;
+
+			public void setShapeIdentifiersA( int partId0, int index0 )
+			{
+				//(void)partId0;
+				//(void)index0;
+			}
+			public void setShapeIdentifiersB( int partId1, int index1 )
+			{
+				//(void)partId1;
+				//(void)index1;
+			}
+			public void addContactPoint( ref btVector3 normalOnBInWorld, ref btVector3 pointInWorld, double depth )
+			{
+				m_normalOnBInWorld = normalOnBInWorld;
+				m_pointInWorld = pointInWorld;
+				m_depth = depth;
+				m_hasResult = true;
+			}
+		};
+
+
+		public virtual bool calcPenDepth( btSimplexSolverInterface simplexSolver,
+														   btConvexShape convexA, btConvexShape convexB,
+														   ref btTransform transA, ref btTransform transB,
+														   ref btVector3 v, ref btVector3 pa, ref btVector3 pb,
+														   btIDebugDraw debugDraw
+														   )
+		{
+
+			//(void)v;
+
+			bool check2d = convexA.isConvex2d() && convexB.isConvex2d();
+
+			//just take fixed number of orientation, and sample the penetration depth in that direction
+			double minProj = btScalar.BT_LARGE_FLOAT;
+			btVector3 minNorm = btVector3.Zero;
+			btVector3 minA, minB;
+			btVector3 seperatingAxisInA, seperatingAxisInB;
+			btVector3 pInA, qInB, pWorld, qWorld, w;
+
+#if USE_BATCHED_SUPPORT
+
+			btVector3[] supportVerticesABatch = new btVector3[NUM_UNITSPHERE_POINTS + btConvexShape.MAX_PREFERRED_PENETRATION_DIRECTIONS * 2];
+			btVector3[] supportVerticesBBatch = new btVector3[NUM_UNITSPHERE_POINTS + btConvexShape.MAX_PREFERRED_PENETRATION_DIRECTIONS * 2];
+			btVector3[] seperatingAxisInABatch = new btVector3[NUM_UNITSPHERE_POINTS + btConvexShape.MAX_PREFERRED_PENETRATION_DIRECTIONS * 2];
+			btVector3[] seperatingAxisInBBatch = new btVector3[NUM_UNITSPHERE_POINTS + btConvexShape.MAX_PREFERRED_PENETRATION_DIRECTIONS * 2];
+			int i;
+
+			int numSampleDirections = NUM_UNITSPHERE_POINTS;
+
+			for( i = 0; i < numSampleDirections; i++ )
+			{
+				btVector3 norm = getPenetrationDirections()[i];
+				seperatingAxisInABatch[i] = ( -norm ) * transA.getBasis();
+				seperatingAxisInBBatch[i] = norm * transB.getBasis();
+			}
+
+			{
+				int numPDA = convexA.getNumPreferredPenetrationDirections();
+				if( numPDA )
+				{
+					for( int i = 0; i < numPDA; i++ )
+					{
+						btVector3 norm;
+						convexA.getPreferredPenetrationDirection( i, norm );
+						norm = transA.getBasis() * norm;
+						getPenetrationDirections()[numSampleDirections] = norm;
+						seperatingAxisInABatch[numSampleDirections] = ( -norm ) * transA.getBasis();
+						seperatingAxisInBBatch[numSampleDirections] = norm * transB.getBasis();
+						numSampleDirections++;
+					}
+				}
+			}
+
+			{
+				int numPDB = convexB.getNumPreferredPenetrationDirections();
+				if( numPDB )
+				{
+					for( int i = 0; i < numPDB; i++ )
+					{
+						btVector3 norm;
+						convexB.getPreferredPenetrationDirection( i, norm );
+						norm = transB.getBasis() * norm;
+						getPenetrationDirections()[numSampleDirections] = norm;
+						seperatingAxisInABatch[numSampleDirections] = ( -norm ) * transA.getBasis();
+						seperatingAxisInBBatch[numSampleDirections] = norm * transB.getBasis();
+						numSampleDirections++;
+					}
+				}
+			}
+
+
+
+
+			convexA.batchedUnitVectorGetSupportingVertexWithoutMargin( seperatingAxisInABatch, supportVerticesABatch, numSampleDirections );
+			convexB.batchedUnitVectorGetSupportingVertexWithoutMargin( seperatingAxisInBBatch, supportVerticesBBatch, numSampleDirections );
+
+			for( i = 0; i < numSampleDirections; i++ )
+			{
+				btVector3 norm = getPenetrationDirections()[i];
+				if( check2d )
+				{
+					norm[2] = 0;
+				}
+				if( norm.length2() > 0.01 )
+				{
+
+					seperatingAxisInA = seperatingAxisInABatch[i];
+					seperatingAxisInB = seperatingAxisInBBatch[i];
+
+					pInA = supportVerticesABatch[i];
+					qInB = supportVerticesBBatch[i];
+
+					pWorld = transA( pInA );
+					qWorld = transB( qInB );
+					if( check2d )
+					{
+						pWorld[2] = 0;
+						qWorld[2] = 0;
+					}
+
+					w = qWorld - pWorld;
+					double delta = norm.dot( w );
+					//find smallest delta
+					if( delta < minProj )
+					{
+						minProj = delta;
+						minNorm = norm;
+						minA = pWorld;
+						minB = qWorld;
+					}
+				}
+			}
+#else
+
+	int numSampleDirections = NUM_UNITSPHERE_POINTS;
+
+#if !__SPU__
+	{
+		int numPDA = convexA.getNumPreferredPenetrationDirections();
+		if (numPDA)
+		{
+			for (int i=0;i<numPDA;i++)
+			{
+				btVector3 norm;
+				convexA.getPreferredPenetrationDirection(i,norm);
+				norm  = transA.getBasis() * norm;
+				getPenetrationDirections()[numSampleDirections] = norm;
+				numSampleDirections++;
+			}
+		}
+	}
+
+	{
+		int numPDB = convexB.getNumPreferredPenetrationDirections();
+		if (numPDB)
+		{
+			for (int i=0;i<numPDB;i++)
+			{
+				btVector3 norm;
+				convexB.getPreferredPenetrationDirection(i,norm);
+				norm  = transB.getBasis() * norm;
+				getPenetrationDirections()[numSampleDirections] = norm;
+				numSampleDirections++;
+			}
+		}
+	}
+#endif // __SPU__
+
+	for (int i=0;i<numSampleDirections;i++)
+	{
+		ref btVector3 norm = getPenetrationDirections()[i];
+		seperatingAxisInA = (-norm)* transA.getBasis();
+		seperatingAxisInB = norm* transB.getBasis();
+		pInA = convexA.localGetSupportVertexWithoutMarginNonVirtual(seperatingAxisInA);
+		qInB = convexB.localGetSupportVertexWithoutMarginNonVirtual(seperatingAxisInB);
+		pWorld = transA(pInA);	
+		qWorld = transB(qInB);
+		w	= qWorld - pWorld;
+		double delta = norm.dot(w);
+		//find smallest delta
+		if (delta < minProj)
+		{
+			minProj = delta;
+			minNorm = norm;
+			minA = pWorld;
+			minB = qWorld;
+		}
+	}
+#endif //USE_BATCHED_SUPPORT
+
+			//add the margins
+
+			minA += minNorm * convexA.getMarginNonVirtual();
+			minB -= minNorm * convexB.getMarginNonVirtual();
+			//no penetration
+			if( minProj < btScalar.BT_ZERO )
+				return false;
+
+			double extraSeparation = 0.5f;///scale dependent
+			minProj += extraSeparation + ( convexA.getMarginNonVirtual() + convexB.getMarginNonVirtual() );
+
+
+
+
+
+			//#define DEBUG_DRAW 1
+#if DEBUG_DRAW
+	if (debugDraw)
+	{
+		btVector3 color(0,1,0);
+		debugDraw.drawLine(minA,minB,color);
+		color = btVector3 (1,1,1);
+		btVector3 vec = minB-minA;
+		double prj2 = minNorm.dot(vec);
+		debugDraw.drawLine(minA,minA+(minNorm*minProj),color);
+
+	}
+#endif //DEBUG_DRAW
+
+
+
+			btGjkPairDetector gjkdet( convexA, convexB,&simplexSolver, 0);
+
+			double offsetDist = minProj;
+			btVector3 offset = minNorm * offsetDist;
+
+
+
+			btGjkPairDetector::ClosestPointInput input;
+
+			btVector3 newOrg = transA.getOrigin() + offset;
+
+			btTransform displacedTrans = transA;
+			displacedTrans.setOrigin( newOrg );
+
+			input.m_transformA = displacedTrans;
+			input.m_transformB = transB;
+			input.m_maximumDistanceSquared = (double)( BT_LARGE_FLOAT );//minProj;
+
+			btIntermediateResult res;
+			gjkdet.setCachedSeperatingAxis( -minNorm );
+			gjkdet.getClosestPoints( input, res, debugDraw );
+
+			double correctedMinNorm = minProj - res.m_depth;
+
+
+			//the penetration depth is over-estimated, relax it
+			double penetration_relaxation = btScalar.BT_ONE;
+			minNorm *= penetration_relaxation;
+
+
+			if( res.m_hasResult )
+			{
+
+				pa = res.m_pointInWorld - minNorm * correctedMinNorm;
+				pb = res.m_pointInWorld;
+				v = minNorm;
+
+#if DEBUG_DRAW
+		if (debugDraw)
+		{
+			btVector3 color(1,0,0);
+			debugDraw.drawLine(pa,pb,color);
+		}
+#endif//DEBUG_DRAW
+
+
+			}
+			return res.m_hasResult;
+		}
+
+		static btVector3[] sPenetrationDirections = new btVector3[NUM_UNITSPHERE_POINTS + btConvexShape.MAX_PREFERRED_PENETRATION_DIRECTIONS * 2]
+	{
+	new btVector3((double)(0.000000) , (double)(-0.000000),(double)(-1.000000)),
+	new btVector3((double)(0.723608) , (double)(-0.525725),(double)(-0.447219)),
+	new btVector3((double)(-0.276388) , (double)(-0.850649),(double)(-0.447219)),
+	new btVector3((double)(-0.894426) , (double)(-0.000000),(double)(-0.447216)),
+	new btVector3((double)(-0.276388) , (double)(0.850649),(double)(-0.447220)),
+	new btVector3((double)(0.723608) , (double)(0.525725),(double)(-0.447219)),
+	new btVector3((double)(0.276388) , (double)(-0.850649),(double)(0.447220)),
+	new btVector3((double)(-0.723608) , (double)(-0.525725),(double)(0.447219)),
+	new btVector3((double)(-0.723608) , (double)(0.525725),(double)(0.447219)),
+	new btVector3((double)(0.276388) , (double)(0.850649),(double)(0.447219)),
+	new btVector3((double)(0.894426) , (double)(0.000000),(double)(0.447216)),
+	new btVector3((double)(-0.000000) , (double)(0.000000),(double)(1.000000)),
+	new btVector3((double)(0.425323) , (double)(-0.309011),(double)(-0.850654)),
+	new btVector3((double)(-0.162456) , (double)(-0.499995),(double)(-0.850654)),
+	new btVector3((double)(0.262869) , (double)(-0.809012),(double)(-0.525738)),
+	new btVector3((double)(0.425323) , (double)(0.309011),(double)(-0.850654)),
+	new btVector3((double)(0.850648) , (double)(-0.000000),(double)(-0.525736)),
+	new btVector3((double)(-0.525730) , (double)(-0.000000),(double)(-0.850652)),
+	new btVector3((double)(-0.688190) , (double)(-0.499997),(double)(-0.525736)),
+	new btVector3((double)(-0.162456) , (double)(0.499995),(double)(-0.850654)),
+	new btVector3((double)(-0.688190) , (double)(0.499997),(double)(-0.525736)),
+	new btVector3((double)(0.262869) , (double)(0.809012),(double)(-0.525738)),
+	new btVector3((double)(0.951058) , (double)(0.309013),(double)(0.000000)),
+	new btVector3((double)(0.951058) , (double)(-0.309013),(double)(0.000000)),
+	new btVector3((double)(0.587786) , (double)(-0.809017),(double)(0.000000)),
+	new btVector3((double)(0.000000) , (double)(-1.000000),(double)(0.000000)),
+	new btVector3((double)(-0.587786) , (double)(-0.809017),(double)(0.000000)),
+	new btVector3((double)(-0.951058) , (double)(-0.309013),(double)(-0.000000)),
+	new btVector3((double)(-0.951058) , (double)(0.309013),(double)(-0.000000)),
+	new btVector3((double)(-0.587786) , (double)(0.809017),(double)(-0.000000)),
+	new btVector3((double)(-0.000000) , (double)(1.000000),(double)(-0.000000)),
+	new btVector3((double)(0.587786) , (double)(0.809017),(double)(-0.000000)),
+	new btVector3((double)(0.688190) , (double)(-0.499997),(double)(0.525736)),
+	new btVector3((double)(-0.262869) , (double)(-0.809012),(double)(0.525738)),
+	new btVector3((double)(-0.850648) , (double)(0.000000),(double)(0.525736)),
+	new btVector3((double)(-0.262869) , (double)(0.809012),(double)(0.525738)),
+	new btVector3((double)(0.688190) , (double)(0.499997),(double)(0.525736)),
+	new btVector3((double)(0.525730) , (double)(0.000000),(double)(0.850652)),
+	new btVector3((double)(0.162456) , (double)(-0.499995),(double)(0.850654)),
+	new btVector3((double)(-0.425323) , (double)(-0.309011),(double)(0.850654)),
+	new btVector3((double)(-0.425323) , (double)(0.309011),(double)(0.850654)),
+	new btVector3((double)(0.162456) , (double)(0.499995),(double)(0.850654))
+	};
+
+		public static btVector3[] getPenetrationDirections()
+		{
+
+			return sPenetrationDirections;
+		}
+
+
+	};
+
+}
 

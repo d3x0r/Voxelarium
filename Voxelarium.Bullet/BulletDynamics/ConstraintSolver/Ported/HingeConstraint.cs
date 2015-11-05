@@ -1,6 +1,6 @@
 //#define HINGE_USE_OBSOLETE_SOLVER
 #define HINGE_USE_FRAME_OFFSET
-
+#define _BT_USE_CENTER_LIMIT_
 /*
 Bullet Continuous Collision Detection and Physics Library
 Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
@@ -62,7 +62,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 
 
 #if _BT_USE_CENTER_LIMIT_
-		btAngularLimit	m_limit;
+		btAngularLimit m_limit;
 #else
 		double m_lowerLimit;
 		double m_upperLimit;
@@ -125,8 +125,9 @@ namespace Bullet.Dynamics.ConstraintSolver
 		// extra motor API, including ability to set a target rotation (as opposed to angular velocity)
 		// note: setMotorTarget sets angular velocity under the hood, so you must call it every tick to
 		//       maintain a given angular target.
-		internal void enableMotor( bool enableMotor ) { m_enableAngularMotor = enableMotor; }
-		internal void setMaxMotorImpulse( double maxMotorImpulse ) { m_maxMotorImpulse = maxMotorImpulse; }
+		public void enableMotor( bool enableMotor ) { m_enableAngularMotor = enableMotor; }
+		public void setMaxMotorImpulse( double maxMotorImpulse ) { m_maxMotorImpulse = maxMotorImpulse; }
+		public void setMotorTargetVelocity( btScalar motorTargetVelocity ) { m_motorTargetVelocity = motorTargetVelocity; }
 		//void setMotorTarget( btQuaternion& qAinB, double dt ); // qAinB is rotation of body A wrt body B.
 		//void setMotorTarget( double targetAngle, double dt );
 
@@ -134,13 +135,41 @@ namespace Bullet.Dynamics.ConstraintSolver
 		internal void setLimit( double low, double high, double _softness = 0.9f, double _biasFactor = 0.3f, double _relaxationFactor = 1.0f )
 		{
 #if _BT_USE_CENTER_LIMIT_
-		m_limit.set(low, high, _softness, _biasFactor, _relaxationFactor);
+			m_limit.set( low, high, _softness, _biasFactor, _relaxationFactor );
 #else
 			m_lowerLimit = btScalar.btNormalizeAngle( low );
 			m_upperLimit = btScalar.btNormalizeAngle( high );
 			m_limitSoftness = _softness;
 			m_biasFactor = _biasFactor;
 			m_relaxationFactor = _relaxationFactor;
+#endif
+		}
+
+
+		public double getLimitSoftness()
+		{
+#if _BT_USE_CENTER_LIMIT_
+			return m_limit.getSoftness();
+#else
+			return m_limitSoftness;
+#endif
+		}
+
+		public double getLimitBiasFactor()
+		{
+#if _BT_USE_CENTER_LIMIT_
+			return m_limit.getBiasFactor();
+#else
+			return m_biasFactor;
+#endif
+		}
+
+		public double getLimitRelaxationFactor()
+		{
+#if _BT_USE_CENTER_LIMIT_
+			return m_limit.getRelaxationFactor();
+#else
+			return m_relaxationFactor;
 #endif
 		}
 
@@ -179,7 +208,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 		internal bool hasLimit()
 		{
 #if _BT_USE_CENTER_LIMIT_
-        return m_limit.getHalfRange() > 0;
+			return m_limit.getHalfRange() > 0;
 #else
 			return m_lowerLimit <= m_upperLimit;
 #endif
@@ -188,7 +217,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 		public double getLowerLimit()
 		{
 #if _BT_USE_CENTER_LIMIT_
-	return m_limit.getLow();
+			return m_limit.getLow();
 #else
 			return m_lowerLimit;
 #endif
@@ -197,7 +226,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 		public double getUpperLimit()
 		{
 #if _BT_USE_CENTER_LIMIT_
-	return m_limit.getHigh();
+			return m_limit.getHigh();
 #else
 			return m_upperLimit;
 #endif
@@ -216,10 +245,10 @@ namespace Bullet.Dynamics.ConstraintSolver
 #if ALLOW_INLINE
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 #endif
-		internal bool getSolveLimit()
+		public bool getSolveLimit()
 		{
 #if _BT_USE_CENTER_LIMIT_
-	return m_limit.isLimit();
+			return m_limit.isLimit();
 #else
 			return m_solveLimit;
 #endif
@@ -228,10 +257,10 @@ namespace Bullet.Dynamics.ConstraintSolver
 #if ALLOW_INLINE
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 #endif
-		double getLimitSign()
+		public double getLimitSign()
 		{
 #if _BT_USE_CENTER_LIMIT_
-	return m_limit.getSign();
+			return m_limit.getSign();
 #else
 			return m_limitSign;
 #endif
@@ -240,36 +269,46 @@ namespace Bullet.Dynamics.ConstraintSolver
 #if ALLOW_INLINE
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 #endif
-		bool getAngularOnly()
+		public bool getAngularOnly()
 		{
 			return m_angularOnly;
 		}
 #if ALLOW_INLINE
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 #endif
-		bool getEnableAngularMotor()
+		public bool getEnableAngularMotor()
 		{
 			return m_enableAngularMotor;
 		}
 #if ALLOW_INLINE
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 #endif
-		double getMotorTargetVelosity()
+		public double getMotorTargetVelosity()
 		{
 			return m_motorTargetVelocity;
 		}
 #if ALLOW_INLINE
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 #endif
-		double getMaxMotorImpulse()
+		public double getMaxMotorImpulse()
 		{
 			return m_maxMotorImpulse;
 		}
 		// access for UseFrameOffset
-		/*
-		bool getUseFrameOffset() { return m_useOffsetForConstraintFrame; }
-		void setUseFrameOffset( bool frameOffsetOnOff ) { m_useOffsetForConstraintFrame = frameOffsetOnOff; }
-		*/
+
+		public bool getUseFrameOffset() { return m_useOffsetForConstraintFrame; }
+		public void setUseFrameOffset( bool frameOffsetOnOff ) { m_useOffsetForConstraintFrame = frameOffsetOnOff; }
+
+		// access for UseReferenceFrameA
+		public bool getUseReferenceFrameA() { return m_useReferenceFrameA; }
+		public void setUseReferenceFrameA( bool useReferenceFrameA ) { m_useReferenceFrameA = useReferenceFrameA; }
+
+		public btHingeFlags getFlags()
+		{
+			return m_flags;
+		}
+
+
 
 		///return the local value of parameter
 
@@ -282,11 +321,11 @@ namespace Bullet.Dynamics.ConstraintSolver
 
 
 		public btHingeConstraint( btRigidBody rbA, btRigidBody rbB, ref btVector3 pivotInA, ref btVector3 pivotInB,
-		 									 ref btVector3 axisInA, ref btVector3 axisInB, bool useReferenceFrameA = false )
-									 : base( btObjectTypes.HINGE_CONSTRAINT_TYPE, rbA, rbB )
+												  ref btVector3 axisInA, ref btVector3 axisInB, bool useReferenceFrameA = false )
+										 : base( btObjectTypes.HINGE_CONSTRAINT_TYPE, rbA, rbB )
 		{
 #if _BT_USE_CENTER_LIMIT_
-									 m_limit(),
+			m_limit = new btAngularLimit();
 #endif
 			m_angularOnly = ( false );
 			m_enableAngularMotor = ( false );
@@ -352,7 +391,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 				: base( btObjectTypes.HINGE_CONSTRAINT_TYPE, rbA )
 		{
 #if _BT_USE_CENTER_LIMIT_
-m_limit(),
+			m_limit = new btAngularLimit();
 #endif
 			m_angularOnly = ( false ); m_enableAngularMotor = ( false );
 			//m_useSolveConstraintObsolete = ( false/*HINGE_USE_OBSOLETE_SOLVER*/ );
@@ -408,7 +447,7 @@ m_limit(),
 			m_rbAFrame = ( rbAFrame );
 			m_rbBFrame = ( rbBFrame );
 #if _BT_USE_CENTER_LIMIT_
-m_limit = new (),
+			m_limit = new btAngularLimit();
 #endif
 			m_angularOnly = ( false );
 			m_enableAngularMotor = ( false );
@@ -440,7 +479,7 @@ m_limit = new (),
 			m_rbAFrame = ( rbAFrame );
 			m_rbBFrame = ( rbAFrame );
 #if _BT_USE_CENTER_LIMIT_
-m_limit();
+			m_limit = new btAngularLimit();
 #endif
 			m_angularOnly = ( false );
 			m_enableAngularMotor = ( false );
@@ -638,7 +677,7 @@ m_limit();
 			}
 		}
 
-		internal override void getInfo2(  btConstraintInfo2 info )
+		internal override void getInfo2( btConstraintInfo2 info )
 		{
 			if( m_useOffsetForConstraintFrame )
 			{
@@ -950,7 +989,7 @@ m_limit();
 			// Compute limit information
 			m_hingeAngle = getHingeAngle( ref transA, ref transB );
 #if _BT_USE_CENTER_LIMIT_
-	m_limit.test(m_hingeAngle);
+			m_limit.test( m_hingeAngle );
 #else
 			m_correction = btScalar.BT_ZERO;
 			m_limitSign = btScalar.BT_ZERO;
@@ -1018,7 +1057,7 @@ m_limit();
 		public void setMotorTarget( double targetAngle, double dt )
 		{
 #if _BT_USE_CENTER_LIMIT_
-	m_limit.fit(targetAngle);
+			m_limit.fit( targetAngle );
 #else
 			if( m_lowerLimit < m_upperLimit )
 			{
@@ -1195,7 +1234,7 @@ m_limit();
 			if( getSolveLimit() )
 			{
 #if _BT_USE_CENTER_LIMIT_
-	limit_err = m_limit.getCorrection() * m_referenceSign;
+				limit_err = m_limit.getCorrection() * m_referenceSign;
 #else
 				limit_err = m_correction * m_referenceSign;
 #endif
@@ -1216,12 +1255,12 @@ m_limit();
 
 				double lostop = getLowerLimit();
 				double histop = getUpperLimit();
-				if( limit!=0 && ( lostop == histop ) )
+				if( limit != 0 && ( lostop == histop ) )
 				{  // the joint motor is ineffective
 					powered = false;
 				}
 				info.m_solverConstraints[5].m_rhs = (double)( 0.0f );
-				double currERP = (( m_flags & btHingeFlags.BT_HINGE_FLAGS_ERP_STOP ) != 0 )? m_stopERP : normalErp;
+				double currERP = ( ( m_flags & btHingeFlags.BT_HINGE_FLAGS_ERP_STOP ) != 0 ) ? m_stopERP : normalErp;
 				if( powered )
 				{
 					if( ( m_flags & btHingeFlags.BT_HINGE_FLAGS_CFM_NORM ) != 0 )
@@ -1259,7 +1298,7 @@ m_limit();
 					}
 					// bounce (we'll use slider parameter abs(1.0 - m_dampingLimAng) for that)
 #if _BT_USE_CENTER_LIMIT_
-			double bounce = m_limit.getRelaxationFactor();
+					double bounce = m_limit.getRelaxationFactor();
 #else
 					double bounce = m_relaxationFactor;
 #endif
@@ -1293,7 +1332,7 @@ m_limit();
 						}
 					}
 #if _BT_USE_CENTER_LIMIT_
-			info.m_constraintError[srow] *= m_limit.getBiasFactor();
+					info.m_solverConstraints[5].m_rhs *= m_limit.getBiasFactor();
 #else
 					info.m_solverConstraints[5].m_rhs *= m_biasFactor;
 #endif

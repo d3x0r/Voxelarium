@@ -21,12 +21,12 @@ namespace Bullet.Collision.Shapes
 
 
 	///The btStaticPlaneShape simulates an infinite non-moving (static) collision plane.
-	internal class btStaticPlaneShape : btConcaveShape
+	public class btStaticPlaneShape : btConcaveShape
 	{
-		protected btVector3 m_localAabbMin;
-		protected btVector3 m_localAabbMax;
+		//protected btVector3 m_localAabbMin;
+		//protected btVector3 m_localAabbMax;
 
-		protected btVector3 m_planeNormal;
+		internal btVector3 m_planeNormal;
 		protected double m_planeConstant;
 		protected btVector3 m_localScaling;
 
@@ -42,28 +42,48 @@ namespace Bullet.Collision.Shapes
 			virtual ref btVector3 getLocalScaling();
 		*/
 
-		internal void getPlaneNormal( out btVector3 result )
+		public void getPlaneNormal( out btVector3 result )
 		{
 			result = m_planeNormal;
 		}
+		public btIVector3 getPlaneNormal()
+		{
+			return m_planeNormal;
+		}
 
-		internal double getPlaneConstant()
+		public double getPlaneConstant()
 		{
 			return m_planeConstant;
 		}
 
 		//debugging
 		public override string ToString() { return "STATICPLANE"; }
+
+#if ALLOW_PUBLIC_SHAPES
+		public
+#endif
 		btStaticPlaneShape( ref btVector3 planeNormal, double planeConstant ) : base()
 		{
 			planeNormal.normalized( out m_planeNormal );
 			m_planeConstant = ( planeConstant );
 			m_localScaling = btVector3.Zero;
-            m_shapeType = BroadphaseNativeTypes.STATIC_PLANE_PROXYTYPE;
+			m_shapeType = BroadphaseNativeTypes.STATIC_PLANE_PROXYTYPE;
 			//	Debug.Assert( btFuzzyZero(m_planeNormal.length() - btScalar.BT_ONE) );
 		}
 
-		public override void getAabb( ref btTransform t, out btVector3 aabbMin, out btVector3 aabbMax )
+#if ALLOW_PUBLIC_SHAPES
+		public
+#endif
+		btStaticPlaneShape( ref btVector3 planeOrigin, ref btVector3 planeNormal ) : base()
+		{
+			planeNormal.normalized( out m_planeNormal );
+			m_planeConstant = planeOrigin.dot( ref planeNormal );
+			m_localScaling = btVector3.Zero;
+			m_shapeType = BroadphaseNativeTypes.STATIC_PLANE_PROXYTYPE;
+			//	Debug.Assert( btFuzzyZero(m_planeNormal.length() - btScalar.BT_ONE) );
+		}
+
+		public override void getAabb( btITransform t, out btVector3 aabbMin, out btVector3 aabbMax )
 		{
 			//(void)t;
 			/*

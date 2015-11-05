@@ -1,5 +1,5 @@
 ﻿#if !USE_GLES2
-using Bullet.LinearMath;
+using Voxelarium.LinearMath;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 #else

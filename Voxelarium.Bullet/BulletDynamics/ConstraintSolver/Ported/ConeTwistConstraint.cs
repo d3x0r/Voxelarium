@@ -159,12 +159,16 @@ namespace Bullet.Dynamics.ConstraintSolver
 				*/
 
 
-		internal void setAngularOnly( bool angularOnly )
+		public void setAngularOnly( bool angularOnly )
 		{
 			m_angularOnly = angularOnly;
 		}
+		public bool getAngularOnly()
+		{
+			return m_angularOnly;
+		}
 
-		internal void setLimit( int limitIndex, double limitValue )
+		public void setLimit( int limitIndex, double limitValue )
 		{
 			switch( limitIndex )
 			{
@@ -187,6 +191,30 @@ namespace Bullet.Dynamics.ConstraintSolver
 					{
 					}
 					break;
+			};
+		}
+
+		public double getLimit( int limitIndex )
+		{
+			switch( limitIndex )
+			{
+				case 3:
+					{
+						return m_twistSpan;
+					}
+				case 4:
+					{
+						return m_swingSpan2;
+					}
+				case 5:
+					{
+						return m_swingSpan1;
+					}
+				default:
+					{
+						Debug.Assert( false, "Invalid limitIndex specified for btConeTwistConstraint" );
+						return 0.0;
+					}
 			};
 		}
 
@@ -263,20 +291,47 @@ namespace Bullet.Dynamics.ConstraintSolver
 #if ALLOW_INLINE
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 #endif
-		internal double getTwistAngle()
+		public double getLimitSoftness()
+		{
+			return m_limitSoftness;
+		}
+#if ALLOW_INLINE
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+#endif
+		public double getBiasFactor()
+		{
+			return m_biasFactor;
+		}
+#if ALLOW_INLINE
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+#endif
+		public double getRelaxationFactor()
+		{
+			return m_relaxationFactor;
+		}
+#if ALLOW_INLINE
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+#endif
+		public double getTwistAngle()
 		{
 			return m_twistAngle;
 		}
-		internal bool isPastSwingLimit() { return m_solveSwingLimit; }
+		public bool isPastSwingLimit() { return m_solveSwingLimit; }
+		public double getDamping() { return m_damping; }
 
-		internal void setDamping( double damping ) { m_damping = damping; }
+		public void setDamping( double damping ) { m_damping = damping; }
 
-		internal void enableMotor( bool b ) { m_bMotorEnabled = b; }
-		internal void setMaxMotorImpulse( double maxMotorImpulse ) { m_maxMotorImpulse = maxMotorImpulse; m_bNormalizedMotorStrength = false; }
-		internal void setMaxMotorImpulseNormalized( double maxMotorImpulse ) { m_maxMotorImpulse = maxMotorImpulse; m_bNormalizedMotorStrength = true; }
+		public void enableMotor( bool b ) { m_bMotorEnabled = b; }
+		public bool isMotorEnabled() { return m_bMotorEnabled; }
+		public double getMaxMotorImpulse() { return m_maxMotorImpulse; }
+		public bool isMaxMotorImpulseNormalized() { return m_bNormalizedMotorStrength; }
+		public void setMaxMotorImpulse( double maxMotorImpulse ) { m_maxMotorImpulse = maxMotorImpulse; m_bNormalizedMotorStrength = false; }
+		public void setMaxMotorImpulseNormalized( double maxMotorImpulse ) { m_maxMotorImpulse = maxMotorImpulse; m_bNormalizedMotorStrength = true; }
+		public btQuaternion getMotorTarget() { return m_qTarget; }
+		public void getMotorTarget( out btQuaternion result ) { result = m_qTarget; }
 
-		internal double getFixThresh() { return m_fixThresh; }
-		internal void setFixThresh( double fixThresh ) { m_fixThresh = fixThresh; }
+		public double getFixThresh() { return m_fixThresh; }
+		public void setFixThresh( double fixThresh ) { m_fixThresh = fixThresh; }
 
 		//internal void setMotorTarget( btQuaternion &q);
 
@@ -296,6 +351,11 @@ namespace Bullet.Dynamics.ConstraintSolver
 		{
 			return m_rbBFrame;
 		}
+		public btConeTwistFlags getFlags()
+		{
+			return m_flags;
+		}
+
 
 #if SERLIALIZE_DONE
 		virtual int calculateSerializeBufferSize();

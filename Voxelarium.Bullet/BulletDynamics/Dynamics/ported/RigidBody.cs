@@ -1,3 +1,4 @@
+#define DISABLE_ROW4
 //#define DISABLE_OPERATORS
 #define DISABLE_BOOL_IMPLICIT_OPERATOR
 //#define USE_OLD_DAMPING_METHOD
@@ -60,7 +61,6 @@ namespace Bullet.Dynamics
 	///Deactivated (sleeping) rigid bodies don't take any processing time, except a minor broadphase collision detection impact (to allow active objects to activate/wake up sleeping objects)
 	public class btRigidBody : btCollisionObject
 	{
-		public static implicit operator bool ( btRigidBody b ) { return b != null; }
 		internal btMatrix3x3 m_invInertiaTensorWorld;
 		internal btVector3 m_linearVelocity;
 		internal btVector3 m_angularVelocity;
@@ -83,8 +83,8 @@ namespace Bullet.Dynamics
 		double m_additionalAngularDampingFactor;
 
 		//for experimental overriding of friction/contact solver func
-		int m_contactSolverType;
-		int m_frictionSolverType;
+		//int m_contactSolverType;
+		//int m_frictionSolverType;
 
 		double m_linearSleepingThreshold;
 		double m_angularSleepingThreshold;
@@ -93,7 +93,7 @@ namespace Bullet.Dynamics
 		btMotionState m_optionalMotionState;
 
 		//keep track of typed constraints referencing this rigid body, to disable collision between linked bodies
-		btList<btTypedConstraint> m_constraintRefs;
+		btList<btTypedConstraint> m_constraintRefs = new btList<btTypedConstraint>();
 
 		btRigidBodyFlags m_rigidbodyFlags;
 
@@ -134,21 +134,21 @@ namespace Bullet.Dynamics
 
 			m_internalType = CollisionObjectTypes.CO_RIGID_BODY;
 
-			m_linearVelocity.setValue( btScalar.BT_ZERO, btScalar.BT_ZERO, btScalar.BT_ZERO );
-			m_angularVelocity.setValue( btScalar.BT_ZERO, btScalar.BT_ZERO, btScalar.BT_ZERO );
-			m_angularFactor.setValue( 1, 1, 1 );
-			m_linearFactor.setValue( 1, 1, 1 );
-			m_gravity.setValue( btScalar.BT_ZERO, btScalar.BT_ZERO, btScalar.BT_ZERO );
-			m_gravity_acceleration.setValue( btScalar.BT_ZERO, btScalar.BT_ZERO, btScalar.BT_ZERO );
-			m_totalForce.setValue( btScalar.BT_ZERO, btScalar.BT_ZERO, btScalar.BT_ZERO );
-			m_totalTorque.setValue( btScalar.BT_ZERO, btScalar.BT_ZERO, btScalar.BT_ZERO );
+			m_linearVelocity = btVector3.Zero;
+			m_angularVelocity = btVector3.Zero;
+			m_angularFactor = btVector3.One;
+			m_linearFactor = btVector3.One;
+			m_gravity = btVector3.Zero;
+			m_gravity_acceleration = btVector3.Zero;
+			m_totalForce = btVector3.Zero;
+			m_totalTorque = btVector3.Zero;
 			setDamping( constructionInfo.m_linearDamping, constructionInfo.m_angularDamping );
 
 			m_linearSleepingThreshold = constructionInfo.m_linearSleepingThreshold;
 			m_angularSleepingThreshold = constructionInfo.m_angularSleepingThreshold;
 			m_optionalMotionState = constructionInfo.m_motionState;
-			m_contactSolverType = 0;
-			m_frictionSolverType = 0;
+			//m_contactSolverType = 0;
+			//m_frictionSolverType = 0;
 			m_additionalDamping = constructionInfo.m_additionalDamping;
 			m_additionalDampingFactor = constructionInfo.m_additionalDampingFactor;
 			m_additionalLinearDampingThresholdSqr = constructionInfo.m_additionalLinearDampingThresholdSqr;
@@ -191,7 +191,7 @@ namespace Bullet.Dynamics
 
 		public void predictIntegratedTransform( double timeStep, out btTransform predictedTransform )
 		{
-			btTransformUtil.integrateTransform( m_worldTransform, m_linearVelocity,  m_angularVelocity, timeStep, out predictedTransform );
+			btTransformUtil.integrateTransform( m_worldTransform, m_linearVelocity, m_angularVelocity, timeStep, out predictedTransform );
 		}
 
 		/// continuous collision detection needs prediction
@@ -353,7 +353,7 @@ namespace Bullet.Dynamics
 			m_worldTransform.getBasis().transpose( out tmp );
 			m_worldTransform.m_basis.scaled( ref m_invInertiaLocal, out tmp2 );
 			tmp2.Mult( ref tmp, out m_invInertiaTensorWorld );
-            //m_invInertiaTensorWorld = m_worldTransform.m_basis.scaled( m_invInertiaLocal ) * m_worldTransform.getBasis().transpose();
+			//m_invInertiaTensorWorld = m_worldTransform.m_basis.scaled( m_invInertiaLocal ) * m_worldTransform.getBasis().transpose();
 		}
 
 
@@ -361,7 +361,7 @@ namespace Bullet.Dynamics
 		void getLocalInertia( out btVector3 result )
 		{
 			//btVector3 inertia = m_invInertiaLocal;
-			btVector3.setValue( out result ,
+			btVector3.setValue( out result,
 				m_invInertiaLocal.x != btScalar.BT_ZERO ? (double)( 1.0 ) / m_invInertiaLocal.x : btScalar.BT_ZERO,
 				m_invInertiaLocal.y != btScalar.BT_ZERO ? (double)( 1.0 ) / m_invInertiaLocal.y : btScalar.BT_ZERO,
 				m_invInertiaLocal.z != btScalar.BT_ZERO ? (double)( 1.0 ) / m_invInertiaLocal.z : btScalar.BT_ZERO );
@@ -400,9 +400,13 @@ namespace Bullet.Dynamics
 			btMatrix3x3 tmp2;
 			btVector3 Iwi; I.Apply( ref w1, out Iwi );
 			w1.getSkewSymmetricMatrix( out w1x.m_el0, out w1x.m_el1, out w1x.m_el2 );
+#if !DISABLE_ROW4
 			w1x.m_el3 = btVector3.wAxis;
+#endif
 			Iwi.getSkewSymmetricMatrix( out Iw1x.m_el0, out Iw1x.m_el1, out Iw1x.m_el2 );
+#if !DISABLE_ROW4
 			Iw1x.m_el3 = btVector3.wAxis;
+#endif
 			I.Mult( ref w1x, out tmpm );
 			tmpm.Sub( ref Iw1x, out tmp2 );
 			tmp2.Mult( dt, out result );
@@ -416,14 +420,14 @@ namespace Bullet.Dynamics
 		{
 			btVector3 inertiaLocal; getLocalInertia( out inertiaLocal );
 			btMatrix3x3 tmpm1; m_worldTransform.m_basis.scaled( ref inertiaLocal, out tmpm1 );
-            btMatrix3x3 tmpm2; m_worldTransform.m_basis.transpose( out tmpm2 );
-			btMatrix3x3 inertiaTensorWorld; tmpm1.Mult( ref tmpm2, out inertiaTensorWorld );;
+			btMatrix3x3 tmpm2; m_worldTransform.m_basis.transpose( out tmpm2 );
+			btMatrix3x3 inertiaTensorWorld; tmpm1.Mult( ref tmpm2, out inertiaTensorWorld ); ;
 			btVector3 tmp; inertiaTensorWorld.Apply( ref m_angularVelocity, out tmp );
 			btVector3 gf; m_angularVelocity.cross( ref tmp, out gf );
 			double l2 = gf.length2();
 			if( l2 > maxGyroscopicForce * maxGyroscopicForce )
 			{
-				gf.Mult( (double)( 1.0) / btScalar.btSqrt( l2 ) * maxGyroscopicForce, out result );
+				gf.Mult( (double)( 1.0 ) / btScalar.btSqrt( l2 ) * maxGyroscopicForce, out result );
 			}
 			result = gf;
 		}
@@ -450,9 +454,10 @@ namespace Bullet.Dynamics
 			btVector3 idl; getLocalInertia( out idl );
 			btVector3 omega1; getAngularVelocity( out omega1 );
 			btQuaternion q; m_worldTransform.getRotation( out q );
-			q.inverse( out q );
+			btQuaternion qInv;
+			q.inverse( out qInv );
 			// Convert to body coordinates
-			btVector3 omegab; q.Rotate( ref omega1, out omegab );
+			btVector3 omegab; qInv.Rotate( ref omega1, out omegab );
 			btMatrix3x3 Ib;
 			btMatrix3x3.setValue( out Ib, idl.x, 0, 0,
 									0, idl.y, 0,
@@ -467,11 +472,15 @@ namespace Bullet.Dynamics
 
 			btMatrix3x3 skew0;
 			omegab.getSkewSymmetricMatrix( out skew0.m_el0, out skew0.m_el1, out skew0.m_el2 );
+#if !DISABLE_ROW4
 			skew0.m_el3 = btVector3.wAxis;
+#endif
 			btVector3 om; Ib.Apply( ref omegab, out om );
 			btMatrix3x3 skew1;
 			om.getSkewSymmetricMatrix( out skew1.m_el0, out skew1.m_el1, out skew1.m_el2 );
+#if !DISABLE_ROW4
 			skew1.m_el3 = btVector3.wAxis;
+#endif
 
 			// Jacobian
 			btMatrix3x3 tmpm;
@@ -487,7 +496,7 @@ namespace Bullet.Dynamics
 
 			// Single Newton-Raphson update
 			omegab.Sub( ref omega_div, out omegab );//Solve33(J, f);
-															 // Back to world coordinates
+													// Back to world coordinates
 			btVector3 omega2; q.Rotate( ref omegab, out omega2 );
 			omega2.Sub( ref omega1, out result );
 		}
@@ -814,7 +823,7 @@ namespace Bullet.Dynamics
 			result = m_invInertiaTensorWorld;
 		}
 #if !DISABLE_OPERATORS
-		public btVector3 getLinearFactor( )
+		public btVector3 getLinearFactor()
 		{
 			return m_linearFactor;
 		}
@@ -847,7 +856,7 @@ namespace Bullet.Dynamics
 			result = m_invInertiaLocal;
 		}
 
-		public btIVector3 getInvInertiaDiagLocal( )
+		public btIVector3 getInvInertiaDiagLocal()
 		{
 			return m_invInertiaLocal;
 		}
@@ -866,7 +875,7 @@ namespace Bullet.Dynamics
 		{
 			btVector3 tmp;
 			torque.Mult( ref m_angularFactor, out tmp );
-            m_totalTorque.Add( ref tmp, out m_totalTorque );
+			m_totalTorque.Add( ref tmp, out m_totalTorque );
 		}
 
 		public void applyForce( ref btVector3 force, ref btVector3 rel_pos )
@@ -876,7 +885,7 @@ namespace Bullet.Dynamics
 			applyCentralForce( ref force );
 			force.Mult( ref m_linearFactor, out tmp );
 			rel_pos.cross( ref tmp, out tmp2 );
-            applyTorque( ref tmp2 );
+			applyTorque( ref tmp2 );
 		}
 
 		public void applyCentralImpulse( ref btVector3 impulse )
@@ -892,7 +901,7 @@ namespace Bullet.Dynamics
 			btVector3 tmp;
 			m_invInertiaTensorWorld.Apply( ref torque, out tmp );
 			tmp.Mult( ref m_angularFactor, out tmp );
-            m_angularVelocity.Add( ref tmp, out m_angularVelocity );
+			m_angularVelocity.Add( ref tmp, out m_angularVelocity );
 		}
 
 		public void applyImpulse( ref btVector3 impulse, ref btVector3 rel_pos )
@@ -906,7 +915,7 @@ namespace Bullet.Dynamics
 					btVector3 tmp2;
 					impulse.Mult( ref m_linearFactor, out tmp );
 					rel_pos.cross( ref tmp, out tmp2 );
-                    applyTorqueImpulse( ref tmp2 );
+					applyTorqueImpulse( ref tmp2 );
 				}
 			}
 		}
@@ -926,7 +935,7 @@ namespace Bullet.Dynamics
 		{
 			result = m_worldTransform;
 		}
-		public btITransform getCenterOfMassTransform(  )
+		public btITransform getCenterOfMassTransform()
 		{
 			return m_worldTransform;
 		}
@@ -943,7 +952,7 @@ namespace Bullet.Dynamics
 		{
 			return m_linearVelocity;
 		}
-		public btVector3 getAngularVelocity( )
+		public btVector3 getAngularVelocity()
 		{
 			return m_angularVelocity;
 		}
@@ -965,7 +974,7 @@ namespace Bullet.Dynamics
 		{
 			//we also calculate lin/ang velocity for kinematic objects
 			m_angularVelocity.cross( ref rel_pos, out result );
-            m_linearVelocity.Add( ref result, out result );
+			m_linearVelocity.Add( ref result, out result );
 
 			//			return m_linearVelocity + m_angularVelocity.cross( ref rel_pos );
 

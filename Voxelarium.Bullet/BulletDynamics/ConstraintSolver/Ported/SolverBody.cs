@@ -14,6 +14,7 @@ subject to the following restrictions:
 */
 
 using Bullet.LinearMath;
+using System.Diagnostics;
 
 namespace Bullet.Dynamics.ConstraintSolver
 {
@@ -48,7 +49,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 			m_worldTransform = worldTransform;
 		}
 
-		btITransform getWorldTransform( )
+		btITransform getWorldTransform()
 		{
 			return m_worldTransform;
 		}
@@ -111,37 +112,16 @@ namespace Bullet.Dynamics.ConstraintSolver
 		}
 
 
-		//Optimization for the iterative solver: avoid calculating constant terms involving inertia, normal, relative position
-		public void applyImpulse( ref btVector3 linearComponent
-								, ref btVector3 angularComponent
-								, double impulseMagnitude )
+		public void applyPushImpulse( ref btVector3 linearComponent, ref btVector3 angularComponent, double impulseMagnitude )
 		{
 			if( m_originalBody != null )
 			{
 				btVector3 tmp;
 				linearComponent.Mult( ref m_linearFactor, out tmp );
-				tmp.Mult( impulseMagnitude, out m_deltaLinearVelocity );
-				tmp.Add( ref m_deltaLinearVelocity, out m_deltaLinearVelocity );
-				//m_deltaLinearVelocity += linearComponent * impulseMagnitude * m_linearFactor;
-				angularComponent.Mult( ref m_angularFactor, out tmp );
-				tmp.Mult( impulseMagnitude, out m_deltaAngularVelocity );
-				tmp.Add( ref m_deltaAngularVelocity, out m_deltaAngularVelocity );
-				//m_deltaAngularVelocity += angularComponent * ( impulseMagnitude * m_angularFactor );
-			}
-		}
-
-		public void internalApplyPushImpulse( ref btVector3 linearComponent, ref btVector3 angularComponent, double impulseMagnitude )
-		{
-			if( m_originalBody != null )
-			{
-				btVector3 tmp;
-				linearComponent.Mult( ref m_linearFactor, out tmp );
-				tmp.Mult( impulseMagnitude, out tmp );
-				tmp.Add( ref m_pushVelocity, out m_pushVelocity );
+				m_pushVelocity.AddScale( ref tmp, impulseMagnitude, out m_pushVelocity );
 				//m_pushVelocity += linearComponent * impulseMagnitude * m_linearFactor;
 				angularComponent.Mult( ref m_angularFactor, out tmp );
-				tmp.Mult( impulseMagnitude, out tmp );
-				tmp.Add( ref m_turnVelocity, out m_turnVelocity );
+				m_turnVelocity.AddScale( ref tmp, impulseMagnitude, out m_turnVelocity );
 				//m_turnVelocity += angularComponent * ( impulseMagnitude * m_angularFactor );
 			}
 		}
@@ -179,12 +159,12 @@ namespace Bullet.Dynamics.ConstraintSolver
 
 		public void internalSetDeltaAngularVelocity( ref btVector3 result )
 		{
-			m_deltaAngularVelocity = result ;
+			m_deltaAngularVelocity = result;
 		}
 
 		public void internalSetAngularFactor( ref btVector3 result )
 		{
-			m_angularFactor = result ;
+			m_angularFactor = result;
 		}
 
 		public void internalSetInvMass( ref btVector3 invMass )
@@ -221,7 +201,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 			result = m_invMass;
 		}
 #if !DISABLE_OPERATORS
-		public btVector3 internalGetInvMass(  )
+		public btVector3 internalGetInvMass()
 		{
 			return m_invMass;
 		}
@@ -251,18 +231,16 @@ namespace Bullet.Dynamics.ConstraintSolver
 
 
 		//Optimization for the iterative solver: avoid calculating constant terms involving inertia, normal, relative position
-		public void internalApplyImpulse( ref btVector3 linearComponent, ref btVector3 angularComponent, double impulseMagnitude )
+		public void applyImpulse( ref btVector3 linearComponent, ref btVector3 angularComponent, double impulseMagnitude )
 		{
 			if( m_originalBody != null )
 			{
 				btVector3 tmp;
 				linearComponent.Mult( ref m_linearFactor, out tmp );
-				tmp.Mult( impulseMagnitude, out tmp );
-				tmp.Add( ref m_deltaLinearVelocity, out m_deltaLinearVelocity );
+				m_deltaLinearVelocity.AddScale( ref tmp, impulseMagnitude, out m_deltaLinearVelocity );
 				//m_deltaLinearVelocity += linearComponent * impulseMagnitude * m_linearFactor;
 				angularComponent.Mult( ref m_angularFactor, out tmp );
-				tmp.Mult( impulseMagnitude, out tmp );
-				tmp.Add( ref m_deltaAngularVelocity, out m_deltaAngularVelocity );
+				m_deltaAngularVelocity.AddScale( ref tmp, impulseMagnitude, out m_deltaAngularVelocity );
 				//m_deltaAngularVelocity += angularComponent * ( impulseMagnitude * m_angularFactor );
 			}
 		}

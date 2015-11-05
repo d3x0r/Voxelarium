@@ -116,25 +116,24 @@ namespace Bullet.Collision.BroadPhase
 		public btBroadphaseProxy.CollisionFilterGroups m_collisionFilterGroup;
 		public btBroadphaseProxy.CollisionFilterGroups m_collisionFilterMask;
 		public object m_multiSapParentProxy;
-		internal int m_uniqueId;//m_uniqueId is introduced for paircache. could get rid of this, by calculating the address offset etc.
+
+		//internal IntPtr m_uniqueId;//m_uniqueId is introduced for paircache. could get rid of this, by calculating the address offset etc.
 
 		internal btVector3 m_aabbMin;
 		internal btVector3 m_aabbMax;
 
 		public static int IMPLICIT_CONVEX_SHAPES_START_HERE { get; private set; }
 
-		public int getUid()
+		//used for memory pools
+		public btBroadphaseProxy()
 		{
-			return m_uniqueId;
 		}
 
-		//used for memory pools
-
-		public btBroadphaseProxy( ref btVector3 aabbMin, ref btVector3 aabbMax
+		public void Initialize( ref btVector3 aabbMin, ref btVector3 aabbMax
 				, object userPtr, CollisionFilterGroups collisionFilterGroup
 				, CollisionFilterGroups collisionFilterMask )
 		{
-			m_uniqueId = 0;
+			//m_uniqueId = 0;
 			m_clientObject = userPtr;
 			m_collisionFilterGroup = collisionFilterGroup;
 			m_collisionFilterMask = collisionFilterMask;
@@ -148,7 +147,7 @@ namespace Bullet.Collision.BroadPhase
 				, object userPtr, CollisionFilterGroups collisionFilterGroup
 				, CollisionFilterGroups collisionFilterMask, object multiSapParentProxy )
 		{
-			m_uniqueId = 0;
+			//m_uniqueId = 0;
 			m_clientObject = userPtr;
 			m_collisionFilterGroup = collisionFilterGroup;
 			m_collisionFilterMask = collisionFilterMask;
@@ -228,16 +227,8 @@ namespace Bullet.Collision.BroadPhase
 		{
 
 			//keep them sorted, so the std::set operations work
-			if( proxy0.m_uniqueId < proxy1.m_uniqueId )
-			{
-				m_pProxy0 = proxy0;
-				m_pProxy1 = proxy1;
-			}
-			else
-			{
-				m_pProxy0 = proxy1;
-				m_pProxy1 = proxy0;
-			}
+			m_pProxy0 = proxy0;
+			m_pProxy1 = proxy1;
 
 			m_algorithm = null;
 			m_internalInfo1 = 0;
@@ -249,15 +240,17 @@ namespace Bullet.Collision.BroadPhase
 		}
 		internal bool Equals( btBroadphasePair a, btBroadphasePair b )
 		{
-			return ( a.m_pProxy0 == b.m_pProxy0 ) && ( a.m_pProxy1 == b.m_pProxy1 );
+			return ( ( a.m_pProxy0 == b.m_pProxy0 ) && ( a.m_pProxy1 == b.m_pProxy1 ) )
+			    || ( ( a.m_pProxy0 == b.m_pProxy1 ) && ( a.m_pProxy1 == b.m_pProxy0 ) )
+				;
 		}
 
 		internal static bool qsCompare( btBroadphasePair a, btBroadphasePair b )
 		{
-			int uidA0 = a.m_pProxy0 != null ? a.m_pProxy0.m_uniqueId : -1;
-			int uidB0 = b.m_pProxy0 != null ? b.m_pProxy0.m_uniqueId : -1;
-			int uidA1 = a.m_pProxy1 != null ? a.m_pProxy1.m_uniqueId : -1;
-			int uidB1 = b.m_pProxy1 != null ? b.m_pProxy1.m_uniqueId : -1;
+			int uidA0 = 0;// a.m_pProxy0 != null ? a.m_pProxy0.m_uniqueId : -1;
+			int uidB0 = 0;// b.m_pProxy0 != null ? b.m_pProxy0.m_uniqueId : -1;
+			int uidA1 = 0;// a.m_pProxy1 != null ? a.m_pProxy1.m_uniqueId : -1;
+			int uidB1 = 0;// b.m_pProxy1 != null ? b.m_pProxy1.m_uniqueId : -1;
 
 			return uidA0 > uidB0 ||
 			   ( a.m_pProxy0.Equals( b.m_pProxy0 ) && uidA1 > uidB1 ) ||

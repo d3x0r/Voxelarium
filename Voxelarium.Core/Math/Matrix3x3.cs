@@ -17,7 +17,7 @@ subject to the following restrictions:
 using System;
 using Voxelarium.Core.Support;
 
-namespace Bullet.LinearMath
+namespace Voxelarium.LinearMath
 {
 	public interface btIMatrix3x3
 	{

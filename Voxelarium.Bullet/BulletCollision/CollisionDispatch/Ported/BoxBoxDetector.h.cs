@@ -886,8 +886,8 @@ namespace Bullet.Collision.Dispatch
 				, btIDebugDraw debugDraw, bool swapResults = false )
 		{
 
-			btTransform transformA = input.m_transformA;
-			btTransform transformB = input.m_transformB;
+			btTransform transformA; input.m_transformA.Get( out transformA );
+			btTransform transformB; input.m_transformB.Get( out transformB );
 
 			int skip = 0;
 			//dContactGeom* contact = 0;

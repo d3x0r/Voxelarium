@@ -14,6 +14,7 @@ subject to the following restrictions:
 */
 
 using Bullet.LinearMath;
+using System;
 
 namespace Bullet.Collision.NarrowPhase
 {
@@ -25,9 +26,14 @@ namespace Bullet.Collision.NarrowPhase
 
 		///RayResult stores the closest result
 		/// alternatively, add a callback method to decide about closest/all results
-		internal class CastResult
+		internal class CastResult : IDisposable
 		{
 			//virtual bool	addRayResult(ref btVector3 normal,double	fraction) = 0;
+			public void Dispose()
+			{
+				BulletGlobals.CastResultPool.Free( this );
+			}
+
 
 			public virtual void DebugDraw( double fraction ) { }
 			public virtual void drawCoordSystem( ref btTransform trans ) { }

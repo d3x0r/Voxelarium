@@ -19,7 +19,7 @@
 using System;
 using System.Diagnostics;
 
-namespace Bullet.LinearMath
+namespace Voxelarium.LinearMath
 {
 	/*
     // how-to-inline C# 4.5 (mono-2.0?) 2012

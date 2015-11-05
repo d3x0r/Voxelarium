@@ -7,7 +7,7 @@ using OpenTK.Graphics.OpenGL;
 #else
 using OpenTK.Graphics.ES20;
 #endif
-using Bullet.LinearMath;
+using Voxelarium.LinearMath;
 
 namespace Voxelarium.Core.UI.Shaders
 {

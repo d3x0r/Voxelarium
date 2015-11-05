@@ -15,14 +15,21 @@ subject to the following restrictions:
 
 using Bullet.Collision.BroadPhase;
 using Bullet.LinearMath;
+using System;
 
 namespace Bullet.Collision.Shapes
 {
 
-	public class btSphereShape : btConvexInternalShape
+	public class btSphereShape : btConvexInternalShape, IDisposable
 	{
-
-		public btSphereShape()
+		public void Dispose()
+		{
+			BulletGlobals.SphereShapePool.Free( this );
+		}
+#if ALLOW_PUBLIC_SHAPES
+		public 
+#endif
+		btSphereShape()
 		{
 			m_shapeType = BroadphaseNativeTypes.SPHERE_SHAPE_PROXYTYPE;
 			m_implicitShapeDimensions.x = 1.0;
@@ -34,7 +41,10 @@ namespace Bullet.Collision.Shapes
 			m_collisionMargin = radius;
 		}
 
-		public btSphereShape( double radius )
+#if ALLOW_PUBLIC_SHAPES
+		public 
+#endif
+		btSphereShape( double radius )
 		{
 			m_shapeType = BroadphaseNativeTypes.SPHERE_SHAPE_PROXYTYPE;
 			m_implicitShapeDimensions.x = ( radius );

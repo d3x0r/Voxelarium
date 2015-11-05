@@ -15,6 +15,7 @@ subject to the following restrictions:
 
 using Bullet.Collision.Shapes;
 using Bullet.LinearMath;
+using System;
 
 namespace Bullet.Collision.NarrowPhase
 {
@@ -23,7 +24,7 @@ namespace Bullet.Collision.NarrowPhase
 	///"Ray Casting against bteral Convex Objects with Application to Continuous Collision Detection"
 	/// GJK based Ray Cast, optimized version
 	/// Objects should not start in overlap, otherwise results are not defined.
-	internal class btSubsimplexConvexCast : btConvexCast
+	internal class btSubsimplexConvexCast : btConvexCast, IDisposable
 	{
 
 #if BT_USE_DOUBLE_PRECISION
@@ -35,6 +36,10 @@ namespace Bullet.Collision.NarrowPhase
 		btConvexShape m_convexA;
 		btConvexShape m_convexB;
 
+		public void Dispose()
+		{
+			BulletGlobals.SubSimplexConvexCastPool.Free( this );
+		}
 		public btSubsimplexConvexCast()
 		{
 		}

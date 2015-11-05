@@ -126,7 +126,7 @@ namespace Bullet.Types
 			set
 			{
 
-				if( value != _items.Length )
+				if( value > _items.Length )
 				{
 					if( value > 0 )
 					{
@@ -142,6 +142,8 @@ namespace Bullet.Types
 						_items = _emptyArray;
 					}
 				}
+				else if( value < _size )
+					_size = value;
 			}
 		}
 
@@ -205,6 +207,8 @@ namespace Bullet.Types
 
 			set
 			{
+				if( index >= _items.Length )
+					EnsureCapacity( index+1 );
 				_items[index] = value;
 				_version++;
 			}

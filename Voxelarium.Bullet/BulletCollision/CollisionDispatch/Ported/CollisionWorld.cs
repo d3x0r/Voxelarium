@@ -37,8 +37,18 @@ namespace Bullet.Collision.Dispatch
 	//for debug rendering
 	public partial class btCollisionWorld
 	{
+		internal btCollisionWorld()
+		{
+		}
 
 		internal btCollisionWorld( btDispatcher dispatcher
+						, btBroadphaseInterface pairCache
+						, btCollisionConfiguration collisionConfiguration )
+		{
+			Initialize( dispatcher, pairCache, collisionConfiguration );
+		}
+
+		internal void Initialize( btDispatcher dispatcher
 						, btBroadphaseInterface pairCache
 						, btCollisionConfiguration collisionConfiguration )
 		{
@@ -62,8 +72,10 @@ namespace Bullet.Collision.Dispatch
 					//
 					// only clear the cached algorithms
 					//
-					getBroadphase().getOverlappingPairCache().cleanProxyFromPairs( bp, m_dispatcher1 );
+
+					//getBroadphase().getOverlappingPairCache().cleanProxyFromPairs( bp, m_dispatcher1 );
 					getBroadphase().destroyProxy( bp, m_dispatcher1 );
+
 					collisionObject.setBroadphaseHandle( null );
 				}
 			}
@@ -189,21 +201,21 @@ namespace Bullet.Collision.Dispatch
 				BulletGlobals.CollisionObjectWrapperPool.Free( tmpOb );
 			}
 
-			public void Process( btDbvtNode leaf )
+			public void Process( btDbvt.btDbvtNode leaf )
 			{
 				Process( leaf.dataAsInt );
 			}
-			public void Process( btDbvtNode n, btDbvtNode n2 ) { }
+			public void Process( btDbvt.btDbvtNode n, btDbvt.btDbvtNode n2 ) { }
 
-			public void Process( btDbvtNode n, double f )
+			public void Process( btDbvt.btDbvtNode n, double f )
 			{
 				Process( n );
 			}
-			public bool Descent( btDbvtNode n )
+			public bool Descent( btDbvt.btDbvtNode n )
 			{
 				return true;
 			}
-			public bool AllLeaves( btDbvtNode n )
+			public bool AllLeaves( btDbvt.btDbvtNode n )
 			{
 				return true;
 			}
@@ -320,19 +332,18 @@ namespace Bullet.Collision.Dispatch
 		{
 			CProfileSample sample = new CProfileSample( "performDiscreteCollisionDetection" );
 
-			btDispatcherInfo dispatchInfo = m_dispatchInfo;
+			//btDispatcherInfo dispatchInfo = m_dispatchInfo;
 
 			updateAabbs();
 
 			computeOverlappingPairs();
 
-			btDispatcher dispatcher = getDispatcher();
+			//btDispatcher dispatcher = m_dispatcher1;
 			{
 				CProfileSample sample2 = new CProfileSample( "dispatchAllCollisionPairs" );
-				if( dispatcher != null )
-					dispatcher.dispatchAllCollisionPairs( m_broadphasePairCache.getOverlappingPairCache(), dispatchInfo, m_dispatcher1 );
+				if( m_dispatcher1 != null )
+					m_dispatcher1.dispatchAllCollisionPairs( m_broadphasePairCache.getOverlappingPairCache(), m_dispatchInfo, m_dispatcher1 );
 			}
-
 		}
 
 
@@ -439,7 +450,7 @@ namespace Bullet.Collision.Dispatch
 							castResult.m_normal.normalize();
 							LocalRayResult localRayResult = new LocalRayResult
 								(
-								collisionObjectWrap.getCollisionObject(),
+								collisionObjectWrap.m_collisionObject,
 								null,
 								castResult.m_normal,
 								castResult.m_fraction
@@ -484,7 +495,8 @@ namespace Bullet.Collision.Dispatch
 						//ConvexCast::CastResult
 
 
-						BridgeTriangleRaycastCallback rcb = new BridgeTriangleRaycastCallback( ref rayFromLocal, ref rayToLocal, resultCallback, collisionObjectWrap.getCollisionObject(), concaveShape, colObjWorldTransform );
+						BridgeTriangleRaycastCallback rcb = new BridgeTriangleRaycastCallback( ref rayFromLocal, ref rayToLocal, resultCallback
+							, collisionObjectWrap.m_collisionObject, concaveShape, colObjWorldTransform );
 						rcb.m_hitFraction = resultCallback.m_closestHitFraction;
 
 						btVector3 rayAabbMinLocal = rayFromLocal;
@@ -506,7 +518,7 @@ namespace Bullet.Collision.Dispatch
 
 
 						RayTester rayCB = new RayTester(
-							collisionObjectWrap.getCollisionObject(),
+							collisionObjectWrap.m_collisionObject,
 									compoundShape,
 									colObjWorldTransform,
 									rayFromTrans,
@@ -659,7 +671,7 @@ namespace Bullet.Collision.Dispatch
 							LocalConvexResult localConvexResult =
 								new LocalConvexResult
 								(
-								colObjWrap.getCollisionObject(),
+								colObjWrap.m_collisionObject,
 								null,
 								ref castResult.m_normal,
 								ref castResult.m_hitPoint,
@@ -694,7 +706,7 @@ namespace Bullet.Collision.Dispatch
 
 						BridgeTriangleConvexcastCallback tccb = BulletGlobals.BridgeTriangleConvexcastCallbackPool.Get();
 						tccb.Initialize( castShape, ref convexFromTrans, ref convexToTrans
-							, resultCallback, colObjWrap.getCollisionObject()
+							, resultCallback, colObjWrap.m_collisionObject
 							, triangleMesh, ref colObjWorldTransform );
 						tccb.m_hitFraction = resultCallback.m_closestHitFraction;
 						tccb.m_allowedPenetration = allowedPenetration;
@@ -726,7 +738,7 @@ namespace Bullet.Collision.Dispatch
 										castResult.m_normal.normalize();
 										LocalConvexResult localConvexResult = new LocalConvexResult
 											(
-											colObjWrap.getCollisionObject(),
+											colObjWrap.m_collisionObject,
 											null,
 											ref castResult.m_normal,
 											ref castResult.m_hitPoint,
@@ -753,7 +765,7 @@ namespace Bullet.Collision.Dispatch
 
 
 							BridgeTriangleConvexcastCallback tccb = BulletGlobals.BridgeTriangleConvexcastCallbackPool.Get();
-							tccb.Initialize( castShape, ref convexFromTrans, ref convexToTrans, resultCallback, colObjWrap.getCollisionObject()
+							tccb.Initialize( castShape, ref convexFromTrans, ref convexToTrans, resultCallback, colObjWrap.m_collisionObject
 								, concaveShape, ref colObjWorldTransform );
 							tccb.m_hitFraction = resultCallback.m_closestHitFraction;
 							tccb.m_allowedPenetration = allowedPenetration;
@@ -789,7 +801,7 @@ namespace Bullet.Collision.Dispatch
 							LocalInfoAdder my_cb = new LocalInfoAdder( i, resultCallback );
 
 							btCollisionObjectWrapper tmpObj = BulletGlobals.CollisionObjectWrapperPool.Get();
-							tmpObj.Initialize( colObjWrap, childCollisionShape, colObjWrap.getCollisionObject(), childWorldTrans, -1, i );
+							tmpObj.Initialize( colObjWrap, childCollisionShape, colObjWrap.m_collisionObject, childWorldTrans, -1, i );
 
 							objectQuerySingleInternal( castShape, ref convexFromTrans, ref convexToTrans,
 								tmpObj, my_cb, allowedPenetration );
@@ -1043,19 +1055,19 @@ namespace Bullet.Collision.Dispatch
 
 			public override void addContactPoint( ref btVector3 normalOnBInWorld, ref btVector3 pointInWorld, double depth )
 			{
-				bool isSwapped = m_manifoldPtr.getBody0() != m_body0Wrap.getCollisionObject();
-				btVector3 pointA = pointInWorld + normalOnBInWorld * depth;
+				bool isSwapped = m_manifoldPtr.m_body0 != m_body0Wrap.m_collisionObject;
+				btVector3 pointA; pointInWorld.AddScale( ref normalOnBInWorld, depth, out pointA );
 				btVector3 localA;
 				btVector3 localB;
 				if( isSwapped )
 				{
-					m_body1Wrap.getCollisionObject().getWorldTransform().invXform( ref pointA, out localA );
-					m_body0Wrap.getCollisionObject().getWorldTransform().invXform( ref pointInWorld, out localB );
+					m_body1Wrap.m_collisionObject.getWorldTransform().invXform( ref pointA, out localA );
+					m_body0Wrap.m_collisionObject.getWorldTransform().invXform( ref pointInWorld, out localB );
 				}
 				else
 				{
-					m_body0Wrap.getCollisionObject().getWorldTransform().invXform( ref pointA, out localA );
-					m_body1Wrap.getCollisionObject().getWorldTransform().invXform( ref pointInWorld, out localB );
+					m_body0Wrap.m_collisionObject.getWorldTransform().invXform( ref pointA, out localA );
+					m_body1Wrap.m_collisionObject.getWorldTransform().invXform( ref pointInWorld, out localB );
 				}
 
 				btManifoldPoint newPt = BulletGlobals.ManifoldPointPool.Get();
@@ -1119,7 +1131,7 @@ namespace Bullet.Collision.Dispatch
 					btCollisionObjectWrapper ob1 = BulletGlobals.CollisionObjectWrapperPool.Get();
 					ob1.Initialize( null, collisionObject.getCollisionShape(), collisionObject, collisionObject.getWorldTransform(), -1, -1 );
 
-					btCollisionAlgorithm algorithm = m_world.getDispatcher().findAlgorithm( ob0, ob1, null );
+					btCollisionAlgorithm algorithm = m_world.m_dispatcher1.findAlgorithm( ob0, ob1, null );
 					if( algorithm != null )
 					{
 						btBridgedManifoldResult contactPointResult = BulletGlobals.BridgedManifoldResultPool.Get();
@@ -1130,7 +1142,7 @@ namespace Bullet.Collision.Dispatch
 						algorithm.processCollision( ob0, ob1, m_world.getDispatchInfo(), contactPointResult );
 
 						//algorithm.~btCollisionAlgorithm();
-						m_world.getDispatcher().freeCollisionAlgorithm( algorithm );
+						m_world.m_dispatcher1.freeCollisionAlgorithm( algorithm );
 						BulletGlobals.BridgedManifoldResultPool.Free( contactPointResult );
 					}
 					BulletGlobals.CollisionObjectWrapperPool.Free( ob0 );
@@ -1158,20 +1170,20 @@ namespace Bullet.Collision.Dispatch
 		void contactPairTest( btCollisionObject colObjA, btCollisionObject colObjB, ContactResultCallback resultCallback )
 		{
 			btCollisionObjectWrapper obA = BulletGlobals.CollisionObjectWrapperPool.Get();
-				obA.Initialize( null, colObjA.getCollisionShape(), colObjA, colObjA.getWorldTransform(), -1, -1 );
+			obA.Initialize( null, colObjA.getCollisionShape(), colObjA, colObjA.getWorldTransform(), -1, -1 );
 			btCollisionObjectWrapper obB = BulletGlobals.CollisionObjectWrapperPool.Get();
 			obB.Initialize( null, colObjB.getCollisionShape(), colObjB, colObjB.getWorldTransform(), -1, -1 );
 
-			btCollisionAlgorithm algorithm = getDispatcher().findAlgorithm( obA, obB, null );
+			btCollisionAlgorithm algorithm = m_dispatcher1.findAlgorithm( obA, obB, null );
 			if( algorithm != null )
 			{
 				btBridgedManifoldResult contactPointResult = BulletGlobals.BridgedManifoldResultPool.Get();
-					contactPointResult.Initialize( obA, obB, resultCallback );
+				contactPointResult.Initialize( obA, obB, resultCallback );
 				//discrete collision detection query
 				algorithm.processCollision( obA, obB, getDispatchInfo(), contactPointResult );
 
 				//algorithm.~btCollisionAlgorithm();
-				getDispatcher().freeCollisionAlgorithm( algorithm );
+				m_dispatcher1.freeCollisionAlgorithm( algorithm );
 				BulletGlobals.BridgedManifoldResultPool.Free( contactPointResult );
 			}
 			BulletGlobals.CollisionObjectWrapperPool.Free( obA );
@@ -1429,17 +1441,17 @@ namespace Bullet.Collision.Dispatch
 				if( ( m_debugDrawer.getDebugMode() & btIDebugDraw.DebugDrawModes.DBG_DrawContactPoints ) != 0 )
 				{
 
-					if( getDispatcher() != null )
+					if( m_dispatcher1 != null )
 					{
-						int numManifolds = getDispatcher().getNumManifolds();
+						int numManifolds = m_dispatcher1.getNumManifolds();
 
 						for( int i = 0; i < numManifolds; i++ )
 						{
-							btPersistentManifold contactManifold = getDispatcher().getManifoldByIndexInternal( i );
+							btPersistentManifold contactManifold = m_dispatcher1.getManifoldByIndexInternal( i );
 							//btCollisionObject obA = static_cast<btCollisionObject>(contactManifold.getBody0());
 							//btCollisionObject obB = static_cast<btCollisionObject>(contactManifold.getBody1());
 
-							int numContacts = contactManifold.getNumContacts();
+							int numContacts = contactManifold.m_cachedPoints;
 							for( int j = 0; j < numContacts; j++ )
 							{
 								btManifoldPoint cp = contactManifold.getContactPoint( j );

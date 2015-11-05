@@ -42,20 +42,22 @@ namespace Bullet.Collision.BroadPhase
 		internal class Edge
 		{
 			internal ushort m_pos;           // low bit is min/max
-			internal ushort m_handle;
+			internal Handle m_handle;
 
 			internal ushort IsMax() { return ( (ushort)(m_pos & 1) ); }
 		};
 
 		internal class Handle : btBroadphaseProxy
 		{
-			internal Handle( ref btVector3 aabbMin, ref btVector3 aabbMax
+			public Handle() { }
+
+			internal void Initialize( ref btVector3 aabbMin, ref btVector3 aabbMax
 				, object pOwner, CollisionFilterGroups collisionFilterGroup
 				, CollisionFilterGroups collisionFilterMask
 				, btDispatcher dispatcher, object multiSapProxy )
-				: base( ref aabbMin, ref aabbMax, pOwner, collisionFilterGroup
-					  , collisionFilterMask )
 			{
+				base.Initialize( ref aabbMin, ref aabbMax, pOwner, collisionFilterGroup
+					  , collisionFilterMask );
 				//, dispatcher, multiSapProxy
 			}
 			// indexes into the edge arrays
@@ -77,7 +79,7 @@ namespace Bullet.Collision.BroadPhase
 
 		protected ushort m_numHandles;                      // number of active handles
 		protected ushort m_maxHandles;                      // max number of handles
-		protected btList<Handle> m_pHandles;                       // handles pool
+		//protected btList<Handle> m_pHandles;                       // handles pool
 
 		protected ushort m_firstFreeHandle;     // free handles list
 
@@ -114,40 +116,6 @@ namespace Bullet.Collision.BroadPhase
 
 		//Overlap* AddOverlap(ushort handleA, ushort handleB);
 		//void RemoveOverlap(ushort handleA, ushort handleB);
-
-		internal ushort getNumHandles()
-		{
-			return m_numHandles;
-		}
-
-		public Handle getHandle( ushort index ) { return m_pHandles[index]; }
-#if asdfasdf
-		virtual void calculateOverlappingPairs( btDispatcher dispatcher );
-
-		ushort addHandle( ref btVector3 aabbMin, ref btVector3 aabbMax, object pOwner, short int collisionFilterGroup, short int collisionFilterMask, btDispatcher dispatcher, object multiSapProxy );
-		void removeHandle( ushort handle, btDispatcher dispatcher );
-		void updateHandle( ushort handle, ref btVector3 aabbMin, ref btVector3 aabbMax, btDispatcher dispatcher );
-
-		virtual void resetPool( btDispatcher dispatcher );
-
-		void processAllOverlappingPairs( btOverlapCallback* callback );
-
-		//Broadphase Interface
-		virtual btBroadphaseProxy createProxy( ref btVector3 aabbMin, ref btVector3 aabbMax, int shapeType, object userPtr, short int collisionFilterGroup, short int collisionFilterMask, btDispatcher dispatcher, object multiSapProxy );
-		virtual void destroyProxy( btBroadphaseProxy proxy, btDispatcher dispatcher );
-		virtual void setAabb( btBroadphaseProxy proxy, ref btVector3 aabbMin, ref btVector3 aabbMax, btDispatcher dispatcher );
-		virtual void getAabb( btBroadphaseProxy proxy, ref btVector3 aabbMin, ref btVector3 aabbMax );
-
-		virtual void rayTest( ref btVector3 rayFrom, ref btVector3 rayTo, btBroadphaseRayCallback rayCallback, ref btVector3 aabbMin = btVector3( 0, 0, 0 ), ref btVector3 aabbMax = btVector3( 0, 0, 0 ) );
-		virtual void aabbTest( ref btVector3 aabbMin, ref btVector3 aabbMax, btBroadphaseAabbCallback callback);
-
-
-		void quantize( ushort[] outdata, ref btVector3 point, int isMax );
-		///unQuantize should be conservative: aabbMin/aabbMax should be larger then 'getAabb' result
-		void unQuantize( btBroadphaseProxy proxy, ref btVector3 aabbMin, ref btVector3 aabbMax );
-
-		bool testAabbOverlap( btBroadphaseProxy proxy0, btBroadphaseProxy proxy1 );
-#endif
 
 		public btOverlappingPairCache getOverlappingPairCache()
 		{
@@ -216,9 +184,7 @@ namespace Bullet.Collision.BroadPhase
 			, btDispatcher dispatcher, object multiSapProxy )
 		{
 			//(void)shapeType;
-			ushort handleId = addHandle( ref aabbMin, ref aabbMax, userPtr, collisionFilterGroup, collisionFilterMask, dispatcher, multiSapProxy );
-
-			Handle handle = getHandle( handleId );
+			Handle handle = addHandle( ref aabbMin, ref aabbMax, userPtr, collisionFilterGroup, collisionFilterMask, dispatcher, multiSapProxy );
 
 			if( m_raycastAccelerator != null )
 			{
@@ -238,7 +204,7 @@ namespace Bullet.Collision.BroadPhase
 			Handle handle = (Handle)( proxy );
 			if( m_raycastAccelerator != null )
 				m_raycastAccelerator.destroyProxy( handle.m_dbvtProxy, dispatcher );
-			removeHandle( (ushort)( handle.m_uniqueId ), dispatcher );
+			removeHandle( handle, dispatcher );
 		}
 
 
@@ -247,7 +213,7 @@ namespace Bullet.Collision.BroadPhase
 			Handle handle = (Handle)( proxy );
 			handle.m_aabbMin = aabbMin;
 			handle.m_aabbMax = aabbMax;
-			updateHandle( (ushort)( handle.m_uniqueId ), ref aabbMin, ref aabbMax, dispatcher );
+			updateHandle( handle, ref aabbMin, ref aabbMax, dispatcher );
 			if( m_raycastAccelerator != null )
 				m_raycastAccelerator.setAabb( handle.m_dbvtProxy, ref aabbMin, ref aabbMax, dispatcher );
 
@@ -273,7 +239,7 @@ namespace Bullet.Collision.BroadPhase
 				{
 					if( m_pEdges[axis][i].IsMax() != 0 )
 					{
-						rayCallback.process( getHandle( m_pEdges[axis][i].m_handle ) );
+						rayCallback.process( m_pEdges[axis][i].m_handle );
 					}
 				}
 			}
@@ -295,7 +261,7 @@ namespace Bullet.Collision.BroadPhase
 				{
 					if( m_pEdges[axis][i].IsMax() != 0 )
 					{
-						Handle handle = getHandle( m_pEdges[axis][i].m_handle );
+						Handle handle = m_pEdges[axis][i].m_handle;
 						if( btAabbUtil.TestAabbAgainstAabb2( ref aabbMin, ref aabbMax, ref handle.m_aabbMin, ref handle.m_aabbMax ) )
 						{
 							callback.process( handle );
@@ -381,18 +347,20 @@ namespace Bullet.Collision.BroadPhase
 			m_quantize = new btVector3( (double)( maxInt/aabbSize.x ), (double)( maxInt / aabbSize.y ), (double)( maxInt / aabbSize.z ) ) ;
 
 			// allocate handles buffer, using btAlignedAlloc, and put all handles on free list
+			/*
 			m_pHandles = new btList<Handle>( maxHandles );
-
-			m_maxHandles = maxHandles;
-			m_numHandles = 0;
-
-			// handle 0 is reserved as the null index, and is also used as the sentinel
 			m_firstFreeHandle = 1;
 			{
 				for( ushort i = m_firstFreeHandle; i < maxHandles; i++ )
 					m_pHandles[i].SetNextFree( (ushort)( i + 1 ) );
 				m_pHandles[maxHandles - 1].SetNextFree( 0 );
 			}
+			*/
+
+			m_maxHandles = maxHandles;
+			m_numHandles = 0;
+
+			// handle 0 is reserved as the null index, and is also used as the sentinel
 
 			{
 				// allocate edge buffers
@@ -406,17 +374,17 @@ namespace Bullet.Collision.BroadPhase
 
 			// make boundary sentinels
 
-			m_pHandles[0].m_clientObject = 0;
+			//m_pHandles[0].m_clientObject = 0;
 
 			for( int axis = 0; axis < 3; axis++ )
 			{
-				m_pHandles[0].m_minEdges[axis] = 0;
-				m_pHandles[0].m_maxEdges[axis] = 1;
+				//m_pHandles[0].m_minEdges[axis] = 0;
+				//m_pHandles[0].m_maxEdges[axis] = 1;
 
 				m_pEdges[axis][0].m_pos = 0;
-				m_pEdges[axis][0].m_handle = 0;
+				m_pEdges[axis][0].m_handle = null;
 				m_pEdges[axis][1].m_pos = m_handleSentinel;
-				m_pEdges[axis][1].m_handle = 0;
+				m_pEdges[axis][1].m_handle = null;
 #if DEBUG_BROADPHASE
 		debugPrintAxis(axis);
 #endif //DEBUG_BROADPHASE
@@ -433,7 +401,7 @@ namespace Bullet.Collision.BroadPhase
 				m_raycastAccelerator = null;//.~btDbvtBroadphase();
 			}
 
-			m_pHandles = null;
+			//m_pHandles = null;
 
 			if( m_ownsPairCache )
 			{
@@ -464,30 +432,25 @@ namespace Bullet.Collision.BroadPhase
 
 
 
-		internal ushort allocHandle()
+		internal Handle allocHandle()
 		{
-			Debug.Assert( m_firstFreeHandle != null );
-
-			ushort handle = m_firstFreeHandle;
-			m_firstFreeHandle = getHandle( handle ).GetNextFree();
+			Handle handle = BulletGlobals.AxisSweepHandlePool.Get();
 			m_numHandles++;
 
 			return handle;
 		}
 
-		internal void freeHandle( ushort handle )
+		internal void freeHandle( Handle handle )
 		{
-			Debug.Assert( handle > 0 && handle < m_maxHandles );
-
-			getHandle( handle ).SetNextFree( m_firstFreeHandle );
-			m_firstFreeHandle = handle;
+			Debug.Assert( handle != null );
+			BulletGlobals.AxisSweepHandlePool.Free( handle );
 
 			m_numHandles--;
 		}
 
 
 
-		ushort addHandle( ref btVector3 aabbMin, ref btVector3 aabbMax, object pOwner
+		Handle addHandle( ref btVector3 aabbMin, ref btVector3 aabbMax, object pOwner
 			, btBroadphaseProxy.CollisionFilterGroups collisionFilterGroup
 			, btBroadphaseProxy.CollisionFilterGroups collisionFilterMask, btDispatcher dispatcher, object multiSapProxy )
 		{
@@ -497,12 +460,9 @@ namespace Bullet.Collision.BroadPhase
 			quantize( max, ref aabbMax, 1 );
 
 			// allocate a handle
-			ushort handle = allocHandle();
+			Handle pHandle = allocHandle();
 
-
-			Handle pHandle = getHandle( handle );
-
-			pHandle.m_uniqueId = handle;
+			//pHandle.m_uniqueId = handle;
 			//pHandle.m_pOverlaps = 0;
 			pHandle.m_clientObject = pOwner;
 			pHandle.m_collisionFilterGroup = collisionFilterGroup;
@@ -517,15 +477,15 @@ namespace Bullet.Collision.BroadPhase
 			for( ushort axis = 0; axis < 3; axis++ )
 			{
 
-				m_pHandles[0].m_maxEdges[axis] += 2;
+				//m_pHandles[0].m_maxEdges[axis] += 2;
 
 				m_pEdges[axis][limit + 1] = m_pEdges[axis][limit - 1];
 
 				m_pEdges[axis][limit - 1].m_pos = min[axis];
-				m_pEdges[axis][limit - 1].m_handle = handle;
+				m_pEdges[axis][limit - 1].m_handle = pHandle;
 
 				m_pEdges[axis][limit].m_pos = max[axis];
-				m_pEdges[axis][limit].m_handle = handle;
+				m_pEdges[axis][limit].m_handle = pHandle;
 
 				pHandle.m_minEdges[axis] = (ushort)( limit - 1 );
 				pHandle.m_maxEdges[axis] = limit;
@@ -540,15 +500,15 @@ namespace Bullet.Collision.BroadPhase
 			sortMaxDown( 2, pHandle.m_maxEdges[2], dispatcher, true );
 
 
-			return handle;
+			return pHandle;
 		}
 
 
 
-		void removeHandle( ushort handle, btDispatcher dispatcher )
+		void removeHandle( Handle pHandle, btDispatcher dispatcher )
 		{
 
-			Handle pHandle = getHandle( handle );
+			//Handle pHandle = getHandle( handle );
 
 			//explicitly remove the pairs containing the proxy
 			//we could do it also in the sortMinUp (passing true)
@@ -563,10 +523,10 @@ namespace Bullet.Collision.BroadPhase
 
 			int axis;
 
-			for( axis = 0; axis < 3; axis++ )
-			{
-				m_pHandles[0].m_maxEdges[axis] -= 2;
-			}
+			//for( axis = 0; axis < 3; axis++ )
+		//	{
+			//	m_pHandles[0].m_maxEdges[axis] -= 2;
+			//}
 
 			// remove the edges by sorting them up to the end of the list
 			for( axis = 0; axis < 3; axis++ )
@@ -584,19 +544,16 @@ namespace Bullet.Collision.BroadPhase
 
 				sortMinUp( axis, i, dispatcher, false );
 
-				pEdges[limit - 1].m_handle = 0;
+				pEdges[limit - 1].m_handle = null;
 				pEdges[limit - 1].m_pos = m_handleSentinel;
 
 #if DEBUG_BROADPHASE
 			debugPrintAxis(axis,false);
 #endif //DEBUG_BROADPHASE
-
-
 			}
 
-
 			// free the handle
-			freeHandle( handle );
+			freeHandle( pHandle );
 
 
 		}
@@ -604,21 +561,21 @@ namespace Bullet.Collision.BroadPhase
 
 		public void resetPool( btDispatcher dispatcher)
 		{
-			if( m_numHandles == 0 )
-			{
-				m_firstFreeHandle = 1;
-				{
-					for( ushort i = m_firstFreeHandle; i < m_maxHandles; i++ )
-						m_pHandles[i].SetNextFree( (ushort)( i + 1 ) );
-					m_pHandles[m_maxHandles - 1].SetNextFree( 0 );
-				}
-			}
+			//if( m_numHandles == 0 )
+			//{
+			//	m_firstFreeHandle = 1;
+			//	{
+			//		for( ushort i = m_firstFreeHandle; i < m_maxHandles; i++ )
+			//			m_pHandles[i].SetNextFree( (ushort)( i + 1 ) );
+			//		m_pHandles[m_maxHandles - 1].SetNextFree( 0 );
+			//	}
+			//}
 		}
 
 
 		public void calculateOverlappingPairs( btDispatcher dispatcher )
 		{
-
+			/*
 			if( m_pairCache.hasDeferredRemoval() )
 			{
 
@@ -698,9 +655,8 @@ namespace Bullet.Collision.BroadPhase
 
 				//Console.WriteLine("overlappingPairArray.Count=%d\n",overlappingPairArray.Count);
 			}
-
+			*/
 		}
-
 
 
 		bool testAabbOverlap( btBroadphaseProxy proxy0, btBroadphaseProxy proxy1 )
@@ -737,12 +693,10 @@ namespace Bullet.Collision.BroadPhase
 		}
 
 
-		void updateHandle( ushort handle, ref btVector3 aabbMin, ref btVector3 aabbMax, btDispatcher dispatcher )
+		void updateHandle( Handle pHandle, ref btVector3 aabbMin, ref btVector3 aabbMax, btDispatcher dispatcher )
 		{
 			//	Debug.Assert(bounds.IsFinite());
 			//Debug.Assert(bounds.HasVolume());
-
-			Handle pHandle = getHandle( handle );
 
 			// quantize the new bounds
 			ushort[] min = new ushort[3], max = new ushort[3];
@@ -793,11 +747,11 @@ namespace Bullet.Collision.BroadPhase
 			Edge[] edges = m_pEdges[axis];
 			Edge pEdge = edges[edge];
 			Edge pPrev = edges[edge - 1];
-			Handle pHandleEdge = getHandle( pEdge.m_handle );
+			Handle pHandleEdge = pEdge.m_handle;
 
 			while( pEdge.m_pos < pPrev.m_pos )
 			{
-				Handle pHandlePrev = getHandle( pPrev.m_handle );
+				Handle pHandlePrev = pPrev.m_handle;
 
 				if( pPrev.IsMax() == 0 )
 				{
@@ -845,16 +799,16 @@ namespace Bullet.Collision.BroadPhase
 			Edge[] edges = m_pEdges[axis];
 			Edge pEdge = edges[edge];
 			Edge pNext = edges[edge + 1];
-			Handle pHandleEdge = getHandle( pEdge.m_handle );
+			Handle pHandleEdge = pEdge.m_handle;
 
-			while( pNext.m_handle != 0 && ( pEdge.m_pos >= pNext.m_pos ) )
+			while( pNext.m_handle != null && ( pEdge.m_pos >= pNext.m_pos ) )
 			{
-				Handle pHandleNext = getHandle( pNext.m_handle );
+				Handle pHandleNext = pNext.m_handle;
 
 				if( pNext.IsMax() == 0 )
 				{
-					Handle handle0 = getHandle( pEdge.m_handle );
-					Handle handle1 = getHandle( pNext.m_handle );
+					Handle handle0 = pEdge.m_handle;
+					Handle handle1 = pNext.m_handle;
 					int axis1 = ( 1 << axis ) & 3;
 					int axis2 = ( 1 << axis1 ) & 3;
 
@@ -901,17 +855,17 @@ namespace Bullet.Collision.BroadPhase
 			Edge[] edges = m_pEdges[axis];
             Edge pEdge = edges[ edge];
 			Edge pPrev = edges[edge - 1];
-			Handle pHandleEdge = getHandle( pEdge.m_handle );
+			Handle pHandleEdge = pEdge.m_handle;
 
 			while( pEdge.m_pos < pPrev.m_pos )
 			{
-				Handle pHandlePrev = getHandle( pPrev.m_handle );
+				Handle pHandlePrev = pPrev.m_handle;
 
 				if( pPrev.IsMax() == 0 )
 				{
 					// if previous edge was a minimum remove any overlap between the two handles
-					Handle handle0 = getHandle( pEdge.m_handle );
-					Handle handle1 = getHandle( pPrev.m_handle );
+					Handle handle0 = pEdge.m_handle;
+					Handle handle1 = pPrev.m_handle;
 					int axis1 = ( 1 << axis ) & 3;
 					int axis2 = ( 1 << axis1 ) & 3;
 
@@ -964,11 +918,11 @@ namespace Bullet.Collision.BroadPhase
 			Edge[] edges = m_pEdges[axis];
             Edge pEdge = edges[ edge];
 			Edge pNext = edges[edge + 1];
-			Handle pHandleEdge = getHandle( pEdge.m_handle );
+			Handle pHandleEdge = pEdge.m_handle;
 
-			while( pNext.m_handle != 0 && ( pEdge.m_pos >= pNext.m_pos ) )
+			while( pNext.m_handle != null && ( pEdge.m_pos >= pNext.m_pos ) )
 			{
-				Handle pHandleNext = getHandle( pNext.m_handle );
+				Handle pHandleNext = pNext.m_handle;
 
 				int axis1 = ( 1 << axis ) & 3;
 				int axis2 = ( 1 << axis1 ) & 3;
@@ -978,8 +932,8 @@ namespace Bullet.Collision.BroadPhase
 					// if next edge is a minimum check the bounds and add an overlap if necessary
 					if( updateOverlaps && testOverlap2D( pHandleEdge, pHandleNext, axis1, axis2 ) )
 					{
-						Handle handle0 = getHandle( pEdge.m_handle );
-						Handle handle1 = getHandle( pNext.m_handle );
+						Handle handle0 = pEdge.m_handle;
+						Handle handle1 = pNext.m_handle;
 						m_pairCache.addOverlappingPair( handle0, handle1 );
 						if( m_userPairCallback != null )
 							m_userPairCallback.addOverlappingPair( handle0, handle1 );

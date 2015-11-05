@@ -20,7 +20,7 @@ subject to the following restrictions:
 */
 
 
-namespace Bullet.LinearMath
+namespace Voxelarium.LinearMath
 {
 	public interface btIScalar
 	{

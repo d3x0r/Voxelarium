@@ -30,7 +30,7 @@ namespace Bullet.Collision.Shapes
 		internal btCollisionShape m_childShape;
 		internal BroadphaseNativeTypes m_childShapeType;
 		internal double m_childMargin;
-		internal btDbvtNode m_node;
+		internal btDbvt.btDbvtNode m_node;
 
 		public bool Equals( btCompoundShapeChild c2 )
 		{
@@ -177,7 +177,7 @@ virtual string serialize( object dataBuffer, btSerializer* serializer );
 			}
 			if( m_dynamicAabbTree != null )
 			{
-				btDbvtVolume bounds = btDbvtVolume.FromMM( ref localAabbMin, ref localAabbMax );
+				btDbvt.btDbvtVolume bounds = btDbvt.btDbvtVolume.FromMM( ref localAabbMin, ref localAabbMax );
 				int index = m_children.Count;
 				child.m_node = m_dynamicAabbTree.insert( ref bounds, index );
 			}
@@ -196,7 +196,7 @@ virtual string serialize( object dataBuffer, btSerializer* serializer );
 				///update the dynamic aabb tree
 				btVector3 localAabbMin, localAabbMax;
 				m_children[childIndex].m_childShape.getAabb( ref newChildTransform, out localAabbMin, out localAabbMax );
-				btDbvtVolume  bounds = btDbvtVolume.FromMM( ref localAabbMin, ref localAabbMax );
+				btDbvt.btDbvtVolume  bounds = btDbvt.btDbvtVolume.FromMM( ref localAabbMin, ref localAabbMax );
 				//int index = m_children.Count-1;
 				m_dynamicAabbTree.update( m_children[childIndex].m_node, ref bounds );
 			}
@@ -216,7 +216,7 @@ virtual string serialize( object dataBuffer, btSerializer* serializer );
 				///update the dynamic aabb tree
 				btVector3 localAabbMin, localAabbMax;
 				m_children[childIndex].m_childShape.getAabb( ref m_children[childIndex].m_transform, out localAabbMin, out localAabbMax );
-				btDbvtVolume bounds = btDbvtVolume.FromMM( ref localAabbMin, ref localAabbMax );
+				btDbvt.btDbvtVolume bounds = btDbvt.btDbvtVolume.FromMM( ref localAabbMin, ref localAabbMax );
 				//int index = m_children.Count-1;
 				m_dynamicAabbTree.update( m_children[childIndex].m_node, ref bounds );
 			}
@@ -289,7 +289,7 @@ virtual string serialize( object dataBuffer, btSerializer* serializer );
 		}
 
 		///getAabb's default implementation is brute force, expected derived classes to implement a fast dedicated version
-		public override void getAabb( ref btTransform trans, out btVector3 aabbMin, out btVector3 aabbMax )
+		public override void getAabb( btITransform trans, out btVector3 aabbMin, out btVector3 aabbMax )
 		{
 			btVector3 localHalfExtents; btVector3.getHalfExtent( ref m_localAabbMin, ref m_localAabbMax, out localHalfExtents );
 			btVector3 localCenter; btVector3.getCenter( ref m_localAabbMin, ref m_localAabbMax, out localCenter );
@@ -306,7 +306,7 @@ virtual string serialize( object dataBuffer, btSerializer* serializer );
 
 			btMatrix3x3 abs_b; trans.getBasis().absolute( out abs_b );
 
-			btVector3 center; trans.Apply( localCenter, out center );
+			btVector3 center; trans.Apply( ref localCenter, out center );
 
 			btVector3 extent; localHalfExtents.dot3( ref abs_b, out extent );
 			aabbMin = center - extent;
@@ -444,7 +444,7 @@ virtual string serialize( object dataBuffer, btSerializer* serializer );
 					btVector3 localAabbMin, localAabbMax;
 					child.m_childShape.getAabb( ref child.m_transform, out localAabbMin, out localAabbMax );
 
-					btDbvtVolume bounds = btDbvtVolume.FromMM( ref localAabbMin, ref localAabbMax );
+					btDbvt.btDbvtVolume bounds = btDbvt.btDbvtVolume.FromMM( ref localAabbMin, ref localAabbMax );
 					int index2 = index;
 					child.m_node = m_dynamicAabbTree.insert( ref bounds, index2 );
 				}

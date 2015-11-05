@@ -19,22 +19,10 @@ namespace Bullet.Collision.Dispatch
 {
 
 	///Used by the btCollisionDispatcher to register and create instances for btCollisionAlgorithm
-	internal class btCollisionAlgorithmCreateFunc
+	internal abstract class btCollisionAlgorithmCreateFunc
 	{
-		bool m_swapped;
-
-		internal btCollisionAlgorithmCreateFunc()
-		{
-			m_swapped = false;
-		}
-
-		internal virtual btCollisionAlgorithm CreateCollisionAlgorithm( btCollisionAlgorithmConstructionInfo info, btCollisionObjectWrapper body0Wrap, btCollisionObjectWrapper body1Wrap )
-		{
-
-			//(void)body0Wrap;
-			//(void)body1Wrap;
-			return null;
-		}
+		internal bool m_swapped;
+		internal abstract btCollisionAlgorithm CreateCollisionAlgorithm( btCollisionAlgorithmConstructionInfo info, btCollisionObjectWrapper body0Wrap, btCollisionObjectWrapper body1Wrap );
 	};
 }
 

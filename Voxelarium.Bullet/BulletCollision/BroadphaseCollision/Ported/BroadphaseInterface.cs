@@ -37,7 +37,7 @@ namespace Bullet.Collision.BroadPhase
 	///The btBroadphaseInterface class provides an interface to detect aabb-overlapping object pairs.
 	///Some implementations for this broadphase interface include btAxisSweep3, bt32BitAxisSweep3 and btDbvtBroadphase.
 	///The actual overlapping pair management, storage, adding and removing of pairs is dealt by the btOverlappingPairCache class.
-	internal interface btBroadphaseInterface
+	public interface btBroadphaseInterface
 	{
 
 		btBroadphaseProxy createProxy( ref btVector3 aabbMin, ref btVector3 aabbMax, BroadphaseNativeTypes shapeType
@@ -70,7 +70,7 @@ namespace Bullet.Collision.BroadPhase
 
 	};
 
-	internal abstract class btBroadphaseDefault : btBroadphaseInterface
+	public abstract class btBroadphaseDefault : btBroadphaseInterface
 	{
 		public abstract void aabbTest( ref btVector3 aabbMin, ref btVector3 aabbMax, btBroadphaseAabbCallback callback );
 		public abstract void calculateOverlappingPairs( btDispatcher dispatcher );

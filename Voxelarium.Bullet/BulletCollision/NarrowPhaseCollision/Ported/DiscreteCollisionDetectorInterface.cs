@@ -37,13 +37,13 @@ namespace Bullet.Collision.NarrowPhase
 
 		internal class ClosestPointInput
 		{
-			internal ClosestPointInput()
+			public ClosestPointInput()
 			{
 				m_maximumDistanceSquared = btScalar.BT_LARGE_FLOAT;
 			}
 
-			internal btTransform m_transformA;
-			internal btTransform m_transformB;
+			internal btITransform m_transformA;
+			internal btITransform m_transformB;
 			internal double m_maximumDistanceSquared;
 		};
 

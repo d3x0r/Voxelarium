@@ -300,7 +300,10 @@ namespace Bullet.Collision.Shapes
 			}
 		}
 
-		public btBoxShape( ref btVector3 boxHalfExtents )
+#if ALLOW_PUBLIC_SHAPES
+		public 
+#endif
+			btBoxShape( ref btVector3 boxHalfExtents )
 		{
 			m_shapeType = BroadphaseNativeTypes.BOX_SHAPE_PROXYTYPE;
 
@@ -315,9 +318,9 @@ namespace Bullet.Collision.Shapes
 
 
 
-		public override void getAabb( ref btTransform t, out btVector3 aabbMin, out btVector3 aabbMax )
+		public override void getAabb( btITransform t, out btVector3 aabbMin, out btVector3 aabbMax )
 		{
-			btAabbUtil.btTransformAabb( ref m_implicitShapeDimensions, getMargin(), ref t, out aabbMin, out aabbMax );
+			btAabbUtil.btTransformAabb( ref m_implicitShapeDimensions, getMargin(), t, out aabbMin, out aabbMax );
 		}
 
 

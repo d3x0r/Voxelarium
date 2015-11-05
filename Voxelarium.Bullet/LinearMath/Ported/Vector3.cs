@@ -341,6 +341,12 @@ namespace Bullet.LinearMath
 					y * v.y +
 					z * v.z;
 		}
+		public double dot( btIVector3 v )
+		{
+			return x * v.X +
+					y * v.Y +
+					z * v.Z;
+		}
 		public static double dot( ref btVector3 a, ref btVector3 b )
 		{
 			return a.x * b.x +
@@ -355,6 +361,12 @@ namespace Bullet.LinearMath
 		}
 
 		public static double BetweenLength2( ref btVector3 min, ref btVector3 max )
+		{
+			btVector3 tmp;
+			max.Sub( ref min, out tmp );
+			return tmp.dot( ref tmp );
+		}
+		public static double btDelLength2( ref btVector3 max, ref btVector3 min )
 		{
 			btVector3 tmp;
 			max.Sub( ref min, out tmp );
@@ -959,6 +971,11 @@ namespace Bullet.LinearMath
 		}
 
 #endif
+		public override string ToString()
+		{
+			return String.Format( "({0:g6},{1:g6},{2:g6})", x, y, z );
+		}
+
 
 	}
 
@@ -1180,8 +1197,6 @@ namespace Bullet.LinearMath
 		{
 			return ( q.x == x ) && ( q.y == y ) && ( q.z == z ) && ( q.w == w );
 		}
-
-
 
 	}
 

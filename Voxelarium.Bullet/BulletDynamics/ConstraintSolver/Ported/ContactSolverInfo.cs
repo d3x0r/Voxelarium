@@ -14,11 +14,12 @@ subject to the following restrictions:
 */
 
 using Bullet.LinearMath;
+using System;
 
 namespace Bullet.Dynamics.ConstraintSolver
 {
 
-
+	[Flags]
 	public enum btSolverMode
 	{
 		SOLVER_RANDMIZE_ORDER = 1,

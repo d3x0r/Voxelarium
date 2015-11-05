@@ -18,7 +18,7 @@ namespace Bullet.Collision.BroadPhase
 {
 
 	///The btOverlappingPairCallback class is an additional optional broadphase user callback for adding/removing overlapping pairs, similar interface to btOverlappingPairCache.
-	internal abstract class btOverlappingPairCallback
+	public abstract class btOverlappingPairCallback
 	{
 		internal abstract btBroadphasePair addOverlappingPair( btBroadphaseProxy proxy0, btBroadphaseProxy proxy1 );
 

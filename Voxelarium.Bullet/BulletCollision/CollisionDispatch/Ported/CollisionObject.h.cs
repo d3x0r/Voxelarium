@@ -86,7 +86,7 @@ namespace Bullet.Collision.Dispatch
 		protected int m_islandTag1;
 		protected int m_companionId;
 
-		protected ActivationState m_activationState1;
+		internal ActivationState m_activationState1;
 		protected double m_deactivationTime;
 
 		protected double m_friction;

@@ -156,8 +156,8 @@ void btGjkPairDetector::getClosestPointsNonVirtual(string losestPointInput& inpu
 			btVector3 normalInB = btVector3.Zero;
 
 			btVector3 pointOnA, pointOnB = btVector3.Zero;
-			btTransform localTransA = input.m_transformA;
-			btTransform localTransB = input.m_transformB;
+			btTransform localTransA; input.m_transformA.Get( out localTransA );
+			btTransform localTransB; input.m_transformB.Get( out localTransB );
 			btVector3 originA, originB;
 			input.m_transformB.getOrigin( out originB );
 			input.m_transformA.getOrigin( out originA );
@@ -405,7 +405,7 @@ void btGjkPairDetector::getClosestPointsNonVirtual(string losestPointInput& inpu
 						bool isValid2 = m_penetrationDepthSolver.calcPenDepth(
 							m_simplexSolver,
 							m_minkowskiA, m_minkowskiB,
-							ref input.m_transformA, ref input.m_transformB,
+							ref localTransA, ref localTransB,
 							ref m_cachedSeparatingAxis, out tmpPointOnA, out tmpPointOnB,
 							debugDraw
 							);
@@ -427,6 +427,7 @@ void btGjkPairDetector::getClosestPointsNonVirtual(string losestPointInput& inpu
 								btVector3 tmp;
 								tmpPointOnA.Sub( ref tmpPointOnB, out tmp );
 								double distance2 = -tmp.length();
+								m_lastUsedMethod = 3;
 								//only replace valid penetrations when the result is deeper (check)
 								if( !isValid || ( distance2 < distance ) )
 								{
@@ -435,8 +436,47 @@ void btGjkPairDetector::getClosestPointsNonVirtual(string losestPointInput& inpu
 									pointOnB = tmpPointOnB;
 									normalInB = tmpNormalInB;
 
+									///todo: need to track down this EPA penetration solver degeneracy
+									///the penetration solver reports penetration but the contact normal
+									///connecting the contact points is pointing in the opposite direction
+									///until then, detect the issue and revert the normal
+									{
+										btScalar d1 = 0;
+										{
+											btVector3 seperatingAxisInA = ( normalInB ) * input.m_transformA.getBasis();
+											btVector3 seperatingAxisInB = -normalInB * input.m_transformB.getBasis();
+
+
+											btVector3 pInA; m_minkowskiA.localGetSupportVertexWithoutMarginNonVirtual( ref seperatingAxisInA, out pInA );
+											btVector3 qInB; m_minkowskiB.localGetSupportVertexWithoutMarginNonVirtual( ref seperatingAxisInB, out qInB );
+
+											btVector3 pWorld; localTransA.Apply( ref pInA, out pWorld );
+											btVector3 qWorld; localTransB.Apply( ref qInB, out qWorld );
+											btVector3 w = pWorld - qWorld;
+											d1 = ( -normalInB ).dot( w );
+										}
+										btScalar d0 = btScalar.BT_ZERO;
+										{
+											btVector3 seperatingAxisInA = ( -normalInB ) * input.m_transformA.getBasis();
+											btVector3 seperatingAxisInB = normalInB * input.m_transformB.getBasis();
+
+
+											btVector3 pInA; m_minkowskiA.localGetSupportVertexWithoutMarginNonVirtual( ref seperatingAxisInA, out pInA );
+											btVector3 qInB; m_minkowskiB.localGetSupportVertexWithoutMarginNonVirtual( ref seperatingAxisInB, out qInB );
+
+											btVector3 pWorld; localTransA.Apply( ref pInA, out pWorld );
+											btVector3 qWorld; localTransB.Apply( ref qInB, out qWorld );
+											btVector3 w = pWorld - qWorld;
+											d0 = normalInB.dot( w );
+										}
+										if( d1 > d0 )
+										{
+											m_lastUsedMethod = 10;
+											normalInB *= -1;
+										}
+
+									}
 									isValid = true;
-									m_lastUsedMethod = 3;
 								}
 								else
 								{

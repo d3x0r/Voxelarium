@@ -38,9 +38,9 @@ namespace Bullet.Collision.Dispatch
 
 		protected DispatcherFlags m_dispatcherFlags;
 
-		protected btList<btPersistentManifold> m_manifoldsPtr;
+		protected btList<btPersistentManifold> m_manifoldsPtr = new btList<btPersistentManifold>();
 
-		protected btManifoldResult m_defaultManifoldResult;
+		protected btManifoldResult m_defaultManifoldResult = new btManifoldResult();
 
 		protected btNearCallback m_nearCallback;
 
@@ -110,7 +110,7 @@ namespace Bullet.Collision.Dispatch
 			m_collisionConfiguration = config;
 		}
 
-		btCollisionDispatcher( btCollisionConfiguration collisionConfiguration )
+		internal btCollisionDispatcher( btCollisionConfiguration collisionConfiguration )
 		{
 			int i;
 			m_dispatcherFlags = DispatcherFlags.CD_USE_RELATIVE_CONTACT_BREAKING_THRESHOLD;
@@ -126,7 +126,7 @@ namespace Bullet.Collision.Dispatch
 			{
 				for( int j = 0; j < (int)BroadphaseNativeTypes.MAX_BROADPHASE_COLLISION_TYPES; j++ )
 				{
-					m_doubleDispatch[i, j] = m_collisionConfiguration.getCollisionAlgorithmCreateFunc( i, j );
+					m_doubleDispatch[i, j] = m_collisionConfiguration.getCollisionAlgorithmCreateFunc( (BroadphaseNativeTypes)i, (BroadphaseNativeTypes)j );
 					Debug.Assert( m_doubleDispatch[i, j] != null );
 				}
 			}
@@ -236,29 +236,20 @@ namespace Bullet.Collision.Dispatch
 
 		///interface for iterating all overlapping collision pairs, no matter how those pairs are stored (array, set, map etc)
 		///this is useful for the collision dispatcher.
-		internal class btCollisionPairCallback : btOverlapCallback
+		internal struct btCollisionPairCallback : btOverlapCallback
 		{
 			btDispatcherInfo m_dispatchInfo;
 			btCollisionDispatcher m_dispatcher;
 
-			//public btCollisionPairCallback() { }
 			internal btCollisionPairCallback( btDispatcherInfo dispatchInfo, btCollisionDispatcher dispatcher )
 			{
 				m_dispatchInfo = ( dispatchInfo );
 				m_dispatcher = ( dispatcher );
 			}
 
-			/*btCollisionPairCallback& operator=(btCollisionPairCallback& other)
-			{
-				m_dispatchInfo = other.m_dispatchInfo;
-				m_dispatcher = other.m_dispatcher;
-				return *this;
-			}
-			*/
-
 			public bool processOverlap( btBroadphasePair pair )
 			{
-				( m_dispatcher.getNearCallback() )( pair, m_dispatcher, m_dispatchInfo );
+				m_dispatcher.m_nearCallback( pair, m_dispatcher, m_dispatchInfo );
 				return false;
 			}
 		};

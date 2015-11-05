@@ -1,6 +1,6 @@
 #define MAINTAIN_PERSISTENCY
 #define KEEP_DEEPEST_POINT
-#define DEBUG_PERSISTENCY
+//#define DEBUG_PERSISTENCY
 /*
 Bullet Continuous Collision Detection and Physics Library
 Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
@@ -25,17 +25,17 @@ using Bullet.Types;
 namespace Bullet.Collision.NarrowPhase
 {
 
-
-	delegate bool ContactDestroyedCallback( object userPersistentData );
-	delegate bool ContactProcessedCallback( btManifoldPoint cp, object body0, object body1 );
+	public delegate bool ContactDestroyedCallback( object userPersistentData );
+	public delegate bool ContactProcessedCallback( btManifoldPoint cp, object body0, object body1 );
 
 	public class btPersistentManifold : btTypedObject
 	{
 		const int MANIFOLD_CACHE_SIZE = 4;
 
 		public const double gContactBreakingThreshold = (double)( 0.02 );
-		static ContactDestroyedCallback gContactDestroyedCallback;
-		static ContactProcessedCallback gContactProcessedCallback;
+
+		public static ContactDestroyedCallback gContactDestroyedCallback;
+		public static ContactProcessedCallback gContactProcessedCallback;
 		///gContactCalcArea3Points will approximate the convex hull area using 3 points
 		///when setting it to false, it will use 4 points to compute the area: it is more accurate but slower
 		bool gContactCalcArea3Points = true;
@@ -43,34 +43,33 @@ namespace Bullet.Collision.NarrowPhase
 		btManifoldPoint[] m_pointCache = new btManifoldPoint[MANIFOLD_CACHE_SIZE];
 
 		/// this two body pointers can point to the physics rigidbody class.
-		btCollisionObject m_body0;
-		btCollisionObject m_body1;
+		internal btCollisionObject m_body0;
+		internal btCollisionObject m_body1;
 
-		int m_cachedPoints;
+		internal int m_cachedPoints;
 
-		double m_contactBreakingThreshold;
-		double m_contactProcessingThreshold;
+		internal double m_contactBreakingThreshold;
+		internal double m_contactProcessingThreshold;
 
-
-		internal int m_companionIdA;
-		internal int m_companionIdB;
+		//internal int m_companionIdA;
+		//internal int m_companionIdB;
 
 		internal int m_index1a;
 
 		public btPersistentManifold() { }
 
-		internal void Initialize(btCollisionObject body0,btCollisionObject body1,int unused, double contactBreakingThreshold, double contactProcessingThreshold )
+		internal void Initialize( btCollisionObject body0, btCollisionObject body1, int unused, double contactBreakingThreshold, double contactProcessingThreshold )
 		{
-			base.Initialize(  btObjectTypes.BT_PERSISTENT_MANIFOLD_TYPE );
+			base.Initialize( btObjectTypes.BT_PERSISTENT_MANIFOLD_TYPE );
 			m_body0 = ( body0 ); m_body1 = ( body1 ); m_cachedPoints = ( 0 );
 			m_contactBreakingThreshold = ( contactBreakingThreshold );
 			m_contactProcessingThreshold = ( contactProcessingThreshold );
-        }
+		}
 
 		internal void Initialize()
 		{
 			base.Initialize( btObjectTypes.BT_PERSISTENT_MANIFOLD_TYPE );
-            m_body0 = null;
+			m_body0 = null;
 			m_body1 = null;
 			m_cachedPoints = ( 0 );
 			m_index1a = ( 0 );
@@ -229,7 +228,7 @@ namespace Bullet.Collision.NarrowPhase
 		internal int getCacheEntry( ref btManifoldPoint newPoint )
 		{
 			double shortestDist = getContactBreakingThreshold() * getContactBreakingThreshold();
-			int size = getNumContacts();
+			int size = m_cachedPoints;
 			int nearestPoint = -1;
 			for( int i = 0; i < size; i++ )
 			{
@@ -253,8 +252,8 @@ namespace Bullet.Collision.NarrowPhase
 				Debug.Assert( validContactDistance( newPoint ) );
 			}
 
-			int insertIndex = getNumContacts();
-			if( insertIndex == MANIFOLD_CACHE_SIZE )
+			int insertIndex = m_cachedPoints;
+			if( m_cachedPoints == MANIFOLD_CACHE_SIZE )
 			{
 				if( MANIFOLD_CACHE_SIZE >= 4 )
 					//sort cache so best points come first, based on area
@@ -273,7 +272,8 @@ namespace Bullet.Collision.NarrowPhase
 			if( insertIndex < 0 )
 				insertIndex = 0;
 
-			Debug.Assert( m_pointCache[insertIndex].m_userPersistentData == null );
+			Debug.Assert( m_pointCache[insertIndex] == null ||
+                m_pointCache[insertIndex].m_userPersistentData == null );
 			m_pointCache[insertIndex] = newPoint;
 			return insertIndex;
 		}
@@ -305,7 +305,7 @@ namespace Bullet.Collision.NarrowPhase
 				+ ")\n" );
 #endif //DEBUG_PERSISTENCY
 			/// first refresh worldspace positions and distance
-			for( i = getNumContacts() - 1; i >= 0; i-- )
+			for( i = m_cachedPoints - 1; i >= 0; i-- )
 			{
 				btManifoldPoint manifoldPoint = m_pointCache[i];
 				trA.Apply( ref manifoldPoint.m_localPointA, out manifoldPoint.m_positionWorldOnA );
@@ -319,7 +319,7 @@ namespace Bullet.Collision.NarrowPhase
 			/// then 
 			double distance2d;
 			btVector3 projectedDifference, projectedPoint;
-			for( i = getNumContacts() - 1; i >= 0; i-- )
+			for( i = m_cachedPoints - 1; i >= 0; i-- )
 			{
 
 				btManifoldPoint manifoldPoint = m_pointCache[i];
@@ -359,17 +359,17 @@ namespace Bullet.Collision.NarrowPhase
 		///note that some pairs of objects might have more then one contact manifold.
 
 
-		public btCollisionObject getBody0() { return m_body0; }
-		public btCollisionObject getBody1() { return m_body1; }
+		//public btCollisionObject getBody0() { return m_body0; }
+		//public btCollisionObject getBody1() { return m_body1; }
 
-		void setBodies( btCollisionObject body0, btCollisionObject body1 )
+		internal void setBodies( btCollisionObject body0, btCollisionObject body1 )
 		{
 			m_body0 = body0;
 			m_body1 = body1;
 		}
 
 
-		public int getNumContacts() { return m_cachedPoints; }
+		//public int getNumContacts() { return m_cachedPoints; }
 		/// the setNumContacts API is usually not used, except when you gather/fill all contacts manually
 		void setNumContacts( int cachedPoints )
 		{
@@ -407,13 +407,13 @@ namespace Bullet.Collision.NarrowPhase
 		{
 			clearUserCache( m_pointCache[index] );
 
-			int lastUsedIndex = getNumContacts() - 1;
+			int lastUsedIndex = m_cachedPoints - 1;
 			//		m_pointCache[index] = m_pointCache[lastUsedIndex];
 			if( index != lastUsedIndex )
 			{
 				m_pointCache[index] = m_pointCache[lastUsedIndex];
 				//get rid of duplicated userPersistentData pointer
-				m_pointCache[lastUsedIndex].m_userPersistentData = 0;
+				m_pointCache[lastUsedIndex].m_userPersistentData = null;
 				m_pointCache[lastUsedIndex].m_appliedImpulse = 0;
 				m_pointCache[lastUsedIndex].m_lateralFrictionInitialized = false;
 				m_pointCache[lastUsedIndex].m_appliedImpulseLateral1 = 0;

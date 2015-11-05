@@ -19,7 +19,7 @@ namespace Bullet.Collision.NarrowPhase
 	/// ManifoldContactPoint collects and maintains persistent contactpoints.
 	/// used to improve stability and performance of rigidbody dynamics response.
 
-	internal class btManifoldPoint
+	public class btManifoldPoint
 	{
 		public btManifoldPoint()
 		{
@@ -58,12 +58,13 @@ namespace Bullet.Collision.NarrowPhase
 
 			//m_constraintRow[0].Reset();
 			//m_constraintRow[1].Reset();
-			//m_constraintRow[2].Reset();
+			//m_constraintRow[2].Reset();
+
 		}
 
-		 btManifoldPoint( ref btVector3 pointA, ref btVector3 pointB,
-				ref btVector3 normal,
-				double distance )
+		btManifoldPoint( ref btVector3 pointA, ref btVector3 pointB,
+			   ref btVector3 normal,
+			   double distance )
 		{
 			m_localPointA = pointA;
 			m_localPointB = pointB;
@@ -72,7 +73,7 @@ namespace Bullet.Collision.NarrowPhase
 			m_combinedFriction = 0;
 			m_combinedRollingFriction = 0;
 			m_combinedRestitution = 0;
-			m_userPersistentData = 0;
+			m_userPersistentData = null;
 			m_lateralFrictionInitialized = false;
 			m_appliedImpulse = 0;
 			m_appliedImpulseLateral1 = 0;

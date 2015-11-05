@@ -85,11 +85,11 @@ namespace Bullet.Collision.Dispatch
 	public partial class btCollisionWorld
 	{
 
-		internal btCollisionObjectArray m_collisionObjects;
+		internal btCollisionObjectArray m_collisionObjects = new btCollisionObjectArray();
 
 		internal btDispatcher m_dispatcher1;
 
-		internal btDispatcherInfo m_dispatchInfo;
+		internal btDispatcherInfo m_dispatchInfo = new btDispatcherInfo();
 
 		internal btBroadphaseInterface m_broadphasePairCache;
 
@@ -104,9 +104,9 @@ namespace Bullet.Collision.Dispatch
 		protected btVector3 m_rayFromWorld;//used to calculate hitPointWorld from hitFraction
 		protected btVector3 m_rayToWorld;
 
-		btList<btVector3> m_hitNormalWorld;
-		btList<btVector3> m_hitPointWorld;
-		btList<double> m_hitFractions;
+		btList<btVector3> m_hitNormalWorld = new btList<btVector3>();
+		btList<btVector3> m_hitPointWorld = new btList<btVector3>();
+		btList<double> m_hitFractions = new btList<double>();
 
 
 

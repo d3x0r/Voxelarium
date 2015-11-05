@@ -4,8 +4,8 @@ Copyright (c) 2003-2009 Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose,
-including commercial applications, and to alter it and redistribute it freely,
+Permission is granted to anyone to use this software for any purpose, 
+including commercial applications, and to alter it and redistribute it freely, 
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -13,19 +13,374 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-using System.Diagnostics;
+
+using System.Collections.Generic;
 using Bullet.Collision.BroadPhase;
 using Bullet.Collision.Dispatch;
 using Bullet.Collision.NarrowPhase;
+using Bullet.Collision.Shapes;
 using Bullet.Dynamics.ConstraintSolver;
 using Bullet.LinearMath;
 using Bullet.Types;
-using Bullet.Collision.Shapes;
+using System.Diagnostics;
 
 namespace Bullet.Dynamics
 {
-	public partial class btDiscreteDynamicsWorld
+
+	///btDiscreteDynamicsWorld provides discrete rigid body simulation
+	///those classes replace the obsolete CcdPhysicsEnvironment/CcdPhysicsController
+	public partial class btDiscreteDynamicsWorld : btDynamicsWorld
 	{
+
+		protected btList<btTypedConstraint> m_sortedConstraints = new btList<btTypedConstraint>();
+		internal InplaceSolverIslandCallback m_solverIslandCallback;
+
+		internal btConstraintSolver m_constraintSolver;
+
+		protected btSimulationIslandManager m_islandManager;
+
+		protected btList<btTypedConstraint> m_constraints = new btList<btTypedConstraint>();
+
+		protected btList<btRigidBody> m_nonStaticRigidBodies = new btList<btRigidBody>();
+
+		protected btVector3 m_gravity;
+		//double m_g;
+
+		//for variable timesteps
+		double m_localTime;
+		double m_fixedTimeStep;
+		//for variable timesteps
+
+		bool m_ownsIslandManager;
+		bool m_ownsConstraintSolver;
+		bool m_synchronizeAllMotionStates;
+		bool m_applySpeculativeContactRestitution;
+
+		List<btActionInterface> m_actions = new List<btActionInterface>();
+
+		bool m_latencyMotionStateInterpolation;
+
+		btList<btPersistentManifold> m_predictiveManifolds = new btList<btPersistentManifold>();
+
+		public virtual void predictUnconstraintMotion( double timeStep )
+		{
+			CProfileSample sample = new CProfileSample( "predictUnconstraintMotion" );
+			for( int i = 0; i < m_nonStaticRigidBodies.Count; i++ )
+			{
+				btRigidBody body = m_nonStaticRigidBodies[i];
+				if( !body.isStaticOrKinematicObject() )
+				{
+					//don't integrate/update velocities here, it happens in the constraint solver
+
+					body.applyDamping( timeStep );
+
+					body.predictIntegratedTransform( timeStep, out body.m_interpolationWorldTransform );
+				}
+			}
+		}
+
+#if USE_STATIC_ONLY
+					class StaticOnlyCallback : btClosestNotMeConvexResultCallback
+{
+	public:
+
+						StaticOnlyCallback( btCollisionObject me, ref btVector3 fromA, ref btVector3 toA, btOverlappingPairCache* pairCache, btDispatcher* dispatcher ) :
+                          btClosestNotMeConvexResultCallback( me, fromA, toA, pairCache, dispatcher)
+	{
+	}
+
+	virtual bool needsCollision( btBroadphaseProxy* proxy0 )
+	{
+		btCollisionObject otherObj = (btCollisionObject)proxy0.m_clientObject;
+		if( !otherObj.isStaticOrKinematicObject() )
+			return false;
+		return btClosestNotMeConvexResultCallback::needsCollision( proxy0 );
+	}
+};
+#endif
+		public virtual void integrateTransforms( double timeStep )
+		{
+			CProfileSample sample = new CProfileSample( "integrateTransforms" );
+			btTransform predictedTrans;
+			for( int i = 0; i < m_nonStaticRigidBodies.Count; i++ )
+			{
+				btRigidBody body = m_nonStaticRigidBodies[i];
+				body.setHitFraction( 1 );
+
+				if( body.isActive() && ( !body.isStaticOrKinematicObject() ) )
+				{
+
+					body.predictIntegratedTransform( timeStep, out predictedTrans );
+					btVector3 delta;
+					predictedTrans.m_origin.Sub( ref body.m_worldTransform.m_origin, out delta );
+					double squareMotion = ( delta ).length2();
+
+					if( getDispatchInfo().m_useContinuous && body.getCcdSquareMotionThreshold() != 0 && body.getCcdSquareMotionThreshold() < squareMotion )
+					{
+						CProfileSample sample2 = new CProfileSample( "CCD motion clamping" );
+						if( body.getCollisionShape().isConvex() )
+						{
+							gNumClampedCcdMotions++;
+#if USE_STATIC_ONLY
+							StaticOnlyCallback sweepResults( body, body.getWorldTransform().getOrigin(),predictedTrans.getOrigin(),getBroadphase().getOverlappingPairCache(),getDispatcher());
+#else
+							btClosestNotMeConvexResultCallback sweepResults = BulletGlobals.ClosestNotMeConvexResultCallbackPool.Get();
+							sweepResults.Initialize( body, ref body.m_worldTransform.m_origin
+											, ref predictedTrans.m_origin, getBroadphase().getOverlappingPairCache(), getDispatcher() );
+#endif
+							//btConvexShape* convexShape = static_cast<btConvexShape*>(body.getCollisionShape());
+							using( btSphereShape tmpSphere = BulletGlobals.SphereShapePool.Get() )
+							{
+								tmpSphere.Initialize( body.getCcdSweptSphereRadius() );//btConvexShape* convexShape = static_cast<btConvexShape*>(body.getCollisionShape());
+								sweepResults.m_allowedPenetration = getDispatchInfo().m_allowedCcdPenetration;
+
+								sweepResults.m_collisionFilterGroup = body.getBroadphaseProxy().m_collisionFilterGroup;
+								sweepResults.m_collisionFilterMask = body.getBroadphaseProxy().m_collisionFilterMask;
+								btTransform modifiedPredictedTrans = predictedTrans;
+								modifiedPredictedTrans.setBasis( ref body.m_worldTransform.m_basis );
+
+								convexSweepTest( tmpSphere, ref body.m_worldTransform, ref modifiedPredictedTrans, sweepResults );
+								if( sweepResults.hasHit() && ( sweepResults.m_closestHitFraction < 1 ) )
+								{
+
+									//Console.WriteLine("clamped integration to hit fraction = %f\n",fraction);
+									body.setHitFraction( sweepResults.m_closestHitFraction );
+									body.predictIntegratedTransform( timeStep * body.getHitFraction(), out predictedTrans );
+									body.setHitFraction( 0 );
+									body.proceedToTransform( ref predictedTrans );
+
+#if false
+									btVector3 linVel = body.getLinearVelocity();
+
+									double maxSpeed = body.getCcdMotionThreshold()/getSolverInfo().m_timeStep;
+									double maxSpeedSqr = maxSpeed*maxSpeed;
+									if (linVel.length2()>maxSpeedSqr)
+									{
+										linVel.normalize();
+										linVel*= maxSpeed;
+										body.setLinearVelocity(linVel);
+										double ms2 = body.getLinearVelocity().length2();
+										body.predictIntegratedTransform(timeStep, predictedTrans);
+
+										double sm2 = (predictedTrans.getOrigin()-body.getWorldTransform().getOrigin()).length2();
+										double smt = body.getCcdSquareMotionThreshold();
+										Console.WriteLine("sm2=%f\n",sm2);
+									}
+#else
+
+									//don't apply the collision response right now, it will happen next frame
+									//if you really need to, you can uncomment next 3 lines. Note that is uses zero restitution.
+									//double appliedImpulse = 0;
+									//double depth = 0;
+									//appliedImpulse = resolveSingleCollision(body,(btCollisionObject)sweepResults.m_hitCollisionObject,sweepResults.m_hitPointWorld,sweepResults.m_hitNormalWorld,getSolverInfo(), depth);
+
+
+#endif
+									BulletGlobals.ClosestNotMeConvexResultCallbackPool.Free( sweepResults );
+									continue;
+								}
+								BulletGlobals.ClosestNotMeConvexResultCallbackPool.Free( sweepResults );
+							}
+						}
+					}
+
+
+					body.proceedToTransform( ref predictedTrans );
+
+				}
+
+			}
+
+			///this should probably be switched on by default, but it is not well tested yet
+			if( m_applySpeculativeContactRestitution )
+			{
+				CProfileSample sub_sample = new CProfileSample( "apply speculative contact restitution" );
+				for( int i = 0; i < m_predictiveManifolds.Count; i++ )
+				{
+					btPersistentManifold manifold = m_predictiveManifolds[i];
+					btRigidBody body0 = btRigidBody.upcast( (btCollisionObject)manifold.m_body0 );
+					btRigidBody body1 = btRigidBody.upcast( (btCollisionObject)manifold.m_body1 );
+
+					for( int p = 0; p < manifold.m_cachedPoints; p++ )
+					{
+						btManifoldPoint pt = manifold.getContactPoint( p );
+						double combinedRestitution = btManifoldResult.calculateCombinedRestitution( body0, body1 );
+
+						if( combinedRestitution > 0 && pt.m_appliedImpulse != 0 )
+						//if (pt.getDistance()>0 && combinedRestitution>0 && pt.m_appliedImpulse != 0)
+						{
+							btVector3 imp = -pt.m_normalWorldOnB * pt.m_appliedImpulse * combinedRestitution;
+
+							btIVector3 pos1 = pt.getPositionWorldOnA();
+							btIVector3 pos2 = pt.getPositionWorldOnB();
+
+							btVector3 rel_pos0; pos1.Sub( body0.getWorldTransform().getOrigin(), out rel_pos0 );
+							btVector3 rel_pos1; pos2.Sub( body1.getWorldTransform().getOrigin(), out rel_pos1 );
+
+							if( body0 != null )
+								body0.applyImpulse( ref imp, ref rel_pos0 );
+							if( body1 != null )
+							{
+								imp.Invert( out imp );
+								body1.applyImpulse( ref imp, ref rel_pos1 );
+							}
+						}
+					}
+				}
+			}
+
+		}
+
+
+
+
+		internal btSimulationIslandManager GetIslandManager()
+		{
+			return m_islandManager;
+		}
+
+		///removeCollisionObject will first check if it is a rigid body, if so call removeRigidBody otherwise call btCollisionWorld::removeCollisionObject
+
+
+		internal virtual btDynamicsWorldType getWorldType()
+		{
+			return btDynamicsWorldType.BT_DISCRETE_DYNAMICS_WORLD;
+		}
+
+		///the forces on each rigidbody is accumulating together with gravity. clear this after each timestep.
+		//virtual void clearForces();
+
+		///apply gravity, call this once per timestep
+		//virtual void applyGravity();
+
+		public virtual void setNumTasks( int numTasks )
+		{
+			//(void)numTasks;
+		}
+
+		///obsolete, use updateActions instead
+		public virtual void updateVehicles( double timeStep )
+		{
+			updateActions( timeStep );
+		}
+
+		///this can be useful to synchronize a single rigid body . graphics object
+		void setSynchronizeAllMotionStates( bool synchronizeAll )
+		{
+			m_synchronizeAllMotionStates = synchronizeAll;
+		}
+		bool getSynchronizeAllMotionStates()
+		{
+			return m_synchronizeAllMotionStates;
+		}
+
+		void setApplySpeculativeContactRestitution( bool enable )
+		{
+			m_applySpeculativeContactRestitution = enable;
+		}
+
+		bool getApplySpeculativeContactRestitution()
+		{
+			return m_applySpeculativeContactRestitution;
+		}
+
+		///Preliminary serialization test for Bullet 2.76. Loading those files requires a separate parser (see Bullet/Demos/SerializeDemo)
+		//virtual void serialize( btSerializer serializer );
+
+		///Interpolate motion state between previous and current transform, instead of current and next transform.
+		///This can relieve discontinuities in the rendering, due to penetrations
+		void setLatencyMotionStateInterpolation( bool latencyInterpolation )
+		{
+			m_latencyMotionStateInterpolation = latencyInterpolation;
+		}
+		bool getLatencyMotionStateInterpolation()
+		{
+			return m_latencyMotionStateInterpolation;
+		}
+
+
+		internal class btClosestNotMeConvexResultCallback : btCollisionWorld.ClosestConvexResultCallback
+		{
+
+			public btCollisionObject m_me;
+			public double m_allowedPenetration;
+			public btOverlappingPairCache m_pairCache;
+			public btDispatcher m_dispatcher;
+
+			public btClosestNotMeConvexResultCallback() { }
+
+			public void Initialize( btCollisionObject me, ref btVector3 fromA, ref btVector3 toA, btOverlappingPairCache pairCache, btDispatcher dispatcher )
+			{
+				base.Initialize( ref fromA, ref toA );
+				m_me = ( me );
+				m_allowedPenetration = ( 0.0f );
+				m_pairCache = ( pairCache );
+				m_dispatcher = ( dispatcher );
+			}
+
+			public override double addSingleResult( ref btCollisionWorld.LocalConvexResult convexResult, bool normalInWorldSpace )
+			{
+				if( convexResult.m_hitCollisionObject == m_me )
+					return 1.0f;
+
+				//ignore result if there is no contact response
+				if( !convexResult.m_hitCollisionObject.hasContactResponse() )
+					return 1.0f;
+
+				btVector3 linVelA, linVelB;
+				m_convexToWorld.Sub( ref m_convexFromWorld, out linVelA );
+				linVelB = btVector3.Zero;//toB.getOrigin()-fromB.getOrigin();
+
+				btVector3 relativeVelocity = ( linVelA - linVelB );
+				//don't report time of impact for motion away from the contact normal (or causes minor penetration)
+				if( convexResult.m_hitNormalLocal.dot( relativeVelocity ) >= -m_allowedPenetration )
+					return 1;
+
+				return base.addSingleResult( ref convexResult, normalInWorldSpace );
+			}
+
+			public override bool needsCollision( btBroadphaseProxy proxy0 )
+			{
+				//don't collide with itself
+				if( proxy0.m_clientObject == m_me )
+					return false;
+
+				///don't do CCD when the collision filters are not matching
+				if( !base.needsCollision( proxy0 ) )
+					return false;
+
+				btCollisionObject otherObj = (btCollisionObject)proxy0.m_clientObject;
+
+				//call needsResponse, see http://code.google.com/p/bullet/issues/detail?id=179
+				if( m_dispatcher.needsResponse( m_me, otherObj ) )
+				{
+#if false
+			///don't do CCD when there are already contact points (touching contact/penetration)
+			List<btPersistentManifold*> manifoldArray;
+			btBroadphasePair* collisionPair = m_pairCache.findPair(m_me.getBroadphaseHandle(),proxy0);
+			if (collisionPair)
+			{
+				if (collisionPair.m_algorithm)
+				{
+					manifoldArray.resize(0);
+					collisionPair.m_algorithm.getAllContactManifolds(manifoldArray);
+					for (int j=0;j<manifoldArray.Count;j++)
+					{
+						btPersistentManifold* manifold = manifoldArray[j];
+						if (manifold.getNumContacts()>0)
+							return false;
+					}
+				}
+			}
+#endif
+					return true;
+				}
+
+				return false;
+			}
+
+
+		};
 
 		internal class InplaceSolverIslandCallback : btSimulationIslandManager.IslandCallback
 		{
@@ -36,9 +391,9 @@ namespace Bullet.Dynamics
 			btIDebugDraw m_debugDrawer;
 			btDispatcher m_dispatcher;
 
-			btList<btCollisionObject> m_bodies;
-			btList<btPersistentManifold> m_manifolds;
-			btList<btTypedConstraint> m_constraints;
+			btList<btCollisionObject> m_bodies = new btList<btCollisionObject>();
+			btList<btPersistentManifold> m_manifolds = new btList<btPersistentManifold>();
+			btList<btTypedConstraint> m_constraints = new btList<btTypedConstraint>();
 
 			internal InplaceSolverIslandCallback(
 				btConstraintSolver solver,
@@ -118,7 +473,7 @@ namespace Bullet.Dynamics
 						for( i = 0; i < numBodies; i++ )
 							m_bodies.Add( bodies[i] );
 						for( i = 0; i < numManifolds; i++ )
-							m_manifolds.Add( manifolds[first_manifold+i] );
+							m_manifolds.Add( manifolds[first_manifold + i] );
 						for( i = 0; i < numCurConstraints; i++ )
 							m_constraints.Add( m_sortedConstraints[startConstraint + i] );
 						if( ( m_constraints.Count + m_manifolds.Count ) > m_solverInfo.m_minimumSolverBatchSize )
@@ -134,7 +489,6 @@ namespace Bullet.Dynamics
 			}
 			internal void processConstraints()
 			{
-
 				btCollisionObject[] bodies = m_bodies.Count != 0 ? m_bodies.InternalArray : null;
 				btPersistentManifold[] manifold = m_manifolds.Count != 0 ? m_manifolds.InternalArray : null;
 				btTypedConstraint[] constraints = m_constraints.Count != 0 ? m_constraints.InternalArray : null;
@@ -161,10 +515,24 @@ namespace Bullet.Dynamics
 
 		}
 
+		public btDiscreteDynamicsWorld()
+		{
+			btDefaultCollisionConfiguration collisionConfiguration = new btDefaultCollisionConfiguration( null );
+			btCollisionDispatcher dispatcher = new btCollisionDispatcher( collisionConfiguration );
 
-		internal btDiscreteDynamicsWorld( btDispatcher dispatcher, btBroadphaseInterface pairCache, btConstraintSolver constraintSolver, btCollisionConfiguration collisionConfiguration )
+			btBroadphaseInterface broadphase = new btDbvtBroadphase();
+			btSequentialImpulseConstraintSolver solver = new btSequentialImpulseConstraintSolver();
+			Initialize( dispatcher, broadphase, solver, collisionConfiguration );
+		}
+		public btDiscreteDynamicsWorld( btDispatcher dispatcher, btBroadphaseInterface pairCache, btConstraintSolver constraintSolver, btCollisionConfiguration collisionConfiguration )
 					: base( dispatcher, pairCache, collisionConfiguration )
 		{
+			Initialize( dispatcher, pairCache, constraintSolver, collisionConfiguration );
+		}
+
+		internal void Initialize( btDispatcher dispatcher, btBroadphaseInterface pairCache, btConstraintSolver constraintSolver, btCollisionConfiguration collisionConfiguration )
+		{
+			base.Initialize( dispatcher, pairCache, collisionConfiguration );
 			m_solverIslandCallback = null;
 			m_constraintSolver = ( constraintSolver );
 			m_gravity = new btVector3( 0, -10, 0 );
@@ -172,7 +540,6 @@ namespace Bullet.Dynamics
 			m_fixedTimeStep = ( 0 );
 			m_synchronizeAllMotionStates = ( false );
 			m_applySpeculativeContactRestitution = ( false );
-			m_profileTimings = ( 0 );
 			m_latencyMotionStateInterpolation = ( true );
 
 			if( m_constraintSolver == null )
@@ -225,7 +592,7 @@ namespace Bullet.Dynamics
 			{
 				btCollisionObject colObj = m_collisionObjects[i];
 				btRigidBody body = btRigidBody.upcast( colObj );
-				if( body && body.getActivationState() != ActivationState.ISLAND_SLEEPING )
+				if( body != null && body.getActivationState() != ActivationState.ISLAND_SLEEPING )
 				{
 					if( body.isKinematicObject() )
 					{
@@ -309,7 +676,7 @@ namespace Bullet.Dynamics
 
 		internal void synchronizeSingleMotionState( btRigidBody body )
 		{
-			Debug.Assert( body );
+			Debug.Assert( body != null );
 
 			if( body.getMotionState() != null && !body.isStaticOrKinematicObject() )
 			{
@@ -339,7 +706,7 @@ namespace Bullet.Dynamics
 				{
 					btCollisionObject colObj = m_collisionObjects[i];
 					btRigidBody body = btRigidBody.upcast( colObj );
-					if( body )
+					if( body != null )
 						synchronizeSingleMotionState( body );
 				}
 			}
@@ -372,7 +739,7 @@ namespace Bullet.Dynamics
 				m_localTime += timeStep;
 				if( m_localTime >= fixedTimeStep )
 				{
-					numSimulationSubSteps = (int)(m_localTime / fixedTimeStep);
+					numSimulationSubSteps = (int)( m_localTime / fixedTimeStep );
 					m_localTime -= numSimulationSubSteps * fixedTimeStep;
 				}
 			}
@@ -426,7 +793,7 @@ namespace Bullet.Dynamics
 
 			clearForces();
 
-# if !BT_NO_PROFILE
+#if !BT_NO_PROFILE
 			CProfileManager.Increment_Frame_Counter();
 #endif //BT_NO_PROFILE
 
@@ -466,7 +833,7 @@ namespace Bullet.Dynamics
 
 
 			///solve contact and other joint constraints
-			solveConstraints( getSolverInfo() );
+			solveConstraints( m_solverInfo );
 
 			///CallbackTriggers();
 
@@ -485,20 +852,20 @@ namespace Bullet.Dynamics
 			}
 		}
 
-		internal void setGravity( ref btVector3 gravity )
+		public void setGravity( ref btVector3 gravity )
 		{
 			m_gravity = gravity;
 			for( int i = 0; i < m_nonStaticRigidBodies.Count; i++ )
 			{
 				btRigidBody body = m_nonStaticRigidBodies[i];
-				if( body.isActive() && 0 == ( body.getFlags() &  btRigidBodyFlags.BT_DISABLE_WORLD_GRAVITY ) )
+				if( body.isActive() && 0 == ( body.getFlags() & btRigidBodyFlags.BT_DISABLE_WORLD_GRAVITY ) )
 				{
 					body.setGravity( ref gravity );
 				}
 			}
 		}
 
-		internal btVector3 getGravity()
+		public btVector3 getGravity()
 		{
 			return m_gravity;
 		}
@@ -512,20 +879,20 @@ namespace Bullet.Dynamics
 		public override void removeCollisionObject( btCollisionObject collisionObject )
 		{
 			btRigidBody body = btRigidBody.upcast( collisionObject );
-			if( body )
+			if( body != null )
 				removeRigidBody( body );
 			else
 				base.removeCollisionObject( collisionObject );
 		}
 
-		internal void removeRigidBody( btRigidBody body )
+		public void removeRigidBody( btRigidBody body )
 		{
 			m_nonStaticRigidBodies.Remove( body );
 			base.removeCollisionObject( body );
 		}
 
 
-		internal void addRigidBody( btRigidBody body )
+		public void addRigidBody( btRigidBody body )
 		{
 			if( !body.isStaticOrKinematicObject() && ( body.getFlags() & btRigidBodyFlags.BT_DISABLE_WORLD_GRAVITY ) == 0 )
 			{
@@ -551,9 +918,9 @@ namespace Bullet.Dynamics
 			}
 		}
 
-		internal void addRigidBody( btRigidBody body, btBroadphaseProxy.CollisionFilterGroups group, btBroadphaseProxy.CollisionFilterGroups mask )
+		public void addRigidBody( btRigidBody body, btBroadphaseProxy.CollisionFilterGroups group, btBroadphaseProxy.CollisionFilterGroups mask )
 		{
-			if( !body.isStaticOrKinematicObject() && 0==( body.getFlags() &  btRigidBodyFlags.BT_DISABLE_WORLD_GRAVITY ) )
+			if( !body.isStaticOrKinematicObject() && 0 == ( body.getFlags() & btRigidBodyFlags.BT_DISABLE_WORLD_GRAVITY ) )
 			{
 				body.setGravity( ref m_gravity );
 			}
@@ -566,7 +933,7 @@ namespace Bullet.Dynamics
 				}
 				else
 				{
-					body.setActivationState(  ActivationState.ISLAND_SLEEPING );
+					body.setActivationState( ActivationState.ISLAND_SLEEPING );
 				}
 				addCollisionObject( body, group, mask );
 			}
@@ -591,7 +958,7 @@ namespace Bullet.Dynamics
 			for( int i = 0; i < m_nonStaticRigidBodies.Count; i++ )
 			{
 				btRigidBody body = m_nonStaticRigidBodies[i];
-				if( body )
+				if( body != null )
 				{
 					body.updateDeactivation( timeStep );
 
@@ -603,9 +970,9 @@ namespace Bullet.Dynamics
 						}
 						else
 						{
-							if( body.getActivationState() == ActivationState.ACTIVE_TAG )
+							if( body.m_activationState1 == ActivationState.ACTIVE_TAG )
 								body.setActivationState( ActivationState.WANTS_DEACTIVATION );
-							if( body.getActivationState() == ActivationState.ISLAND_SLEEPING )
+							if( body.m_activationState1 == ActivationState.ISLAND_SLEEPING )
 							{
 								body.setAngularVelocity( ref btVector3.Zero );
 								body.setLinearVelocity( ref btVector3.Zero );
@@ -630,16 +997,16 @@ namespace Bullet.Dynamics
 
 			if( disableCollisionsBetweenLinkedBodies )
 			{
-				constraint.getRigidBodyA().addConstraintRef( constraint );
-				constraint.getRigidBodyB().addConstraintRef( constraint );
+				constraint.m_rbA.addConstraintRef( constraint );
+				constraint.m_rbB.addConstraintRef( constraint );
 			}
 		}
 
 		public override void removeConstraint( btTypedConstraint constraint )
 		{
 			m_constraints.Remove( constraint );
-			constraint.getRigidBodyA().removeConstraintRef( constraint );
-			constraint.getRigidBodyB().removeConstraintRef( constraint );
+			constraint.m_rbA.removeConstraintRef( constraint );
+			constraint.m_rbB.removeConstraintRef( constraint );
 		}
 
 		internal void addAction( btActionInterface action )
@@ -667,25 +1034,29 @@ namespace Bullet.Dynamics
 		{
 			CProfileSample sample = new CProfileSample( "solveConstraints" );
 
-			m_sortedConstraints[m_constraints.Count - 1] = null;
-			//m_sortedConstraints.resize( m_constraints.Count );
-			int i;
-			for( i = 0; i < getNumConstraints(); i++ )
+			if( m_constraints.Count > 0 )
 			{
-				m_sortedConstraints[i] = m_constraints[i];
+				if( m_sortedConstraints.Count < m_constraints.Count )
+					m_sortedConstraints.Capacity = m_constraints.Count;
+				m_sortedConstraints[m_constraints.Count - 1] = null;
+				//m_sortedConstraints.resize( m_constraints.Count );
+				int i;
+				for( i = 0; i < getNumConstraints(); i++ )
+				{
+					m_sortedConstraints[i] = m_constraints[i];
+				}
+				m_sortedConstraints.quickSort( compare );
 			}
-
 			//	Debug.Assert(false);
 
-			m_sortedConstraints.quickSort( compare );
 
 			btTypedConstraint[] constraintsPtr = ( getNumConstraints() != 0 ) ? m_sortedConstraints.InternalArray : null;
 
 			m_solverIslandCallback.setup( solverInfo, constraintsPtr, m_sortedConstraints.Count, getDebugDrawer() );
-			m_constraintSolver.prepareSolve( getNumCollisionObjects(), getDispatcher().getNumManifolds() );
+			m_constraintSolver.prepareSolve( getNumCollisionObjects(), m_dispatcher1.getNumManifolds() );
 
 			/// solve all the constraints for this island
-			m_islandManager.buildAndProcessIslands( getDispatcher(), this, m_solverIslandCallback );
+			m_islandManager.buildAndProcessIslands( m_dispatcher1, this, m_solverIslandCallback );
 
 			m_solverIslandCallback.processConstraints();
 
@@ -697,7 +1068,7 @@ namespace Bullet.Dynamics
 		{
 			CProfileSample sample = new CProfileSample( "calculateSimulationIslands" );
 
-			getSimulationIslandManager().updateActivationState( this, getDispatcher() );
+			m_islandManager.updateActivationState( this, getDispatcher() );
 
 			{
 				//merge islands based on speculative contact manifolds too
@@ -705,13 +1076,13 @@ namespace Bullet.Dynamics
 				{
 					btPersistentManifold manifold = m_predictiveManifolds[i];
 
-					btCollisionObject colObj0 = manifold.getBody0();
-					btCollisionObject colObj1 = manifold.getBody1();
+					btCollisionObject colObj0 = manifold.m_body0;
+					btCollisionObject colObj1 = manifold.m_body1;
 
 					if( ( ( colObj0 != null ) && ( !( colObj0 ).isStaticOrKinematicObject() ) ) &&
 						( ( colObj1 != null ) && ( !( colObj1 ).isStaticOrKinematicObject() ) ) )
 					{
-						getSimulationIslandManager().getUnionFind().unite( ( colObj0 ).getIslandTag(), ( colObj1 ).getIslandTag() );
+						m_islandManager.getUnionFind().unite( ( colObj0 ).getIslandTag(), ( colObj1 ).getIslandTag() );
 					}
 				}
 			}
@@ -730,14 +1101,14 @@ namespace Bullet.Dynamics
 						if( ( ( colObj0 != null ) && ( !( colObj0 ).isStaticOrKinematicObject() ) ) &&
 							( ( colObj1 != null ) && ( !( colObj1 ).isStaticOrKinematicObject() ) ) )
 						{
-							getSimulationIslandManager().getUnionFind().unite( ( colObj0 ).getIslandTag(), ( colObj1 ).getIslandTag() );
+							m_islandManager.getUnionFind().unite( ( colObj0 ).getIslandTag(), ( colObj1 ).getIslandTag() );
 						}
 					}
 				}
 			}
 
 			//Store the island id in each body
-			getSimulationIslandManager().storeIslandActivationState( this );
+			m_islandManager.storeIslandActivationState( this );
 
 
 		}
@@ -827,16 +1198,16 @@ namespace Bullet.Dynamics
 								btVector3 distVec = ( predictedTrans.m_origin - body.getWorldTransform().getOrigin() ) * sweepResults.m_closestHitFraction;
 								btVector3 tmp;
 								sweepResults.m_hitNormalWorld.Invert( out tmp );
-                                double distance = distVec.dot( ref tmp );
+								double distance = distVec.dot( ref tmp );
 
 
 								btPersistentManifold manifold = m_dispatcher1.getNewManifold( body, sweepResults.m_hitCollisionObject );
 								m_predictiveManifolds.Add( manifold );
 
-								btVector3 worldPointB; body.getWorldTransform().getOrigin().Add(ref distVec, out worldPointB );
+								btVector3 worldPointB; body.getWorldTransform().getOrigin().Add( ref distVec, out worldPointB );
 								btTransform tmpT;
 								sweepResults.m_hitCollisionObject.getWorldTransform().inverse( out tmpT );
-                                btVector3 localPointB; tmpT.Apply( ref worldPointB, out localPointB );
+								btVector3 localPointB; tmpT.Apply( ref worldPointB, out localPointB );
 
 								btManifoldPoint newPoint = BulletGlobals.ManifoldPointPool.Get();
 								newPoint.Initialize( ref btVector3.Zero, ref localPointB, ref sweepResults.m_hitNormalWorld, distance );
@@ -889,18 +1260,18 @@ namespace Bullet.Dynamics
 
 			switch( constraint.getConstraintType() )
 			{
-				case  btObjectTypes.POINT2POINT_CONSTRAINT_TYPE:
+				case btObjectTypes.POINT2POINT_CONSTRAINT_TYPE:
 					{
 						btPoint2PointConstraint p2pC = (btPoint2PointConstraint)constraint;
 						btTransform tr = btTransform.Identity;
 						btVector3 pivot;
 						p2pC.getPivotInA( out pivot );
 						btVector3 tmp;
-						p2pC.getRigidBodyA().getCenterOfMassTransform().Apply(ref pivot, out tmp );
+						p2pC.getRigidBodyA().getCenterOfMassTransform().Apply( ref pivot, out tmp );
 						tr.setOrigin( ref tmp );
 						getDebugDrawer().drawTransform( ref tr, dbgDrawSize );
 						// that ideally should draw the same frame
-						p2pC.getPivotInB(out pivot);
+						p2pC.getPivotInB( out pivot );
 						p2pC.getRigidBodyB().getCenterOfMassTransform().Apply( ref pivot, out tmp );
 						tr.setOrigin( tmp );
 						if( drawFrames ) getDebugDrawer().drawTransform( ref tr, dbgDrawSize );
@@ -931,7 +1302,7 @@ namespace Bullet.Dynamics
 							btIVector3 center = tr.getOrigin();
 							btVector3 normal = tr.getBasis().getColumn( 2 );
 							btVector3 axis = tr.getBasis().getColumn( 0 );
-							getDebugDrawer().drawArc( center, ref normal, ref axis, dbgDrawSize, dbgDrawSize, minAng, maxAng,ref btVector3.Zero, drawSect );
+							getDebugDrawer().drawArc( center, ref normal, ref axis, dbgDrawSize, dbgDrawSize, minAng, maxAng, ref btVector3.Zero, drawSect );
 						}
 					}
 					break;
@@ -1058,7 +1429,7 @@ namespace Bullet.Dynamics
 								double sy = btScalar.btSin( ay );
 								double cz = btScalar.btCos( az );
 								double sz = btScalar.btSin( az );
-								btVector3 ref_point ;
+								btVector3 ref_point;
 								ref_point.x = cy * cz * axis[0] + cy * sz * axis[1] - sy * axis[2];
 								ref_point.y = -sz * axis[0] + cz * axis[1];
 								ref_point.z = cz * sy * axis[0] + sz * sy * axis[1] + cy * axis[2];
@@ -1092,13 +1463,13 @@ namespace Bullet.Dynamics
 						if( drawFrames ) getDebugDrawer().drawTransform( tr, dbgDrawSize );
 						if( drawLimits )
 						{
-							tr = pSlider.getUseLinearReferenceFrameA() 
-								? pSlider.getCalculatedTransformA() 
+							tr = pSlider.getUseLinearReferenceFrameA()
+								? pSlider.getCalculatedTransformA()
 								: pSlider.getCalculatedTransformB();
 							btVector3 tmp = new btVector3( pSlider.getLowerLinLimit(), 0, 0 );
-                            btVector3 li_min; tr.Apply( ref tmp, out li_min );
+							btVector3 li_min; tr.Apply( ref tmp, out li_min );
 							tmp = new btVector3( pSlider.getUpperLinLimit(), 0, 0 );
-							btVector3 li_max; tr.Apply(  ref tmp, out li_max );
+							btVector3 li_max; tr.Apply( ref tmp, out li_max );
 							getDebugDrawer().drawLine( ref li_min, ref li_max, ref btVector3.Zero );
 							btVector3 normal = tr.getBasis().getColumn( 0 );
 							btVector3 axis = tr.getBasis().getColumn( 1 );
@@ -1242,6 +1613,6 @@ internal void serializeDynamicsWorldInfo( btSerializer* serializer )
 
 #endif
 
-	}
+	};
 
 }

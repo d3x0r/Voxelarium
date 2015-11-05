@@ -80,10 +80,11 @@ namespace Bullet
 		//private static Stack<ManifoldPoint> m_pointStack = new Stack<ManifoldPoint>(20);
 		//private static int m_assignedPointCount = 0;
 
-		internal static PooledType<btDbvtStackDataBlock> DbvtStackDataBlockPool = new PooledType<btDbvtStackDataBlock>();
-		internal static PooledType<btDbvtNode> DbvtNodePool = new PooledType<btDbvtNode>();
+		internal static PooledType<btDbvt.btDbvtStackDataBlock> DbvtStackDataBlockPool = new PooledType<btDbvt.btDbvtStackDataBlock>();
+		internal static PooledType<btDbvt.btDbvtNode> DbvtNodePool = new PooledType<btDbvt.btDbvtNode>();
+		internal static PooledType<btDbvtProxy> DbvtProxyPool = new PooledType<btDbvtProxy>();
+		internal static PooledType<btAxisSweep3.Handle> AxisSweepHandlePool = new PooledType<btAxisSweep3.Handle>();
 
-		//#if UNUSED_GLOBAL
 		internal static PooledType<btVoronoiSimplexSolver> VoronoiSimplexSolverPool = new PooledType<btVoronoiSimplexSolver>();
 		internal static PooledType<btSubsimplexConvexCast> SubSimplexConvexCastPool = new PooledType<btSubsimplexConvexCast>();
 		internal static PooledType<btManifoldPoint> ManifoldPointPool = new PooledType<btManifoldPoint>();
@@ -101,13 +102,18 @@ namespace Bullet
 		internal static PooledType<btContinuousConvexCollision> ContinuousConvexCollisionPool = new PooledType<btContinuousConvexCollision>();
 
 		internal static PooledType<btBoxBoxCollisionAlgorithm> BoxBoxCollisionAlgorithmPool = new PooledType<btBoxBoxCollisionAlgorithm>();
-		//internal static PooledType<btCompoundCollisionAlgorithm> CompoundCollisionAlgorithmPool = new PooledType<btCompoundCollisionAlgorithm>();
-		//internal static PooledType<btConvexConcaveCollisionAlgorithm> ConvexConcaveCollisionAlgorithmPool = new PooledType<btConvexConcaveCollisionAlgorithm>();
+		internal static PooledType<btCompoundCollisionAlgorithm> CompoundCollisionAlgorithmPool = new PooledType<btCompoundCollisionAlgorithm>();
+		internal static PooledType<btConvexConcaveCollisionAlgorithm> ConvexConcaveCollisionAlgorithmPool = new PooledType<btConvexConcaveCollisionAlgorithm>();
 		internal static PooledType<btConvexConvexAlgorithm> ConvexConvexAlgorithmPool = new PooledType<btConvexConvexAlgorithm>();
-		//internal static PooledType<btConvexPlaneCollisionAlgorithm> ConvexPlaneAlgorithmPool = new PooledType<btConvexPlaneCollisionAlgorithm>();
+		internal static PooledType<btConvexTriangleCallback> ConvexTriangleCallbackPool = new PooledType<btConvexTriangleCallback>();
+		internal static PooledType<btCompoundCompoundCollisionAlgorithm> CompoundCompoundCollisionAlgoritmPool = new PooledType<btCompoundCompoundCollisionAlgorithm>();
+		internal static PooledType<btEmptyAlgorithm> EmptyAlgorithmPool = new PooledType<btEmptyAlgorithm>();
+		internal static PooledType<btConvexPlaneCollisionAlgorithm> ConvexPlaneAlgorithmPool = new PooledType<btConvexPlaneCollisionAlgorithm>();
 		//internal static PooledType<btSphereBoxCollisionAlgorithm> SphereBoxCollisionAlgorithmPool = new PooledType<btSphereBoxCollisionAlgorithm>();
-		//internal static PooledType<btSphereSphereCollisionAlgorithm> SphereSphereCollisionAlgorithmPool = new PooledType<btSphereSphereCollisionAlgorithm>();
-		//internal static PooledType<btSphereTriangleCollisionAlgorithm> SphereTriangleCollisionAlgorithmPool = new PooledType<btSphereTriangleCollisionAlgorithm>();
+		internal static PooledType<btSphereSphereCollisionAlgorithm> SphereSphereCollisionAlgorithmPool = new PooledType<btSphereSphereCollisionAlgorithm>();
+		internal static PooledType<btSphereTriangleCollisionAlgorithm> SphereTriangleCollisionAlgorithmPool = new PooledType<btSphereTriangleCollisionAlgorithm>();
+		internal static PooledType<SphereTriangleDetector> SphereTriangleDetectorPool = new PooledType<SphereTriangleDetector>();
+		internal static PooledType<btDiscreteCollisionDetectorInterface.ClosestPointInput> ClosestPointInputPool = new PooledType<btDiscreteCollisionDetectorInterface.ClosestPointInput>();
 		//internal static PooledType<btGImpactCollisionAlgorithm> GImpactCollisionAlgorithmPool = new PooledType<btGImpactCollisionAlgorithm>();
 		//internal static PooledType<btGjkEpaSolver2MinkowskiDiff> GjkEpaSolver2MinkowskiDiffPool = new PooledType<btGjkEpaSolver2MinkowskiDiff>();
 		internal static PooledType<btPersistentManifold> PersistentManifoldPool = new PooledType<btPersistentManifold>();
@@ -116,7 +122,7 @@ namespace Bullet
 		//internal static PooledType<GIM_ShapeRetriever> GIM_ShapeRetrieverPool = new PooledType<GIM_ShapeRetriever>();
 		internal static PooledType<btTriangleShape> TriangleShapePool = new PooledType<btTriangleShape>();
 		//internal static PooledType<SphereTriangleDetector> SphereTriangleDetectorPool = new PooledType<SphereTriangleDetector>();
-		//internal static PooledType<CompoundLeafCallback> CompoundLeafCallbackPool = new PooledType<CompoundLeafCallback>();
+		internal static PooledType<btCompoundCollisionAlgorithm.btCompoundLeafCallback> CompoundLeafCallbackPool = new PooledType<btCompoundCollisionAlgorithm.btCompoundLeafCallback>();
 		internal static PooledType<btGjkConvexCast> GjkConvexCastPool = new PooledType<btGjkConvexCast>();
 		internal static PooledType<btCollisionWorld.btBridgedManifoldResult> BridgedManifoldResultPool = new PooledType<btCollisionWorld.btBridgedManifoldResult>();
 		//internal static PooledType<LocalTriangleSphereCastCallback> LocalTriangleSphereCastCallbackPool = new PooledType<LocalTriangleSphereCastCallback>();
@@ -127,7 +133,6 @@ namespace Bullet
 		internal static PooledType<btCollisionWorld.ClosestRayResultCallback> ClosestRayResultCallbackPool = new PooledType<btCollisionWorld.ClosestRayResultCallback>();
 		//internal static PooledType<DebugDrawcallback> DebugDrawcallbackPool = new PooledType<DebugDrawcallback>();
 		internal static PooledType<btCollisionObjectWrapper> CollisionObjectWrapperPool = new PooledType<btCollisionObjectWrapper>();
-//#endif
 
 		public const bool debugRigidBody = true;
 		public const bool debugCollisionWorld = false;

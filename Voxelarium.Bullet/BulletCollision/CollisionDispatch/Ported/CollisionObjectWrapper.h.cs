@@ -1,6 +1,7 @@
 
 using Bullet.Collision.Shapes;
 using Bullet.LinearMath;
+using System;
 
 namespace Bullet.Collision.Dispatch
 {
@@ -9,7 +10,7 @@ namespace Bullet.Collision.Dispatch
 	///Most users can ignore this and use btCollisionObject and btCollisionShape instead
 
 
-	public class btCollisionObjectWrapper
+	public class btCollisionObjectWrapper : IDisposable
 	{
 
 		//public btCollisionObjectWrapper operator=(btCollisionObjectWrapper);
@@ -20,6 +21,11 @@ namespace Bullet.Collision.Dispatch
 		public btITransform m_worldTransform;
 		public int m_partId;
 		public int m_index;
+
+		public void Dispose()
+		{
+			BulletGlobals.CollisionObjectWrapperPool.Free( this );
+		}
 
 		public void Initialize( btCollisionObjectWrapper parent, btCollisionShape shape, btCollisionObject collisionObject, btITransform worldTransform, int partId, int index )
 		{
@@ -32,7 +38,8 @@ namespace Bullet.Collision.Dispatch
 		}
 
 		public btITransform getWorldTransform() {  return m_worldTransform; }
-		public btCollisionObject getCollisionObject() { return m_collisionObject; }
+		public void getWorldTransform( out btTransform result ) { m_worldTransform.Get( out result ); }
+		//public btCollisionObject getCollisionObject() { return m_collisionObject; }
 		public btCollisionShape getCollisionShape() { return m_shape; }
 	};
 

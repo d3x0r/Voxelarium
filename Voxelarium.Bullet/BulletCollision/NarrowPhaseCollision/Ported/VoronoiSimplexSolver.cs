@@ -79,7 +79,7 @@ namespace Bullet.Collision.NarrowPhase
 
 	/// btVoronoiSimplexSolver is an implementation of the closest point distance algorithm from a 1-4 points simplex to the origin.
 	/// Can be used with GJK, as an alternative to Johnson distance algorithm.
-	internal class btVoronoiSimplexSolver : btSimplexSolverInterface
+	internal class btVoronoiSimplexSolver : btSimplexSolverInterface, IDisposable
 	{
 		const int VORONOI_SIMPLEX_MAX_VERTS = 5;
 		const double VORONOI_DEFAULT_EQUAL_VERTEX_THRESHOLD = 0.0001;
@@ -104,6 +104,11 @@ namespace Bullet.Collision.NarrowPhase
 		public btSubSimplexClosestResult m_cachedBC = new btSubSimplexClosestResult();
 
 		public bool m_needsUpdate;
+
+		public void Dispose()
+		{
+			BulletGlobals.VoronoiSimplexSolverPool.Free( this );
+		}
 
 		public int numVertices()
 		{

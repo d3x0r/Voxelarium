@@ -1,3 +1,4 @@
+//#define ALLOW_PUBLIC_SHAPES
 /*
 Bullet Continuous Collision Detection and Physics Library
 Copyright (c) 2003-2009 Erwin Coumans  http://bulletphysics.org
@@ -16,14 +17,21 @@ subject to the following restrictions:
 using System.Diagnostics;
 using Bullet.Collision.BroadPhase;
 using Bullet.LinearMath;
+using System;
 
 namespace Bullet.Collision.Shapes
 {
 
-	public class btTriangleShape : btPolyhedralConvexShape
+	public class btTriangleShape : btPolyhedralConvexShape, IDisposable
 	{
+		public btVector3 m_vertices1;
+		public btVector3 m_vertices2;
+		public btVector3 m_vertices3;
 
-		public btVector3[] m_vertices1 = new btVector3[3];
+		public void Dispose()
+		{
+			BulletGlobals.TriangleShapePool.Free( this );
+		}
 
 		public override int getNumVertices()
 		{
@@ -43,7 +51,19 @@ namespace Bullet.Collision.Shapes
 
 		public override void getVertex( int index, out btVector3 vert )
 		{
-			vert = m_vertices1[index];
+			switch( index )
+			{
+				default:
+				case 0:
+					vert = m_vertices1;
+					break;
+				case 1:
+					vert = m_vertices2;
+					break;
+				case 2:
+					vert = m_vertices3;
+					break;
+			}
 		}
 
 		public override int getNumEdges()
@@ -53,8 +73,22 @@ namespace Bullet.Collision.Shapes
 
 		public override void getEdge( int i, out btVector3 pa, out btVector3 pb )
 		{
-			pa = m_vertices1[i];
-			pb = m_vertices1[( i + 1 ) % 3];
+			switch( i )
+			{
+				default:
+				case 0:
+					pa = m_vertices1;
+					pb = m_vertices2;
+					break;
+				case 1:
+					pa = m_vertices2;
+					pb = m_vertices3;
+					break;
+				case 2:
+					pa = m_vertices3;
+					pb = m_vertices1;
+					break;
+			}
 		}
 
 
@@ -66,8 +100,8 @@ namespace Bullet.Collision.Shapes
 
 		public override void localGetSupportingVertexWithoutMargin( ref btVector3 dir, out btVector3 result )
 		{
-			btVector3 dots; dir.dot3( ref m_vertices1[0], ref m_vertices1[1], ref m_vertices1[2], out dots );
-			result = m_vertices1[dots.maxAxis()];
+			btVector3 dots; dir.dot3( ref m_vertices1, ref m_vertices2, ref m_vertices3, out dots );
+			getVertex( dots.maxAxis(), out result );
 
 		}
 
@@ -75,8 +109,8 @@ namespace Bullet.Collision.Shapes
 		{
 			for( int i = 0; i < numVectors; i++ )
 			{
-				btVector3 dots; vectors[i].dot3( ref m_vertices1[0], ref m_vertices1[1], ref m_vertices1[2], out dots );
-				supportVerticesOut[i] = m_vertices1[dots.maxAxis()];
+				btVector3 dots; vectors[i].dot3( ref m_vertices1, ref m_vertices2, ref m_vertices3, out dots );
+				getVertex( dots.maxAxis(), out supportVerticesOut[i] );
 			}
 		}
 
@@ -85,12 +119,27 @@ namespace Bullet.Collision.Shapes
 			m_shapeType = BroadphaseNativeTypes.TRIANGLE_SHAPE_PROXYTYPE;
 		}
 
-		public btTriangleShape( ref btVector3 p0, ref btVector3 p1, ref btVector3 p2 ) 
+		internal void Initialize( btVector3[] tri )
 		{
 			m_shapeType = BroadphaseNativeTypes.TRIANGLE_SHAPE_PROXYTYPE;
-			m_vertices1[0] = p0;
-			m_vertices1[1] = p1;
-			m_vertices1[2] = p2;
+			m_vertices1 = tri[0];
+			m_vertices2 = tri[1];
+			m_vertices3 = tri[2];
+		}
+
+		internal void Initialize( ref btVector3 p0, ref btVector3 p1, ref btVector3 p2 )
+		{
+			m_shapeType = BroadphaseNativeTypes.TRIANGLE_SHAPE_PROXYTYPE;
+			m_vertices1 = p0;
+			m_vertices2 = p1;
+			m_vertices3 = p2;
+		}
+#if ALLOW_PUBLIC_SHAPES
+		public 
+#endif
+			btTriangleShape( ref btVector3 p0, ref btVector3 p1, ref btVector3 p2 ) 
+		{
+			Initialize( ref p0, ref p1, ref p2 );
 		}
 
 
@@ -108,8 +157,8 @@ namespace Bullet.Collision.Shapes
 		{
 			btVector3 tmp;
 			btVector3 tmp2;
-			m_vertices1[1].Sub( ref m_vertices1[0], out tmp );
-            m_vertices1[2].Sub( ref m_vertices1[0], out tmp2 );
+			m_vertices2.Sub( ref m_vertices1, out tmp );
+            m_vertices3.Sub( ref m_vertices1, out tmp2 );
             tmp.cross( ref tmp2, out normal );
 			normal.normalize();
 		}
@@ -118,7 +167,7 @@ namespace Bullet.Collision.Shapes
 		{
 			//(void)i;
 			calcNormal( out planeNormal );
-			planeSupport = m_vertices1[0];
+			planeSupport = m_vertices1;
 		}
 
 		public override void calculateLocalInertia( double mass, out btVector3 inertia )
@@ -134,7 +183,7 @@ namespace Bullet.Collision.Shapes
 			calcNormal( out normal );
 			//distance to plane
 			double dist = pt.dot( ref normal );
-			double planeconst = m_vertices1[0].dot( ref normal );
+			double planeconst = m_vertices1.dot( ref normal );
 			dist -= planeconst;
 			if( dist >= -tolerance && dist <= tolerance )
 			{

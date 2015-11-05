@@ -160,7 +160,12 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\Voxelarium.Bullet\Voxelarium.Bullet.csproj">
+      <Project>{51f24014-65d4-414e-ac8d-1c9a2481308d}</Project>
+      <Name>Voxelarium.Bullet</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

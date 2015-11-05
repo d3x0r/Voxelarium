@@ -31,7 +31,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 		BT_NNCG_SOLVER = 4
 	};
 
-	internal abstract class btConstraintSolver
+	public abstract class btConstraintSolver
 	{
 
 		internal abstract void prepareSolve( int numBodies, int numManifolds );

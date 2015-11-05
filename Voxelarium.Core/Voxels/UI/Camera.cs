@@ -1,6 +1,6 @@
 ﻿//#define COLUMN_MAJOR_EXPECTED
 
-using Bullet.LinearMath;
+using Voxelarium.LinearMath;
 
 namespace Voxelarium.Core.Voxels.UI
 {

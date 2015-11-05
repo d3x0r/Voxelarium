@@ -491,7 +491,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 		//const int GENERIC_D6_DISABLE_WARMSTARTING = 1;
 
 		[Flags]
-		enum bt6DofFlags
+		internal enum bt6DofFlags
 		{
 			BT_6DOF_FLAGS_CFM_NORM = 1 << 0,
 			BT_6DOF_FLAGS_CFM_STOP = 1 << 1,
@@ -744,7 +744,13 @@ namespace Bullet.Dynamics.ConstraintSolver
 		// access for UseFrameOffset
 		internal bool getUseFrameOffset() { return m_useOffsetForConstraintFrame; }
 		internal void setUseFrameOffset( bool frameOffsetOnOff ) { m_useOffsetForConstraintFrame = frameOffsetOnOff; }
+		internal bool getUseLinearReferenceFrameA()  { return m_useLinearReferenceFrameA; }
+		internal void setUseLinearReferenceFrameA( bool linearReferenceFrameA ) { m_useLinearReferenceFrameA = linearReferenceFrameA; }
 
+		internal virtual bt6DofFlags getFlags() 
+    	{
+        	return m_flags;
+		}
 
 #if SERIALIZE_DONE
 		virtual int calculateSerializeBufferSize();
@@ -752,7 +758,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 		///fills the dataBuffer and returns the struct name (and 0 on failure)
 		virtual string serialize( object dataBuffer, btSerializer* serializer );
 #endif
-		void calculateAngleInfo()
+	void calculateAngleInfo()
 		{
 			btMatrix3x3 tmp;
 			m_calculatedTransformA.m_basis.inverse( out tmp );

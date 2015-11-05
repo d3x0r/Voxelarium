@@ -24,7 +24,7 @@ namespace Bullet.Collision.BroadPhase
 	{
 	}
 
-	internal struct btCollisionAlgorithmConstructionInfo
+	public struct btCollisionAlgorithmConstructionInfo
 	{
 		internal btDispatcher m_dispatcher1;
 		public btPersistentManifold m_manifold;
@@ -39,7 +39,7 @@ namespace Bullet.Collision.BroadPhase
 
 	///btCollisionAlgorithm is an collision interface that is compatible with the Broadphase and btDispatcher.
 	///It is persistent over frames
-	internal abstract class btCollisionAlgorithm
+	public abstract class btCollisionAlgorithm
 	{
 		protected btDispatcher m_dispatcher;
 

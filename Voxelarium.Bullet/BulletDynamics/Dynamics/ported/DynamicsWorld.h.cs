@@ -46,12 +46,24 @@ namespace Bullet.Dynamics
 		protected btInternalTickCallback m_internalTickCallback;
 		protected btInternalTickCallback m_internalPreTickCallback;
 		protected object m_worldUserInfo;
-		protected btContactSolverInfo m_solverInfo;
+		protected btContactSolverInfo m_solverInfo = new btContactSolverInfo();
+
+		internal btDynamicsWorld()
+		{
+		}
 
 		internal btDynamicsWorld( btDispatcher dispatcher, btBroadphaseInterface broadphase
-								, btCollisionConfiguration collisionConfiguration )
-					: base( dispatcher, broadphase, collisionConfiguration )
+						, btCollisionConfiguration collisionConfiguration )
+		//: base( dispatcher, broadphase, collisionConfiguration )
 		{
+			Initialize( dispatcher, broadphase, collisionConfiguration );
+		}
+
+		new internal void Initialize( btDispatcher dispatcher, btBroadphaseInterface broadphase
+								, btCollisionConfiguration collisionConfiguration )
+
+		{
+			base.Initialize( dispatcher, broadphase, collisionConfiguration );
 			m_internalTickCallback = null;
 			m_internalPreTickCallback = null;
 			m_worldUserInfo = ( 0 );
@@ -90,7 +102,8 @@ namespace Bullet.Dynamics
 			if( isPreTick )
 			{
 				m_internalPreTickCallback = cb;
-			} else
+			}
+			else
 			{
 				m_internalTickCallback = cb;
 			}

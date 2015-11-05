@@ -502,7 +502,7 @@ namespace Bullet.Collision.BroadPhase
 				int depth = 1;
 				int treshold = DOUBLE_STACKSIZE - 4;
 
-				m_stkStack.Count = DOUBLE_STACKSIZE;
+				m_stkStack.Capacity = DOUBLE_STACKSIZE;
 				m_stkStack[0] = new sStkNN( root0, root1 );
 				do
 				{
@@ -595,8 +595,8 @@ namespace Bullet.Collision.BroadPhase
 					{
 						btDbvtNode node = stackDataBlock.stack[--depth];
 
-						stackDataBlock.bounds[0] = node.volume.Mins();
-						stackDataBlock.bounds[1] = node.volume.Maxs();
+						node.volume.Mins().Copy( out stackDataBlock.bounds[0] );
+						node.volume.Maxs().Copy( out stackDataBlock.bounds[1] );
 
 						double tmin = 1.0f, lambda_min = 0.0f;
 						bool result1 = btAabbUtil.btRayAabb2( ref rayFrom, ref rayDirectionInverse, stackDataBlock.signs, stackDataBlock.bounds, out tmin, lambda_min, lambda_max );
@@ -655,8 +655,8 @@ namespace Bullet.Collision.BroadPhase
 					do
 					{
 						btDbvtNode node = stackDataBlock.stack[--depth];
-						stackDataBlock.bounds[0] = node.volume.Mins() - aabbMax;
-						stackDataBlock.bounds[1] = node.volume.Maxs() - aabbMin;
+						node.volume.Mins().Sub( aabbMax, out stackDataBlock.bounds[0] );
+						node.volume.Maxs().Sub( aabbMin, out stackDataBlock.bounds[1] );
 						double tmin = 1.0f, lambda_min = 0.0f;
 						bool result1 = btAabbUtil.btRayAabb2( ref rayFrom, ref rayDirectionInverse, signs, stackDataBlock.bounds, out tmin, lambda_min, lambda_max );
 						if( result1 )
@@ -1067,355 +1067,355 @@ namespace Bullet.Collision.BroadPhase
 		public int m_lkhd;
 		public int m_leaves;
 		public uint m_opath;
-	}
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	public class btDbvtNode
-	{
-		public btDbvtNode()
+		public class btDbvtNode
 		{
-			id = counter++;
-		}
-		public btDbvtNode( btDbvt tree, btDbvtNode aparent, ref btDbvtVolume avolume, Object adata )
-			: this()
-		{
-			volume = avolume;
-			parent = aparent;
-			data = adata;
-			if( data is int )
+			public btDbvtNode()
 			{
-				dataAsInt = (int)data;
+				id = counter++;
+			}
+			public btDbvtNode( btDbvt tree, btDbvtNode aparent, ref btDbvtVolume avolume, Object adata )
+				: this()
+			{
+				volume = avolume;
+				parent = aparent;
+				data = adata;
+				if( data is int )
+				{
+					dataAsInt = (int)data;
+				}
+			}
+
+			public void Reset()
+			{
+				parent = null;
+
+				data = null;
+				dataAsInt = 0;
+				// bump id as well? we're effectively a new node..
+				id = counter++;
+			}
+
+			public btDbvtVolume volume;
+			public btDbvtNode parent;
+			public btDbvtNode[] _children = new btDbvtNode[2];
+			public Object data;
+			public int dataAsInt;
+			public int id;
+
+			public bool IsLeaf() { return ( _children[1] == null ); }
+			public bool IsInternal() { return ( !IsLeaf() ); }
+
+			public static int counter = 0;
+		}
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		public struct sStkNN
+		{
+			public btDbvtNode a;
+			public btDbvtNode b;
+
+			public sStkNN( btDbvtNode na, btDbvtNode nb ) { a = na; b = nb; }
+		}
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		public struct sStkNP
+		{
+			public btDbvtNode node;
+			public uint mask;
+			public sStkNP( btDbvtNode n, uint m ) { node = n; mask = m; }
+		};
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		public struct sStkNPS
+		{
+			public btDbvtNode node;
+			public uint mask;
+			public double value;
+			public sStkNPS( btDbvtNode n, uint m, double v ) { node = n; mask = m; value = v; }
+		};
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		public struct btDbvtVolume
+		{
+			public btVector3 _min;
+			public btVector3 _max;
+
+			public btVector3 Center() { return ( _max + _min ) * 0.5; }
+			public btVector3 Extent() { return ( _max - _min ) * 0.5f; }
+			public btIVector3 Mins() { return _min; }    // should be ref?
+			public btIVector3 Maxs() { return _max; }    // should be ref?
+			public btVector3 Lengths() { return new btVector3(); }
+
+			public static double Proximity( ref btDbvtVolume a, ref btDbvtVolume b )
+			{
+				btVector3 d = ( a._min + a._max ) - ( b._min + b._max );
+				return ( Math.Abs( d.x ) + Math.Abs( d.y ) + Math.Abs( d.z ) );
+			}
+
+
+			public static btDbvtVolume Merge( ref btDbvtVolume a, ref btDbvtVolume b )
+			{
+				btDbvtVolume res = new btDbvtVolume();
+				Merge( ref a, ref b, out res );
+				return ( res );
+			}
+
+			public static void Merge( ref btDbvtVolume a, ref btDbvtVolume b, out btDbvtVolume r )
+			{
+				//r = a;
+				//SetMin(ref r._min, ref b._min);
+				//SetMax(ref r._max, ref b._max);
+				btVector3.setMin( ref a._min, ref b._min, out r._min );
+				btVector3.setMax( ref a._max, ref b._max, out r._max );
+
+			}
+
+			public static int Select( ref btDbvtVolume o,
+								   ref btDbvtVolume a,
+								   ref btDbvtVolume b )
+			{
+				return ( Proximity( ref o, ref a ) < Proximity( ref o, ref b ) ? 0 : 1 );
+			}
+
+			public static bool NotEqual( ref btDbvtVolume a, ref btDbvtVolume b )
+			{
+				return ( ( a._min.x != b._min.x ) ||
+						( a._min.y != b._min.y ) ||
+						( a._min.z != b._min.z ) ||
+						( a._max.x != b._max.x ) ||
+						( a._max.y != b._max.y ) ||
+						( a._max.z != b._max.z ) );
+
+			}
+
+
+			public static btDbvtVolume FromCE( ref btVector3 c, ref btVector3 e )
+			{
+				btDbvtVolume box;
+				box._min = c - e; box._max = c + e;
+				return ( box );
+			}
+			public static btDbvtVolume FromCR( ref btVector3 c, double r )
+			{
+				btVector3 temp = new btVector3( r );
+				return ( FromCE( ref c, ref temp ) );
+			}
+			public static btDbvtVolume FromMM( ref btVector3 mi, ref btVector3 mx )
+			{
+				btDbvtVolume box;
+				box._min = mi; box._max = mx;
+				return ( box );
+			}
+
+			public static btDbvtVolume FromPoints( btList<btVector3> points )
+			{
+				btDbvtVolume box;
+				box._min = box._max = points[0];
+				for( int i = 1; i < points.Count; ++i )
+				{
+					btVector3 temp = points[i];
+					//SetMin(ref box._min, ref temp);
+					//SetMax(ref box._max, ref temp);
+					box._min.setMin( ref temp );
+					box._max.setMin( ref temp );
+				}
+				return ( box );
+			}
+
+			public static btDbvtVolume FromPoints( btList<btList<btVector3>> points )
+			{
+				return new btDbvtVolume();
+			}
+
+			public void Expand( btVector3 e )
+			{
+				_min -= e; _max += e;
+			}
+
+			public void SignedExpand( btVector3 e )
+			{
+				if( e.x > 0 ) _max.x = _max.x + e.x; else _min.x = _min.x + e.x;
+				if( e.y > 0 ) _max.y = _max.y + e.y; else _min.y = _min.y + e.y;
+				if( e.z > 0 ) _max.z = _max.z + e.z; else _min.z = _min.z + e.z;
+			}
+			public bool Contain( ref btDbvtVolume a )
+			{
+				return ( ( _min.x <= a._min.x ) &&
+					( _min.y <= a._min.y ) &&
+					( _min.z <= a._min.z ) &&
+					( _max.x >= a._max.x ) &&
+					( _max.y >= a._max.y ) &&
+					( _max.z >= a._max.z ) );
+			}
+
+			public static bool Intersect( ref btDbvtVolume a, ref btDbvtVolume b )
+			{
+				return ( ( a._min.x <= b._max.x ) &&
+					( a._max.x >= b._min.x ) &&
+					( a._min.y <= b._max.y ) &&
+					( a._max.y >= b._min.y ) &&
+					( a._min.z <= b._max.z ) &&
+					( a._max.z >= b._min.z ) );
+			}
+
+			public static bool Intersect( btDbvtVolume a, ref btVector3 b )
+			{
+				return ( ( b.x >= a._min.x ) &&
+					( b.y >= a._min.y ) &&
+					( b.z >= a._min.z ) &&
+					( b.x <= a._max.x ) &&
+					( b.y <= a._max.y ) &&
+					( b.z <= a._max.z ) );
+			}
+
+
+
+			public int Classify( ref btVector3 n, double o, int s )
+			{
+				btVector3 pi, px;
+				switch( s )
+				{
+					case ( 0 + 0 + 0 ):
+						{
+							px = new btVector3( _min.x, _min.y, _min.z );
+							pi = new btVector3( _max.x, _max.y, _max.z );
+							break;
+						}
+					case ( 1 + 0 + 0 ):
+						{
+							px = new btVector3( _max.x, _min.y, _min.z );
+							pi = new btVector3( _min.x, _max.y, _max.z ); break;
+						}
+					case ( 0 + 2 + 0 ):
+						{
+							px = new btVector3( _min.x, _max.y, _min.z );
+							pi = new btVector3( _max.x, _min.y, _max.z ); break;
+						}
+					case ( 1 + 2 + 0 ):
+						{
+							px = new btVector3( _max.x, _max.y, _min.z );
+							pi = new btVector3( _min.x, _min.y, _max.z ); break;
+						}
+					case ( 0 + 0 + 4 ):
+						{
+							px = new btVector3( _min.x, _min.y, _max.z );
+							pi = new btVector3( _max.x, _max.y, _min.z ); break;
+						}
+					case ( 1 + 0 + 4 ):
+						{
+							px = new btVector3( _max.x, _min.y, _max.z );
+							pi = new btVector3( _min.x, _max.y, _min.z ); break;
+						}
+					case ( 0 + 2 + 4 ):
+						{
+							px = new btVector3( _min.x, _max.y, _max.z );
+							pi = new btVector3( _max.x, _min.y, _min.z ); break;
+						}
+					case ( 1 + 2 + 4 ):
+						{
+							px = new btVector3( _max.x, _max.y, _max.z );
+							pi = new btVector3( _min.x, _min.y, _min.z ); break;
+						}
+					default:
+						{
+							px = new btVector3();
+							pi = new btVector3();
+							break;
+						}
+				}
+				if( ( btVector3.dot( ref n, ref px ) + o ) < 0 ) return ( -1 );
+				if( ( btVector3.dot( ref n, ref pi ) + o ) >= 0 ) return ( +1 );
+				return ( 0 );
+			}
+
+			public double ProjectMinimum( ref btVector3 v, uint signs )
+			{
+				btVector3[] b = { _max, _min };
+				btVector3 p = new btVector3( b[( signs >> 0 ) & 1].x,
+										b[( signs >> 1 ) & 1].y,
+										b[( signs >> 2 ) & 1].z );
+				return ( btVector3.dot( ref p, ref v ) );
+			}
+
+			public void AddSpan( ref btVector3 d, ref double smi, ref double smx )
+			{
+				for( int i = 0; i < 3; ++i )
+				{
+					if( d[i] < 0 )
+					{ smi += _max[i] * d[i]; smx += _min[i] * d[i]; }
+					else
+					{ smi += _min[i] * d[i]; smx += _max[i] * d[i]; }
+				}
+			}
+
+		}
+
+
+		public abstract class DefaultCollide : btDbvt.ICollide
+		{
+			public virtual void Process( btDbvtNode n, btDbvtNode n2 ) { }
+			public virtual void Process( btDbvtNode n ) { }
+
+			public virtual void Process( btDbvtNode n, double f )
+			{
+				Process( n );
+			}
+			public virtual bool Descent( btDbvtNode n )
+			{
+				return true;
+			}
+			public virtual bool AllLeaves( btDbvtNode n )
+			{
+				return true;
 			}
 		}
 
-		public void Reset()
+		public class DbvtDraw : btDbvt.ICollide
 		{
-			parent = null;
-
-			data = null;
-			dataAsInt = 0;
-			// bump id as well? we're effectively a new node..
-			id = counter++;
-		}
-
-		public btDbvtVolume volume;
-		public btDbvtNode parent;
-		public btDbvtNode[] _children = new btDbvtNode[2];
-		public Object data;
-		public int dataAsInt;
-		public int id;
-
-		public bool IsLeaf() { return ( _children[1] == null ); }
-		public bool IsInternal() { return ( !IsLeaf() ); }
-
-		public static int counter = 0;
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	public struct sStkNN
-	{
-		public btDbvtNode a;
-		public btDbvtNode b;
-
-		public sStkNN( btDbvtNode na, btDbvtNode nb ) { a = na; b = nb; }
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	public struct sStkNP
-	{
-		public btDbvtNode node;
-		public uint mask;
-		public sStkNP( btDbvtNode n, uint m ) { node = n; mask = m; }
-	};
-
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	public struct sStkNPS
-	{
-		public btDbvtNode node;
-		public uint mask;
-		public double value;
-		public sStkNPS( btDbvtNode n, uint m, double v ) { node = n; mask = m; value = v; }
-	};
-
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	public struct btDbvtVolume
-	{
-		public btVector3 _min;
-		public btVector3 _max;
-
-		public btVector3 Center() { return ( _max + _min ) * 0.5; }
-		public btVector3 Extent() { return ( _max - _min ) * 0.5f; }
-		public btVector3 Mins() { return _min; }    // should be ref?
-		public btVector3 Maxs() { return _max; }    // should be ref?
-		public btVector3 Lengths() { return new btVector3(); }
-
-		public static double Proximity( ref btDbvtVolume a, ref btDbvtVolume b )
-		{
-			btVector3 d = ( a._min + a._max ) - ( b._min + b._max );
-			return ( Math.Abs( d.x ) + Math.Abs( d.y ) + Math.Abs( d.z ) );
-		}
-
-
-		public static btDbvtVolume Merge( ref btDbvtVolume a, ref btDbvtVolume b )
-		{
-			btDbvtVolume res = new btDbvtVolume();
-			Merge( ref a, ref b, out res );
-			return ( res );
-		}
-
-		public static void Merge( ref btDbvtVolume a, ref btDbvtVolume b, out btDbvtVolume r )
-		{
-			//r = a;
-			//SetMin(ref r._min, ref b._min);
-			//SetMax(ref r._max, ref b._max);
-			btVector3.setMin( ref a._min, ref b._min, out r._min );
-			btVector3.setMax( ref a._max, ref b._max, out r._max );
-
-		}
-
-		public static int Select( ref btDbvtVolume o,
-							   ref btDbvtVolume a,
-							   ref btDbvtVolume b )
-		{
-			return ( Proximity( ref o, ref a ) < Proximity( ref o, ref b ) ? 0 : 1 );
-		}
-
-		public static bool NotEqual( ref btDbvtVolume a, ref btDbvtVolume b )
-		{
-			return ( ( a._min.x != b._min.x ) ||
-					( a._min.y != b._min.y ) ||
-					( a._min.z != b._min.z ) ||
-					( a._max.x != b._max.x ) ||
-					( a._max.y != b._max.y ) ||
-					( a._max.z != b._max.z ) );
-
-		}
-
-
-		public static btDbvtVolume FromCE( ref btVector3 c, ref btVector3 e )
-		{
-			btDbvtVolume box;
-			box._min = c - e; box._max = c + e;
-			return ( box );
-		}
-		public static btDbvtVolume FromCR( ref btVector3 c, double r )
-		{
-			btVector3 temp = new btVector3( r );
-			return ( FromCE( ref c, ref temp ) );
-		}
-		public static btDbvtVolume FromMM( ref btVector3 mi, ref btVector3 mx )
-		{
-			btDbvtVolume box;
-			box._min = mi; box._max = mx;
-			return ( box );
-		}
-
-		public static btDbvtVolume FromPoints( btList<btVector3> points )
-		{
-			btDbvtVolume box;
-			box._min = box._max = points[0];
-			for( int i = 1; i < points.Count; ++i )
+			public virtual void Process( btDbvtNode n, btDbvtNode n2 ) { }
+			public virtual void Process( btDbvtNode n )
 			{
-				btVector3 temp = points[i];
-				//SetMin(ref box._min, ref temp);
-				//SetMax(ref box._max, ref temp);
-				box._min.setMin( ref temp );
-				box._max.setMin( ref temp );
+				btVector3 color = new btVector3( 1, 1, 1 );
+				BulletGlobals.gDebugDraw.drawBox( ref n.volume._min, ref n.volume._max, ref btTransform.Identity, ref color );
+
 			}
-			return ( box );
-		}
 
-		public static btDbvtVolume FromPoints( btList<btList<btVector3>> points )
-		{
-			return new btDbvtVolume();
-		}
-
-		public void Expand( btVector3 e )
-		{
-			_min -= e; _max += e;
-		}
-
-		public void SignedExpand( btVector3 e )
-		{
-			if( e.x > 0 ) _max.x = _max.x + e.x; else _min.x = _min.x + e.x;
-			if( e.y > 0 ) _max.y = _max.y + e.y; else _min.y = _min.y + e.y;
-			if( e.z > 0 ) _max.z = _max.z + e.z; else _min.z = _min.z + e.z;
-		}
-		public bool Contain( ref btDbvtVolume a )
-		{
-			return ( ( _min.x <= a._min.x ) &&
-				( _min.y <= a._min.y ) &&
-				( _min.z <= a._min.z ) &&
-				( _max.x >= a._max.x ) &&
-				( _max.y >= a._max.y ) &&
-				( _max.z >= a._max.z ) );
-		}
-
-		public static bool Intersect( ref btDbvtVolume a, ref btDbvtVolume b )
-		{
-			return ( ( a._min.x <= b._max.x ) &&
-				( a._max.x >= b._min.x ) &&
-				( a._min.y <= b._max.y ) &&
-				( a._max.y >= b._min.y ) &&
-				( a._min.z <= b._max.z ) &&
-				( a._max.z >= b._min.z ) );
-		}
-
-		public static bool Intersect( btDbvtVolume a, ref btVector3 b )
-		{
-			return ( ( b.x >= a._min.x ) &&
-				( b.y >= a._min.y ) &&
-				( b.z >= a._min.z ) &&
-				( b.x <= a._max.x ) &&
-				( b.y <= a._max.y ) &&
-				( b.z <= a._max.z ) );
-		}
-
-
-
-		public int Classify( ref btVector3 n, double o, int s )
-		{
-			btVector3 pi, px;
-			switch( s )
+			public virtual void Process( btDbvtNode n, double f )
 			{
-				case ( 0 + 0 + 0 ):
-					{
-						px = new btVector3( _min.x, _min.y, _min.z );
-						pi = new btVector3( _max.x, _max.y, _max.z );
-						break;
-					}
-				case ( 1 + 0 + 0 ):
-					{
-						px = new btVector3( _max.x, _min.y, _min.z );
-						pi = new btVector3( _min.x, _max.y, _max.z ); break;
-					}
-				case ( 0 + 2 + 0 ):
-					{
-						px = new btVector3( _min.x, _max.y, _min.z );
-						pi = new btVector3( _max.x, _min.y, _max.z ); break;
-					}
-				case ( 1 + 2 + 0 ):
-					{
-						px = new btVector3( _max.x, _max.y, _min.z );
-						pi = new btVector3( _min.x, _min.y, _max.z ); break;
-					}
-				case ( 0 + 0 + 4 ):
-					{
-						px = new btVector3( _min.x, _min.y, _max.z );
-						pi = new btVector3( _max.x, _max.y, _min.z ); break;
-					}
-				case ( 1 + 0 + 4 ):
-					{
-						px = new btVector3( _max.x, _min.y, _max.z );
-						pi = new btVector3( _min.x, _max.y, _min.z ); break;
-					}
-				case ( 0 + 2 + 4 ):
-					{
-						px = new btVector3( _min.x, _max.y, _max.z );
-						pi = new btVector3( _max.x, _min.y, _min.z ); break;
-					}
-				case ( 1 + 2 + 4 ):
-					{
-						px = new btVector3( _max.x, _max.y, _max.z );
-						pi = new btVector3( _min.x, _min.y, _min.z ); break;
-					}
-				default:
-					{
-						px = new btVector3();
-						pi = new btVector3();
-						break;
-					}
+				//IndexedMatrix im = IndexedMatrix.Identity;
+				btVector3 color = new btVector3( 1, 1, 1 );
+				BulletGlobals.gDebugDraw.drawBox( ref n.volume._min, ref n.volume._max, ref btTransform.Identity, ref color );
+
 			}
-			if( ( btVector3.dot( ref n, ref px ) + o ) < 0 ) return ( -1 );
-			if( ( btVector3.dot( ref n, ref pi ) + o ) >= 0 ) return ( +1 );
-			return ( 0 );
-		}
-
-		public double ProjectMinimum( ref btVector3 v, uint signs )
-		{
-			btVector3[] b = { _max, _min };
-			btVector3 p = new btVector3( b[( signs >> 0 ) & 1].x,
-									b[( signs >> 1 ) & 1].y,
-									b[( signs >> 2 ) & 1].z );
-			return ( btVector3.dot( ref p, ref v ) );
-		}
-
-		public void AddSpan( ref btVector3 d, ref double smi, ref double smx )
-		{
-			for( int i = 0; i < 3; ++i )
+			public virtual bool Descent( btDbvtNode n )
 			{
-				if( d[i] < 0 )
-				{ smi += _max[i] * d[i]; smx += _min[i] * d[i]; }
-				else
-				{ smi += _min[i] * d[i]; smx += _max[i] * d[i]; }
+				return true;
+			}
+			public virtual bool AllLeaves( btDbvtNode n )
+			{
+				return true;
 			}
 		}
 
-	}
 
 
-	public abstract class DefaultCollide : btDbvt.ICollide
-	{
-		public virtual void Process( btDbvtNode n, btDbvtNode n2 ) { }
-		public virtual void Process( btDbvtNode n ) { }
-
-		public virtual void Process( btDbvtNode n, double f )
+		public class btDbvtStackDataBlock : IDisposable
 		{
-			Process( n );
-		}
-		public virtual bool Descent( btDbvtNode n )
-		{
-			return true;
-		}
-		public virtual bool AllLeaves( btDbvtNode n )
-		{
-			return true;
-		}
-	}
+			public btList<btDbvtNode> stack = new btList<btDbvtNode>();
+			public uint[] signs = new uint[3];
+			public btVector3[] bounds = new btVector3[2];
 
-	public class DbvtDraw : btDbvt.ICollide
-	{
-		public virtual void Process( btDbvtNode n, btDbvtNode n2 ) { }
-		public virtual void Process( btDbvtNode n )
-		{
-			btVector3 color = new btVector3( 1, 1, 1 );
-			BulletGlobals.gDebugDraw.drawBox( ref n.volume._min, ref n.volume._max, ref btTransform.Identity, ref color );
+			public void Dispose()
+			{
+				BulletGlobals.DbvtStackDataBlockPool.Free( this );
+			}
 
-		}
-
-		public virtual void Process( btDbvtNode n, double f )
-		{
-			//IndexedMatrix im = IndexedMatrix.Identity;
-			btVector3 color = new btVector3( 1, 1, 1 );
-			BulletGlobals.gDebugDraw.drawBox( ref n.volume._min, ref n.volume._max, ref btTransform.Identity, ref color );
-
-		}
-		public virtual bool Descent( btDbvtNode n )
-		{
-			return true;
-		}
-		public virtual bool AllLeaves( btDbvtNode n )
-		{
-			return true;
-		}
-	}
-
-
-
-	public class btDbvtStackDataBlock : IDisposable
-	{
-		public btList<btDbvtNode> stack = new btList<btDbvtNode>();
-		public uint[] signs = new uint[3];
-		public btVector3[] bounds = new btVector3[2];
-
-		public void Dispose()
-		{
-			BulletGlobals.DbvtStackDataBlockPool.Free( this );
 		}
 
 	}

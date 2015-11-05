@@ -12,6 +12,7 @@ subject to the following restrictions:
 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
 */
+using Bullet.Collision.BroadPhase;
 using System.Collections;
 
 namespace Bullet.Collision.Dispatch
@@ -20,13 +21,13 @@ namespace Bullet.Collision.Dispatch
 	///btCollisionConfiguration allows to configure Bullet collision detection
 	///stack allocator size, default collision algorithms and persistent manifold pool size
 	///@todo: describe the meaning
-	internal abstract class btCollisionConfiguration
+	public abstract class btCollisionConfiguration
 	{
 		///memory pools
 		//IList getPersistentManifoldPool();
 		//IList getCollisionAlgorithmPool();
 
-		internal abstract btCollisionAlgorithmCreateFunc getCollisionAlgorithmCreateFunc( int proxyType0, int proxyType1 );
+		internal abstract btCollisionAlgorithmCreateFunc getCollisionAlgorithmCreateFunc( BroadphaseNativeTypes proxyType0, BroadphaseNativeTypes proxyType1 );
 
 	};
 

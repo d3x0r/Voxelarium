@@ -33,10 +33,10 @@ namespace Bullet.Collision.Dispatch
 		static double MAX_FRICTION = (double)( 10.0 );
 		static ContactAddedCallback gContactAddedCallback = null;
 
-		protected btPersistentManifold m_manifoldPtr;
+		internal btPersistentManifold m_manifoldPtr;
 
-		protected btCollisionObjectWrapper m_body0Wrap;
-		protected btCollisionObjectWrapper m_body1Wrap;
+		internal btCollisionObjectWrapper m_body0Wrap;
+		internal btCollisionObjectWrapper m_body1Wrap;
 		protected int m_partId0;
 		protected int m_partId1;
 		protected int m_index0;
@@ -60,10 +60,10 @@ namespace Bullet.Collision.Dispatch
 			m_manifoldPtr = manifoldPtr;
 		}
 
-		public btPersistentManifold getPersistentManifold()
-		{
-			return m_manifoldPtr;
-		}
+		//public btPersistentManifold getPersistentManifold()
+		//{
+		//	return m_manifoldPtr;
+		//}
 
 		public virtual void setShapeIdentifiersA( int partId0, int index0 )
 		{
@@ -80,48 +80,48 @@ namespace Bullet.Collision.Dispatch
 		public void refreshContactPoints()
 		{
 			Debug.Assert( m_manifoldPtr != null );
-			if( m_manifoldPtr.getNumContacts() == 0 )
+			if( m_manifoldPtr.m_cachedPoints == 0 )
 				return;
 
-			bool isSwapped = m_manifoldPtr.getBody0() != m_body0Wrap.getCollisionObject();
+			bool isSwapped = m_manifoldPtr.m_body0 != m_body0Wrap.m_collisionObject;
 
 			if( isSwapped )
 			{
-				m_manifoldPtr.refreshContactPoints( ref m_body1Wrap.getCollisionObject().m_worldTransform, ref m_body0Wrap.getCollisionObject().m_worldTransform );
+				m_manifoldPtr.refreshContactPoints( ref m_body1Wrap.m_collisionObject.m_worldTransform, ref m_body0Wrap.m_collisionObject.m_worldTransform );
 			}
 			else
 			{
-				m_manifoldPtr.refreshContactPoints( ref m_body0Wrap.getCollisionObject().m_worldTransform, ref m_body1Wrap.getCollisionObject().m_worldTransform );
+				m_manifoldPtr.refreshContactPoints( ref m_body0Wrap.m_collisionObject.m_worldTransform, ref m_body1Wrap.m_collisionObject.m_worldTransform );
 			}
 		}
 
-		btCollisionObjectWrapper getBody0Wrap()
+		//internal btCollisionObjectWrapper getBody0Wrap()
+		//{
+		//	return m_body0Wrap;
+		//}
+		//internal btCollisionObjectWrapper getBody1Wrap()
+	//	{
+		//	return m_body1Wrap;
+		//}
+
+		//internal void setBody0Wrap( btCollisionObjectWrapper obj0Wrap )
+	//	{
+	//		m_body0Wrap = obj0Wrap;
+	//	}
+
+		//internal void setBody1Wrap( btCollisionObjectWrapper obj1Wrap )
+	//	{
+	//		m_body1Wrap = obj1Wrap;
+	//	}
+
+		internal btCollisionObject getBody0Internal()
 		{
-			return m_body0Wrap;
-		}
-		btCollisionObjectWrapper getBody1Wrap()
-		{
-			return m_body1Wrap;
+			return m_body0Wrap.m_collisionObject;
 		}
 
-		void setBody0Wrap( btCollisionObjectWrapper obj0Wrap )
+		internal btCollisionObject getBody1Internal()
 		{
-			m_body0Wrap = obj0Wrap;
-		}
-
-		void setBody1Wrap( btCollisionObjectWrapper obj1Wrap )
-		{
-			m_body1Wrap = obj1Wrap;
-		}
-
-		btCollisionObject getBody0Internal()
-		{
-			return m_body0Wrap.getCollisionObject();
-		}
-
-		btCollisionObject getBody1Internal()
-		{
-			return m_body1Wrap.getCollisionObject();
+			return m_body1Wrap.m_collisionObject;
 		}
 
 		/// in the future we can let the user override the methods to combine restitution and friction
@@ -187,7 +187,7 @@ namespace Bullet.Collision.Dispatch
 				//	if (depth > m_manifoldPtr.getContactProcessingThreshold())
 				return;
 
-			bool isSwapped = m_manifoldPtr.getBody0() != m_body0Wrap.getCollisionObject();
+			bool isSwapped = m_manifoldPtr.m_body0 != m_body0Wrap.m_collisionObject;
 
 			btVector3 pointA;// = pointInWorld + normalOnBInWorld * depth;
 			normalOnBInWorld.Mult( depth, out pointA );
@@ -198,13 +198,13 @@ namespace Bullet.Collision.Dispatch
 
 			if( isSwapped )
 			{
-				m_body1Wrap.getCollisionObject().getWorldTransform().invXform( ref pointA, out localA );
-				m_body0Wrap.getCollisionObject().getWorldTransform().invXform( ref pointInWorld, out localB );
+				m_body1Wrap.m_collisionObject.getWorldTransform().invXform( ref pointA, out localA );
+				m_body0Wrap.m_collisionObject.getWorldTransform().invXform( ref pointInWorld, out localB );
 			}
 			else
 			{
-				m_body0Wrap.getCollisionObject().getWorldTransform().invXform( ref pointA, out localA );
-				m_body1Wrap.getCollisionObject().getWorldTransform().invXform( ref pointInWorld, out localB );
+				m_body0Wrap.m_collisionObject.getWorldTransform().invXform( ref pointA, out localA );
+				m_body1Wrap.m_collisionObject.getWorldTransform().invXform( ref pointInWorld, out localB );
 			}
 
 			btManifoldPoint newPt = BulletGlobals.ManifoldPointPool.Get();
@@ -215,9 +215,9 @@ namespace Bullet.Collision.Dispatch
 
 			int insertIndex = m_manifoldPtr.getCacheEntry( ref newPt );
 
-			newPt.m_combinedFriction = calculateCombinedFriction( m_body0Wrap.getCollisionObject(), m_body1Wrap.getCollisionObject() );
-			newPt.m_combinedRestitution = calculateCombinedRestitution( m_body0Wrap.getCollisionObject(), m_body1Wrap.getCollisionObject() );
-			newPt.m_combinedRollingFriction = calculateCombinedRollingFriction( m_body0Wrap.getCollisionObject(), m_body1Wrap.getCollisionObject() );
+			newPt.m_combinedFriction = calculateCombinedFriction( m_body0Wrap.m_collisionObject, m_body1Wrap.m_collisionObject );
+			newPt.m_combinedRestitution = calculateCombinedRestitution( m_body0Wrap.m_collisionObject, m_body1Wrap.m_collisionObject );
+			newPt.m_combinedRollingFriction = calculateCombinedRollingFriction( m_body0Wrap.m_collisionObject, m_body1Wrap.m_collisionObject );
 			btVector3.btPlaneSpace1( ref newPt.m_normalWorldOnB, out newPt.m_lateralFrictionDir1, out newPt.m_lateralFrictionDir2 );
 
 
@@ -252,8 +252,8 @@ namespace Bullet.Collision.Dispatch
 			//User can override friction and/or restitution
 			if( gContactAddedCallback != null &&
 				 //and if either of the two bodies requires custom material
-				 ( ( m_body0Wrap.getCollisionObject().getCollisionFlags() & btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK ) != 0 ||
-				   ( m_body1Wrap.getCollisionObject().getCollisionFlags() & btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK ) != 0 ) )
+				 ( ( m_body0Wrap.m_collisionObject.getCollisionFlags() & btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK ) != 0 ||
+				   ( m_body1Wrap.m_collisionObject.getCollisionFlags() & btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK ) != 0 ) )
 			{
 				//experimental feature info, for per-triangle material etc.
 				btCollisionObjectWrapper obj0Wrap = isSwapped ? m_body1Wrap : m_body0Wrap;
