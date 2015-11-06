@@ -519,7 +519,7 @@ namespace Bullet.Collision.BroadPhase
 
 			int lastPairIndex = m_overlappingPairArray.Count - 1;
 
-			if( m_ghostPairCallback == null )
+			if( m_ghostPairCallback != null )
 				m_ghostPairCallback.removeOverlappingPair( proxy0, proxy1, dispatcher );
 
 			// If the removed pair is the last pair, we are done.

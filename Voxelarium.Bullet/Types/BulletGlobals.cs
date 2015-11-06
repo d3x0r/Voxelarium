@@ -9,6 +9,7 @@ using Bullet.Collision.Shapes;
 using Bullet.Collision.BroadPhase;
 using Bullet.Collision.Dispatch;
 using Bullet.Dynamics;
+using Bullet.Dynamics.ConstraintSolver;
 
 namespace Bullet
 {
@@ -99,7 +100,9 @@ namespace Bullet
 		internal static PooledType<btDbvtBroadphase.BroadphaseRayTester> BroadphaseRayTesterPool = new PooledType<btDbvtBroadphase.BroadphaseRayTester>();
 		internal static PooledType<btDiscreteDynamicsWorld.btClosestNotMeConvexResultCallback> ClosestNotMeConvexResultCallbackPool = new PooledType<btDiscreteDynamicsWorld.btClosestNotMeConvexResultCallback>();
 		internal static PooledType<btGjkEpaPenetrationDepthSolver> GjkEpaPenetrationDepthSolverPool = new PooledType<btGjkEpaPenetrationDepthSolver>();
-		internal static PooledType<btContinuousConvexCollision> ContinuousConvexCollisionPool = new PooledType<btContinuousConvexCollision>();
+		internal static PooledType<btSolverConstraint> SolverConstraintPool = new PooledType<btSolverConstraint>();
+		internal static PooledType<btSolverBody> SolverBodyPool = new PooledType<btSolverBody>();
+        internal static PooledType<btContinuousConvexCollision> ContinuousConvexCollisionPool = new PooledType<btContinuousConvexCollision>();
 
 		internal static PooledType<btBoxBoxCollisionAlgorithm> BoxBoxCollisionAlgorithmPool = new PooledType<btBoxBoxCollisionAlgorithm>();
 		internal static PooledType<btCompoundCollisionAlgorithm> CompoundCollisionAlgorithmPool = new PooledType<btCompoundCollisionAlgorithm>();

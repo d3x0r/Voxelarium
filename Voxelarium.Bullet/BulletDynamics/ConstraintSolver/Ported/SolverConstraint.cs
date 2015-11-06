@@ -13,6 +13,7 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+using Bullet.Dynamics.ConstraintSolver;
 using Bullet.LinearMath;
 using Bullet.Types;
 
@@ -55,8 +56,10 @@ namespace Bullet.Dynamics
 
 		internal int m_overrideNumSolverIterations;
 		internal int m_frictionIndex;
-		internal int m_solverBodyIdA;
-		internal int m_solverBodyIdB;
+		//internal int m_solverBodyIdA;
+		//internal int m_solverBodyIdB;
+		internal btSolverBody m_solverBodyA;
+		internal btSolverBody m_solverBodyB;
 
 		public void Clear()
 		{
@@ -89,8 +92,10 @@ namespace Bullet.Dynamics
 
 			m_overrideNumSolverIterations = 0;
 			m_frictionIndex = 0;
-			m_solverBodyIdA = 0;
-			m_solverBodyIdB = 0;
+			//m_solverBodyIdA = 0;
+			//m_solverBodyIdB = 0;
+			m_solverBodyA = null;
+			m_solverBodyB = null;
 		}
 
 		enum btSolverConstraintType

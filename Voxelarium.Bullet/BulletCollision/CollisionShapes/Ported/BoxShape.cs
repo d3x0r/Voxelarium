@@ -30,7 +30,7 @@ namespace Bullet.Collision.Shapes
 		internal void getHalfExtentsWithMargin( out btVector3 result )
 		{
 			btVector3 halfExtents; getHalfExtentsWithoutMargin( out halfExtents );
-			btVector3 margin = new btVector3( getMargin(), getMargin(), getMargin() );
+			btVector3 margin = new btVector3( getMargin() );
 			halfExtents.Add( ref margin, out result );
 		}
 
@@ -43,7 +43,7 @@ namespace Bullet.Collision.Shapes
 		public override void localGetSupportingVertex( ref btVector3 vec, out btVector3 result )
 		{
 			btVector3 halfExtents;
-			btVector3 margin = new btVector3( getMargin(), getMargin(), getMargin() );
+			btVector3 margin = new btVector3( getMargin() );
 			m_implicitShapeDimensions.Add( ref margin, out halfExtents );
 			//halfExtents += margin;
 
@@ -72,24 +72,22 @@ namespace Bullet.Collision.Shapes
 					btScalar.btFsels( vec.y, halfExtents.y, -halfExtents.y ),
 					btScalar.btFsels( vec.z, halfExtents.z, -halfExtents.z ) );
 			}
-
 		}
-
 
 		public override void setMargin( double collisionMargin )
 		{
 			//correct the m_implicitShapeDimensions for the margin
-			btVector3 oldMargin = new btVector3( getMargin(), getMargin(), getMargin() );
+			btVector3 oldMargin = new btVector3( getMargin() );
 			btVector3 implicitShapeDimensionsWithMargin; m_implicitShapeDimensions.Add( ref oldMargin, out implicitShapeDimensionsWithMargin );
 
 			base.setMargin( collisionMargin );
-			btVector3 newMargin = new btVector3( getMargin(), getMargin(), getMargin() );
+			btVector3 newMargin = new btVector3( getMargin() );
 			implicitShapeDimensionsWithMargin.Sub( ref newMargin, out m_implicitShapeDimensions );
 
 		}
 		public override void setLocalScaling( ref btVector3 scaling )
 		{
-			btVector3 oldMargin = new btVector3( getMargin(), getMargin(), getMargin() );
+			btVector3 oldMargin = new btVector3( getMargin() );
 			btVector3 implicitShapeDimensionsWithMargin; m_implicitShapeDimensions.Add( ref oldMargin, out implicitShapeDimensionsWithMargin );
 			btVector3 unScaledImplicitShapeDimensionsWithMargin; implicitShapeDimensionsWithMargin.Div( ref m_localScaling, out unScaledImplicitShapeDimensionsWithMargin );
 
@@ -108,9 +106,8 @@ namespace Bullet.Collision.Shapes
 			btVector3 plane;
 			getPlaneEquation( out plane, i );
 			planeNormal = plane;
-			planeNormal.w = 0; ;
 			plane.Invert( out plane );
-			localGetSupportingVertex( ref planeNormal, out planeSupport );
+			localGetSupportingVertex( ref plane, out planeSupport );
 		}
 
 

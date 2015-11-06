@@ -31,7 +31,8 @@ namespace Bullet.Collision.Dispatch
 			m_rootCollisionShape = null;
 			m_collisionFlags = CollisionFlags.CF_STATIC_OBJECT;
 			m_islandTag1 = -1;
-			m_companionId = -1;
+			//m_companionId = -1;
+			m_companionBody = null;
 			m_activationState1 = ActivationState.ACTIVE_TAG;
 			m_deactivationTime = (double)0;
 			m_friction = 0.5;

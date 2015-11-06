@@ -161,7 +161,7 @@ public void void   btSimulationIslandManager::storeIslandActivationState(btColli
 					{
 						collisionObject.setIslandTag( index++ );
 					}
-					collisionObject.setCompanionId( -1 );
+					collisionObject.setCompanionBody( null );
 					collisionObject.setHitFraction( btScalar.BT_ONE );
 				}
 				initUnionFind( index );
@@ -184,13 +184,13 @@ public void void   btSimulationIslandManager::storeIslandActivationState(btColli
 					{
 						collisionObject.setIslandTag( m_unionFind.find( index ) );
 						m_unionFind.setElementSz( index, i );
-						collisionObject.setCompanionId( -1 );
+						collisionObject.setCompanionBody( null );
 						index++;
 					}
 					else
 					{
 						collisionObject.setIslandTag( -1 );
-						collisionObject.setCompanionId( -2 );
+						collisionObject.setCompanionBody( null );
 					}
 				}
 			}

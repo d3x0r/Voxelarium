@@ -38,6 +38,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MathTest_001.cs" />
+    <Compile Include="Test_003.cs" />
+    <Compile Include="Test_004.cs" />
     <Compile Include="Test_002.cs" />
     <Compile Include="Test_001.cs" />
     <Compile Include="Program.cs" />

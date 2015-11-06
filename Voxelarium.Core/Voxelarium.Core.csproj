@@ -66,6 +66,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="NeuralNetwork\Brain.cs" />
+    <Compile Include="NeuralNetwork\NeuronLogics\FlipFlop.cs" />
+    <Compile Include="NeuralNetwork\NeuronLogics\LevelLock.cs" />
+    <Compile Include="NeuralNetwork\NeuronLogics\Oscillator.cs" />
+    <Compile Include="NeuralNetwork\Neuron\Neuron.cs" />
+    <Compile Include="NeuralNetwork\Neuron\NeuronPool.cs" />
+    <Compile Include="NeuralNetwork\Synapse\Synapse.cs" />
+    <Compile Include="NeuralNetwork\Synapse\SynapsePool.cs" />
+    <Compile Include="NeuralNetwork\Types\Creatable.cs" />
+    <Compile Include="NeuralNetwork\Types\GenericSet.cs" />
+    <Compile Include="NeuralNetwork\Types\GenericSlab.cs" />
     <Compile Include="Game\Actor.cs" />
     <Compile Include="Game\GameWindows\GameWindow_Advertising.cs" />
     <Compile Include="Game\Game_Events.cs" />

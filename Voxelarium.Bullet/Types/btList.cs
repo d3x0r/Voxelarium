@@ -156,6 +156,8 @@ namespace Bullet.Types
 			}
 			set // custom override; allow external allocation of elements in array
 			{
+				if( value > _items.Length )
+					Capacity = value;
 				_size = value;
 			}
 		}

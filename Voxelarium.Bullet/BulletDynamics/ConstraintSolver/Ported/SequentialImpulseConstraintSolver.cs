@@ -42,7 +42,8 @@ namespace Bullet.Dynamics.ConstraintSolver
 		protected btList<btTypedConstraint.btConstraintInfo1> m_tmpConstraintSizesPool = new btList<btTypedConstraint.btConstraintInfo1>();
 		protected PooledType<btTypedConstraint.btConstraintInfo2> m_tmpConstraintInfo2Pool = new PooledType<btTypedConstraint.btConstraintInfo2>();
 		protected int m_maxOverrideNumSolverIterations;
-		protected int m_fixedBodyId;
+		//protected int m_fixedBodyId;
+		protected btSolverBody m_fixedBody;
 
 		protected btSingleConstraintRowSolver m_resolveSingleConstraintRowGeneric;
 		protected btSingleConstraintRowSolver m_resolveSingleConstraintRowLowerLimit;
@@ -401,16 +402,19 @@ namespace Bullet.Dynamics.ConstraintSolver
 
 
 
-		internal void setupFrictionConstraint( btSolverConstraint solverConstraint, ref btVector3 normalAxis, int solverBodyIdA, int solverBodyIdB, btManifoldPoint cp, ref btVector3 rel_pos1, ref btVector3 rel_pos2, btCollisionObject colObj0, btCollisionObject colObj1, double relaxation, double desiredVelocity = 0, double cfmSlip = 0.0 )
+		internal void setupFrictionConstraint( btSolverConstraint solverConstraint, ref btVector3 normalAxis
+			//, int solverBodyIdA, int solverBodyIdB
+			, btSolverBody solverBodyA, btSolverBody solverBodyB
+			, btManifoldPoint cp, ref btVector3 rel_pos1, ref btVector3 rel_pos2, btCollisionObject colObj0, btCollisionObject colObj1, double relaxation, double desiredVelocity = 0, double cfmSlip = 0.0 )
 		{
-			btSolverBody solverBodyA = m_tmpSolverBodyPool[solverBodyIdA];
-			btSolverBody solverBodyB = m_tmpSolverBodyPool[solverBodyIdB];
+			//btSolverBody solverBodyA = m_tmpSolverBodyPool[solverBodyIdA];
+			//btSolverBody solverBodyB = m_tmpSolverBodyPool[solverBodyIdB];
 
-			btRigidBody body0 = m_tmpSolverBodyPool[solverBodyIdA].m_originalBody;
-			btRigidBody body1 = m_tmpSolverBodyPool[solverBodyIdB].m_originalBody;
+			btRigidBody body0 = solverBodyA.m_originalBody;
+			btRigidBody body1 = solverBodyB.m_originalBody;
 
-			solverConstraint.m_solverBodyIdA = solverBodyIdA;
-			solverConstraint.m_solverBodyIdB = solverBodyIdB;
+			solverConstraint.m_solverBodyA = solverBodyA;
+			solverConstraint.m_solverBodyB = solverBodyB;
 
 			solverConstraint.m_friction = cp.m_combinedFriction;
 			solverConstraint.m_originalContactPoint = 0;
@@ -488,18 +492,22 @@ namespace Bullet.Dynamics.ConstraintSolver
 			}
 		}
 
-		internal btSolverConstraint addFrictionConstraint( ref btVector3 normalAxis, int solverBodyIdA, int solverBodyIdB, int frictionIndex, btManifoldPoint cp, ref btVector3 rel_pos1, ref btVector3 rel_pos2, btCollisionObject colObj0, btCollisionObject colObj1, double relaxation, double desiredVelocity = 0, double cfmSlip = 0 )
+		internal btSolverConstraint addFrictionConstraint( ref btVector3 normalAxis
+			//, int solverBodyIdA, int solverBodyIdB
+			, btSolverBody solverBodyA, btSolverBody solverBodyB
+			, int frictionIndex, btManifoldPoint cp, ref btVector3 rel_pos1, ref btVector3 rel_pos2, btCollisionObject colObj0, btCollisionObject colObj1, double relaxation, double desiredVelocity = 0, double cfmSlip = 0 )
 		{
 			btSolverConstraint solverConstraint;
-			m_tmpSolverContactFrictionConstraintPool.Add( solverConstraint = new btSolverConstraint() );
+			m_tmpSolverContactFrictionConstraintPool.Add( solverConstraint = BulletGlobals.SolverConstraintPool.Get() );
 			solverConstraint.m_frictionIndex = frictionIndex;
-			setupFrictionConstraint( solverConstraint, ref normalAxis, solverBodyIdA, solverBodyIdB, cp, ref rel_pos1, ref rel_pos2,
+			setupFrictionConstraint( solverConstraint, ref normalAxis, solverBodyA, solverBodyB, cp, ref rel_pos1, ref rel_pos2,
 									colObj0, colObj1, relaxation, desiredVelocity, cfmSlip );
 			return solverConstraint;
 		}
 
 
-		internal void setupRollingFrictionConstraint( btSolverConstraint solverConstraint, ref btVector3 normalAxis1, int solverBodyIdA, int solverBodyIdB,
+		internal void setupRollingFrictionConstraint( btSolverConstraint solverConstraint, ref btVector3 normalAxis1
+						, btSolverBody solverBodyA, btSolverBody solverBodyB,
 											btManifoldPoint cp, ref btVector3 rel_pos1, ref btVector3 rel_pos2,
 											btCollisionObject colObj0, btCollisionObject colObj1, double relaxation,
 											double desiredVelocity = 0, double cfmSlip = 0.0 )
@@ -510,14 +518,14 @@ namespace Bullet.Dynamics.ConstraintSolver
 
 			solverConstraint.m_contactNormal1 = normalAxis;
 			solverConstraint.m_contactNormal2 = -normalAxis;
-			btSolverBody solverBodyA = m_tmpSolverBodyPool[solverBodyIdA];
-			btSolverBody solverBodyB = m_tmpSolverBodyPool[solverBodyIdB];
+			//btSolverBody solverBodyA = m_tmpSolverBodyPool[solverBodyIdA];
+			//btSolverBody solverBodyB = m_tmpSolverBodyPool[solverBodyIdB];
 
-			btRigidBody body0 = m_tmpSolverBodyPool[solverBodyIdA].m_originalBody;
-			btRigidBody body1 = m_tmpSolverBodyPool[solverBodyIdB].m_originalBody;
+			btRigidBody body0 = solverBodyA.m_originalBody;
+			btRigidBody body1 = solverBodyB.m_originalBody;
 
-			solverConstraint.m_solverBodyIdA = solverBodyIdA;
-			solverConstraint.m_solverBodyIdB = solverBodyIdB;
+			solverConstraint.m_solverBodyA = solverBodyA;
+			solverConstraint.m_solverBodyB = solverBodyB;
 
 			solverConstraint.m_friction = cp.m_combinedRollingFriction;
 			solverConstraint.m_originalContactPoint = 0;
@@ -576,27 +584,28 @@ namespace Bullet.Dynamics.ConstraintSolver
 
 
 
-		internal btSolverConstraint addRollingFrictionConstraint( ref btVector3 normalAxis, int solverBodyIdA, int solverBodyIdB, int frictionIndex, btManifoldPoint cp, ref btVector3 rel_pos1, ref btVector3 rel_pos2, btCollisionObject colObj0, btCollisionObject colObj1, double relaxation, double desiredVelocity = 0, double cfmSlip = 0 )
+		internal btSolverConstraint addRollingFrictionConstraint( ref btVector3 normalAxis
+			, btSolverBody solverBodyA, btSolverBody solverBodyB
+			, int frictionIndex, btManifoldPoint cp, ref btVector3 rel_pos1, ref btVector3 rel_pos2, btCollisionObject colObj0, btCollisionObject colObj1, double relaxation, double desiredVelocity = 0, double cfmSlip = 0 )
 		{
 			btSolverConstraint solverConstraint;
-			m_tmpSolverContactRollingFrictionConstraintPool.Add( solverConstraint = new btSolverConstraint() );
+			m_tmpSolverContactRollingFrictionConstraintPool.Add( solverConstraint = BulletGlobals.SolverConstraintPool.Get() );
 			solverConstraint.m_frictionIndex = frictionIndex;
-			setupRollingFrictionConstraint( solverConstraint, ref normalAxis, solverBodyIdA, solverBodyIdB, cp, ref rel_pos1, ref rel_pos2,
+			setupRollingFrictionConstraint( solverConstraint, ref normalAxis, solverBodyA, solverBodyB, cp, ref rel_pos1, ref rel_pos2,
 									colObj0, colObj1, relaxation, desiredVelocity, cfmSlip );
 			return solverConstraint;
 		}
 
 
-		protected int getOrInitSolverBody( btCollisionObject body, double timeStep )
+		protected btSolverBody getOrInitSolverBody( btCollisionObject body, double timeStep )
 		{
+			btSolverBody solverBodyA = null;
 
-			int solverBodyIdA = -1;
-
-			if( body.getCompanionId() >= 0 )
+			if( body.getCompanionBody() != null )
 			{
 				//body has already been converted
-				solverBodyIdA = body.getCompanionId();
-				Debug.Assert( solverBodyIdA < m_tmpSolverBodyPool.Count );
+				solverBodyA = body.getCompanionBody();
+				//Debug.Assert( solverBodyIdA < m_tmpSolverBodyPool.Count );
 			}
 			else
 			{
@@ -604,34 +613,34 @@ namespace Bullet.Dynamics.ConstraintSolver
 				//convert both active and kinematic objects (for their velocity)
 				if( rb != null && ( rb.getInvMass() != 0 || rb.isKinematicObject() ) )
 				{
-					solverBodyIdA = m_tmpSolverBodyPool.Count;
-					btSolverBody solverBody;
-					m_tmpSolverBodyPool.Add( solverBody = new btSolverBody() );
-					initSolverBody( solverBody, rb, timeStep );
-					body.setCompanionId( solverBodyIdA );
+					//solverBodyA = m_tmpSolverBodyPool.Count;
+					//btSolverBody solverBodyA;
+					m_tmpSolverBodyPool.Add( solverBodyA = BulletGlobals.SolverBodyPool.Get() );
+					initSolverBody( solverBodyA, rb, timeStep );
+					body.setCompanionBody( solverBodyA );
 				}
 				else
 				{
 
-					if( m_fixedBodyId < 0 )
+					if( m_fixedBody == null )
 					{
-						m_fixedBodyId = m_tmpSolverBodyPool.Count;
-						btSolverBody fixedBody;
-						m_tmpSolverBodyPool.Add( fixedBody = new btSolverBody() );
-						initSolverBody( fixedBody, null, timeStep );
+						//m_fixedBodyId = m_tmpSolverBodyPool.Count;
+						//btSolverBody fixedBody;
+						m_tmpSolverBodyPool.Add( m_fixedBody = BulletGlobals.SolverBodyPool.Get() );
+						initSolverBody( m_fixedBody, null, timeStep );
 					}
-					return m_fixedBodyId;
+					return m_fixedBody;
 					//			return 0;//assume first one is a fixed solver body
 				}
 			}
 
-			return solverBodyIdA;
+			return solverBodyA;
 
 		}
 
 
 		internal void setupContactConstraint( btSolverConstraint solverConstraint,
-											int solverBodyIdA, int solverBodyIdB,
+											btSolverBody bodyA, btSolverBody bodyB,
 											btManifoldPoint cp, btContactSolverInfo infoGlobal,
 											out double relaxation,
 											ref btVector3 rel_pos1, ref btVector3 rel_pos2 )
@@ -639,9 +648,6 @@ namespace Bullet.Dynamics.ConstraintSolver
 
 			//	ref btVector3 pos1 = cp.getPositionWorldOnA();
 			//	ref btVector3 pos2 = cp.getPositionWorldOnB();
-
-			btSolverBody bodyA = m_tmpSolverBodyPool[solverBodyIdA];
-			btSolverBody bodyB = m_tmpSolverBodyPool[solverBodyIdB];
 
 			btRigidBody rb0 = bodyA.m_originalBody;
 			btRigidBody rb1 = bodyB.m_originalBody;
@@ -816,12 +822,10 @@ namespace Bullet.Dynamics.ConstraintSolver
 
 
 		internal void setFrictionConstraintImpulse( btSolverConstraint solverConstraint,
-																				int solverBodyIdA, int solverBodyIdB,
+																				btSolverBody bodyA, btSolverBody bodyB,
 																		 btManifoldPoint cp, btContactSolverInfo infoGlobal )
 		{
 
-			btSolverBody bodyA = m_tmpSolverBodyPool[solverBodyIdA];
-			btSolverBody bodyB = m_tmpSolverBodyPool[solverBodyIdB];
 
 			btRigidBody rb0 = bodyA.m_originalBody;
 			btRigidBody rb1 = bodyB.m_originalBody;
@@ -885,14 +889,14 @@ namespace Bullet.Dynamics.ConstraintSolver
 			colObj0 = manifold.m_body0;
 			colObj1 = manifold.m_body1;
 
-			int solverBodyIdA = getOrInitSolverBody( colObj0, infoGlobal.m_timeStep );
-			int solverBodyIdB = getOrInitSolverBody( colObj1, infoGlobal.m_timeStep );
+			//int solverBodyIdA = ;
+			//int solverBodyIdB = ;
 
 			//	btRigidBody bodyA = btRigidBody::upcast(colObj0);
 			//	btRigidBody bodyB = btRigidBody::upcast(colObj1);
 
-			btSolverBody solverBodyA = m_tmpSolverBodyPool[solverBodyIdA];
-			btSolverBody solverBodyB = m_tmpSolverBodyPool[solverBodyIdB];
+			btSolverBody solverBodyA = getOrInitSolverBody( colObj0, infoGlobal.m_timeStep );
+			btSolverBody solverBodyB = getOrInitSolverBody( colObj1, infoGlobal.m_timeStep );
 
 
 
@@ -914,12 +918,12 @@ namespace Bullet.Dynamics.ConstraintSolver
 
 
 					int frictionIndex = m_tmpSolverContactConstraintPool.Count;
-					btSolverConstraint solverConstraint;
-					m_tmpSolverContactConstraintPool.Add( solverConstraint = new btSolverConstraint() );
+					btSolverConstraint solverConstraint = BulletGlobals.SolverConstraintPool.Get();
+					m_tmpSolverContactConstraintPool.Add( solverConstraint );
 					btRigidBody rb0 = btRigidBody.upcast( colObj0 );
 					btRigidBody rb1 = btRigidBody.upcast( colObj1 );
-					solverConstraint.m_solverBodyIdA = solverBodyIdA;
-					solverConstraint.m_solverBodyIdB = solverBodyIdB;
+					solverConstraint.m_solverBodyA = solverBodyA;
+					solverConstraint.m_solverBodyB = solverBodyB;
 
 					solverConstraint.m_originalContactPoint = cp;
 
@@ -938,7 +942,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 					btVector3 vel = vel1 - vel2;
 					double rel_vel = cp.m_normalWorldOnB.dot( vel );
 
-					setupContactConstraint( solverConstraint, solverBodyIdA, solverBodyIdB, cp, infoGlobal, out relaxation, ref rel_pos1, ref rel_pos2 );
+					setupContactConstraint( solverConstraint, solverBodyA, solverBodyB, cp, infoGlobal, out relaxation, ref rel_pos1, ref rel_pos2 );
 
 
 					//			ref btVector3 pos1 = cp.getPositionWorldOnA();
@@ -968,12 +972,12 @@ namespace Bullet.Dynamics.ConstraintSolver
 							applyAnisotropicFriction( colObj0, ref relAngVel, btCollisionObject.AnisotropicFrictionFlags.CF_ANISOTROPIC_ROLLING_FRICTION );
 							applyAnisotropicFriction( colObj1, ref relAngVel, btCollisionObject.AnisotropicFrictionFlags.CF_ANISOTROPIC_ROLLING_FRICTION );
 							if( relAngVel.length() > 0.001 )
-								addRollingFrictionConstraint( ref relAngVel, solverBodyIdA, solverBodyIdB, frictionIndex, cp, ref rel_pos1, ref rel_pos2, colObj0, colObj1, relaxation );
+								addRollingFrictionConstraint( ref relAngVel, solverBodyA, solverBodyB, frictionIndex, cp, ref rel_pos1, ref rel_pos2, colObj0, colObj1, relaxation );
 
 						}
 						else
 						{
-							addRollingFrictionConstraint( ref cp.m_normalWorldOnB, solverBodyIdA, solverBodyIdB, frictionIndex, cp, ref rel_pos1, ref rel_pos2, colObj0, colObj1, relaxation );
+							addRollingFrictionConstraint( ref cp.m_normalWorldOnB, solverBodyA, solverBodyB, frictionIndex, cp, ref rel_pos1, ref rel_pos2, colObj0, colObj1, relaxation );
 							btVector3 axis0, axis1;
 							btVector3.btPlaneSpace1( ref cp.m_normalWorldOnB, out axis0, out axis1 );
 							applyAnisotropicFriction( colObj0, ref axis0, btCollisionObject.AnisotropicFrictionFlags.CF_ANISOTROPIC_ROLLING_FRICTION );
@@ -981,9 +985,9 @@ namespace Bullet.Dynamics.ConstraintSolver
 							applyAnisotropicFriction( colObj0, ref axis1, btCollisionObject.AnisotropicFrictionFlags.CF_ANISOTROPIC_ROLLING_FRICTION );
 							applyAnisotropicFriction( colObj1, ref axis1, btCollisionObject.AnisotropicFrictionFlags.CF_ANISOTROPIC_ROLLING_FRICTION );
 							if( axis0.length() > 0.001 )
-								addRollingFrictionConstraint( ref axis0, solverBodyIdA, solverBodyIdB, frictionIndex, cp, ref rel_pos1, ref rel_pos2, colObj0, colObj1, relaxation );
+								addRollingFrictionConstraint( ref axis0, solverBodyA, solverBodyB, frictionIndex, cp, ref rel_pos1, ref rel_pos2, colObj0, colObj1, relaxation );
 							if( axis1.length() > 0.001 )
-								addRollingFrictionConstraint( ref axis1, solverBodyIdA, solverBodyIdB, frictionIndex, cp, ref rel_pos1, ref rel_pos2, colObj0, colObj1, relaxation );
+								addRollingFrictionConstraint( ref axis1, solverBodyA, solverBodyB, frictionIndex, cp, ref rel_pos1, ref rel_pos2, colObj0, colObj1, relaxation );
 
 						}
 					}
@@ -1013,7 +1017,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 							cp.m_lateralFrictionDir1 *= 1 / btScalar.btSqrt( lat_rel_vel );
 							applyAnisotropicFriction( colObj0, ref cp.m_lateralFrictionDir1, btCollisionObject.AnisotropicFrictionFlags.CF_ANISOTROPIC_FRICTION );
 							applyAnisotropicFriction( colObj1, ref cp.m_lateralFrictionDir1, btCollisionObject.AnisotropicFrictionFlags.CF_ANISOTROPIC_FRICTION );
-							addFrictionConstraint( ref cp.m_lateralFrictionDir1, solverBodyIdA, solverBodyIdB, frictionIndex, cp, ref rel_pos1, ref rel_pos2, colObj0, colObj1, relaxation );
+							addFrictionConstraint( ref cp.m_lateralFrictionDir1, solverBodyA, solverBodyB, frictionIndex, cp, ref rel_pos1, ref rel_pos2, colObj0, colObj1, relaxation );
 
 							if( ( infoGlobal.m_solverMode & btSolverMode.SOLVER_USE_2_FRICTION_DIRECTIONS ) != 0 )
 							{
@@ -1021,7 +1025,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 								cp.m_lateralFrictionDir2.normalize();//??
 								applyAnisotropicFriction( colObj0, ref cp.m_lateralFrictionDir2, btCollisionObject.AnisotropicFrictionFlags.CF_ANISOTROPIC_FRICTION );
 								applyAnisotropicFriction( colObj1, ref cp.m_lateralFrictionDir2, btCollisionObject.AnisotropicFrictionFlags.CF_ANISOTROPIC_FRICTION );
-								addFrictionConstraint( ref cp.m_lateralFrictionDir2, solverBodyIdA, solverBodyIdB, frictionIndex, cp, ref rel_pos1, ref rel_pos2, colObj0, colObj1, relaxation );
+								addFrictionConstraint( ref cp.m_lateralFrictionDir2, solverBodyA, solverBodyB, frictionIndex, cp, ref rel_pos1, ref rel_pos2, colObj0, colObj1, relaxation );
 							}
 
 						}
@@ -1031,13 +1035,13 @@ namespace Bullet.Dynamics.ConstraintSolver
 
 							applyAnisotropicFriction( colObj0, ref cp.m_lateralFrictionDir1, btCollisionObject.AnisotropicFrictionFlags.CF_ANISOTROPIC_FRICTION );
 							applyAnisotropicFriction( colObj1, ref cp.m_lateralFrictionDir1, btCollisionObject.AnisotropicFrictionFlags.CF_ANISOTROPIC_FRICTION );
-							addFrictionConstraint( ref cp.m_lateralFrictionDir1, solverBodyIdA, solverBodyIdB, frictionIndex, cp, ref rel_pos1, ref rel_pos2, colObj0, colObj1, relaxation );
+							addFrictionConstraint( ref cp.m_lateralFrictionDir1, solverBodyA, solverBodyB, frictionIndex, cp, ref rel_pos1, ref rel_pos2, colObj0, colObj1, relaxation );
 
 							if( ( infoGlobal.m_solverMode & btSolverMode.SOLVER_USE_2_FRICTION_DIRECTIONS ) != 0 )
 							{
 								applyAnisotropicFriction( colObj0, ref cp.m_lateralFrictionDir2, btCollisionObject.AnisotropicFrictionFlags.CF_ANISOTROPIC_FRICTION );
 								applyAnisotropicFriction( colObj1, ref cp.m_lateralFrictionDir2, btCollisionObject.AnisotropicFrictionFlags.CF_ANISOTROPIC_FRICTION );
-								addFrictionConstraint( ref cp.m_lateralFrictionDir2, solverBodyIdA, solverBodyIdB, frictionIndex, cp, ref rel_pos1, ref rel_pos2, colObj0, colObj1, relaxation );
+								addFrictionConstraint( ref cp.m_lateralFrictionDir2, solverBodyA, solverBodyB, frictionIndex, cp, ref rel_pos1, ref rel_pos2, colObj0, colObj1, relaxation );
 							}
 
 
@@ -1051,13 +1055,13 @@ namespace Bullet.Dynamics.ConstraintSolver
 					}
 					else
 					{
-						addFrictionConstraint( ref cp.m_lateralFrictionDir1, solverBodyIdA, solverBodyIdB, frictionIndex, cp, ref rel_pos1, ref rel_pos2, colObj0, colObj1, relaxation, cp.m_contactMotion1, cp.m_contactCFM1 );
+						addFrictionConstraint( ref cp.m_lateralFrictionDir1, solverBodyA, solverBodyB, frictionIndex, cp, ref rel_pos1, ref rel_pos2, colObj0, colObj1, relaxation, cp.m_contactMotion1, cp.m_contactCFM1 );
 
 						if( ( infoGlobal.m_solverMode & btSolverMode.SOLVER_USE_2_FRICTION_DIRECTIONS ) != 0 )
-							addFrictionConstraint( ref cp.m_lateralFrictionDir2, solverBodyIdA, solverBodyIdB, frictionIndex, cp, ref rel_pos1, ref rel_pos2, colObj0, colObj1, relaxation, cp.m_contactMotion2, cp.m_contactCFM2 );
+							addFrictionConstraint( ref cp.m_lateralFrictionDir2, solverBodyA, solverBodyB, frictionIndex, cp, ref rel_pos1, ref rel_pos2, colObj0, colObj1, relaxation, cp.m_contactMotion2, cp.m_contactCFM2 );
 
 					}
-					setFrictionConstraintImpulse( solverConstraint, solverBodyIdA, solverBodyIdB, cp, infoGlobal );
+					setFrictionConstraintImpulse( solverConstraint, solverBodyA, solverBodyB, cp, infoGlobal );
 
 
 
@@ -1084,7 +1088,12 @@ namespace Bullet.Dynamics.ConstraintSolver
 			, btPersistentManifold[] manifoldPtr, int start_manifold, int numManifolds
 			, btTypedConstraint[] constraints, int startConstraint, int numConstraints, btContactSolverInfo infoGlobal, btIDebugDraw debugDrawer )
 		{
-			m_fixedBodyId = -1;
+			if( m_fixedBody != null )
+			{
+				BulletGlobals.SolverBodyPool.Free( m_fixedBody );
+				m_fixedBody = null;
+			}
+			//m_fixedBodyId = -1;
 			CProfileSample sample = new CProfileSample( "solveGroupCacheFriendlySetup" );
 			//(void)debugDrawer;
 
@@ -1162,7 +1171,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 
 			for( int i = 0; i < numBodies; i++ )
 			{
-				bodies[i].setCompanionId( -1 );
+				bodies[i].setCompanionBody( null );
 			}
 
 
@@ -1177,12 +1186,12 @@ namespace Bullet.Dynamics.ConstraintSolver
 
 			for( int i = 0; i < numBodies; i++ )
 			{
-				int bodyId = getOrInitSolverBody( bodies[i], infoGlobal.m_timeStep );
+				//int bodyId = getOrInitSolverBody( bodies[i], infoGlobal.m_timeStep );
 
 				btRigidBody body = btRigidBody.upcast( bodies[i] );
 				if( body != null && body.getInvMass() != 0 )
 				{
-					btSolverBody solverBody = m_tmpSolverBodyPool[bodyId];
+					btSolverBody solverBody = getOrInitSolverBody( bodies[i], infoGlobal.m_timeStep );
 					btVector3 gyroForce = btVector3.Zero;
 					if( ( body.getFlags() & btRigidBodyFlags.BT_ENABLE_GYROSCOPIC_FORCE_EXPLICIT ) != 0 )
 					{
@@ -1249,8 +1258,10 @@ namespace Bullet.Dynamics.ConstraintSolver
 							info1.nub = 0;
 						}
 						totalNumRows += info1.m_numConstraintRows;
-					}
-					m_tmpSolverNonContactConstraintPool.Capacity = ( totalNumRows );
+                    }
+					m_tmpSolverNonContactConstraintPool.Count = ( totalNumRows );
+					for( i = 0; i < totalNumRows; i++ )
+						m_tmpSolverNonContactConstraintPool[i] = BulletGlobals.SolverConstraintPool.Get();
 
 
 					///setup the btSolverConstraints
@@ -1269,11 +1280,11 @@ namespace Bullet.Dynamics.ConstraintSolver
 							btRigidBody rbA = constraint.getRigidBodyA();
 							btRigidBody rbB = constraint.getRigidBodyB();
 
-							int solverBodyIdA = getOrInitSolverBody( rbA, infoGlobal.m_timeStep );
-							int solverBodyIdB = getOrInitSolverBody( rbB, infoGlobal.m_timeStep );
+							//int solverBodyIdA = ;
+							//int solverBodyIdB = ;
 
-							btSolverBody bodyAPtr = m_tmpSolverBodyPool[solverBodyIdA];
-							btSolverBody bodyBPtr = m_tmpSolverBodyPool[solverBodyIdB];
+							btSolverBody bodyAPtr = getOrInitSolverBody( rbA, infoGlobal.m_timeStep );
+							btSolverBody bodyBPtr = getOrInitSolverBody( rbB, infoGlobal.m_timeStep );
 
 							int overrideNumSolverIterations = constraint.getOverrideNumSolverIterations() > 0 ? constraint.getOverrideNumSolverIterations() : infoGlobal.m_numIterations;
 							if( overrideNumSolverIterations > m_maxOverrideNumSolverIterations )
@@ -1289,8 +1300,8 @@ namespace Bullet.Dynamics.ConstraintSolver
 								current.m_upperLimit = btScalar.SIMD_INFINITY;
 								current.m_appliedImpulse = 0;
 								current.m_appliedPushImpulse = 0;
-								current.m_solverBodyIdA = solverBodyIdA;
-								current.m_solverBodyIdB = solverBodyIdB;
+								current.m_solverBodyA = bodyAPtr;
+								current.m_solverBodyB = bodyBPtr;
 								current.m_overrideNumSolverIterations = overrideNumSolverIterations;
 							}
 
@@ -1492,8 +1503,8 @@ namespace Bullet.Dynamics.ConstraintSolver
 				{
 					btSolverConstraint constraint = m_tmpSolverNonContactConstraintPool[m_orderNonContactConstraintPool[j]];
 					if( iteration < constraint.m_overrideNumSolverIterations )
-						resolveSingleConstraintRowGenericSIMD( m_tmpSolverBodyPool[constraint.m_solverBodyIdA]
-							, m_tmpSolverBodyPool[constraint.m_solverBodyIdB], constraint );
+						resolveSingleConstraintRowGenericSIMD( constraint.m_solverBodyA
+							, constraint.m_solverBodyB, constraint );
 				}
 
 				if( iteration < infoGlobal.m_numIterations )
@@ -1501,13 +1512,11 @@ namespace Bullet.Dynamics.ConstraintSolver
 					for( int j = 0; j < numConstraints; j++ )
 					{
 						btTypedConstraint constraint = constraints[j + startConstraint];
-						if( constraints[j + startConstraint].isEnabled() )
+						if( constraint.isEnabled() )
 						{
-							int bodyAid = getOrInitSolverBody( constraints[j + startConstraint].getRigidBodyA(), infoGlobal.m_timeStep );
-							int bodyBid = getOrInitSolverBody( constraints[j + startConstraint].getRigidBodyB(), infoGlobal.m_timeStep );
-							btSolverBody bodyA = m_tmpSolverBodyPool[bodyAid];
-							btSolverBody bodyB = m_tmpSolverBodyPool[bodyBid];
-							constraints[j + startConstraint].solveConstraintObsolete( bodyA, bodyB, infoGlobal.m_timeStep );
+							btSolverBody bodyA = getOrInitSolverBody( constraint.getRigidBodyA(), infoGlobal.m_timeStep );
+							btSolverBody bodyB = getOrInitSolverBody( constraint.getRigidBodyB(), infoGlobal.m_timeStep );
+							constraint.solveConstraintObsolete( bodyA, bodyB, infoGlobal.m_timeStep );
 						}
 					}
 
@@ -1523,7 +1532,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 
 							{
 								btSolverConstraint solveManifold = m_tmpSolverContactConstraintPool[m_orderTmpConstraintPool[c]];
-								resolveSingleConstraintRowLowerLimitSIMD( m_tmpSolverBodyPool[solveManifold.m_solverBodyIdA], m_tmpSolverBodyPool[solveManifold.m_solverBodyIdB], solveManifold );
+								resolveSingleConstraintRowLowerLimitSIMD( solveManifold.m_solverBodyA, solveManifold.m_solverBodyB, solveManifold );
 								totalImpulse = solveManifold.m_appliedImpulse;
 							}
 							bool applyFriction = true;
@@ -1538,7 +1547,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 										solveManifold.m_lowerLimit = -( solveManifold.m_friction * totalImpulse );
 										solveManifold.m_upperLimit = solveManifold.m_friction * totalImpulse;
 
-										resolveSingleConstraintRowGenericSIMD( m_tmpSolverBodyPool[solveManifold.m_solverBodyIdA], m_tmpSolverBodyPool[solveManifold.m_solverBodyIdB], solveManifold );
+										resolveSingleConstraintRowGenericSIMD( solveManifold.m_solverBodyA, solveManifold.m_solverBodyB, solveManifold );
 									}
 								}
 
@@ -1552,7 +1561,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 										solveManifold.m_lowerLimit = -( solveManifold.m_friction * totalImpulse );
 										solveManifold.m_upperLimit = solveManifold.m_friction * totalImpulse;
 
-										resolveSingleConstraintRowGenericSIMD( m_tmpSolverBodyPool[solveManifold.m_solverBodyIdA], m_tmpSolverBodyPool[solveManifold.m_solverBodyIdB], solveManifold );
+										resolveSingleConstraintRowGenericSIMD( solveManifold.m_solverBodyA, solveManifold.m_solverBodyB, solveManifold );
 									}
 								}
 							}
@@ -1568,7 +1577,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 						for( j = 0; j < numPoolConstraints; j++ )
 						{
 							btSolverConstraint solveManifold = m_tmpSolverContactConstraintPool[m_orderTmpConstraintPool[j]];
-							resolveSingleConstraintRowLowerLimitSIMD( m_tmpSolverBodyPool[solveManifold.m_solverBodyIdA], m_tmpSolverBodyPool[solveManifold.m_solverBodyIdB], solveManifold );
+							resolveSingleConstraintRowLowerLimitSIMD( solveManifold.m_solverBodyA, solveManifold.m_solverBodyB, solveManifold );
 
 						}
 
@@ -1587,7 +1596,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 								solveManifold.m_lowerLimit = -( solveManifold.m_friction * totalImpulse );
 								solveManifold.m_upperLimit = solveManifold.m_friction * totalImpulse;
 
-								resolveSingleConstraintRowGenericSIMD( m_tmpSolverBodyPool[solveManifold.m_solverBodyIdA], m_tmpSolverBodyPool[solveManifold.m_solverBodyIdB], solveManifold );
+								resolveSingleConstraintRowGenericSIMD( solveManifold.m_solverBodyA, solveManifold.m_solverBodyB, solveManifold );
 							}
 						}
 
@@ -1607,7 +1616,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 								rollingFrictionConstraint.m_lowerLimit = -rollingFrictionMagnitude;
 								rollingFrictionConstraint.m_upperLimit = rollingFrictionMagnitude;
 
-								resolveSingleConstraintRowGenericSIMD( m_tmpSolverBodyPool[rollingFrictionConstraint.m_solverBodyIdA], m_tmpSolverBodyPool[rollingFrictionConstraint.m_solverBodyIdB], rollingFrictionConstraint );
+								resolveSingleConstraintRowGenericSIMD( rollingFrictionConstraint.m_solverBodyA, rollingFrictionConstraint.m_solverBodyB, rollingFrictionConstraint );
 							}
 						}
 
@@ -1623,7 +1632,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 				{
 					btSolverConstraint constraint = m_tmpSolverNonContactConstraintPool[m_orderNonContactConstraintPool[j]];
 					if( iteration < constraint.m_overrideNumSolverIterations )
-						resolveSingleConstraintRowGeneric( m_tmpSolverBodyPool[constraint.m_solverBodyIdA], m_tmpSolverBodyPool[constraint.m_solverBodyIdB], constraint );
+						resolveSingleConstraintRowGeneric( constraint.m_solverBodyA, constraint.m_solverBodyB, constraint );
 				}
 
 				if( iteration < infoGlobal.m_numIterations )
@@ -1633,10 +1642,10 @@ namespace Bullet.Dynamics.ConstraintSolver
 						btTypedConstraint constraint = constraints[j + startConstraint];
 						if( constraint.isEnabled() )
 						{
-							int bodyAid = getOrInitSolverBody( constraint.getRigidBodyA(), infoGlobal.m_timeStep );
-							int bodyBid = getOrInitSolverBody( constraint.getRigidBodyB(), infoGlobal.m_timeStep );
-							btSolverBody bodyA = m_tmpSolverBodyPool[bodyAid];
-							btSolverBody bodyB = m_tmpSolverBodyPool[bodyBid];
+							//int bodyAid = ;
+							//int bodyBid = ;
+							btSolverBody bodyA = getOrInitSolverBody( constraint.getRigidBodyA(), infoGlobal.m_timeStep );
+							btSolverBody bodyB = getOrInitSolverBody( constraint.getRigidBodyB(), infoGlobal.m_timeStep );
 							constraint.solveConstraintObsolete( bodyA, bodyB, infoGlobal.m_timeStep );
 						}
 					}
@@ -1645,7 +1654,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 					for( int j = 0; j < numPoolConstraints; j++ )
 					{
 						btSolverConstraint solveManifold = m_tmpSolverContactConstraintPool[m_orderTmpConstraintPool[j]];
-						resolveSingleConstraintRowLowerLimit( m_tmpSolverBodyPool[solveManifold.m_solverBodyIdA], m_tmpSolverBodyPool[solveManifold.m_solverBodyIdB], solveManifold );
+						resolveSingleConstraintRowLowerLimit( solveManifold.m_solverBodyA, solveManifold.m_solverBodyB, solveManifold );
 					}
 					///solve all friction constraints
 					int numFrictionPoolConstraints = m_tmpSolverContactFrictionConstraintPool.Count;
@@ -1659,7 +1668,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 							solveManifold.m_lowerLimit = -( solveManifold.m_friction * totalImpulse );
 							solveManifold.m_upperLimit = solveManifold.m_friction * totalImpulse;
 
-							resolveSingleConstraintRowGeneric( m_tmpSolverBodyPool[solveManifold.m_solverBodyIdA], m_tmpSolverBodyPool[solveManifold.m_solverBodyIdB], solveManifold );
+							resolveSingleConstraintRowGeneric( solveManifold.m_solverBodyA, solveManifold.m_solverBodyB, solveManifold );
 						}
 					}
 
@@ -1677,7 +1686,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 							rollingFrictionConstraint.m_lowerLimit = -rollingFrictionMagnitude;
 							rollingFrictionConstraint.m_upperLimit = rollingFrictionMagnitude;
 
-							resolveSingleConstraintRowGeneric( m_tmpSolverBodyPool[rollingFrictionConstraint.m_solverBodyIdA], m_tmpSolverBodyPool[rollingFrictionConstraint.m_solverBodyIdB], rollingFrictionConstraint );
+							resolveSingleConstraintRowGeneric( rollingFrictionConstraint.m_solverBodyA, rollingFrictionConstraint.m_solverBodyB, rollingFrictionConstraint );
 						}
 					}
 				}
@@ -1704,7 +1713,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 							{
 								btSolverConstraint solveManifold = m_tmpSolverContactConstraintPool[m_orderTmpConstraintPool[j]];
 
-								resolveSplitPenetrationSIMD( m_tmpSolverBodyPool[solveManifold.m_solverBodyIdA], m_tmpSolverBodyPool[solveManifold.m_solverBodyIdB], solveManifold );
+								resolveSplitPenetrationSIMD( solveManifold.m_solverBodyA, solveManifold.m_solverBodyB, solveManifold );
 							}
 						}
 					}
@@ -1720,7 +1729,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 							{
 								btSolverConstraint solveManifold = m_tmpSolverContactConstraintPool[m_orderTmpConstraintPool[j]];
 
-								resolveSplitPenetrationImpulseCacheFriendly( m_tmpSolverBodyPool[solveManifold.m_solverBodyIdA], m_tmpSolverBodyPool[solveManifold.m_solverBodyIdB], solveManifold );
+								resolveSplitPenetrationImpulseCacheFriendly( solveManifold.m_solverBodyA, solveManifold.m_solverBodyB, solveManifold );
 							}
 						}
 					}
@@ -1821,9 +1830,18 @@ namespace Bullet.Dynamics.ConstraintSolver
 					if( infoGlobal.m_splitImpulse )
 						solverBody.m_originalBody.setWorldTransform( (btITransform)solverBody.m_worldTransform );
 
-					solverBody.m_originalBody.setCompanionId( -1 );
+					BulletGlobals.SolverBodyPool.Free( solverBody );
+					body.setCompanionBody( null );
 				}
 			}
+			foreach( btSolverConstraint constraint in m_tmpSolverContactConstraintPool )
+				BulletGlobals.SolverConstraintPool.Free( constraint );
+			foreach( btSolverConstraint constraint in m_tmpSolverNonContactConstraintPool )
+				BulletGlobals.SolverConstraintPool.Free( constraint );
+			foreach( btSolverConstraint constraint in m_tmpSolverContactFrictionConstraintPool )
+				BulletGlobals.SolverConstraintPool.Free( constraint );
+			foreach( btSolverConstraint constraint in m_tmpSolverContactRollingFrictionConstraintPool )
+				BulletGlobals.SolverConstraintPool.Free( constraint );
 
 			m_tmpSolverContactConstraintPool.Count = 0; // resizeNoInitialize( 0 );
 			m_tmpSolverNonContactConstraintPool.Count = 0; //resizeNoInitialize( 0 );
@@ -1831,6 +1849,8 @@ namespace Bullet.Dynamics.ConstraintSolver
 			m_tmpSolverContactRollingFrictionConstraintPool.Count = 0; //resizeNoInitialize( 0 );
 
 			m_tmpSolverBodyPool.Count = 0; //resizeNoInitialize( 0 );
+			m_fixedBody = null;
+
 			return 0;
 		}
 

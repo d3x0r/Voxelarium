@@ -8,7 +8,7 @@ using System.Text;
 //using BulletSharp;
 namespace Bullet.UnitTests
 {
-    public class Test_002
+    public class Test_004
     {
 
 		static public void Run()
@@ -25,6 +25,7 @@ namespace Bullet.UnitTests
 			btRigidBody groundRigidBody = new btRigidBody( groundRigidBodyCI );
 			world.addRigidBody( groundRigidBody );
 
+			//-------------------------------------------------------
 
 			btCollisionShape fallShape = new btSphereShape( btScalar.BT_ONE );
 
@@ -44,6 +45,25 @@ namespace Bullet.UnitTests
 
 			world.addRigidBody( fallingRigidBody );
 
+			//-------------------------------------------------------
+
+			btCollisionShape fallShape2 = new btSphereShape( btScalar.BT_ONE );
+
+			origin = new btVector3( 0.25, 1, 0.25 );
+			init = new btTransform( ref btQuaternion.Identity, ref origin );
+			fallMotionState = new btDefaultMotionState( ref init );
+
+			mass = 1;
+			fallShape.calculateLocalInertia( mass, out fallInertia );
+
+			fallingRigidBodyCI = new btRigidBody.btRigidBodyConstructionInfo( mass, fallMotionState
+							, fallShape, ref fallInertia );
+
+			btRigidBody fallingRigidBody2 = new btRigidBody( fallingRigidBodyCI );
+
+			world.addRigidBody( fallingRigidBody2 );
+
+			//-------------------------------------------------------
 
 			for( int i = 0; i < 300; i++ )
 			{
@@ -51,6 +71,8 @@ namespace Bullet.UnitTests
 
 				btTransform trans;
 				fallingRigidBody.getMotionState().getWorldTransform( out trans );
+				btTransform trans2;
+				fallingRigidBody2.getMotionState().getWorldTransform( out trans2 );
 
 				Console.WriteLine( "Iteration {0}", i );
 				Console.WriteLine( "Sphere height: {0}", trans.getOrigin() );
@@ -59,6 +81,13 @@ namespace Bullet.UnitTests
 				Console.WriteLine( "Sphere Ang Vel : ({0:g6},{1:g6},{2:g6})", v.X, v.Y, v.Z );
 				v = fallingRigidBody.getLinearVelocity();
 				Console.WriteLine( "Sphere Lin Vel : ({0:g6},{1:g6},{2:g6})", v.X, v.Y, v.Z );
+
+				Console.WriteLine( "Sphere2 origin: {0}", trans2.getOrigin() );
+				Console.WriteLine( "Sphere2 orient:\t{0}", trans2.m_basis.ToString( "\t\t" ) );
+				v = fallingRigidBody2.getAngularVelocity();
+				Console.WriteLine( "Sphere2 Ang Vel : ({0:g6},{1:g6},{2:g6})", v.X, v.Y, v.Z );
+				v = fallingRigidBody2.getLinearVelocity();
+				Console.WriteLine( "Sphere2 Lin Vel : ({0:g6},{1:g6},{2:g6})", v.X, v.Y, v.Z );
 			}
 			//  world = new DiscreteDynamicsWorld( null, null, null, null );
 		}

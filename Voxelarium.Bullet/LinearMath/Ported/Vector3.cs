@@ -973,7 +973,7 @@ namespace Bullet.LinearMath
 #endif
 		public override string ToString()
 		{
-			return String.Format( "({0:g6},{1:g6},{2:g6})", x, y, z );
+			return String.Format( "({0:g12},{1:g12},{2:g12})", x, y, z );
 		}
 
 

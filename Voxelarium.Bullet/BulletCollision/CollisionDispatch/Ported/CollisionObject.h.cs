@@ -18,6 +18,7 @@ using Bullet.Collision.BroadPhase;
 using Bullet.Collision.Shapes;
 using Bullet.LinearMath;
 using Bullet.Types;
+using Bullet.Dynamics.ConstraintSolver;
 
 namespace Bullet.Collision.Dispatch
 {
@@ -84,7 +85,8 @@ namespace Bullet.Collision.Dispatch
 		protected CollisionFlags m_collisionFlags;
 
 		protected int m_islandTag1;
-		protected int m_companionId;
+		//protected int m_companionId;
+		internal btSolverBody m_companionBody;
 
 		internal ActivationState m_activationState1;
 		protected double m_deactivationTime;
@@ -413,7 +415,7 @@ namespace Bullet.Collision.Dispatch
 		{
 			m_islandTag1 = tag;
 		}
-
+		/*
 		public int getCompanionId()
 		{
 			return m_companionId;
@@ -422,6 +424,16 @@ namespace Bullet.Collision.Dispatch
 		public void setCompanionId( int id )
 		{
 			m_companionId = id;
+		}
+		*/
+		public btSolverBody getCompanionBody()
+		{
+			return m_companionBody;
+		}
+
+		public void setCompanionBody( btSolverBody id )
+		{
+			m_companionBody = id;
 		}
 
 		public double getHitFraction()
