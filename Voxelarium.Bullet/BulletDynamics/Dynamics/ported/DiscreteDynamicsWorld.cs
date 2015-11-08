@@ -566,19 +566,13 @@ namespace Bullet.Dynamics
 			if( m_ownsIslandManager )
 			{
 				m_islandManager = null;
-				//m_islandManager.~btSimulationIslandManager();
-				//btAlignedFree( m_islandManager );
 			}
 			if( m_solverIslandCallback != null )
 			{
 				m_solverIslandCallback = null;
-				//m_solverIslandCallback.~InplaceSolverIslandCallback();
-				//btAlignedFree( m_solverIslandCallback );
 			}
 			if( m_ownsConstraintSolver )
 			{
-				//m_constraintSolver.~btConstraintSolver();
-				//btAlignedFree( m_constraintSolver );
 				m_constraintSolver = null;
 			}
 		}
@@ -606,19 +600,20 @@ namespace Bullet.Dynamics
 
 		public override void debugDrawWorld()
 		{
+			if( getDebugDrawer() == null )
+				return;
 			CProfileSample sample = new CProfileSample( "debugDrawWorld" );
 
 			base.debugDrawWorld();
 
 			bool drawConstraints = false;
-			if( getDebugDrawer() != null )
+
+			btIDebugDraw.DebugDrawModes mode = getDebugDrawer().getDebugMode();
+			if( ( mode & ( btIDebugDraw.DebugDrawModes.DBG_DrawConstraints | btIDebugDraw.DebugDrawModes.DBG_DrawConstraintLimits ) ) != 0 )
 			{
-				btIDebugDraw.DebugDrawModes mode = getDebugDrawer().getDebugMode();
-				if( ( mode & ( btIDebugDraw.DebugDrawModes.DBG_DrawConstraints | btIDebugDraw.DebugDrawModes.DBG_DrawConstraintLimits ) ) != 0 )
-				{
-					drawConstraints = true;
-				}
+				drawConstraints = true;
 			}
+
 			if( drawConstraints )
 			{
 				for( int i = getNumConstraints() - 1; i >= 0; i-- )
@@ -628,13 +623,11 @@ namespace Bullet.Dynamics
 				}
 			}
 
-
-
-			if( getDebugDrawer() != null && 0 != ( getDebugDrawer().getDebugMode() & ( btIDebugDraw.DebugDrawModes.DBG_DrawWireframe | btIDebugDraw.DebugDrawModes.DBG_DrawAabb | btIDebugDraw.DebugDrawModes.DBG_DrawNormals ) ) )
+			if( 0 != ( getDebugDrawer().getDebugMode() & ( btIDebugDraw.DebugDrawModes.DBG_DrawWireframe | btIDebugDraw.DebugDrawModes.DBG_DrawAabb | btIDebugDraw.DebugDrawModes.DBG_DrawNormals ) ) )
 			{
 				int i;
 
-				if( getDebugDrawer() != null && getDebugDrawer().getDebugMode() != 0 )
+				if( getDebugDrawer().getDebugMode() != 0 )
 				{
 					for( i = 0; i < m_actions.Count; i++ )
 					{
@@ -642,8 +635,7 @@ namespace Bullet.Dynamics
 					}
 				}
 			}
-			if( getDebugDrawer() != null )
-				getDebugDrawer().flushLines();
+			getDebugDrawer().flushLines();
 
 		}
 

@@ -112,8 +112,7 @@
     <Compile Include="BulletCollision\CollisionShapes\Ported\ConvexPolyhedron.cs" />
     <Compile Include="BulletCollision\CollisionShapes\Ported\ConvexTriangleMeshShape.cs" />
     <Compile Include="BulletCollision\CollisionShapes\Ported\CylinderShape.cs" />
-    <None Include="BulletCollision\CollisionShapes\EmptyShape.cs" />
-    <None Include="BulletCollision\CollisionShapes\EmptyShape.h.cs" />
+    <None Include="BulletCollision\CollisionShapes\Porting\EmptyShape.h.cs" />
     <None Include="BulletCollision\CollisionShapes\HeightfieldTerrainShape.cs" />
     <None Include="BulletCollision\CollisionShapes\HeightfieldTerrainShape.h.cs" />
     <None Include="BulletCollision\CollisionShapes\Material.h.cs" />

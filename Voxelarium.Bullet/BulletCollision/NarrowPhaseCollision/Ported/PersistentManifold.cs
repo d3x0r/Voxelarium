@@ -49,6 +49,7 @@ namespace Bullet.Collision.NarrowPhase
 		internal int m_cachedPoints;
 
 		internal double m_contactBreakingThreshold;
+		internal double m_contactBreakingThresholdSquared;
 		internal double m_contactProcessingThreshold;
 
 		//internal int m_companionIdA;
@@ -63,6 +64,8 @@ namespace Bullet.Collision.NarrowPhase
 			base.Initialize( btObjectTypes.BT_PERSISTENT_MANIFOLD_TYPE );
 			m_body0 = ( body0 ); m_body1 = ( body1 ); m_cachedPoints = ( 0 );
 			m_contactBreakingThreshold = ( contactBreakingThreshold );
+			btScalar.Dbg( "breaking contact threshold set to " + contactBreakingThreshold.ToString( "g12" ) );
+			m_contactBreakingThresholdSquared = contactBreakingThreshold * contactBreakingThreshold;
 			m_contactProcessingThreshold = ( contactProcessingThreshold );
 		}
 
@@ -220,14 +223,14 @@ namespace Bullet.Collision.NarrowPhase
 					res3 = calcArea4Points( ref pt.m_localPointA, ref m_pointCache[0].m_localPointA, ref m_pointCache[1].m_localPointA, ref m_pointCache[2].m_localPointA );
 				}
 			}
-			btVector4 maxvec = new btVector4( res0, res1, res2, res3 );
+			btVector3 maxvec = new btVector3( res0, res1, res2, res3 );
 			return maxvec.closestAxis4();
 		}
 
 
 		internal int getCacheEntry( ref btManifoldPoint newPoint )
 		{
-			double shortestDist = getContactBreakingThreshold() * getContactBreakingThreshold();
+			double shortestDist = m_contactBreakingThresholdSquared;
 			int size = m_cachedPoints;
 			int nearestPoint = -1;
 			for( int i = 0; i < size; i++ )
@@ -273,7 +276,7 @@ namespace Bullet.Collision.NarrowPhase
 				insertIndex = 0;
 
 			Debug.Assert( m_pointCache[insertIndex] == null ||
-                m_pointCache[insertIndex].m_userPersistentData == null );
+				m_pointCache[insertIndex].m_userPersistentData == null );
 			m_pointCache[insertIndex] = newPoint;
 			return insertIndex;
 		}
@@ -334,7 +337,7 @@ namespace Bullet.Collision.NarrowPhase
 					manifoldPoint.m_positionWorldOnA.SubScale( ref manifoldPoint.m_normalWorldOnB, manifoldPoint.m_distance1, out projectedPoint );
 					manifoldPoint.m_positionWorldOnB.Sub( ref projectedPoint, out projectedDifference );
 					distance2d = projectedDifference.dot( ref projectedDifference );
-					if( distance2d > getContactBreakingThreshold() * getContactBreakingThreshold() )
+					if( distance2d > m_contactBreakingThresholdSquared )
 					{
 						removeContactPoint( i );
 					}
@@ -392,6 +395,9 @@ namespace Bullet.Collision.NarrowPhase
 		void setContactBreakingThreshold( double contactBreakingThreshold )
 		{
 			m_contactBreakingThreshold = contactBreakingThreshold;
+			btScalar.Dbg( "breaking contact threshold reset to " + contactBreakingThreshold.ToString( "g12" ) );
+
+			m_contactBreakingThresholdSquared = contactBreakingThreshold * contactBreakingThreshold;
 		}
 
 		void setContactProcessingThreshold( double contactProcessingThreshold )
@@ -411,17 +417,13 @@ namespace Bullet.Collision.NarrowPhase
 			//		m_pointCache[index] = m_pointCache[lastUsedIndex];
 			if( index != lastUsedIndex )
 			{
+				BulletGlobals.ManifoldPointPool.Free( m_pointCache[index] );
 				m_pointCache[index] = m_pointCache[lastUsedIndex];
 				//get rid of duplicated userPersistentData pointer
-				m_pointCache[lastUsedIndex].m_userPersistentData = null;
-				m_pointCache[lastUsedIndex].m_appliedImpulse = 0;
-				m_pointCache[lastUsedIndex].m_lateralFrictionInitialized = false;
-				m_pointCache[lastUsedIndex].m_appliedImpulseLateral1 = 0;
-				m_pointCache[lastUsedIndex].m_appliedImpulseLateral2 = 0;
-				m_pointCache[lastUsedIndex].m_lifeTime = 0;
+				m_pointCache[lastUsedIndex] = null;
 			}
 
-			Debug.Assert( m_pointCache[lastUsedIndex].m_userPersistentData == null );
+			Debug.Assert( m_pointCache[lastUsedIndex] == null || m_pointCache[lastUsedIndex].m_userPersistentData == null );
 			m_cachedPoints--;
 		}
 
@@ -430,30 +432,20 @@ namespace Bullet.Collision.NarrowPhase
 			Debug.Assert( validContactDistance( newPoint ) );
 
 #if MAINTAIN_PERSISTENCY
-			int lifeTime = m_pointCache[insertIndex].getLifeTime();
-			double appliedImpulse = m_pointCache[insertIndex].m_appliedImpulse;
-			double appliedLateralImpulse1 = m_pointCache[insertIndex].m_appliedImpulseLateral1;
-			double appliedLateralImpulse2 = m_pointCache[insertIndex].m_appliedImpulseLateral2;
 			//		bool isLateralFrictionInitialized = m_pointCache[insertIndex].m_lateralFrictionInitialized;
-
-
-
-			Debug.Assert( lifeTime >= 0 );
-			object cache = m_pointCache[insertIndex].m_userPersistentData;
+			btManifoldPoint old_point = m_pointCache[insertIndex];
+			Debug.Assert( old_point.m_lifeTime >= 0 );
 
 			m_pointCache[insertIndex] = newPoint;
 
-			m_pointCache[insertIndex].m_userPersistentData = cache;
-			m_pointCache[insertIndex].m_appliedImpulse = appliedImpulse;
-			m_pointCache[insertIndex].m_appliedImpulseLateral1 = appliedLateralImpulse1;
-			m_pointCache[insertIndex].m_appliedImpulseLateral2 = appliedLateralImpulse2;
+			newPoint.m_userPersistentData = old_point.m_userPersistentData;
+			newPoint.m_appliedImpulse = old_point.m_appliedImpulse;
+			newPoint.m_appliedImpulseLateral1 = old_point.m_appliedImpulseLateral1;
+			newPoint.m_appliedImpulseLateral2 = old_point.m_appliedImpulseLateral2;
+			newPoint.m_lifeTime = old_point.m_lifeTime;
 
-			m_pointCache[insertIndex].m_appliedImpulse = appliedImpulse;
-			m_pointCache[insertIndex].m_appliedImpulseLateral1 = appliedLateralImpulse1;
-			m_pointCache[insertIndex].m_appliedImpulseLateral2 = appliedLateralImpulse2;
+			BulletGlobals.ManifoldPointPool.Free( old_point );
 
-
-			m_pointCache[insertIndex].m_lifeTime = lifeTime;
 #else
 	clearUserCache( m_pointCache[insertIndex] );
 	m_pointCache[insertIndex] = newPoint;
@@ -464,16 +456,19 @@ namespace Bullet.Collision.NarrowPhase
 
 		bool validContactDistance( btManifoldPoint pt )
 		{
-			return pt.m_distance1 <= getContactBreakingThreshold();
+			return pt.m_distance1 <= m_contactBreakingThreshold;
 		}
 
 
 		public void clearManifold()
 		{
 			int i;
+			btScalar.Dbg( "Clear manifold point cache" );
 			for( i = 0; i < m_cachedPoints; i++ )
 			{
 				clearUserCache( m_pointCache[i] );
+				BulletGlobals.ManifoldPointPool.Free( m_pointCache[i] );
+				m_pointCache[i] = null;
 			}
 			m_cachedPoints = 0;
 		}

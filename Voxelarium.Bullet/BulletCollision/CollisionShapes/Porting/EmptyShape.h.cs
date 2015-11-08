@@ -29,8 +29,8 @@ public
 	virtual ~btEmptyShape();
 
 
-	///getAabb's default implementation is brute force, expected derived classes to implement a fast dedicated version
-	void getAabb(ref btTransform t,ref btVector3 aabbMin,ref btVector3 aabbMax);
+		///getAabb's default implementation is brute force, expected derived classes to implement a fast dedicated version
+		void getAabb( btITransform t, out btVector3 aabbMin, out btVector3 aabbMax );
 
 
 		public virtual void	setLocalScaling(ref btVector3 scaling)
@@ -52,8 +52,37 @@ public
 	{
 	}
 
-protected:
-	btVector3	m_localScaling;
+protected  btVector3	m_localScaling;
+
+
+
+	btEmptyShape::btEmptyShape() : btConcaveShape()
+	{
+		m_shapeType = EMPTY_SHAPE_PROXYTYPE;
+	}
+
+
+	btEmptyShape::~btEmptyShape()
+	{
+	}
+
+
+	///getAabb's default implementation is brute force, expected derived classes to implement a fast dedicated version
+	void btEmptyShape::getAabb( ref btTransform t, ref btVector3 aabbMin, ref btVector3 aabbMax )
+	{
+		btVector3 margin( getMargin(), getMargin(), getMargin());
+
+		aabbMin = t.getOrigin() - margin;
+
+		aabbMax = t.getOrigin() + margin;
+
+	}
+
+	void btEmptyShape::calculateLocalInertia( double , ref btVector3 )
+	{
+		Debug.Assert( false );
+	}
+
 
 };
 

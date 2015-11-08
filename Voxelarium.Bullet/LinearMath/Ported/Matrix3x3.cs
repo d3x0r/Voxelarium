@@ -1,3 +1,4 @@
+//#define COLUMN_MAJOR_EXPECTED
 //#define DISABLE_OPERATORS
 #define DISABLE_ROW4
 /*
@@ -1400,9 +1401,172 @@ namespace Bullet.LinearMath
 		{
 			return string.Format( "{0}\n{1}\n{2}", m_el0, m_el1, m_el2 );
 		}
-		public string ToString( string leader )
+		public string ToString( string name, string leader )
 		{
-			return string.Format( "{0}\n{1}{2}\n{1}{3}", m_el0, leader, m_el1, m_el2 );
+			return string.Format( "{4}{0}\n{1}{2}\n{1}{3}", m_el0, leader, m_el1, m_el2, name );
+		}
+
+
+		public void ApplyRotation( ref btVector3 m, out btVector3 result )
+		{
+#if COLUMN_MAJOR_EXPECTED
+			result.x = this.m_el0.x * m.x +
+					   this.m_el0.y * m.y +
+					   this.m_el0.z * m.z;
+			result.y = this.m_el1.x * m.x +
+					   this.m_el1.y * m.y +
+					   this.m_el1.z * m.z;
+			result.z = this.m_el2.x * m.x +
+					   this.m_el2.y * m.y +
+					   this.m_el2.z * m.z;
+#else
+			result.x = this.m_el0.x * m.x +
+					   this.m_el1.x * m.y +
+					   this.m_el2.x * m.z;
+			result.y = this.m_el0.y * m.x +
+					   this.m_el1.y * m.y +
+					   this.m_el2.y * m.z;
+			result.z = this.m_el0.z * m.x +
+					   this.m_el1.z * m.y +
+					   this.m_el2.z * m.z;
+#endif
+			result.w = 0;
+		}
+
+		public void ApplyInverseRotation( ref btVector3 m, out btVector3 result )
+		{
+#if COLUMN_MAJOR_EXPECTED
+			result.x = this.m_el0.x * m.x +
+					   this.m_el1.x * m.y +
+					   this.m_el2.x * m.z;
+			result.y = this.m_el0.y * m.x +
+					   this.m_el1.y * m.y +
+					   this.m_el2.y * m.z;
+			result.z = this.m_el0.z * m.x +
+					   this.m_el1.z * m.y +
+					   this.m_el2.z * m.z;
+#else
+			result.x = this.m_el0.x * m.x +
+					   this.m_el0.y * m.y +
+					   this.m_el0.z * m.z;
+			result.y = this.m_el1.x * m.x +
+					   this.m_el1.y * m.y +
+					   this.m_el1.z * m.z;
+			result.z = this.m_el2.x * m.x +
+					   this.m_el2.y * m.y +
+					   this.m_el2.z * m.z;
+#endif
+			result.w = 0;
+		}
+
+		public void Rotate( int axis, double angle )
+		{
+			//Log.log( " Rotate {0} {1}", axis, angle );
+#if COLUMN_MAJOR_EXPECTED
+			switch( axis )
+			{
+				default:
+				case 0:
+					{
+						double savex = m_el0.z, savey = m_el1.z, savez = m_el2.z;
+						double dsin = btScalar.btSin( angle )
+							  , dcos = btScalar.btCos( angle );
+						double v1x, v1y, v1z;
+						double v2x, v2y, v2z;
+						v1x = dcos * m_el0.z; v1y = dcos * m_el1.z; v1z = dcos * m_el2.z;
+						v2x = dsin * m_el0.y; v2y = dsin * m_el1.y; v2z = dsin * m_el2.y;
+						m_el0.z = v1x - v2x; m_el1.z = v1y - v2y; m_el2.z = v1z - v2z;
+						v1x = savex * dsin; v1y = savey * dsin; v1z = savez * dsin;
+						v2x = dcos * m_el0.y; v2y = dcos * m_el1.y; v2z = dcos * m_el2.y;
+						m_el0.y = v1x + v2x; m_el1.y = v1y + v2y; m_el2.y = v1z + v2z;
+						break;
+					}
+				case 1:
+					{
+						double savex = m_el0.x, savey = m_el1.x, savez = m_el2.x;
+						double dsin = btScalar.btSin( angle )
+							  , dcos = btScalar.btCos( angle );
+						double v1x, v1y, v1z;
+						double v2x, v2y, v2z;
+						v1x = dcos * m_el0.x; v1y = dcos * m_el1.x; v1z = dcos * m_el2.x;
+						v2x = dsin * m_el0.z; v2y = dsin * m_el1.z; v2z = dsin * m_el2.z;
+						m_el0.x = v1x - v2x; m_el1.x = v1y - v2y; m_el2.x = v1z - v2z;
+						v1x = savex * dsin; v1y = savey * dsin; v1z = savez * dsin;
+						v2x = dcos * m_el0.z; v2y = dcos * m_el1.z; v2z = dcos * m_el2.z;
+						m_el0.z = v1x + v2x; m_el1.z = v1y + v2y; m_el2.z = v1z + v2z;
+						break;
+					}
+				case 2:
+					{
+						double savex = m_el0.x, savey = m_el1.x, savez = m_el2.x;
+						double dsin = btScalar.btSin( angle )
+							  , dcos = btScalar.btCos( angle );
+						double v1x, v1y, v1z;
+						double v2x, v2y, v2z;
+						v1x = dcos * m_el0.x; v1y = dcos * m_el1.x; v1z = dcos * m_el2.x;
+						v2x = dsin * m_el0.y; v2y = dsin * m_el1.y; v2z = dsin * m_el2.y;
+						m_el0.x = v1x - v2x; m_el1.x = v1y - v2y; m_el2.x = v1z - v2z;
+						v1x = savex * dsin; v1y = savey * dsin; v1z = savez * dsin;
+						v2x = dcos * m_el0.y; v2y = dcos * m_el1.y; v2z = dcos * m_el2.y;
+						m_el0.y = v1x + v2x; m_el1.y = v1y + v2y; m_el2.y = v1z + v2z;
+						break;
+					}
+			}
+#else
+			double dsin = btScalar.btSin( angle )
+				  , dcos = btScalar.btCos( angle );
+			switch( axis )
+			{
+
+				default:
+				case 0:
+					{
+						btVector3 savex = m_el1;
+						btVector3 v1, v2;
+						m_el1.Mult( dcos, out v1 );
+						m_el2.Mult( dsin, out v2 );
+						v1.Sub( ref v2, out m_el1 );
+						savex.Mult( dsin, out v2 );
+						m_el2.Mult( dcos, out v1 );
+						v1.Add( ref v2, out m_el2 );
+						break;
+					}
+				case 1:
+					{
+						btVector3 savex = m_el0;
+						btVector3 v1, v2;
+						m_el0.Mult( dcos, out v1 );
+						m_el2.Mult( dsin, out v2 );
+						v1.Sub( ref v2, out m_el0 );
+						savex.Mult( dsin, out v2 );
+						m_el2.Mult( dcos, out v1 );
+						v1.Add( ref v2, out m_el2 );
+						break;
+					}
+				case 2:
+					{
+						btVector3 savex = m_el0;
+						btVector3 v1, v2;
+						m_el0.Mult( dcos, out v1 );
+						m_el1.Mult( dsin, out v2 );
+						v1.Sub( ref v2, out m_el0 );
+						savex.Mult( dsin, out v2 );
+						m_el1.Mult( dcos, out v1 );
+						v1.Add( ref v2, out m_el1 );
+						break;
+					}
+			}
+#endif
+		}
+
+		public void Rotate( double x, double y, double z )
+		{
+			if( x != 0 )
+				Rotate( 0, x );
+			if( y != 0 )
+				Rotate( 1, y );
+			if( z != 0 )
+				Rotate( 2, z );
 		}
 
 	}

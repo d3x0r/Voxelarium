@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -414,5 +415,12 @@ namespace Bullet.LinearMath
 				return angleInRadians;
 			}
 		}
+
+		[Conditional( "DEBUG" )]
+		public static void Dbg( string s )
+		{
+			Console.WriteLine( s );
+		}
+
 	}
 }

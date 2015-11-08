@@ -35,7 +35,7 @@ namespace Bullet.Collision.NarrowPhase
 
 		bool fullSimplex();
 
-		int getSimplex( btVector3[] pBuf,  btVector3[] qBuf, btVector3[] yBuf );
+		//int getSimplex( btVector3[] pBuf,  btVector3[] qBuf, btVector3[] yBuf );
 
 		bool inSimplex( ref btVector3 w );
 

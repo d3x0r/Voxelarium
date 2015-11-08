@@ -4,16 +4,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{8D695F2D-A308-4319-B6A6-309D732FCE4C}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <ProjectGuid>{9034E5E4-A997-409C-86D1-2D1B74119204}</ProjectGuid>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Bullet.UnitTests</RootNamespace>
-    <AssemblyName>Bullet.UnitTests</AssemblyName>
+    <RootNamespace>Bullet.OpenTK.OpenGL2</RootNamespace>
+    <AssemblyName>Bullet.OpenTK.OpenGL2</AssemblyName>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -21,15 +20,16 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="OpenTK">
@@ -37,22 +37,16 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MathTest_001.cs" />
-    <Compile Include="Test_003.cs" />
-    <Compile Include="Test_004.cs" />
-    <Compile Include="Test_002.cs" />
-    <Compile Include="Test_001.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="BulletDebugDrawer.cs" />
+    <Compile Include="OpenGLDisplay.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Bullet.OpenTK.OpenGL2\Bullet.OpenTK.OpenGL2.csproj">
-      <Project>{9034e5e4-a997-409c-86d1-2d1b74119204}</Project>
-      <Name>Bullet.OpenTK.OpenGL2</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Voxelarium.Bullet\Voxelarium.Bullet.csproj">
       <Project>{51f24014-65d4-414e-ac8d-1c9a2481308d}</Project>
       <Name>Voxelarium.Bullet</Name>

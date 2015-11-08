@@ -83,7 +83,7 @@ namespace Bullet.Collision.Shapes
 
 		public override void getAabb( ref btTransform t, out btVector3 aabbMin, out btVector3 aabbMax )
 		{
-			getAabbSlow( ref t, out aabbMin, out aabbMax );
+			getAabb( t, out aabbMin, out aabbMax );
 		}
 
 

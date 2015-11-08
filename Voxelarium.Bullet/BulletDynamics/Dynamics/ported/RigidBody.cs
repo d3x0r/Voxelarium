@@ -102,7 +102,7 @@ namespace Bullet.Dynamics
 
 		protected btVector3 m_deltaLinearVelocity;
 		protected btVector3 m_deltaAngularVelocity;
-		protected btVector3 m_angularFactor;
+		internal btVector3 m_angularFactor;
 		protected btVector3 m_invMass;
 		protected btVector3 m_pushVelocity;
 		protected btVector3 m_turnVelocity;

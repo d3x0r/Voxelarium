@@ -104,7 +104,7 @@ namespace Bullet.Collision.Shapes
 			btVector3 vecnorm = vec;
 			if( vecnorm.length2() < ( btScalar.SIMD_EPSILON * btScalar.SIMD_EPSILON ) )
 			{
-				vecnorm.setValue( (double)( -1.0), (double)( -1.0), (double)( -1.0) );
+				vecnorm = btVector3.NegOne;
 			}
 			vecnorm.normalize();
 			supVertex.AddScale( ref vecnorm, getMargin(), out supVertex );
@@ -115,11 +115,17 @@ namespace Bullet.Collision.Shapes
 		//broken due to scaling
 		public override void getAabb( ref btTransform t, out btVector3 aabbMin, out btVector3 aabbMax )
 		{
-			btVector3 extent = new btVector3( getMargin(), getMargin(), getMargin());
+			btVector3 extent = new btVector3( getMargin() );
 			t.m_origin.Sub( ref extent, out aabbMin );
 			t.m_origin.Add( ref extent, out aabbMax );
 		}
 
+		public override void getAabb( btITransform t, out btVector3 aabbMin, out btVector3 aabbMax )
+		{
+			btVector3 extent = new btVector3( getMargin() );
+			t.getOrigin().Sub( ref extent, out aabbMin );
+			t.getOrigin().Add( ref extent, out aabbMax );
+		}
 
 		public override void calculateLocalInertia( double mass, out btVector3 inertia )
 		{

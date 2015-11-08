@@ -42,6 +42,11 @@ namespace Bullet.Collision.NarrowPhase
 				m_maximumDistanceSquared = btScalar.BT_LARGE_FLOAT;
 			}
 
+			public void Initialize()
+			{
+				m_maximumDistanceSquared = btScalar.BT_LARGE_FLOAT;
+			}
+
 			internal btITransform m_transformA;
 			internal btITransform m_transformB;
 			internal double m_maximumDistanceSquared;

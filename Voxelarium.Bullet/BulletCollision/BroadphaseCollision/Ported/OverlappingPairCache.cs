@@ -71,8 +71,8 @@ namespace Bullet.Collision.BroadPhase
 		btOverlapFilterCallback m_overlapFilterCallback;
 
 
-		protected btList<int> m_hashTable = new btList<int>();
-		protected btList<int> m_next = new btList<int>();
+		protected int[] m_hashTable = null;
+		protected int[] m_next = null;
 		protected btOverlappingPairCallback m_ghostPairCallback;
 
 
@@ -240,7 +240,13 @@ namespace Bullet.Collision.BroadPhase
 			m_ghostPairCallback = ( null );
 			int initialAllocatedSize = 2;
 			m_overlappingPairArray.Capacity = ( initialAllocatedSize );
-			growTables();
+			m_hashTable = new int[initialAllocatedSize];
+			m_next = new int[initialAllocatedSize];
+			for( int i = 0; i < initialAllocatedSize; i++ )
+			{
+				m_hashTable[i] = BT_NULL_PAIR;
+				m_next[i] = BT_NULL_PAIR;
+			}
 		}
 
 
@@ -335,7 +341,7 @@ namespace Bullet.Collision.BroadPhase
 			int hash = (int)( getHash( (uint)( proxy0.GetHashCode() ), (uint)( proxy1.GetHashCode() ) )
 				& ( m_overlappingPairArray.Count - 1 ) );
 
-			if( hash >= m_hashTable.Count )
+			if( hash >= m_hashTable.Length )
 			{
 				return null;
 			}
@@ -363,29 +369,23 @@ namespace Bullet.Collision.BroadPhase
 
 			int newCapacity = m_overlappingPairArray.Capacity;
 
-			if( m_hashTable.Count < newCapacity )
+			if( m_hashTable.Length < newCapacity )
 			{
 				//grow hashtable and next table
-				int curHashtableSize = m_hashTable.Count;
+				int curHashtableSize = m_hashTable.Length;
 
-				m_hashTable.Capacity = ( newCapacity );
-				m_next.Capacity = ( newCapacity );
-
+				m_hashTable = new int[newCapacity];
+				m_next = new int[newCapacity];
 
 				int i;
-
 				for( i = 0; i < newCapacity; ++i )
 				{
 					m_hashTable[i] = BT_NULL_PAIR;
-				}
-				for( i = 0; i < newCapacity; ++i )
-				{
 					m_next[i] = BT_NULL_PAIR;
 				}
 
 				for( i = 0; i < curHashtableSize; i++ )
 				{
-
 					btBroadphasePair pair = m_overlappingPairArray[i];
 					int proxyId1 = pair.m_pProxy0.GetHashCode();
 					int proxyId2 = pair.m_pProxy1.GetHashCode();
@@ -396,8 +396,6 @@ namespace Bullet.Collision.BroadPhase
 					m_next[i] = m_hashTable[hashValue];
 					m_hashTable[hashValue] = i;
 				}
-
-
 			}
 		}
 
@@ -578,6 +576,7 @@ namespace Bullet.Collision.BroadPhase
 			{
 
 				btBroadphasePair pair = m_overlappingPairArray[i];
+				btScalar.Dbg( "Process pair " + i );
 				if( callback.processOverlap( pair ) )
 				{
 					removeOverlappingPair( pair.m_pProxy0, pair.m_pProxy1, dispatcher );
@@ -605,7 +604,7 @@ namespace Bullet.Collision.BroadPhase
 				removeOverlappingPair( tmpPairs[i].m_pProxy0, tmpPairs[i].m_pProxy1, dispatcher );
 			}
 
-			for( i = 0; i < m_next.Count; i++ )
+			for( i = 0; i < m_next.Length; i++ )
 			{
 				m_next[i] = BT_NULL_PAIR;
 			}
@@ -827,6 +826,7 @@ namespace Bullet.Collision.BroadPhase
 			if( pair.m_algorithm != null )
 			{
 				{
+					//pair.m_algorithm.
 					dispatcher.freeCollisionAlgorithm( pair.m_algorithm );
 					pair.m_algorithm = null;
 					btHashedOverlappingPairCache.gRemovePairs--;

@@ -148,6 +148,7 @@ namespace Bullet.Collision.Dispatch
 			{
 				/// report a contact. internally this will be kept persistent, and contact reduction is done
 				btVector3 normalOnSurfaceB; planeWorldTransform.getBasis().Apply( planeNormal, out normalOnSurfaceB );
+				btScalar.Dbg( "Convex plane adds point " + normalOnSurfaceB + " " + vtxInPlaneWorld + " " + distance.ToString( "g12" ) );
 				resultOut.addContactPoint( ref normalOnSurfaceB, ref vtxInPlaneWorld, distance );
 			}
 		}

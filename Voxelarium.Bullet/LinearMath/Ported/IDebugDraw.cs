@@ -38,18 +38,18 @@ namespace Bullet.LinearMath
 
 			static public void Init( out DefaultColors c )
 			{
-				c.m_activeObject = new btVector3( 1, 1, 1 );
-				c.m_deactivatedObject = new btVector3( 0, 1, 0 );
-				c.m_wantsDeactivationObject = new btVector3( 0, 1, 1 );
-				c.m_disabledDeactivationObject = new btVector3( 1, 0, 0 );
-				c.m_disabledSimulationObject = new btVector3( 1, 1, 0 );
-				c.m_aabb = new btVector3( 1, 0, 0 );
-				c.m_contactPoint = new btVector3( 1, 1, 0 );
+				c.m_activeObject = new btVector3( 1, 1, 1,1 );
+				c.m_deactivatedObject = new btVector3( 0, 1, 0, 1 );
+				c.m_wantsDeactivationObject = new btVector3( 0, 1, 1, 1 );
+				c.m_disabledDeactivationObject = new btVector3( 1, 0, 0, 1 );
+				c.m_disabledSimulationObject = new btVector3( 1, 1, 0, 1 );
+				c.m_aabb = new btVector3( 1, 0, 0, 1 );
+				c.m_contactPoint = new btVector3( 1, 1, 0, 1 );
 			}
 		};
 
 
-		internal enum DebugDrawModes
+		public enum DebugDrawModes
 		{
 			DBG_NoDebug = 0,
 			DBG_DrawWireframe = 1,
@@ -127,9 +127,9 @@ namespace Bullet.LinearMath
 
 		public abstract void draw3dText( ref btVector3 location, string textString );
 
-		public abstract void setDebugMode( int debugMode );
+		public abstract void setDebugMode( DebugDrawModes debugMode );
 
-		internal abstract DebugDrawModes getDebugMode();
+		public abstract DebugDrawModes getDebugMode();
 
 		public virtual void drawAabb( ref btVector3 from, ref btVector3 to, ref btVector3 color )
 		{

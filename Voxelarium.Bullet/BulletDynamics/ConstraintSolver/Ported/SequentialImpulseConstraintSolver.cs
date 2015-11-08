@@ -120,6 +120,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 			{
 				c.m_appliedImpulse = sum;
 			}
+			btScalar.Dbg( "Constraint applied impulse is " + c.m_appliedImpulse.ToString( "g12" ) );
 			btVector3 mass, val;
 			body1.internalGetInvMass( out mass );
 			mass.Mult( ref c.m_contactNormal1, out val );
@@ -155,6 +156,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 			{
 				c.m_appliedImpulse = sum;
 			}
+			btScalar.Dbg( "Constraint applied impulse 2 is " + c.m_appliedImpulse.ToString( "g12" ) );
 			btVector3 mass, val;
 			body1.internalGetInvMass( out mass );
 			mass.Mult( ref c.m_contactNormal1, out val );
@@ -425,9 +427,10 @@ namespace Bullet.Dynamics.ConstraintSolver
 			if( body0 != null )
 			{
 				solverConstraint.m_contactNormal1 = normalAxis;
-				btVector3 ftorqueAxis1; rel_pos1.cross( ref solverConstraint.m_contactNormal1, out ftorqueAxis1 );
-				solverConstraint.m_relpos1CrossNormal = ftorqueAxis1;
-				solverConstraint.m_angularComponentA = body0.getInvInertiaTensorWorld() * ftorqueAxis1 * body0.getAngularFactor();
+				rel_pos1.cross( ref solverConstraint.m_contactNormal1, out solverConstraint.m_relpos1CrossNormal );
+				btVector3 tmp;
+				body0.m_invInertiaTensorWorld.Apply( ref solverConstraint.m_relpos1CrossNormal, out tmp );
+				tmp.Mult( ref  body0.m_angularFactor, out solverConstraint.m_angularComponentA );
 			}
 			else
 			{
@@ -439,9 +442,10 @@ namespace Bullet.Dynamics.ConstraintSolver
 			if( body1 != null )
 			{
 				solverConstraint.m_contactNormal2 = -normalAxis;
-				btVector3 ftorqueAxis1; rel_pos2.cross( ref solverConstraint.m_contactNormal2, out ftorqueAxis1 );
-				solverConstraint.m_relpos2CrossNormal = ftorqueAxis1;
-				solverConstraint.m_angularComponentB = body1.getInvInertiaTensorWorld() * ftorqueAxis1 * body1.getAngularFactor();
+				rel_pos2.cross( ref solverConstraint.m_contactNormal2, out solverConstraint.m_relpos2CrossNormal );
+				btVector3 tmp;
+				body1.m_invInertiaTensorWorld.Apply( ref solverConstraint.m_relpos2CrossNormal, out tmp );
+				tmp.Mult( ref body1.m_angularFactor, out solverConstraint.m_angularComponentB );
 			}
 			else
 			{
@@ -456,12 +460,14 @@ namespace Bullet.Dynamics.ConstraintSolver
 				double denom1 = 0;
 				if( body0 != null )
 				{
-					vec = ( solverConstraint.m_angularComponentA ).cross( rel_pos1 );
+					solverConstraint.m_angularComponentA.cross( ref rel_pos1, out vec );
 					denom0 = body0.getInvMass() + normalAxis.dot( ref vec );
 				}
 				if( body1 != null )
 				{
-					vec = ( -solverConstraint.m_angularComponentB ).cross( rel_pos2 );
+					btVector3 tmp;
+					solverConstraint.m_angularComponentB.Invert( out tmp );
+					tmp.cross( ref rel_pos2, out vec );
 					denom1 = body1.getInvMass() + normalAxis.dot( ref vec );
 				}
 				double denom = relaxation / ( denom0 + denom1 );
@@ -502,6 +508,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 			solverConstraint.m_frictionIndex = frictionIndex;
 			setupFrictionConstraint( solverConstraint, ref normalAxis, solverBodyA, solverBodyB, cp, ref rel_pos1, ref rel_pos2,
 									colObj0, colObj1, relaxation, desiredVelocity, cfmSlip );
+			btScalar.Dbg( "Setup Impulse2 = " + solverConstraint.m_appliedImpulse.ToString( "g12" ) );
 			return solverConstraint;
 		}
 
@@ -835,6 +842,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 				if( ( infoGlobal.m_solverMode & btSolverMode.SOLVER_USE_WARMSTARTING ) != 0 )
 				{
 					frictionConstraint1.m_appliedImpulse = cp.m_appliedImpulseLateral1 * infoGlobal.m_warmstartingFactor;
+					btScalar.Dbg( "New Applied source is " + cp.m_appliedImpulseLateral1.ToString( "g12" ) );
 					if( rb0 != null )
 					{
 						btVector3 tmp = frictionConstraint1.m_contactNormal1 * rb0.getInvMass() * rb0.getLinearFactor();
@@ -905,6 +913,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 				return;
 
 			int rollingFriction = 1;
+			btScalar.Dbg( "Manifold cache points " + manifold.m_cachedPoints );
 			for( int j = 0; j < manifold.m_cachedPoints; j++ )
 			{
 
@@ -927,11 +936,11 @@ namespace Bullet.Dynamics.ConstraintSolver
 
 					solverConstraint.m_originalContactPoint = cp;
 
-					btVector3 pos1 = cp.m_positionWorldOnA;
-					btVector3 pos2 = cp.m_positionWorldOnB;
+					//btVector3 pos1 = cp.m_positionWorldOnA;
+					//btVector3 pos2 = cp.m_positionWorldOnB;
 
-					rel_pos1 = pos1 - colObj0.getWorldTransform().getOrigin();
-					rel_pos2 = pos2 - colObj1.getWorldTransform().getOrigin();
+					cp.m_positionWorldOnA.Sub( colObj0.getWorldTransform().getOrigin(), out rel_pos1 );
+					cp.m_positionWorldOnB.Sub( colObj1.getWorldTransform().getOrigin(), out rel_pos2 );
 
 					btVector3 vel1;// = rb0 ? rb0.getVelocityInLocalPoint(rel_pos1) : btVector3(0,0,0);
 					btVector3 vel2;// = rb1 ? rb1.getVelocityInLocalPoint(rel_pos2) : btVector3(0,0,0);
@@ -943,10 +952,6 @@ namespace Bullet.Dynamics.ConstraintSolver
 					double rel_vel = cp.m_normalWorldOnB.dot( vel );
 
 					setupContactConstraint( solverConstraint, solverBodyA, solverBodyB, cp, infoGlobal, out relaxation, ref rel_pos1, ref rel_pos2 );
-
-
-					//			ref btVector3 pos1 = cp.getPositionWorldOnA();
-					//			ref btVector3 pos2 = cp.getPositionWorldOnB();
 
 					/////setup the friction constraints
 
@@ -1206,6 +1211,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 					if( ( body.getFlags() & btRigidBodyFlags.BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_BODY ) != 0 )
 					{
 						body.computeGyroscopicImpulseImplicit_Body( infoGlobal.m_timeStep, out gyroForce );
+						btScalar.Dbg( "Gyroforce " + gyroForce );
 						solverBody.m_externalTorqueImpulse.Add( ref gyroForce, out solverBody.m_externalTorqueImpulse );
 					}
 				}
@@ -1258,7 +1264,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 							info1.nub = 0;
 						}
 						totalNumRows += info1.m_numConstraintRows;
-                    }
+					}
 					m_tmpSolverNonContactConstraintPool.Count = ( totalNumRows );
 					for( i = 0; i < totalNumRows; i++ )
 						m_tmpSolverNonContactConstraintPool[i] = BulletGlobals.SolverConstraintPool.Get();
@@ -1410,7 +1416,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 						currentRow += m_tmpConstraintSizesPool[i].m_numConstraintRows;
 					}
 				}
-
+				btScalar.Dbg( "About to convert contacts " + start_manifold + " " + numManifolds );
 				convertContacts( manifoldPtr, start_manifold, numManifolds, infoGlobal );
 
 			}
@@ -1596,7 +1602,9 @@ namespace Bullet.Dynamics.ConstraintSolver
 								solveManifold.m_lowerLimit = -( solveManifold.m_friction * totalImpulse );
 								solveManifold.m_upperLimit = solveManifold.m_friction * totalImpulse;
 
+								btScalar.Dbg( "PreFriction Impulse?" + solveManifold.m_appliedImpulse.ToString( "g12" ) );
 								resolveSingleConstraintRowGenericSIMD( solveManifold.m_solverBodyA, solveManifold.m_solverBodyB, solveManifold );
+								btScalar.Dbg( "Friction Impulse?" + solveManifold.m_appliedImpulse.ToString( "g12" ) );
 							}
 						}
 
@@ -1776,6 +1784,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 					//	float f = m_tmpSolverContactFrictionConstraintPool[solveManifold.m_frictionIndex].m_appliedImpulse;
 					//	Console.WriteLine("pt.m_appliedImpulseLateral1 = %f\n", f);
 					pt.m_appliedImpulseLateral1 = m_tmpSolverContactFrictionConstraintPool[solveManifold.m_frictionIndex].m_appliedImpulse;
+					btScalar.Dbg( "New manifold source is " + pt.m_appliedImpulseLateral1.ToString( "g12" ) + " from " + solveManifold.m_frictionIndex );
 					//Console.WriteLine("pt.m_appliedImpulseLateral1 = %f\n", pt.m_appliedImpulseLateral1);
 					if( ( infoGlobal.m_solverMode & btSolverMode.SOLVER_USE_2_FRICTION_DIRECTIONS ) != 0 )
 					{

@@ -5,19 +5,33 @@ using Bullet.LinearMath;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 //using BulletSharp;
 namespace Bullet.UnitTests
 {
-    public class Test_003
-    {
+	public class Test_003
+	{
+		int step;
+		bool sloped;
 
-		static public void Run()
-        {
-			btDiscreteDynamicsWorld world;
+		btDiscreteDynamicsWorld world;
+		btRigidBody fallingRigidBody;
+		btRigidBody fallingRigidBody2;
+
+		public void Setup()
+		{
 			world = new btDiscreteDynamicsWorld();
-			btCollisionShape groundShape = new btStaticPlaneShape( ref btVector3.Zero, ref btVector3.yAxis );
+			world.setDebugDrawer( Program.Drawer );
 
-			btDefaultMotionState groundMotionState = new btDefaultMotionState( );
+			btVector3 tmp; btVector3.yAxis.Add( ref btVector3.xAxis, out tmp );
+			tmp.normalized( out tmp );
+			btCollisionShape groundShape;
+			if( sloped )
+				groundShape = new btStaticPlaneShape( ref btVector3.Zero, ref tmp );
+			else
+				groundShape = new btStaticPlaneShape( ref btVector3.Zero, ref btVector3.yAxis );
+
+			btDefaultMotionState groundMotionState = new btDefaultMotionState();
 
 			btRigidBody.btRigidBodyConstructionInfo
 				groundRigidBodyCI = new btRigidBody.btRigidBodyConstructionInfo( 0, groundMotionState
@@ -31,7 +45,7 @@ namespace Bullet.UnitTests
 
 			btVector3 origin = new btVector3( 0, 50, 0 );
 			btTransform init = new btTransform( ref btQuaternion.Identity, ref origin );
-            btDefaultMotionState fallMotionState = new btDefaultMotionState( ref init );
+			btDefaultMotionState fallMotionState = new btDefaultMotionState( ref init );
 
 			btScalar mass = 1;
 			btVector3 fallInertia;
@@ -41,7 +55,7 @@ namespace Bullet.UnitTests
 				fallingRigidBodyCI = new btRigidBody.btRigidBodyConstructionInfo( mass, fallMotionState
 							, fallShape, ref fallInertia );
 
-			btRigidBody fallingRigidBody = new btRigidBody( fallingRigidBodyCI );
+			fallingRigidBody = new btRigidBody( fallingRigidBodyCI );
 
 			world.addRigidBody( fallingRigidBody );
 
@@ -49,52 +63,80 @@ namespace Bullet.UnitTests
 
 			btCollisionShape fallShape2 = new btSphereShape( btScalar.BT_ONE );
 
-			origin = new btVector3( 0.25, 1, 0.25 );
+			origin = new btVector3( sloped?-34:0.25, 1, 0.25 );
 			init = new btTransform( ref btQuaternion.Identity, ref origin );
 			fallMotionState = new btDefaultMotionState( ref init );
 
 			mass = 1;
-			fallShape.calculateLocalInertia( mass, out fallInertia );
+			fallShape2.calculateLocalInertia( mass, out fallInertia );
 
 			fallingRigidBodyCI = new btRigidBody.btRigidBodyConstructionInfo( mass, fallMotionState
-							, fallShape, ref fallInertia );
+							, fallShape2, ref fallInertia );
 
-			btRigidBody fallingRigidBody2 = new btRigidBody( fallingRigidBodyCI );
+			fallingRigidBody2 = new btRigidBody( fallingRigidBodyCI );
 
 			world.addRigidBody( fallingRigidBody2 );
 
 			//-------------------------------------------------------
 
-			for( int i = 0; i < 300; i++ )
+
+		}
+
+		internal void Tick()
+		{
+			//for( int i = 0; i < 300; i++ )
 			{
+				if( step == 204 )
+				{
+					int a = 3;
+				}
+
 				world.stepSimulation( 1 / 60.0f, 10 );
+				if( Program.Display != null )
+					world.debugDrawWorld();
 
 				btTransform trans;
 				fallingRigidBody.getMotionState().getWorldTransform( out trans );
 				btTransform trans2;
 				fallingRigidBody2.getMotionState().getWorldTransform( out trans2 );
 
-				if( i == 188 )
-				{
-					int a = 3;
-				}
-				Console.WriteLine( "Iteration {0}", i );
-				Console.WriteLine( "cube height: {0}", trans.getOrigin() );
-				Console.WriteLine( "cube orient:\t{0}", trans.m_basis.ToString( "\t\t" ) );
+				Console.WriteLine( "Iteration {0}", step );
+				Console.WriteLine( "{0}", trans.ToString( "cube orient\t", "\t\t", "cube origin\t" ) );
 				btIVector3 v = fallingRigidBody.getAngularVelocity();
-				Console.WriteLine( "cube Ang Vel : ({0:g6},{1:g6},{2:g6})", v.X, v.Y, v.Z );
+				Console.WriteLine( "cube Ang Vel : {0}", v );
 				v = fallingRigidBody.getLinearVelocity();
-				Console.WriteLine( "cube Lin Vel : ({0:g6},{1:g6},{2:g6})", v.X, v.Y, v.Z );
+				Console.WriteLine( "cube Lin Vel : {0}", v );
 
-				Console.WriteLine( "Sphere origin: {0}", trans2.getOrigin() );
-				Console.WriteLine( "Sphere orient:\t{0}", trans2.m_basis.ToString( "\t\t" ) );
+				Console.WriteLine( "{0}", trans2.ToString( "ball orient\t", "\t\t", "ball origin\t" ) );
 				v = fallingRigidBody2.getAngularVelocity();
-				Console.WriteLine( "Sphere Ang Vel : ({0:g6},{1:g6},{2:g6})", v.X, v.Y, v.Z );
+				Console.WriteLine( "ball Ang Vel : {0}", v );
 				v = fallingRigidBody2.getLinearVelocity();
-				Console.WriteLine( "Sphere Lin Vel : ({0:g6},{1:g6},{2:g6})", v.X, v.Y, v.Z );
+				Console.WriteLine( "ball Lin Vel : {0}", v );
+				step++;
 			}
 			//  world = new DiscreteDynamicsWorld( null, null, null, null );
 		}
 
+		static public void Run( bool sloped )
+		{
+			Test_003 test = new Test_003();
+			test.sloped = sloped;
+			test.Setup();
+			if( Program.Display != null )
+			{
+				Program.Display.Tick += test.Tick;
+				while( test.step < 300 )
+				{
+					Thread.Sleep( 50 );
+				}
+				Program.Display.Tick -= test.Tick;
+			}
+			else
+			{
+				while( test.step < 300 )
+					test.Tick();
+			}
+
+		}
 	}
 }

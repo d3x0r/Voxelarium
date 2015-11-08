@@ -52,6 +52,11 @@ namespace Bullet.Collision.Dispatch
 
 		internal override void Cleanup()
 		{
+			if( m_ownManifold )
+			{
+				if( m_manifoldPtr != null )
+					m_dispatcher.releaseManifold( m_manifoldPtr );
+			}
 			BulletGlobals.SphereSphereCollisionAlgorithmPool.Free( this );
 		}
 
@@ -72,15 +77,6 @@ namespace Bullet.Collision.Dispatch
 			}
 		}
 
-		~btSphereSphereCollisionAlgorithm()
-		{
-			if( m_ownManifold )
-			{
-				if( m_manifoldPtr != null )
-					m_dispatcher.releaseManifold( m_manifoldPtr );
-			}
-		}
-
 		internal override void processCollision( btCollisionObjectWrapper col0Wrap, btCollisionObjectWrapper col1Wrap, btDispatcherInfo dispatchInfo, btManifoldResult resultOut )
 		{
 			//(void)dispatchInfo;
@@ -93,7 +89,7 @@ namespace Bullet.Collision.Dispatch
 			btSphereShape sphere0 = (btSphereShape)col0Wrap.getCollisionShape();
 			btSphereShape sphere1 = (btSphereShape)col1Wrap.getCollisionShape();
 
-			btVector3 diff; col0Wrap.getWorldTransform().getOrigin().Sub( col1Wrap.getWorldTransform().getOrigin(), out diff );
+			btVector3 diff; col0Wrap.m_collisionObject.m_worldTransform.m_origin.Sub( ref col1Wrap.m_collisionObject.m_worldTransform.m_origin, out diff );
 			double len = diff.length();
 			double radius0 = sphere0.getRadius();
 			double radius1 = sphere1.getRadius();
@@ -122,7 +118,7 @@ namespace Bullet.Collision.Dispatch
 			///point on A (worldspace)
 			///btVector3 pos0 = col0.getWorldTransform().getOrigin() - radius0 * normalOnSurfaceB;
 			///point on B (worldspace)
-			btVector3 pos1; col1Wrap.getWorldTransform().getOrigin().AddScale( ref normalOnSurfaceB, radius1, out pos1 );
+			btVector3 pos1; col1Wrap.m_collisionObject.m_worldTransform.m_origin.AddScale( ref normalOnSurfaceB, radius1, out pos1 );
 
 			/// report a contact. internally this will be kept persistent, and contact reduction is done
 			resultOut.addContactPoint( ref normalOnSurfaceB, ref pos1, dist );

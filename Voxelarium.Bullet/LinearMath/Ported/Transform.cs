@@ -1,3 +1,5 @@
+//#define COLUMN_MAJOR_EXPECTED
+
 //#define DISABLE_NON_REF_CONSTRUCTORS
 //#define DISABLE_OPERATORS
 /*
@@ -422,9 +424,173 @@ namespace Bullet.LinearMath
 
 
 		*/
+
+
+		public void GetGLMatrix( float[] m )
+		{
+#if !COLUMN_MAJOR_EXPECTED
+			m[0]  = (float)m_basis.m_el0.x;
+			m[1]  = (float)m_basis.m_el0.y;
+			m[2]  = (float)m_basis.m_el0.z;
+			m[3]  = 0;
+			m[4]  = (float)m_basis.m_el1.x;
+			m[5]  = (float)m_basis.m_el1.y;
+			m[6]  = (float)m_basis.m_el1.z;
+			m[7]  = 0;
+			m[8]  = (float)m_basis.m_el2.x;
+			m[9]  = (float)m_basis.m_el2.y;
+			m[10] = (float)m_basis.m_el2.z;
+			m[11] = 0;
+
+			m[12] = (float)m_origin.x;
+			m[13] = (float)m_origin.y;
+			m[14] = (float)m_origin.z;
+			m[15] = 1;
+#else
+			m.m_el0.x = m_basis.m_el0.x;
+			m.m_el0.y = m_basis.m_el1.x;
+			m.m_el0.z = m_basis.m_el2.x;
+			m.m_el0.w = m_basis.m_el0.w;
+
+			m.m_el1.x = m_basis.m_el0.y;
+			m.m_el1.y = m_basis.m_el1.y;
+			m.m_el1.z = m_basis.m_el2.y;
+			m.m_el1.w = m_basis.m_el1.w;
+
+			m.m_el2.x = m_basis.m_el0.z;
+			m.m_el2.y = m_basis.m_el1.z;
+			m.m_el2.z = m_basis.m_el2.z;
+			m.m_el2.w = m_basis.m_el2.w;
+			m.m_el3 = m_origin;
+			m.m_el3.w = m_basis[3][3];
+#endif
+		}
+
+		public void GetGLCameraMatrix( float[] m )
+		{
+#if !COLUMN_MAJOR_EXPECTED
+			m[0] = (float)m_basis.m_el0.x;
+			m[1] = (float)m_basis.m_el1.x;
+			m[2] = (float)-m_basis.m_el2.x;
+			m[3] = 0;
+
+			m[4] = (float)m_basis.m_el0.y;
+			m[5] = (float)m_basis.m_el1.y;
+			m[6] = (float)-m_basis.m_el2.y;
+			m[7] = 0;// m_basis.m_el1.w;
+
+			m[8] = (float)m_basis.m_el0.z;
+			m[9] = (float)m_basis.m_el1.z;
+			m[10] = (float)-m_basis.m_el2.z;
+			m[11] = 0;// m_basis.m_el2.w;
+						  //m.m_el3 = 
+			btVector3 negOrigin;
+			m_origin.Invert( out negOrigin );
+			m_basis.m_el2.Invert( out m_basis.m_el2 );
+			btVector3 tmp;
+			m_basis.ApplyInverseRotation( ref negOrigin, out tmp );
+			m_basis.m_el2.Invert( out m_basis.m_el2 );
+			//m.m_el3.w = 1;
+			m[12] = (float)tmp.x;
+			m[13] = (float)tmp.y;
+			m[14] = (float)tmp.z;
+			m[15] = 1;
+#else
+			m = m_basis;
+			btVector3 tmp;
+			btVector3 negOrigin;
+			m_origin.Invert( out negOrigin );
+			m.m_el0.z = -m.m_el0.z;
+			m.m_el1.z = -m.m_el1.z;
+			m.m_el2.z = -m.m_el2.z;
+			m_basis.m_el0.z = -m_basis.m_el0.z;
+			m_basis.m_el1.z = -m_basis.m_el1.z;
+			m_basis.m_el2.z = -m_basis.m_el2.z;
+			m_basis.ApplyInverseRotation( ref negOrigin, out tmp );
+			m_basis.m_el0.z = -m_basis.m_el0.z;
+			m_basis.m_el1.z = -m_basis.m_el1.z;
+			m_basis.m_el2.z = -m_basis.m_el2.z;
+			m.m_el3.x = tmp.x;
+			m.m_el3.y = tmp.y;
+			m.m_el3.z = tmp.z;
+			m.m_el3.w = m_basis[3][3];
+#endif
+		}
+
+
+		public void Translate( ref btVector3 v )
+		{
+			m_origin = v;
+		}
+		public void Translate( double x, double y, double z )
+		{
+			m_origin.x = x;
+			m_origin.y = y;
+			m_origin.z = z;
+		}
+		public void Move( double x, double y, double z )
+		{
+			m_origin.x += x;
+			m_origin.y += y;
+			m_origin.z += z;
+		}
+
+		public void MoveTo( double x, double y, double z )
+		{
+			Translate( x, y, z );
+		}
+		public void RotateYaw( double yaw )
+		{
+			m_basis.Rotate( 1, yaw );
+		}
+		public void RotatePitch( double pitch )
+		{
+			m_basis.Rotate( 0, pitch );
+		}
+		public void RotateRoll( double roll )
+		{
+			m_basis.Rotate( 2, roll );
+		}
+		public void MoveForward( double delta )
+		{
+			btVector3 dir;
+#if COLUMN_MAJOR_EXPECTED
+			location.m_basis.getColumn( 2 ).Mult( delta, out dir );
+#else
+			m_basis.getRow( 2 ).Mult( delta, out dir );
+#endif
+			Move( dir.x, dir.y, dir.z );
+		}
+		public void MoveRight( double delta )
+		{
+			btVector3 dir;
+#if COLUMN_MAJOR_EXPECTED
+			location.m_basis.getColumn( 0 ).Mult( delta, out dir );
+#else
+			m_basis.getRow( 0 ).Mult( delta, out dir );
+#endif
+			Move( dir.x, dir.y, dir.z );
+		}
+		public void MoveUp( double delta )
+		{
+			btVector3 dir;
+#if COLUMN_MAJOR_EXPECTED
+			location.m_basis.getColumn( 1 ).Mult( delta, out dir );
+#else
+			m_basis.getRow( 1 ).Mult( delta, out dir );
+#endif
+			Move( dir.x, dir.y, dir.z );
+		}
+
+
+
 		public override string ToString()
 		{
 			return string.Format( "Orientation: {0}\n Origin: {1}", m_basis, m_origin );
+		}
+		public string ToString( string name, string leader, string origin )
+		{
+			return string.Format( "{0}\n{2}{1}", m_basis.ToString( name, leader ), m_origin, origin );
 		}
 
 	}

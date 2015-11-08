@@ -86,9 +86,24 @@ namespace Bullet.Collision.NarrowPhase
 
 		public int m_numVertices;
 
-		public btVector3[] m_simplexVectorW = new btVector3[VORONOI_SIMPLEX_MAX_VERTS];
-		public btVector3[] m_simplexPointsP = new btVector3[VORONOI_SIMPLEX_MAX_VERTS];
-		public btVector3[] m_simplexPointsQ = new btVector3[VORONOI_SIMPLEX_MAX_VERTS];
+		//public btVector3[] m_simplexVectorW = new btVector3[VORONOI_SIMPLEX_MAX_VERTS];
+		public btVector3 m_simplexVectorW0;
+		public btVector3 m_simplexVectorW1;
+		public btVector3 m_simplexVectorW2;
+		public btVector3 m_simplexVectorW3;
+		public btVector3 m_simplexVectorW4;
+		//public btVector3[] m_simplexPointsP = new btVector3[VORONOI_SIMPLEX_MAX_VERTS];
+		//public btVector3[] m_simplexPointsQ = new btVector3[VORONOI_SIMPLEX_MAX_VERTS];
+		public btVector3 m_simplexPointsP0;
+		public btVector3 m_simplexPointsP1;
+		public btVector3 m_simplexPointsP2;
+		public btVector3 m_simplexPointsP3;
+		public btVector3 m_simplexPointsP4;
+		public btVector3 m_simplexPointsQ0;
+		public btVector3 m_simplexPointsQ1;
+		public btVector3 m_simplexPointsQ2;
+		public btVector3 m_simplexPointsQ3;
+		public btVector3 m_simplexPointsQ4;
 
 
 
@@ -140,12 +155,44 @@ namespace Bullet.Collision.NarrowPhase
 
 		public void removeVertex( int index )
 		{
-
 			Debug.Assert( m_numVertices > 0 );
 			m_numVertices--;
-			m_simplexVectorW[index] = m_simplexVectorW[m_numVertices];
-			m_simplexPointsP[index] = m_simplexPointsP[m_numVertices];
-			m_simplexPointsQ[index] = m_simplexPointsQ[m_numVertices];
+			switch( index )
+			{
+				case 0:
+					switch( m_numVertices )
+					{
+						case 1: m_simplexVectorW0 = m_simplexVectorW1; m_simplexPointsP0 = m_simplexPointsP1; m_simplexPointsQ0 = m_simplexPointsQ1; break;
+						case 2: m_simplexVectorW0 = m_simplexVectorW2; m_simplexPointsP0 = m_simplexPointsP2; m_simplexPointsQ0 = m_simplexPointsQ2; break;
+						case 3: m_simplexVectorW0 = m_simplexVectorW3; m_simplexPointsP0 = m_simplexPointsP3; m_simplexPointsQ0 = m_simplexPointsQ3; break;
+						case 4: m_simplexVectorW0 = m_simplexVectorW4; m_simplexPointsP0 = m_simplexPointsP4; m_simplexPointsQ0 = m_simplexPointsQ4; break;
+					}
+					break;
+				case 1:
+					switch( m_numVertices )
+					{
+						case 2: m_simplexVectorW1 = m_simplexVectorW2; m_simplexPointsP1 = m_simplexPointsP2; m_simplexPointsQ1 = m_simplexPointsQ2; break;
+						case 3: m_simplexVectorW1 = m_simplexVectorW3; m_simplexPointsP1 = m_simplexPointsP3; m_simplexPointsQ1 = m_simplexPointsQ3; break;
+						case 4: m_simplexVectorW1 = m_simplexVectorW4; m_simplexPointsP1 = m_simplexPointsP4; m_simplexPointsQ1 = m_simplexPointsQ4; break;
+					}
+					break;
+				case 2:
+					switch( m_numVertices )
+					{
+						case 3: m_simplexVectorW2 = m_simplexVectorW3; m_simplexPointsP2 = m_simplexPointsP3; m_simplexPointsQ2 = m_simplexPointsQ3; break;
+						case 4: m_simplexVectorW2 = m_simplexVectorW4; m_simplexPointsP2 = m_simplexPointsP4; m_simplexPointsQ2 = m_simplexPointsQ4; break;
+					}
+					break;
+				case 3:
+					switch( m_numVertices )
+					{
+						case 4: m_simplexVectorW3 = m_simplexVectorW4; m_simplexPointsP3 = m_simplexPointsP4; m_simplexPointsQ3 = m_simplexPointsQ4; break;
+					}
+					break;
+			}
+			//		m_simplexVectorW[index] = m_simplexVectorW[m_numVertices];
+			//m_simplexPointsP[index] = m_simplexPointsP[m_numVertices];
+			//m_simplexPointsQ[index] = m_simplexPointsQ[m_numVertices];
 		}
 
 		public void reduceVertices( btUsageBitfield usedVerts )
@@ -172,7 +219,7 @@ namespace Bullet.Collision.NarrowPhase
 			m_cachedValidClosest = false;
 			m_numVertices = 0;
 			m_needsUpdate = true;
-			m_lastW = new btVector3( (double)( btScalar.BT_LARGE_FLOAT ), (double)( btScalar.BT_LARGE_FLOAT ), (double)( btScalar.BT_LARGE_FLOAT ) );
+			m_lastW = btVector3.Max;
 			m_cachedBC.reset();
 		}
 
@@ -183,10 +230,37 @@ namespace Bullet.Collision.NarrowPhase
 		{
 			m_lastW = w;
 			m_needsUpdate = true;
-
-			m_simplexVectorW[m_numVertices] = w;
-			m_simplexPointsP[m_numVertices] = p;
-			m_simplexPointsQ[m_numVertices] = q;
+			switch( m_numVertices )
+			{
+				case 0:
+					m_simplexVectorW0 = w;
+					m_simplexPointsP0 = p;
+					m_simplexPointsQ0 = q;
+					break;
+				case 1:
+					m_simplexVectorW1 = w;
+					m_simplexPointsP1 = p;
+					m_simplexPointsQ1 = q;
+					break;
+				case 2:
+					m_simplexVectorW2 = w;
+					m_simplexPointsP2 = p;
+					m_simplexPointsQ2 = q;
+					break;
+				case 3:
+					m_simplexVectorW3 = w;
+					m_simplexPointsP3 = p;
+					m_simplexPointsQ3 = q;
+					break;
+				case 4:
+					m_simplexVectorW4 = w;
+					m_simplexPointsP4 = p;
+					m_simplexPointsQ4 = q;
+					break;
+			}
+			//		m_simplexVectorW[m_numVertices] = w;
+			//m_simplexPointsP[m_numVertices] = p;
+			//m_simplexPointsQ[m_numVertices] = q;
 
 			m_numVertices++;
 		}
@@ -207,8 +281,8 @@ namespace Bullet.Collision.NarrowPhase
 						break;
 					case 1:
 						{
-							m_cachedP1 = m_simplexPointsP[0];
-							m_cachedP2 = m_simplexPointsQ[0];
+							m_cachedP1 = m_simplexPointsP0;
+							m_cachedP2 = m_simplexPointsQ0;
 							m_cachedP1.Sub( ref m_cachedP2, out m_cachedV ); //== m_simplexVectorW[0]
 							m_cachedBC.reset();
 							m_cachedBC.setBarycentricCoordinates( btScalar.BT_ONE, btScalar.BT_ZERO, btScalar.BT_ZERO, btScalar.BT_ZERO );
@@ -222,9 +296,9 @@ namespace Bullet.Collision.NarrowPhase
 							//btVector3 to = m_simplexVectorW[1];
 							btVector3 nearest;
 
-							btVector3 p = new btVector3( btScalar.BT_ZERO, btScalar.BT_ZERO, btScalar.BT_ZERO );
-							btVector3 diff; p.Sub( ref m_simplexVectorW[0], out diff );
-							btVector3 v; m_simplexVectorW[1].Sub( ref m_simplexVectorW[0], out v );
+							//btVector3 p = btVector3.Zero;
+							btVector3 diff; m_simplexVectorW0.Invert( out diff );
+							btVector3 v; m_simplexVectorW1.Sub( ref m_simplexVectorW0, out v );
 							double t = v.dot( ref diff );
 							btVector3 tmp;
 
@@ -234,8 +308,7 @@ namespace Bullet.Collision.NarrowPhase
 								if( t < dotVV )
 								{
 									t /= dotVV;
-									v.Mult( t, out tmp );
-									diff.Sub( ref tmp, out diff );// -= t * v;
+									diff.AddScale( ref v, -t, out diff );// -= t * v;
 									m_cachedBC.m_usedVertices |= btUsageBitfield.usedVertexA;
 									m_cachedBC.m_usedVertices |= btUsageBitfield.usedVertexB;
 								}
@@ -256,15 +329,13 @@ namespace Bullet.Collision.NarrowPhase
 							m_cachedBC.setBarycentricCoordinates( 1 - t, t );
 
 							v.Mult( t, out tmp );
-							m_simplexVectorW[0].Add( ref tmp, out nearest );
+							m_simplexVectorW0.Add( ref tmp, out nearest );
 
-							m_simplexPointsP[1].Sub( ref m_simplexPointsP[0], out tmp );
-							tmp.Mult( t, out tmp );
-							m_simplexPointsP[0].Add( ref tmp, out m_cachedP1 );
+							m_simplexPointsP1.Sub( ref m_simplexPointsP0, out tmp );
+							m_simplexPointsP0.AddScale( ref tmp, t, out m_cachedP1 );
 
-							m_simplexPointsQ[1].Sub( ref tmp, out m_simplexPointsQ[0] );
-							tmp.Mult( t, out tmp );
-							m_simplexPointsQ[0].Add( ref tmp, out m_cachedP2 );
+							m_simplexPointsQ1.Sub( ref m_simplexPointsQ0, out tmp );
+							m_simplexPointsQ0.AddScale( ref tmp, t, out m_cachedP2 );
 
 							m_cachedP1.Sub( ref m_cachedP2, out m_cachedV );
 
@@ -278,22 +349,22 @@ namespace Bullet.Collision.NarrowPhase
 							//closest point origin from triangle 
 							btVector3 p = btVector3.Zero;
 
-							closestPtPointTriangle( ref p, ref m_simplexVectorW[0], ref m_simplexVectorW[1], ref m_simplexVectorW[2], m_cachedBC );
+							closestPtPointTriangle( ref p, ref m_simplexVectorW0, ref m_simplexVectorW1, ref m_simplexVectorW2, ref m_cachedBC );
 							btVector3 tmp, tmp2;
-							m_simplexPointsP[0].Mult( m_cachedBC.m_barycentricCoord0, out tmp );
-							m_simplexPointsP[1].Mult( m_cachedBC.m_barycentricCoord1, out tmp2 );
+							m_simplexPointsP0.Mult( m_cachedBC.m_barycentricCoord0, out tmp );
+							m_simplexPointsP1.Mult( m_cachedBC.m_barycentricCoord1, out tmp2 );
 							tmp.Add( ref tmp2, out tmp );
-							m_simplexPointsP[2].Mult( m_cachedBC.m_barycentricCoord2, out tmp2 );
+							m_simplexPointsP2.Mult( m_cachedBC.m_barycentricCoord2, out tmp2 );
 							tmp.Add( ref tmp2, out m_cachedP1 );
 
 							//m_cachedP1 = m_simplexPointsP[0] * m_cachedBC.m_barycentricCoord0 +
 							//	m_simplexPointsP[1] * m_cachedBC.m_barycentricCoord1 +
 							//	m_simplexPointsP[2] * m_cachedBC.m_barycentricCoord2;
 
-							m_simplexPointsQ[0].Mult( m_cachedBC.m_barycentricCoord0, out tmp );
-							m_simplexPointsQ[1].Mult( m_cachedBC.m_barycentricCoord1, out tmp2 );
+							m_simplexPointsQ0.Mult( m_cachedBC.m_barycentricCoord0, out tmp );
+							m_simplexPointsQ1.Mult( m_cachedBC.m_barycentricCoord1, out tmp2 );
 							tmp.Add( ref tmp2, out tmp );
-							m_simplexPointsQ[2].Mult( m_cachedBC.m_barycentricCoord2, out tmp2 );
+							m_simplexPointsQ2.Mult( m_cachedBC.m_barycentricCoord2, out tmp2 );
 							tmp.Add( ref tmp2, out m_cachedP2 );
 							//m_cachedP2 = m_simplexPointsQ[0] * m_cachedBC.m_barycentricCoord0 +
 							//	m_simplexPointsQ[1] * m_cachedBC.m_barycentricCoord1 +
@@ -311,29 +382,29 @@ namespace Bullet.Collision.NarrowPhase
 						{
 							btVector3 p = btVector3.Zero;
 
-							bool hasSeperation = closestPtPointTetrahedron( ref p, ref m_simplexVectorW[0], ref m_simplexVectorW[1], ref m_simplexVectorW[2], ref m_simplexVectorW[3], m_cachedBC );
+							bool hasSeperation = closestPtPointTetrahedron( ref p, ref m_simplexVectorW0, ref m_simplexVectorW1, ref m_simplexVectorW2, ref m_simplexVectorW3, m_cachedBC );
 
 							if( hasSeperation )
 							{
 								btVector3 tmp, tmp2;
-								m_simplexPointsP[0].Mult( m_cachedBC.m_barycentricCoord0, out tmp );
-								m_simplexPointsP[1].Mult( m_cachedBC.m_barycentricCoord1, out tmp2 );
+								m_simplexPointsP0.Mult( m_cachedBC.m_barycentricCoord0, out tmp );
+								m_simplexPointsP1.Mult( m_cachedBC.m_barycentricCoord1, out tmp2 );
 								tmp.Add( ref tmp2, out tmp );
-								m_simplexPointsP[2].Mult( m_cachedBC.m_barycentricCoord2, out tmp2 );
+								m_simplexPointsP2.Mult( m_cachedBC.m_barycentricCoord2, out tmp2 );
 								tmp.Add( ref tmp2, out tmp );
-								m_simplexPointsP[3].Mult( m_cachedBC.m_barycentricCoord3, out tmp2 );
+								m_simplexPointsP3.Mult( m_cachedBC.m_barycentricCoord3, out tmp2 );
 								tmp.Add( ref tmp2, out m_cachedP1 );
 								//m_cachedP1 = m_simplexPointsP[0] * m_cachedBC.m_barycentricCoord0 +
 								//	m_simplexPointsP[1] * m_cachedBC.m_barycentricCoord1 +
 								//	m_simplexPointsP[2] * m_cachedBC.m_barycentricCoord2 +
 								//	m_simplexPointsP[3] * m_cachedBC.m_barycentricCoord3;
 
-								m_simplexPointsQ[0].Mult( m_cachedBC.m_barycentricCoord0, out tmp );
-								m_simplexPointsQ[1].Mult( m_cachedBC.m_barycentricCoord1, out tmp2 );
+								m_simplexPointsQ0.Mult( m_cachedBC.m_barycentricCoord0, out tmp );
+								m_simplexPointsQ1.Mult( m_cachedBC.m_barycentricCoord1, out tmp2 );
 								tmp.Add( ref tmp2, out tmp );
-								m_simplexPointsQ[2].Mult( m_cachedBC.m_barycentricCoord2, out tmp2 );
+								m_simplexPointsQ2.Mult( m_cachedBC.m_barycentricCoord2, out tmp2 );
 								tmp.Add( ref tmp2, out tmp );
-								m_simplexPointsQ[3].Mult( m_cachedBC.m_barycentricCoord3, out tmp2 );
+								m_simplexPointsQ3.Mult( m_cachedBC.m_barycentricCoord3, out tmp2 );
 								tmp.Add( ref tmp2, out m_cachedP2 );
 								//m_cachedP2 = m_simplexPointsQ[0] * m_cachedBC.m_barycentricCoord0 +
 								//	m_simplexPointsQ[1] * m_cachedBC.m_barycentricCoord1 +
@@ -394,7 +465,16 @@ namespace Bullet.Collision.NarrowPhase
 			double maxV = btScalar.BT_ZERO;
 			for( i = 0; i < numverts; i++ )
 			{
-				double curLen2 = m_simplexVectorW[i].length2();
+				double curLen2;
+				switch( i )
+				{
+					default:
+					case 0: curLen2 = m_simplexVectorW0.length2(); break;
+					case 1: curLen2 = m_simplexVectorW1.length2(); break;
+					case 2: curLen2 = m_simplexVectorW2.length2(); break;
+					case 3: curLen2 = m_simplexVectorW3.length2(); break;
+					case 4: curLen2 = m_simplexVectorW4.length2(); break;
+				}
 				if( maxV < curLen2 )
 					maxV = curLen2;
 			}
@@ -402,7 +482,7 @@ namespace Bullet.Collision.NarrowPhase
 		}
 
 
-
+#if SERIALIZE_DONE
 		//return the current simplex
 		public int getSimplex( btVector3[] pBuf, btVector3[] qBuf, btVector3[] yBuf )
 		{
@@ -415,7 +495,7 @@ namespace Bullet.Collision.NarrowPhase
 			}
 			return m_numVertices;
 		}
-
+#endif
 
 
 
@@ -429,11 +509,19 @@ namespace Bullet.Collision.NarrowPhase
 			for( i = 0; i < numverts; i++ )
 			{
 #if BT_USE_EQUAL_VERTEX_THRESHOLD
-				if( m_simplexVectorW[i].distance2( ref w ) <= m_equalVertexThreshold )
+				switch( i )
+				{
+					case 0: found = ( m_simplexVectorW0.distance2( ref w ) <= m_equalVertexThreshold ); break;
+					case 1: found = ( m_simplexVectorW1.distance2( ref w ) <= m_equalVertexThreshold ); break;
+					case 2: found = ( m_simplexVectorW2.distance2( ref w ) <= m_equalVertexThreshold ); break;
+					case 3: found = ( m_simplexVectorW3.distance2( ref w ) <= m_equalVertexThreshold ); break;
+					case 4: found = ( m_simplexVectorW4.distance2( ref w ) <= m_equalVertexThreshold ); break;
+				}
+				if( found ) break;
 #else
 		if (m_simplexVectorW[i] == w)
+						found = true;
 #endif
-					found = true;
 			}
 
 			//check in case lastW is already removed
@@ -466,7 +554,7 @@ namespace Bullet.Collision.NarrowPhase
 
 
 
-		public bool closestPtPointTriangle( ref btVector3 p, ref btVector3 a, ref btVector3 b, ref btVector3 c, btSubSimplexClosestResult result )
+		public bool closestPtPointTriangle( ref btVector3 p, ref btVector3 a, ref btVector3 b, ref btVector3 c, ref btSubSimplexClosestResult result )
 		{
 			result.m_usedVertices = 0;//.reset();
 
@@ -646,7 +734,7 @@ if (signd * signd < ((double)(1e-8) * (double)(1e-8)))
 
 			if( pointOutsideABC != 0 )
 			{
-				closestPtPointTriangle( ref p, ref a, ref b, ref c, tempResult );
+				closestPtPointTriangle( ref p, ref a, ref b, ref c, ref tempResult );
 				//btVector3 q = tempResult.m_closestPointOnSimplex;
 				tempResult.m_closestPointOnSimplex.Sub( ref p, out tmp );
 				double sqDist = ( tmp ).dot( ref tmp );
@@ -673,7 +761,7 @@ if (signd * signd < ((double)(1e-8) * (double)(1e-8)))
 			// Repeat test for face acd
 			if( pointOutsideACD != 0 )
 			{
-				closestPtPointTriangle( ref p, ref a, ref c, ref d, tempResult );
+				closestPtPointTriangle( ref p, ref a, ref c, ref d, ref tempResult );
 				//btVector3 q = tempResult.m_closestPointOnSimplex;
 				//convert result bitmask!
 
@@ -703,7 +791,7 @@ if (signd * signd < ((double)(1e-8) * (double)(1e-8)))
 
 			if( pointOutsideADB != 0 )
 			{
-				closestPtPointTriangle( ref p, ref a, ref d, ref b, tempResult );
+				closestPtPointTriangle( ref p, ref a, ref d, ref b, ref tempResult );
 				//btVector3 q = tempResult.m_closestPointOnSimplex;
 				//convert result bitmask!
 
@@ -732,7 +820,7 @@ if (signd * signd < ((double)(1e-8) * (double)(1e-8)))
 
 			if( pointOutsideBDC != 0 )
 			{
-				closestPtPointTriangle( ref p, ref b, ref d, ref c, tempResult );
+				closestPtPointTriangle( ref p, ref b, ref d, ref c, ref tempResult );
 				//btVector3 q = tempResult.m_closestPointOnSimplex;
 				//convert result bitmask!
 				tempResult.m_closestPointOnSimplex.Sub( ref p, out tmp );

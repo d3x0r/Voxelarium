@@ -5,16 +5,22 @@ using Bullet.LinearMath;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 //using BulletSharp;
 namespace Bullet.UnitTests
 {
 	public class Test_001
 	{
+		int step;
+		bool sloped;
 
-		static public void Run( bool sloped )
+		btDiscreteDynamicsWorld world;
+		btRigidBody fallingRigidBody;
+
+		public void Setup()
 		{
-			btDiscreteDynamicsWorld world;
 			world = new btDiscreteDynamicsWorld();
+			world.setDebugDrawer( Program.Drawer );
 			btVector3 tmp; btVector3.yAxis.Add( ref btVector3.xAxis, out tmp );
 			tmp.normalized( out tmp );
 			btCollisionShape groundShape;
@@ -46,29 +52,52 @@ namespace Bullet.UnitTests
 				fallingRigidBodyCI = new btRigidBody.btRigidBodyConstructionInfo( mass, fallMotionState
 							, fallShape, ref fallInertia );
 
-			btRigidBody fallingRigidBody = new btRigidBody( fallingRigidBodyCI );
+			fallingRigidBody = new btRigidBody( fallingRigidBodyCI );
 
 			world.addRigidBody( fallingRigidBody );
+		}
 
-			for( int i = 0; i < 300; i++ )
+		internal void Tick()
+		{
 			{
-				if( i == 195 )
-				{
-					int a = 3;
-				}
 				world.stepSimulation( 1 / 60.0f, 10 );
-
+				if( Program.Display != null )
+					world.debugDrawWorld();
 				btTransform trans;
+
 				fallingRigidBody.getMotionState().getWorldTransform( out trans );
-				Console.WriteLine( "Iteration {0}", i );
-				Console.WriteLine( "cube height: {0}", trans.getOrigin() );
-				Console.WriteLine( "cube orient:\t{0}", trans.m_basis.ToString( "\t\t" ) );
+				Console.WriteLine( "Iteration {0}", step );
+				Console.WriteLine( trans.ToString( "cube orient\t", "\t\t", "cube origin\t" ) );
 				btIVector3 v = fallingRigidBody.getAngularVelocity();
 				Console.WriteLine( "cube Ang Vel : {0}", v );
 				v = fallingRigidBody.getLinearVelocity();
 				Console.WriteLine( "cube Lin Vel : {0}", v );
+
 			}
 			//  world = new DiscreteDynamicsWorld( null, null, null, null );
+			step++;
+		}
+
+		static public void Run( bool sloped )
+		{
+			Test_001 test = new Test_001();
+			test.sloped = sloped;
+			test.Setup();
+			if( Program.Display != null )
+			{
+				Program.Display.Tick += test.Tick;
+				while( test.step < 300 )
+				{
+					Thread.Sleep( 50 );
+				}
+				Program.Display.Tick -= test.Tick;
+			}
+			else
+			{
+				while( test.step < 300 )
+					test.Tick();
+			}
+
 		}
 
 	}

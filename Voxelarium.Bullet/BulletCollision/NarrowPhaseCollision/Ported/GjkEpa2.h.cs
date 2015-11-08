@@ -79,7 +79,8 @@ namespace Bullet.Collision.NarrowPhase
 		// MinkowskiDiff
 		internal class MinkowskiDiff
 		{
-			public btConvexShape[] m_shapes = new btConvexShape[2];
+			public btConvexShape m_shape0;// = new btConvexShape[2];
+			public btConvexShape m_shape1;
 			public btMatrix3x3 m_toshape1;
 			public btTransform m_toshape0;
 			bool m_enableMargin;
@@ -93,11 +94,11 @@ namespace Bullet.Collision.NarrowPhase
 			{
 				if( m_enableMargin )
 				{
-					m_shapes[0].localGetSupportVertexNonVirtual( ref d, out result );
+					m_shape0.localGetSupportVertexNonVirtual( ref d, out result );
 				}
 				else
 				{
-					m_shapes[0].localGetSupportVertexWithoutMarginNonVirtual( ref d, out result );
+					m_shape0.localGetSupportVertexWithoutMarginNonVirtual( ref d, out result );
 				}
 			}
 			void Support1( ref btVector3 d, out btVector3 result )
@@ -107,15 +108,15 @@ namespace Bullet.Collision.NarrowPhase
 				if( m_enableMargin )
 				{
 					m_toshape1.Apply( ref d, out tmp );
-					m_shapes[1].localGetSupportVertexNonVirtual( ref tmp, out tmp2 );
+					m_shape1.localGetSupportVertexNonVirtual( ref tmp, out tmp2 );
 					m_toshape0.Apply( ref tmp2, out result );
 				}
 				else
 				{
 					m_toshape1.Apply( ref d, out tmp );
-					m_shapes[1].localGetSupportVertexWithoutMarginNonVirtual( ref tmp, out tmp2 );
+					m_shape1.localGetSupportVertexWithoutMarginNonVirtual( ref tmp, out tmp2 );
 					m_toshape0.Apply( ref tmp2, out result );
-					//return m_toshape0.Apply( ( m_shapes[1]->localGetSupportVertexWithoutMarginNonVirtual( m_toshape1 * d ) );
+					//return m_toshape0.Apply( ( m_shape1->localGetSupportVertexWithoutMarginNonVirtual( m_toshape1 * d ) );
 				}
 			}
 
@@ -173,7 +174,8 @@ namespace Bullet.Collision.NarrowPhase
 			internal tShape m_shape;
 			internal btVector3 m_ray;
 			internal double m_distance;
-			internal sSimplex[] m_simplices = new sSimplex[2];
+			internal sSimplex m_simplices0 = new btGjkEpaSolver2.GJK.sSimplex();
+			internal sSimplex m_simplices1 = new btGjkEpaSolver2.GJK.sSimplex();
 			internal sSV[] m_free = new sSV[4];
 			internal uint m_nfree;
 			internal uint m_current;
@@ -210,7 +212,7 @@ namespace Bullet.Collision.NarrowPhase
 				m_shape = shapearg;
 				m_distance = 0;
 				/* Initialize simplex		*/
-				m_simplices[0].rank = 0;
+				m_simplices0.rank = 0;
 				m_ray = guess;
 				double sqrl = m_ray.length2();
 				btVector3 tmp;
@@ -218,9 +220,9 @@ namespace Bullet.Collision.NarrowPhase
 					m_ray.Invert( out tmp );
 				else
 					tmp = btVector3.xAxis;
-				appendvertice( m_simplices[0], ref tmp );
-				m_simplices[0].p[0] = 1;
-				m_ray = m_simplices[0].c[0].w;
+				appendvertice( m_simplices0, ref tmp );
+				m_simplices0.p[0] = 1;
+				m_ray = m_simplices0.c[0].w;
 				sqdist = sqrl;
 				lastw[0] =
 					lastw[1] =
@@ -230,8 +232,8 @@ namespace Bullet.Collision.NarrowPhase
 				do
 				{
 					uint next = 1 - m_current;
-					sSimplex cs = m_simplices[m_current];
-					sSimplex ns = m_simplices[next];
+					sSimplex cs = m_current==0?m_simplices0:m_simplices1;
+					sSimplex ns = next==0?m_simplices0:m_simplices1;
 					/* Check zero							*/
 					double rl = m_ray.length();
 					if( rl < GJK_MIN_DISTANCE )
@@ -252,7 +254,7 @@ namespace Bullet.Collision.NarrowPhase
 					}
 					if( found )
 					{/* Return old simplex				*/
-						removevertice( m_simplices[m_current] );
+						removevertice( cs );
 						break;
 					}
 					else
@@ -264,7 +266,7 @@ namespace Bullet.Collision.NarrowPhase
 					alpha = btScalar.btMax( omega, alpha );
 					if( ( ( rl - alpha ) - ( GJK_ACCURARY * rl ) ) <= 0 )
 					{/* Return old simplex				*/
-						removevertice( m_simplices[m_current] );
+						removevertice( cs );
 						break;
 					}
 					/* Reduce simplex						*/
@@ -312,12 +314,12 @@ namespace Bullet.Collision.NarrowPhase
 					}
 					else
 					{/* Return old simplex				*/
-						removevertice( m_simplices[m_current] );
+						removevertice( cs );
 						break;
 					}
 					m_status = ( ( ++iterations ) < GJK_MAX_ITERATIONS ) ? m_status : eStatus._.Failed;
 				} while( m_status == eStatus._.Valid );
-				m_simplex = m_simplices[m_current];
+				m_simplex = m_current==0?m_simplices0:m_simplices1;
 				switch( m_status )
 				{
 					case eStatus._.Valid: m_distance = m_ray.length(); break;
@@ -327,6 +329,7 @@ namespace Bullet.Collision.NarrowPhase
 				}
 				return ( m_status );
 			}
+
 			internal bool EncloseOrigin()
 			{
 				switch( m_simplex.rank )
@@ -389,7 +392,7 @@ namespace Bullet.Collision.NarrowPhase
 						break;
 					case 4:
 						{
-							if( btScalar.btFabs( det( ref m_simplex.c[0].w, ref m_simplex.c[3].w,
+							if( btScalar.btFabs( btVector3.det( ref m_simplex.c[0].w, ref m_simplex.c[3].w,
 								ref m_simplex.c[1].w, ref m_simplex.c[3].w,
 								ref m_simplex.c[2].w, ref m_simplex.c[3].w ) ) > 0 )
 								return ( true );
@@ -415,19 +418,6 @@ namespace Bullet.Collision.NarrowPhase
 				simplex.p[simplex.rank] = 0;
 				simplex.c[simplex.rank] = m_free[--m_nfree];
 				getsupport( ref v, simplex.c[simplex.rank++] );
-			}
-			internal static double det( ref btVector3 a, ref btVector3 b, ref btVector3 c )
-			{
-				return ( a.y * b.z * c.x + a.z * b.x * c.y -
-					a.x * b.z * c.y - a.y * b.x * c.z +
-					a.x * b.y * c.z - a.z * b.y * c.x );
-			}
-			internal static double det( ref btVector3 a, ref btVector3 a2, ref btVector3 b
-					, ref btVector3 b2, ref btVector3 c, ref btVector3 c2 )
-			{
-				return ( ( a.y - a2.y ) * ( b.z - b2.z ) * ( c.x - c2.x ) + ( a.z - a2.z ) * ( b.x - b2.x ) * ( c.y - c2.y ) -
-					( a.x - a2.x ) * ( b.z - b2.z ) * ( c.y - c2.y ) - ( a.y - a2.y ) * ( b.x - b2.x ) * ( c.z - c2.z ) +
-					( a.x - a2.x ) * ( b.y - b2.y ) * ( c.z - c2.z ) - ( a.z - a2.z ) * ( b.y - b2.y ) * ( c.x - c2.x ) );
 			}
 			static double projectorigin( ref btVector3 a,
 				ref btVector3 b,
@@ -523,7 +513,7 @@ namespace Bullet.Collision.NarrowPhase
 				a.Sub( ref d, out dl[0] );
 				b.Sub( ref d, out dl[1] );
 				c.Sub( ref d, out dl[2] );
-				double vl = det( ref dl[0], ref dl[1], ref dl[2] );
+				double vl = btVector3.det( ref dl[0], ref dl[1], ref dl[2] );
 				btVector3 tmp;
 				btVector3.btCross2Del( ref b, ref c, ref a, ref b, out tmp );
 				bool ng = ( vl * btVector3.btDot( ref a, ref tmp ) ) <= 0;
@@ -558,9 +548,9 @@ namespace Bullet.Collision.NarrowPhase
 					{
 						mindist = 0;
 						m = 15;
-						w[0] = det( ref c, ref b, ref d ) / vl;
-						w[1] = det( ref a, ref c, ref d ) / vl;
-						w[2] = det( ref b, ref a, ref d ) / vl;
+						w[0] = btVector3.det( ref c, ref b, ref d ) / vl;
+						w[1] = btVector3.det( ref a, ref c, ref d ) / vl;
+						w[2] = btVector3.det( ref b, ref a, ref d ) / vl;
 						w[3] = 1 - ( w[0] + w[1] + w[2] );
 					}
 					return ( mindist );
@@ -631,14 +621,14 @@ namespace Bullet.Collision.NarrowPhase
 			};
 			/* Fields		*/
 			eStatus._ m_status;
-			internal GJK.sSimplex m_result;
+			internal GJK.sSimplex m_result = new GJK.sSimplex();
 			internal btVector3 m_normal;
 			internal double m_depth;
 			sSV[] m_sv_store = new sSV[EPA_MAX_VERTICES];
 			sFace[] m_fc_store = new sFace[EPA_MAX_FACES];
 			uint m_nextsv;
-			sList m_hull;
-			sList m_stock;
+			sList m_hull = new sList();
+			sList m_stock = new sList();
 			/* Methods		*/
 			internal EPA()
 			{
@@ -696,7 +686,7 @@ namespace Bullet.Collision.NarrowPhase
 					m_status = eStatus._.Valid;
 					m_nextsv = 0;
 					/* Orient simplex		*/
-					if( GJK.det( ref simplex.c[0].w, ref simplex.c[3].w,
+					if( btVector3.det( ref simplex.c[0].w, ref simplex.c[3].w,
 						ref simplex.c[1].w, ref simplex.c[3].w,
 						ref simplex.c[2].w, ref simplex.c[3].w ) < 0 )
 					{
@@ -730,7 +720,7 @@ namespace Bullet.Collision.NarrowPhase
 								bool valid = true;
 								best.pass = (byte)( ++pass );
 								gjk.getsupport( ref best.n, w );
-								double wdist = btVector3.btDot( ref best.n, ref w.w ) - best.d;
+								double wdist = best.n.dot( ref w.w ) - best.d;
 								if( wdist > EPA_ACCURACY )
 								{
 									for( uint j = 0; ( j < 3 ) && valid; ++j )
@@ -939,8 +929,8 @@ namespace Bullet.Collision.NarrowPhase
 			results.status = btGjkEpaSolver2.sResults.eStatus.Separated;
 			results.distance = 0;
 			/* Shape		*/
-			shape.m_shapes[0] = shape0;
-			shape.m_shapes[1] = shape1;
+			shape.m_shape0 = shape0;
+			shape.m_shape1 = shape1;
 			wtrs1.m_basis.transposeTimes( ref wtrs0.m_basis, out shape.m_toshape1 );
 			wtrs0.inverseTimes( ref wtrs1, out shape.m_toshape0 );
 			shape.EnableMargin( withmargins );

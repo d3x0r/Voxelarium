@@ -190,8 +190,7 @@ namespace Bullet.Collision.Dispatch
 			bool isSwapped = m_manifoldPtr.m_body0 != m_body0Wrap.m_collisionObject;
 
 			btVector3 pointA;// = pointInWorld + normalOnBInWorld * depth;
-			normalOnBInWorld.Mult( depth, out pointA );
-			pointInWorld.Add( ref pointA, out pointA );
+			pointInWorld.AddScale( ref normalOnBInWorld, depth, out pointA );
 
 			btVector3 localA;
 			btVector3 localB;
@@ -214,7 +213,7 @@ namespace Bullet.Collision.Dispatch
 			newPt.m_positionWorldOnB = pointInWorld;
 
 			int insertIndex = m_manifoldPtr.getCacheEntry( ref newPt );
-
+			btScalar.Dbg( "new point goes into cache at " + insertIndex );
 			newPt.m_combinedFriction = calculateCombinedFriction( m_body0Wrap.m_collisionObject, m_body1Wrap.m_collisionObject );
 			newPt.m_combinedRestitution = calculateCombinedRestitution( m_body0Wrap.m_collisionObject, m_body1Wrap.m_collisionObject );
 			newPt.m_combinedRollingFriction = calculateCombinedRollingFriction( m_body0Wrap.m_collisionObject, m_body1Wrap.m_collisionObject );

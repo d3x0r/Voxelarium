@@ -102,7 +102,8 @@ namespace Bullet.Collision.Dispatch
 		///cache separating vector to speedup collision detection
 		internal override void Cleanup()
 		{
-			BulletGlobals.PersistentManifoldPool.Free( m_manifoldPtr );
+			if( m_ownManifold )
+				m_dispatcher.releaseManifold( m_manifoldPtr );
 
 			m_simplexSolver = null;
 			m_pdSolver = null;
@@ -447,7 +448,8 @@ m_sepDistance((static_cast<btConvexShape*>(body0.getCollisionShape())).getAngula
 #endif //USE_SEPDISTANCE_UTIL2
 
 			{
-				btGjkPairDetector.ClosestPointInput input = new btDiscreteCollisionDetectorInterface.ClosestPointInput();
+				btGjkPairDetector.ClosestPointInput input = BulletGlobals.ClosestPointInputPool.Get();
+				input.Initialize();
 
 				btGjkPairDetector gjkPairDetector = BulletGlobals.GjkPairDetectorPool.Get();
 				gjkPairDetector.Initialize( min0, min1, m_simplexSolver, m_pdSolver );
@@ -565,6 +567,7 @@ m_sepDistance((static_cast<btConvexShape*>(body0.getCollisionShape())).getAngula
 						{
 							resultOut.refreshContactPoints();
 						}
+						BulletGlobals.ClosestPointInputPool.Free( input );
 						BulletGlobals.GjkPairDetectorPool.Free( gjkPairDetector );
 						return;
 
@@ -640,6 +643,7 @@ m_sepDistance((static_cast<btConvexShape*>(body0.getCollisionShape())).getAngula
 							{
 								resultOut.refreshContactPoints();
 							}
+							BulletGlobals.ClosestPointInputPool.Free( input );
 							BulletGlobals.GjkPairDetectorPool.Free( gjkPairDetector );
 
 							return;
@@ -763,6 +767,7 @@ m_sepDistance((static_cast<btConvexShape*>(body0.getCollisionShape())).getAngula
 	}
 #endif //USE_SEPDISTANCE_UTIL2
 
+				BulletGlobals.ClosestPointInputPool.Free( input );
 				BulletGlobals.GjkPairDetectorPool.Free( gjkPairDetector );
 
 			}

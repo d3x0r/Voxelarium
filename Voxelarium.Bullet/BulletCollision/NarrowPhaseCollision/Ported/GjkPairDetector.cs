@@ -158,18 +158,11 @@ void btGjkPairDetector::getClosestPointsNonVirtual(string losestPointInput& inpu
 			btVector3 pointOnA, pointOnB = btVector3.Zero;
 			btTransform localTransA; input.m_transformA.Get( out localTransA );
 			btTransform localTransB; input.m_transformB.Get( out localTransB );
-			btVector3 originA, originB;
-			input.m_transformB.getOrigin( out originB );
-			input.m_transformA.getOrigin( out originA );
-			btVector3 positionOffset; originA.Add( ref originB, out positionOffset );
+			btVector3 positionOffset; localTransA.m_origin.Add( ref localTransB.m_origin, out positionOffset );
 			positionOffset.Mult( (double)( 0.5 ), out positionOffset );
 
-			originA.Sub( ref positionOffset, out originA );
-			localTransA.setOrigin( ref originA );
-			//localTransA.m_origin.Sub( ref positionOffset, out localTransA.m_origin );
-			originB.Sub( ref positionOffset, out originB );
-			localTransB.setOrigin( ref originB );
-			//localTransB.m_origin.Sub( ref positionOffset, out localTransA.m_origin );
+			localTransA.m_origin.Sub( ref positionOffset, out localTransA.m_origin );
+			localTransB.m_origin.Sub( ref positionOffset, out localTransB.m_origin );
 
 			bool check2d = m_minkowskiA.isConvex2d() && m_minkowskiB.isConvex2d();
 
@@ -213,16 +206,16 @@ void btGjkPairDetector::getClosestPointsNonVirtual(string losestPointInput& inpu
 					btVector3 tmp;
 					m_cachedSeparatingAxis.Invert( out tmp );
 
-					btVector3 seperatingAxisInA; input.m_transformA.Basis.ApplyInverse( ref tmp, out seperatingAxisInA );
-					btVector3 seperatingAxisInB; input.m_transformB.Basis.ApplyInverse( ref m_cachedSeparatingAxis, out seperatingAxisInB );
+					btVector3 seperatingAxisInA; localTransA.m_basis.ApplyInverse( ref tmp, out seperatingAxisInA );
+					btVector3 seperatingAxisInB; localTransA.m_basis.ApplyInverse( ref m_cachedSeparatingAxis, out seperatingAxisInB );
 
 
 					btVector3 pInA; m_minkowskiA.localGetSupportVertexWithoutMarginNonVirtual( ref seperatingAxisInA, out pInA );
 					btVector3 qInB; m_minkowskiB.localGetSupportVertexWithoutMarginNonVirtual( ref seperatingAxisInB, out qInB );
 
-					btVector3 pWorld; input.m_transformA.Apply( ref pInA, out pWorld );
-					btVector3 qWorld; input.m_transformB.Apply( ref qInB, out qWorld );
-
+					btVector3 pWorld; localTransA.Apply( ref pInA, out pWorld );
+					btVector3 qWorld; localTransB.Apply( ref qInB, out qWorld );
+					btScalar.Dbg( "pWorld is " + pWorld + " qWorld is " + qWorld );
 
 					if( check2d )
 					{
@@ -252,6 +245,7 @@ void btGjkPairDetector::getClosestPointsNonVirtual(string losestPointInput& inpu
 					// are we getting any closer ?
 					double f0 = squaredDistance - delta;
 					double f1 = squaredDistance * REL_ERROR2;
+					btScalar.Dbg( "f0 is " + f0.ToString( "g12" ) + " f1 is " + f1.ToString( "g12" ) );
 
 					if( f0 <= f1 )
 					{
@@ -349,6 +343,7 @@ void btGjkPairDetector::getClosestPointsNonVirtual(string losestPointInput& inpu
 				if( checkSimplex )
 				{
 					m_simplexSolver.compute_points( out pointOnA, out pointOnB );
+					btScalar.Dbg( "new simplex points " + pointOnA.ToString() + " and " + pointOnB );
 					normalInB = m_cachedSeparatingAxis;
 
 					double lenSqr = m_cachedSeparatingAxis.length2();
@@ -409,7 +404,7 @@ void btGjkPairDetector::getClosestPointsNonVirtual(string losestPointInput& inpu
 							ref m_cachedSeparatingAxis, out tmpPointOnA, out tmpPointOnB,
 							debugDraw
 							);
-
+						btScalar.Dbg( "points are " + tmpPointOnA.ToString() + " and " + tmpPointOnB.ToString() );
 
 						if( isValid2 )
 						{
@@ -504,6 +499,7 @@ void btGjkPairDetector::getClosestPointsNonVirtual(string losestPointInput& inpu
 								tmpPointOnA.Sub( ref tmpPointOnB, out tmp );
 								double distance2 = tmp.length() - margin;
 								//only replace valid distances when the distance is less
+								btScalar.Dbg( "old distance " + distance2.ToString( "g12" ) + " new distance " + distance.ToString( "g12" ) );
 								if( !isValid || ( distance2 < distance ) )
 								{
 									distance = distance2;
@@ -531,7 +527,7 @@ void btGjkPairDetector::getClosestPointsNonVirtual(string losestPointInput& inpu
 				}
 			}
 
-
+			btScalar.Dbg( "Pair detector : valid=" + (isValid?"1":"0" )+ " distance=" + distance.ToString( "g12" ) + " maxDistance=" + input.m_maximumDistanceSquared.ToString( "g12" ) );
 
 			if( isValid && ( ( distance < 0 ) || ( distance * distance < input.m_maximumDistanceSquared ) ) )
 			{

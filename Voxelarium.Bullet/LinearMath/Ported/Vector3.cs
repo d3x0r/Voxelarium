@@ -170,6 +170,8 @@ namespace Bullet.LinearMath
 
 		long minDot( btVector3[] array, long array_count, ref double dotOut );
 
+		float[] ToFloat4();
+		float[] ToFloat3();
 	}
 
 
@@ -909,103 +911,14 @@ namespace Bullet.LinearMath
 			return tmp.length();
 		}
 
-#if !DISABLE_OPERATORS
-		public static btVector3 operator +( btVector3 a, btVector3 b )
+		btVector3 absolute4()
 		{
-			return new btVector3( a.x + b.x, a.y + b.y, a.z + b.z );
-		}
-		public static btVector3 operator -( btVector3 a, btVector3 b )
-		{
-			return new btVector3( a.x - b.x, a.y - b.y, a.z - b.z );
-		}
-		public static btVector3 operator -( btVector3 a, btIVector3 b )
-		{
-			return new btVector3( a.x - b[0], a.y - b[1], a.z - b[2] );
-		}
-		public static btVector3 operator -( btVector3 a )
-		{
-			return new btVector3( -a.x, -a.y, -a.z );
-		}
-		public static btVector3 operator *( btVector3 a, btVector3 b )
-		{
-			return new btVector3( a.x * b.x, a.y * b.y, a.z * b.z );
-		}
-		public static btVector3 operator *( btVector3 a, double b )
-		{
-			return new btVector3( a.x * b, a.y * b, a.z * b );
-		}
-		public static btVector3 operator /( btVector3 a, double b )
-		{
-			b = 1.0 / b;
-			return new btVector3( a.x * b, a.y * b, a.z * b );
-		}
-		public static btVector3 operator *( btVector3 a, btIVector3 b )
-		{
-			return new btVector3( a.x * b[0], a.y * b[1], a.z * b[2] );
-		}
-		public static btVector3 operator *( btIMatrix3x3 m, btVector3 v )
-		{
-			return new btVector3( m[0].dot( ref v ),
-					m[1].dot( ref v ),
-					m[2].dot( ref v ) );
-		}
-		public static btVector3 operator *( btVector3 v, btIMatrix3x3 m )
-		{
-			return new btVector3( m.tdotx( ref v ),
-					m.tdoty( ref v ),
-					m.tdotz( ref v ) );
-		}
-
-
-		public btVector3 cross( btVector3 v )
-		{
-			return new btVector3( y * v.z - z * v.y,
-				z * v.x - x * v.z,
-				x * v.y - y * v.x );
-		}
-		public double dot( btVector3 v )
-		{
-			return x * v.x +
-					y * v.y +
-					z * v.z;
-		}
-
-#endif
-		public override string ToString()
-		{
-			return String.Format( "({0:g12},{1:g12},{2:g12})", x, y, z );
-		}
-
-
-	}
-
-
-	public struct btVector4
-	{
-		public double x;
-		public double y;
-		public double z;
-		public double w;
-
-
-		public btVector4( double _x, double _y, double _z, double _w )
-		{
-			x = _x; y = _y; z = _z;
-			w = _w;
-		}
-
-
-		btVector4 absolute4()
-		{
-			return new btVector4(
+			return new btVector3(
 				btScalar.btFabs( x ),
 				btScalar.btFabs( y ),
 				btScalar.btFabs( z ),
 				btScalar.btFabs( w ) );
 		}
-
-
-		double getW() { return w; }
 
 
 		int maxAxis4()
@@ -1073,6 +986,125 @@ namespace Bullet.LinearMath
 
 
 
+#if !DISABLE_OPERATORS
+		public static btVector3 operator +( btVector3 a, btVector3 b )
+		{
+			return new btVector3( a.x + b.x, a.y + b.y, a.z + b.z );
+		}
+		public static btVector3 operator -( btVector3 a, btVector3 b )
+		{
+			return new btVector3( a.x - b.x, a.y - b.y, a.z - b.z );
+		}
+		public static btVector3 operator -( btVector3 a, btIVector3 b )
+		{
+			return new btVector3( a.x - b[0], a.y - b[1], a.z - b[2] );
+		}
+		public static btVector3 operator -( btVector3 a )
+		{
+			return new btVector3( -a.x, -a.y, -a.z );
+		}
+		public static btVector3 operator *( btVector3 a, btVector3 b )
+		{
+			return new btVector3( a.x * b.x, a.y * b.y, a.z * b.z );
+		}
+		public static btVector3 operator *( btVector3 a, double b )
+		{
+			return new btVector3( a.x * b, a.y * b, a.z * b );
+		}
+		public static btVector3 operator /( btVector3 a, double b )
+		{
+			b = 1.0 / b;
+			return new btVector3( a.x * b, a.y * b, a.z * b );
+		}
+		public static btVector3 operator *( btVector3 a, btIVector3 b )
+		{
+			return new btVector3( a.x * b[0], a.y * b[1], a.z * b[2] );
+		}
+		public static btVector3 operator *( btIMatrix3x3 m, btVector3 v )
+		{
+			return new btVector3( m[0].dot( ref v ),
+					m[1].dot( ref v ),
+					m[2].dot( ref v ) );
+		}
+		public static btVector3 operator *( btVector3 v, btIMatrix3x3 m )
+		{
+			return new btVector3( m.tdotx( ref v ),
+					m.tdoty( ref v ),
+					m.tdotz( ref v ) );
+		}
+
+
+		public btVector3 cross( btVector3 v )
+		{
+			return new btVector3( y * v.z - z * v.y,
+				z * v.x - x * v.z,
+				x * v.y - y * v.x );
+		}
+		public double dot( btVector3 v )
+		{
+			return x * v.x +
+					y * v.y +
+					z * v.z;
+		}
+
+#endif
+		internal static double det( ref btVector3 a, ref btVector3 b, ref btVector3 c )
+		{
+			return ( a.y * b.z * c.x + a.z * b.x * c.y -
+				a.x * b.z * c.y - a.y * b.x * c.z +
+				a.x * b.y * c.z - a.z * b.y * c.x );
+		}
+		internal static double det( ref btVector3 a, ref btVector3 a2, ref btVector3 b
+				, ref btVector3 b2, ref btVector3 c, ref btVector3 c2 )
+		{
+			return ( ( a.y - a2.y ) * ( b.z - b2.z ) * ( c.x - c2.x ) + ( a.z - a2.z ) * ( b.x - b2.x ) * ( c.y - c2.y ) -
+				( a.x - a2.x ) * ( b.z - b2.z ) * ( c.y - c2.y ) - ( a.y - a2.y ) * ( b.x - b2.x ) * ( c.z - c2.z ) +
+				( a.x - a2.x ) * ( b.y - b2.y ) * ( c.z - c2.z ) - ( a.z - a2.z ) * ( b.y - b2.y ) * ( c.x - c2.x ) );
+		}
+
+		public override string ToString()
+		{
+			return String.Format( "({0:g12},{1:g12},{2:g12})", x, y, z );
+		}
+
+		public float[] ToFloat4 (  )
+		{
+			float[] v = new float[4];
+			v[0] = (float)R;
+			v[1] = (float)G;
+			v[2] = (float)B;
+			v[3] = (float)A;
+			return v;
+		}
+		public float[] ToFloat3()
+		{
+			float[] v = new float[3];
+			v[0] = (float)x;
+			v[1] = (float)y;
+			v[2] = (float)z;
+			return v;
+		}
+
+	}
+
+#if USED_VECTOR4
+	public struct btVector4
+	{
+		public double x;
+		public double y;
+		public double z;
+		public double w;
+
+
+		public btVector4( double _x, double _y, double _z, double _w )
+		{
+			x = _x; y = _y; z = _z;
+			w = _w;
+		}
+
+
+
+
 
 		/*@brief Set x,y,z and zero w 
 		  @param x Value of x
@@ -1107,7 +1139,7 @@ namespace Bullet.LinearMath
 				///btSwapVector3Endian swaps vector endianness, useful for network and cross-platform serialization
 				void btSwapScalarEndian( double sourceVal, double destVal)
 				{
-# ifdef BT_USE_DOUBLE_PRECISION
+#if BT_USE_DOUBLE_PRECISION
 					byte dest = ( byte) destVal;
 					byte src = ( byte) &sourceVal;
 					dest = src[7];
@@ -1125,7 +1157,7 @@ namespace Bullet.LinearMath
 					dest[1] = src[2];
 					dest[2] = src[1];
 					dest[3] = src[0];
-		#endif //BT_USE_DOUBLE_PRECISION
+#endif //BT_USE_DOUBLE_PRECISION
 				}
 				///btSwapVector3Endian swaps vector endianness, useful for network and cross-platform serialization
 				void btSwapVector3Endian( btVector3 sourceVec, ref btVector3 destVec)
@@ -1198,6 +1230,7 @@ namespace Bullet.LinearMath
 			return ( q.x == x ) && ( q.y == y ) && ( q.z == z ) && ( q.w == w );
 		}
 
-	}
 
+	}
+#endif
 }

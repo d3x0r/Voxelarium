@@ -143,11 +143,7 @@ namespace Bullet.Collision.Dispatch
 			gNumManifold++;
 
 			//Debug.Assert(gNumManifold < 65535);
-
-
-
 			//optional relative contact breaking threshold, turned on by default (use setDispatcherFlags to switch off feature for improved performance)
-
 			double contactBreakingThreshold = ( m_dispatcherFlags & DispatcherFlags.CD_USE_RELATIVE_CONTACT_BREAKING_THRESHOLD ) != 0 ?
 				btScalar.btMin( body0.getCollisionShape().getContactBreakingThreshold( btPersistentManifold.gContactBreakingThreshold ), body1.getCollisionShape().getContactBreakingThreshold( btPersistentManifold.gContactBreakingThreshold ) )
 				: btPersistentManifold.gContactBreakingThreshold;
@@ -157,6 +153,7 @@ namespace Bullet.Collision.Dispatch
 			btPersistentManifold manifold = BulletGlobals.PersistentManifoldPool.Get();
 			manifold.Initialize( body0, body1, 0, contactBreakingThreshold, contactProcessingThreshold );
 			manifold.m_index1a = m_manifoldsPtr.Count;
+			btScalar.Dbg( "add a manifold (getNewManifold)" );
 			m_manifoldsPtr.Add( manifold );
 
 			return manifold;
@@ -173,6 +170,7 @@ namespace Bullet.Collision.Dispatch
 			gNumManifold--;
 			//Console.WriteLine("releaseManifold: gNumManifold %d\n",gNumManifold);
 			clearManifold( manifold );
+			btScalar.Dbg( "Remove Manifold from dispatcher" );
 			m_manifoldsPtr.Remove( manifold );
 			BulletGlobals.PersistentManifoldPool.Free( manifold );
 		}
