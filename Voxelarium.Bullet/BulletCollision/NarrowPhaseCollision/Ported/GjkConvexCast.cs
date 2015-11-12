@@ -43,10 +43,10 @@ namespace Bullet.Collision.NarrowPhase
 
 		/// cast a convex against another convex object
 		internal override bool calcTimeOfImpact(
-							btITransform fromA,
-							btITransform toA,
-							btITransform fromB,
-							btITransform toB,
+							ref btTransform fromA,
+							ref btTransform toA,
+							ref btTransform fromB,
+							ref btTransform toB,
 							CastResult result)
 		{
 
@@ -56,8 +56,8 @@ namespace Bullet.Collision.NarrowPhase
 			/// compute linear velocity for this interval, to interpolate
 			//assume no rotation/angular velocity, assert here?
 			btVector3 linVelA, linVelB;
-			toA.getOrigin().Sub( fromA.getOrigin(), out linVelA  );
-			toB.getOrigin().Sub( fromB.getOrigin(), out linVelB );
+			toA.m_origin.Sub( ref fromA.m_origin, out linVelA  );
+			toB.m_origin.Sub( ref fromB.m_origin, out linVelB );
 
 			double radius = (double)( 0.001 );
 			double lambda = btScalar.BT_ZERO;
@@ -141,9 +141,9 @@ namespace Bullet.Collision.NarrowPhase
 					//interpolate to next lambda
 					result.DebugDraw( lambda );
 					btVector3 tmp;
-					btVector3.setInterpolate3( out tmp, fromA.getOrigin(), toA.getOrigin(), lambda );
+					btVector3.setInterpolate3( out tmp, ref fromA.m_origin, ref toA.m_origin, lambda );
 					input.m_transformA.setOrigin( ref tmp );
-					btVector3.setInterpolate3( out tmp, fromB.getOrigin(), toB.getOrigin(), lambda );
+					btVector3.setInterpolate3( out tmp, ref fromB.m_origin, ref toB.m_origin, lambda );
 					input.m_transformB.setOrigin( ref tmp );
 
 					gjk.getClosestPoints( input, pointCollector, null );

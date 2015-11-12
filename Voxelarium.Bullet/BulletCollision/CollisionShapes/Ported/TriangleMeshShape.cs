@@ -71,13 +71,13 @@ namespace Bullet.Collision.Shapes
 
 
 
-		public override void getAabb( btITransform trans, out btVector3 aabbMin, out btVector3 aabbMax )
+		public override void getAabb( ref btTransform trans, out btVector3 aabbMin, out btVector3 aabbMax )
 		{
 			btVector3 localHalfExtents; btVector3.getHalfExtent( ref m_localAabbMin, ref m_localAabbMax, out localHalfExtents );
 			localHalfExtents += new btVector3( getMargin(), getMargin(), getMargin() );
 			btVector3 localCenter; btVector3.getCenter( ref m_localAabbMin, ref m_localAabbMax, out localCenter );
 
-			btMatrix3x3 abs_b; trans.getBasis().absolute( out abs_b );
+			btMatrix3x3 abs_b; trans.m_basis.absolute( out abs_b );
 
 			btVector3 center; trans.Apply( ref localCenter, out center );
 
@@ -106,16 +106,16 @@ namespace Bullet.Collision.Shapes
 		{
 			btVector3 m_supportVertexLocal;
 
-			public btITransform m_worldTrans;
+			public btTransform m_worldTrans;
 			public double m_maxDot;
 			public btVector3 m_supportVecLocal;
 
-			public SupportVertexCallback( ref btVector3 supportVecWorld, btITransform trans )
+			public SupportVertexCallback( ref btVector3 supportVecWorld, ref btTransform trans )
 			{
 				m_supportVertexLocal = btVector3.Zero;
 				m_worldTrans = ( trans );
 				m_maxDot = ( (double)( -btScalar.BT_LARGE_FLOAT ) );
-				m_supportVecLocal = supportVecWorld * m_worldTrans.getBasis();
+				m_supportVecLocal = supportVecWorld * m_worldTrans.m_basis;
 			}
 
 			public void processTriangle( btVector3[] triangle, int partId, int triangleIndex )
@@ -165,10 +165,10 @@ namespace Bullet.Collision.Shapes
 		internal class FilteredCallback : btInternalTriangleIndexCallback
 		{
 			btTriangleCallback m_callback;
-			btIVector3 m_aabbMin;
-			btIVector3 m_aabbMax;
+			btVector3 m_aabbMin;
+			btVector3 m_aabbMax;
 
-			internal FilteredCallback( btTriangleCallback callback, btIVector3 aabbMin, btIVector3 aabbMax )
+			internal FilteredCallback( btTriangleCallback callback, ref btVector3 aabbMin, ref btVector3 aabbMax )
 			{
 				m_callback = ( callback );
 				m_aabbMin = ( aabbMin );
@@ -177,7 +177,7 @@ namespace Bullet.Collision.Shapes
 
 			internal override void internalProcessTriangleIndex( btVector3[] triangle, int partId, int triangleIndex )
 			{
-				if( btAabbUtil.TestTriangleAgainstAabb2( triangle, m_aabbMin, m_aabbMax ) )
+				if( btAabbUtil.TestTriangleAgainstAabb2( triangle,ref m_aabbMin, ref m_aabbMax ) )
 				{
 					//check aabb in triangle-space, before doing this
 					m_callback.processTriangle( triangle, partId, triangleIndex );
@@ -190,7 +190,7 @@ namespace Bullet.Collision.Shapes
 
 		internal override void processAllTriangles( btTriangleCallback callback, ref btVector3 aabbMin, ref btVector3 aabbMax )
 		{
-			FilteredCallback filterCallback = new FilteredCallback( callback, aabbMin, aabbMax );
+			FilteredCallback filterCallback = new FilteredCallback( callback, ref aabbMin, ref aabbMax );
 
 			m_meshInterface.InternalProcessAllTriangles( filterCallback, ref aabbMin, ref aabbMax );
 		}
@@ -210,7 +210,7 @@ namespace Bullet.Collision.Shapes
 
 		public virtual void localGetSupportingVertex( ref btVector3 vec, out btVector3 result )
 		{
-			SupportVertexCallback supportCallback = new SupportVertexCallback( ref vec, btTransform.Identity );
+			SupportVertexCallback supportCallback = new SupportVertexCallback( ref vec, ref btTransform.Identity );
 
 			btVector3 aabbMax = btVector3.Max;
 			btVector3 aabbMin = btVector3.Min;

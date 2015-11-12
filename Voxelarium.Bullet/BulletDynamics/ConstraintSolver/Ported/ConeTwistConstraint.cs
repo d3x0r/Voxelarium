@@ -53,7 +53,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 
 
 	///btConeTwistConstraint can be used to simulate ragdoll joints (upper arm, leg etc)
-	internal class btConeTwistConstraint : btTypedConstraint
+	public class btConeTwistConstraint : btTypedConstraint
 	{
 		//#define CONETWIST_USE_OBSOLETE_SOLVER true
 		const bool CONETWIST_USE_OBSOLETE_SOLVER = false;
@@ -96,8 +96,10 @@ namespace Bullet.Dynamics.ConstraintSolver
 
 		double m_twistAngle;
 
+		/* old jacobian build 
 		double m_accSwingLimitImpulse;
 		double m_accTwistLimitImpulse;
+		*/
 
 		bool m_angularOnly;
 		bool m_solveTwistLimit;
@@ -115,48 +117,13 @@ namespace Bullet.Dynamics.ConstraintSolver
 		bool m_bNormalizedMotorStrength;
 		btQuaternion m_qTarget;
 		double m_maxMotorImpulse;
-		btVector3 m_accMotorImpulse;
+		//btVector3 m_accMotorImpulse;  // obsolete jacobian variable
 
 		// parameters
 		btConeTwistFlags m_flags;
 		double m_linCFM;
 		double m_linERP;
 		double m_angCFM;
-
-		/*
-				void init();
-
-				void computeConeLimitInfo( btQuaternion& qCone, // in
-					double swingAngle, ref btVector3 vSwingAxis, double swingLimit ); // all outs
-
-				void computeTwistLimitInfo( btQuaternion& qTwist, // in
-					double twistAngle, ref btVector3 vTwistAxis ); // all outs
-
-				void adjustSwingAxisToUseEllipseNormal( ref btVector3 vSwingAxis );
-
-				public:
-
-
-
-			btConeTwistConstraint( btRigidBody rbA, btRigidBody rbB, ref btTransform rbAFrame, ref btTransform rbBFrame );
-
-				btConeTwistConstraint( btRigidBody rbA, ref btTransform rbAFrame );
-
-				virtual void buildJacobian();
-
-				virtual void getInfo1( btConstraintInfo1* info );
-
-				void getInfo1NonVirtual( btConstraintInfo1* info );
-
-				virtual void getInfo2( btConstraintInfo2* info );
-
-				void getInfo2NonVirtual( btConstraintInfo2* info, ref btTransform transA, ref btTransform transB, btMatrix3x3& invInertiaWorldA, btMatrix3x3& invInertiaWorldB);
-
-				virtual void solveConstraintObsolete( btSolverBody bodyA, btSolverBody bodyB, double timeStep );
-
-
-				void updateRHS( double timeStep );
-				*/
 
 
 		public void setAngularOnly( bool angularOnly )
@@ -240,8 +207,8 @@ namespace Bullet.Dynamics.ConstraintSolver
 			m_relaxationFactor = _relaxationFactor;
 		}
 
-		internal btITransform getAFrame() { return m_rbAFrame; }
-		internal btITransform getBFrame() { return m_rbBFrame; }
+		//internal btTransform getAFrame() { return m_rbAFrame; }
+		//internal btTransform getBFrame() { return m_rbBFrame; }
 
 #if ALLOW_INLINE
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
@@ -341,17 +308,18 @@ namespace Bullet.Dynamics.ConstraintSolver
 		//btVector3 GetPointForAngle( double fAngleInRadians, double fLength );
 
 
-
-		btITransform getFrameOffsetA()
+			/*
+		btTransform getFrameOffsetA()
 		{
 			return m_rbAFrame;
 		}
 
-		btITransform getFrameOffsetB()
+		btTransform getFrameOffsetB()
 		{
 			return m_rbBFrame;
 		}
-		public btConeTwistFlags getFlags()
+		*/
+		internal btConeTwistFlags getFlags()
 		{
 			return m_flags;
 		}
@@ -854,10 +822,6 @@ namespace Bullet.Dynamics.ConstraintSolver
 		*/
 
 
-		void updateRHS( double timeStep )
-		{
-			//(void)timeStep;
-		}
 
 		/*
 		void calcAngleInfo()
@@ -967,7 +931,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 				btTransform tmp;
 				btTransform trAInv;
 				trA.inverse( out trAInv );
-				trB.Apply( trPose, out tmp );
+				trB.Apply( ref trPose, out tmp );
 				btTransform trDeltaAB;// = trB * trPose * trA.inverse();
 				tmp.Apply( ref trAInv, out trDeltaAB );
 				btQuaternion qDeltaAB; trDeltaAB.getRotation( out qDeltaAB );
@@ -1409,7 +1373,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 
 		///override the default global value of a parameter (such as ERP or CFM), optionally provide the axis (0..5). 
 		///If no axis is provided, it uses the default axis for this constraint.
-		internal override void setParam( btConstraintParams num, double value, int axis = -1 )
+		public override void setParam( btConstraintParams num, double value, int axis = -1 )
 		{
 			switch( num )
 			{
@@ -1445,7 +1409,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 		}
 
 		///return the local value of parameter
-		internal override double getParam( btConstraintParams num, int axis )
+		public override double getParam( btConstraintParams num, int axis )
 		{
 			double retVal = 0;
 			switch( num )

@@ -184,7 +184,7 @@ namespace Bullet.Dynamics
 						}
 					}
 
-
+					btScalar.Dbg( predictedTrans.ToString( "predicted orient\t", "\t\t\t", "predicted origin\t" ) );
 					body.proceedToTransform( ref predictedTrans );
 
 				}
@@ -209,13 +209,13 @@ namespace Bullet.Dynamics
 						if( combinedRestitution > 0 && pt.m_appliedImpulse != 0 )
 						//if (pt.getDistance()>0 && combinedRestitution>0 && pt.m_appliedImpulse != 0)
 						{
-							btVector3 imp = -pt.m_normalWorldOnB * pt.m_appliedImpulse * combinedRestitution;
+							btVector3 imp; pt.m_normalWorldOnB.Mult( combinedRestitution * pt.m_appliedImpulse, out imp );
 
-							btIVector3 pos1 = pt.getPositionWorldOnA();
-							btIVector3 pos2 = pt.getPositionWorldOnB();
+							//btVector3 pos1 = pt.m_positionWorldOnA;
+							//btVector3 pos2 = pt.m_positionWorldOnB;
 
-							btVector3 rel_pos0; pos1.Sub( body0.getWorldTransform().getOrigin(), out rel_pos0 );
-							btVector3 rel_pos1; pos2.Sub( body1.getWorldTransform().getOrigin(), out rel_pos1 );
+							btVector3 rel_pos0; pt.m_positionWorldOnA.Sub( ref body0.m_worldTransform.m_origin, out rel_pos0 );
+							btVector3 rel_pos1; pt.m_positionWorldOnB.Sub( ref body1.m_worldTransform.m_origin, out rel_pos1 );
 
 							if( body0 != null )
 								body0.applyImpulse( ref imp, ref rel_pos0 );
@@ -331,7 +331,7 @@ namespace Bullet.Dynamics
 				m_convexToWorld.Sub( ref m_convexFromWorld, out linVelA );
 				linVelB = btVector3.Zero;//toB.getOrigin()-fromB.getOrigin();
 
-				btVector3 relativeVelocity = ( linVelA - linVelB );
+				btVector3 relativeVelocity; linVelA.Sub( ref linVelB, out relativeVelocity );
 				//don't report time of impact for motion away from the contact normal (or causes minor penetration)
 				if( convexResult.m_hitNormalLocal.dot( relativeVelocity ) >= -m_allowedPenetration )
 					return 1;
@@ -678,11 +678,14 @@ namespace Bullet.Dynamics
 				//if (body.getActivationState() != ISLAND_SLEEPING)
 				{
 					btTransform interpolatedTransform;
-					btTransformUtil.integrateTransform( body.getInterpolationWorldTransform(),
-						body.getInterpolationLinearVelocity(), body.getInterpolationAngularVelocity(),
+					btTransformUtil.integrateTransform( ref body.m_interpolationWorldTransform,
+						ref body.m_interpolationLinearVelocity,ref  body.m_interpolationAngularVelocity,
 						( m_latencyMotionStateInterpolation && m_fixedTimeStep != 0 ) ? m_localTime - m_fixedTimeStep : m_localTime * body.getHitFraction(),
 						out interpolatedTransform );
-					body.getMotionState().setWorldTransform( ref interpolatedTransform );
+					btScalar.Dbg( body.m_interpolationWorldTransform.ToString( "old int orn\t", "\t\t", "old int org\t" ) );
+					btScalar.Dbg( "Sync transform state " + body.m_interpolationAngularVelocity );
+					btScalar.Dbg( interpolatedTransform.ToString( "inter orient\t", "\t\t", "inter origin\t" ) );
+                    body.getMotionState().setWorldTransform( ref interpolatedTransform );
 				}
 			}
 		}
@@ -1029,11 +1032,11 @@ namespace Bullet.Dynamics
 			if( m_constraints.Count > 0 )
 			{
 				if( m_sortedConstraints.Count < m_constraints.Count )
-					m_sortedConstraints.Capacity = m_constraints.Count;
+					m_sortedConstraints.Count = m_constraints.Count;
 				m_sortedConstraints[m_constraints.Count - 1] = null;
 				//m_sortedConstraints.resize( m_constraints.Count );
 				int i;
-				for( i = 0; i < getNumConstraints(); i++ )
+				for( i = 0; i < m_constraints.Count; i++ )
 				{
 					m_sortedConstraints[i] = m_constraints[i];
 				}
@@ -1157,8 +1160,9 @@ namespace Bullet.Dynamics
 				{
 
 					body.predictIntegratedTransform( timeStep, out predictedTrans );
-
-					double squareMotion = ( predictedTrans.m_origin - body.getWorldTransform().getOrigin() ).length2();
+					btVector3 posDelta;
+					predictedTrans.m_origin.Sub( ref body.m_worldTransform.m_origin, out posDelta );
+                    double squareMotion = posDelta.length2();
 
 					if( getDispatchInfo().m_useContinuous && 0 != body.getCcdSquareMotionThreshold() && body.getCcdSquareMotionThreshold() < squareMotion )
 					{
@@ -1186,9 +1190,8 @@ namespace Bullet.Dynamics
 							convexSweepTest( tmpSphere, ref body.m_worldTransform, ref modifiedPredictedTrans, sweepResults );
 							if( sweepResults.hasHit() && ( sweepResults.m_closestHitFraction < 1 ) )
 							{
-
-								btVector3 distVec = ( predictedTrans.m_origin - body.getWorldTransform().getOrigin() ) * sweepResults.m_closestHitFraction;
 								btVector3 tmp;
+								btVector3 distVec; posDelta.Mult( sweepResults.m_closestHitFraction, out distVec );
 								sweepResults.m_hitNormalWorld.Invert( out tmp );
 								double distance = distVec.dot( ref tmp );
 
@@ -1196,9 +1199,9 @@ namespace Bullet.Dynamics
 								btPersistentManifold manifold = m_dispatcher1.getNewManifold( body, sweepResults.m_hitCollisionObject );
 								m_predictiveManifolds.Add( manifold );
 
-								btVector3 worldPointB; body.getWorldTransform().getOrigin().Add( ref distVec, out worldPointB );
+								btVector3 worldPointB; body.m_worldTransform.m_origin.Add( ref distVec, out worldPointB );
 								btTransform tmpT;
-								sweepResults.m_hitCollisionObject.getWorldTransform().inverse( out tmpT );
+								sweepResults.m_hitCollisionObject.m_worldTransform.inverse( out tmpT );
 								btVector3 localPointB; tmpT.Apply( ref worldPointB, out localPointB );
 
 								btManifoldPoint newPoint = BulletGlobals.ManifoldPointPool.Get();
@@ -1209,7 +1212,7 @@ namespace Bullet.Dynamics
 								btManifoldPoint pt = manifold.getContactPoint( index );
 								pt.m_combinedRestitution = 0;
 								pt.m_combinedFriction = btManifoldResult.calculateCombinedFriction( body, sweepResults.m_hitCollisionObject );
-								body.getWorldTransform().getOrigin( out pt.m_positionWorldOnA );
+								body.m_worldTransform.getOrigin( out pt.m_positionWorldOnA );
 								pt.m_positionWorldOnB = worldPointB;
 								BulletGlobals.ManifoldPointPool.Free( newPoint );
 							}
@@ -1259,22 +1262,22 @@ namespace Bullet.Dynamics
 						btVector3 pivot;
 						p2pC.getPivotInA( out pivot );
 						btVector3 tmp;
-						p2pC.getRigidBodyA().getCenterOfMassTransform().Apply( ref pivot, out tmp );
+						p2pC.getRigidBodyA().m_worldTransform.Apply( ref pivot, out tmp );
 						tr.setOrigin( ref tmp );
 						getDebugDrawer().drawTransform( ref tr, dbgDrawSize );
 						// that ideally should draw the same frame
 						p2pC.getPivotInB( out pivot );
-						p2pC.getRigidBodyB().getCenterOfMassTransform().Apply( ref pivot, out tmp );
-						tr.setOrigin( tmp );
+						p2pC.getRigidBodyB().m_worldTransform.Apply( ref pivot, out tmp );
+						tr.setOrigin( ref tmp );
 						if( drawFrames ) getDebugDrawer().drawTransform( ref tr, dbgDrawSize );
 					}
 					break;
 				case btObjectTypes.HINGE_CONSTRAINT_TYPE:
 					{
 						btHingeConstraint pHinge = (btHingeConstraint)constraint;
-						btTransform tr; pHinge.getRigidBodyA().getCenterOfMassTransform().Apply( pHinge.getAFrame(), out tr );
+						btTransform tr; pHinge.getRigidBodyA().m_worldTransform.Apply( ref pHinge.m_rbAFrame, out tr );
 						if( drawFrames ) getDebugDrawer().drawTransform( ref tr, dbgDrawSize );
-						pHinge.getRigidBodyB().getCenterOfMassTransform().Apply( pHinge.getBFrame(), out tr );
+						pHinge.getRigidBodyB().m_worldTransform.Apply( ref pHinge.m_rbBFrame, out tr );
 						if( drawFrames ) getDebugDrawer().drawTransform( ref tr, dbgDrawSize );
 						double minAng = pHinge.getLowerLimit();
 						double maxAng = pHinge.getUpperLimit();
@@ -1291,17 +1294,17 @@ namespace Bullet.Dynamics
 						}
 						if( drawLimits )
 						{
-							btIVector3 center = tr.getOrigin();
-							btVector3 normal = tr.getBasis().getColumn( 2 );
-							btVector3 axis = tr.getBasis().getColumn( 0 );
-							getDebugDrawer().drawArc( center, ref normal, ref axis, dbgDrawSize, dbgDrawSize, minAng, maxAng, ref btVector3.Zero, drawSect );
+							btVector3 center = tr.m_origin;
+							btVector3 normal; tr.m_basis.getColumn( 2, out normal );
+							btVector3 axis; tr.m_basis.getColumn( 0, out axis );
+							getDebugDrawer().drawArc( ref tr.m_origin, ref normal, ref axis, dbgDrawSize, dbgDrawSize, minAng, maxAng, ref btVector3.Zero, drawSect );
 						}
 					}
 					break;
 				case btObjectTypes.CONETWIST_CONSTRAINT_TYPE:
 					{
 						btConeTwistConstraint pCT = (btConeTwistConstraint)constraint;
-						btTransform tr; pCT.getRigidBodyA().getCenterOfMassTransform().Apply( ref pCT.m_rbAFrame, out tr );
+						btTransform tr; pCT.getRigidBodyA().m_worldTransform.Apply( ref pCT.m_rbAFrame, out tr );
 						if( drawFrames ) getDebugDrawer().drawTransform( ref tr, dbgDrawSize );
 						pCT.m_rbB.m_worldTransform.Apply( ref pCT.m_rbBFrame, out tr );
 						if( drawFrames ) getDebugDrawer().drawTransform( ref tr, dbgDrawSize );
@@ -1311,13 +1314,14 @@ namespace Bullet.Dynamics
 							double length = dbgDrawSize;
 							int nSegments = 8 * 4;
 							double fAngleInRadians = btScalar.SIMD_2_PI * (double)( nSegments - 1 ) / (double)( nSegments );
-							btVector3 pPrev; pCT.GetPointForAngle( fAngleInRadians, length, out pPrev );
-							pPrev = tr * pPrev;
+							btVector3 tmp;
+							btVector3 pPrev; pCT.GetPointForAngle( fAngleInRadians, length, out tmp );
+							tr.Apply( ref tmp, out pPrev );
 							for( int i = 0; i < nSegments; i++ )
 							{
 								fAngleInRadians = btScalar.SIMD_2_PI * (double)i / (double)( nSegments );
 								btVector3 pCur; pCT.GetPointForAngle( fAngleInRadians, length, out pCur );
-								btVector3 tmp;
+								//btVector3 tmp;
 								tr.Apply( ref pCur, out tmp );
 								getDebugDrawer().drawLine( ref pPrev, ref tmp, ref btVector3.Zero );
 
@@ -1331,15 +1335,15 @@ namespace Bullet.Dynamics
 							bool useFrameB = ( pCT.getRigidBodyB().getInvMass() > (double)( 0 ) );
 							if( useFrameB )
 							{
-								pCT.getRigidBodyB().getCenterOfMassTransform().Apply( ref pCT.m_rbBFrame, out tr );
+								pCT.getRigidBodyB().m_worldTransform.Apply( ref pCT.m_rbBFrame, out tr );
 							}
 							else
 							{
-								pCT.getRigidBodyA().getCenterOfMassTransform().Apply( ref pCT.m_rbBFrame, out tr );
+								pCT.getRigidBodyA().m_worldTransform.Apply( ref pCT.m_rbBFrame, out tr );
 							}
 							btVector3 pivot = tr.m_origin;
-							btVector3 normal; tr.getBasis().getColumn( 0, out normal );
-							btVector3 axis1; tr.getBasis().getColumn( 1, out axis1 );
+							btVector3 normal; tr.m_basis.getColumn( 0, out normal );
+							btVector3 axis1; tr.m_basis.getColumn( 1, out axis1 );
 							getDebugDrawer().drawArc( ref pivot, ref normal, ref axis1, dbgDrawSize, dbgDrawSize, -twa - tws, -twa + tws, ref btVector3.Zero, true );
 						}
 					}
@@ -1348,22 +1352,22 @@ namespace Bullet.Dynamics
 				case btObjectTypes.D6_CONSTRAINT_TYPE:
 					{
 						btGeneric6DofConstraint p6DOF = (btGeneric6DofConstraint)constraint;
-						btITransform tr;// = p6DOF.getCalculatedTransformA();
+						btTransform tr;// = p6DOF.getCalculatedTransformA();
 						if( drawFrames ) getDebugDrawer().drawTransform( ref p6DOF.m_calculatedTransformA, dbgDrawSize );
 						//tr = p6DOF.getCalculatedTransformB();
 						if( drawFrames ) getDebugDrawer().drawTransform( ref p6DOF.m_calculatedTransformB, dbgDrawSize );
 						if( drawLimits )
 						{
-							tr = p6DOF.getCalculatedTransformA();
-							btIVector3 center = p6DOF.getCalculatedTransformB().getOrigin();
-							btVector3 up = tr.getBasis().getColumn( 2 );
-							btVector3 axis = tr.getBasis().getColumn( 0 );
+							tr = p6DOF.m_calculatedTransformA;
+							btVector3 center = p6DOF.m_calculatedTransformB.m_origin;
+							btVector3 up = tr.m_basis.getColumn( 2 );
+							btVector3 axis = tr.m_basis.getColumn( 0 );
 							double minTh = p6DOF.getRotationalLimitMotor( 1 ).m_loLimit;
 							double maxTh = p6DOF.getRotationalLimitMotor( 1 ).m_hiLimit;
 							double minPs = p6DOF.getRotationalLimitMotor( 2 ).m_loLimit;
 							double maxPs = p6DOF.getRotationalLimitMotor( 2 ).m_hiLimit;
-							getDebugDrawer().drawSpherePatch( center, ref up, ref axis, dbgDrawSize * (double)( .9f ), minTh, maxTh, minPs, maxPs, ref btVector3.Zero );
-							axis = tr.getBasis().getColumn( 1 );
+							getDebugDrawer().drawSpherePatch( ref center, ref up, ref axis, dbgDrawSize * (double)( .9f ), minTh, maxTh, minPs, maxPs, ref btVector3.Zero );
+							axis = tr.m_basis.getColumn( 1 );
 							double ay = p6DOF.getAngle( 1 );
 							double az = p6DOF.getAngle( 2 );
 							double cy = btScalar.btCos( ay );
@@ -1375,22 +1379,23 @@ namespace Bullet.Dynamics
 							ref_point.y = -sz * axis[0] + cz * axis[1];
 							ref_point.z = cz * sy * axis[0] + sz * sy * axis[1] + cy * axis[2];
 							ref_point.w = 0;
-							tr = p6DOF.getCalculatedTransformB();
-							btVector3 normal = -tr.getBasis().getColumn( 0 );
+							tr = p6DOF.m_calculatedTransformB;
+							btVector3 normal; tr.m_basis.getColumn( 0, out normal );
+							normal.Invert( out normal );
 							double minFi = p6DOF.getRotationalLimitMotor( 0 ).m_loLimit;
 							double maxFi = p6DOF.getRotationalLimitMotor( 0 ).m_hiLimit;
 							if( minFi > maxFi )
 							{
-								getDebugDrawer().drawArc( center, ref normal, ref ref_point, dbgDrawSize, dbgDrawSize, -btScalar.SIMD_PI, btScalar.SIMD_PI, ref btVector3.Zero, false );
+								getDebugDrawer().drawArc( ref center, ref normal, ref ref_point, dbgDrawSize, dbgDrawSize, -btScalar.SIMD_PI, btScalar.SIMD_PI, ref btVector3.Zero, false );
 							}
 							else if( minFi < maxFi )
 							{
-								getDebugDrawer().drawArc( center, ref normal, ref ref_point, dbgDrawSize, dbgDrawSize, minFi, maxFi, ref btVector3.Zero, true );
+								getDebugDrawer().drawArc( ref center, ref normal, ref ref_point, dbgDrawSize, dbgDrawSize, minFi, maxFi, ref btVector3.Zero, true );
 							}
-							tr = p6DOF.getCalculatedTransformA();
+							tr = p6DOF.m_calculatedTransformA;
 							btVector3 bbMin = p6DOF.getTranslationalLimitMotor().m_lowerLimit;
 							btVector3 bbMax = p6DOF.getTranslationalLimitMotor().m_upperLimit;
-							getDebugDrawer().drawBox( ref bbMin, ref bbMax, tr, ref btVector3.Zero );
+							getDebugDrawer().drawBox( ref bbMin, ref bbMax, ref tr, ref btVector3.Zero );
 						}
 					}
 					break;
@@ -1399,22 +1404,22 @@ namespace Bullet.Dynamics
 					{
 						{
 							btGeneric6DofSpring2Constraint p6DOF = (btGeneric6DofSpring2Constraint)constraint;
-							btITransform tr = p6DOF.getCalculatedTransformA();
-							if( drawFrames ) getDebugDrawer().drawTransform( tr, dbgDrawSize );
-							tr = p6DOF.getCalculatedTransformB();
-							if( drawFrames ) getDebugDrawer().drawTransform( tr, dbgDrawSize );
+							btTransform tr;// = p6DOF.getCalculatedTransformA();
+							if( drawFrames ) getDebugDrawer().drawTransform( ref p6DOF.m_calculatedTransformA, dbgDrawSize );
+							//tr = p6DOF.getCalculatedTransformB();
+							if( drawFrames ) getDebugDrawer().drawTransform( ref p6DOF.m_calculatedTransformB, dbgDrawSize );
 							if( drawLimits )
 							{
-								tr = p6DOF.getCalculatedTransformA();
-								btIVector3 center = p6DOF.getCalculatedTransformB().getOrigin();
-								btVector3 up = tr.getBasis().getColumn( 2 );
-								btVector3 axis = tr.getBasis().getColumn( 0 );
+								//tr = p6DOF.getCalculatedTransformA();
+								btVector3 center = p6DOF.m_calculatedTransformB.m_origin;
+								btVector3 up = p6DOF.m_calculatedTransformA.m_basis.getColumn( 2 );
+								btVector3 axis = p6DOF.m_calculatedTransformA.m_basis.getColumn( 0 );
 								double minTh = p6DOF.getRotationalLimitMotor( 1 ).m_loLimit;
 								double maxTh = p6DOF.getRotationalLimitMotor( 1 ).m_hiLimit;
 								double minPs = p6DOF.getRotationalLimitMotor( 2 ).m_loLimit;
 								double maxPs = p6DOF.getRotationalLimitMotor( 2 ).m_hiLimit;
-								getDebugDrawer().drawSpherePatch( center, ref up, ref axis, dbgDrawSize * (double)( .9f ), minTh, maxTh, minPs, maxPs, ref btVector3.Zero );
-								axis = tr.getBasis().getColumn( 1 );
+								getDebugDrawer().drawSpherePatch( ref center, ref up, ref axis, dbgDrawSize * (double)( .9f ), minTh, maxTh, minPs, maxPs, ref btVector3.Zero );
+								axis = p6DOF.m_calculatedTransformA.m_basis.getColumn( 1 );
 								double ay = p6DOF.getAngle( 1 );
 								double az = p6DOF.getAngle( 2 );
 								double cy = btScalar.btCos( ay );
@@ -1426,22 +1431,23 @@ namespace Bullet.Dynamics
 								ref_point.y = -sz * axis[0] + cz * axis[1];
 								ref_point.z = cz * sy * axis[0] + sz * sy * axis[1] + cy * axis[2];
 								ref_point.w = 0;
-								tr = p6DOF.getCalculatedTransformB();
-								btVector3 normal = -tr.getBasis().getColumn( 0 );
+								//tr = p6DOF.getCalculatedTransformB();
+								btVector3 normal; p6DOF.m_calculatedTransformB.m_basis.getColumn( 0, out normal );
+								normal.Invert( out normal );
 								double minFi = p6DOF.getRotationalLimitMotor( 0 ).m_loLimit;
 								double maxFi = p6DOF.getRotationalLimitMotor( 0 ).m_hiLimit;
 								if( minFi > maxFi )
 								{
-									getDebugDrawer().drawArc( center, ref normal, ref ref_point, dbgDrawSize, dbgDrawSize, -btScalar.SIMD_PI, btScalar.SIMD_PI, ref btVector3.Zero, false );
+									getDebugDrawer().drawArc( ref center, ref normal, ref ref_point, dbgDrawSize, dbgDrawSize, -btScalar.SIMD_PI, btScalar.SIMD_PI, ref btVector3.Zero, false );
 								}
 								else if( minFi < maxFi )
 								{
-									getDebugDrawer().drawArc( center, ref normal, ref ref_point, dbgDrawSize, dbgDrawSize, minFi, maxFi, ref btVector3.Zero, true );
+									getDebugDrawer().drawArc( ref center, ref normal, ref ref_point, dbgDrawSize, dbgDrawSize, minFi, maxFi, ref btVector3.Zero, true );
 								}
-								tr = p6DOF.getCalculatedTransformA();
+								//tr = p6DOF.getCalculatedTransformA();
 								btVector3 bbMin = p6DOF.getTranslationalLimitMotor().m_lowerLimit;
 								btVector3 bbMax = p6DOF.getTranslationalLimitMotor().m_upperLimit;
-								getDebugDrawer().drawBox( ref bbMin, ref bbMax, tr, ref btVector3.Zero );
+								getDebugDrawer().drawBox( ref bbMin, ref bbMax, ref p6DOF.m_calculatedTransformA, ref btVector3.Zero );
 							}
 						}
 						break;
@@ -1449,26 +1455,26 @@ namespace Bullet.Dynamics
 				case btObjectTypes.SLIDER_CONSTRAINT_TYPE:
 					{
 						btSliderConstraint pSlider = (btSliderConstraint)constraint;
-						btITransform tr = pSlider.getCalculatedTransformA();
-						if( drawFrames ) getDebugDrawer().drawTransform( tr, dbgDrawSize );
-						tr = pSlider.getCalculatedTransformB();
-						if( drawFrames ) getDebugDrawer().drawTransform( tr, dbgDrawSize );
+						//btTransform tr = pSlider.m_calculatedTransformA;
+						if( drawFrames ) getDebugDrawer().drawTransform( ref pSlider.m_calculatedTransformA, dbgDrawSize );
+						//tr = pSlider.getCalculatedTransformB();
+						if( drawFrames ) getDebugDrawer().drawTransform( ref pSlider.m_calculatedTransformB, dbgDrawSize );
 						if( drawLimits )
 						{
-							tr = pSlider.getUseLinearReferenceFrameA()
-								? pSlider.getCalculatedTransformA()
-								: pSlider.getCalculatedTransformB();
+							btTransform tr = pSlider.getUseLinearReferenceFrameA()
+								? pSlider.m_calculatedTransformA
+								: pSlider.m_calculatedTransformB;
 							btVector3 tmp = new btVector3( pSlider.getLowerLinLimit(), 0, 0 );
 							btVector3 li_min; tr.Apply( ref tmp, out li_min );
 							tmp = new btVector3( pSlider.getUpperLinLimit(), 0, 0 );
 							btVector3 li_max; tr.Apply( ref tmp, out li_max );
 							getDebugDrawer().drawLine( ref li_min, ref li_max, ref btVector3.Zero );
-							btVector3 normal = tr.getBasis().getColumn( 0 );
-							btVector3 axis = tr.getBasis().getColumn( 1 );
+							btVector3 normal = tr.m_basis.getColumn( 0 );
+							btVector3 axis = tr.m_basis.getColumn( 1 );
 							double a_min = pSlider.getLowerAngLimit();
 							double a_max = pSlider.getUpperAngLimit();
-							btIVector3 center = pSlider.getCalculatedTransformB().getOrigin();
-							getDebugDrawer().drawArc( center, ref normal, ref axis, dbgDrawSize, dbgDrawSize, a_min, a_max, ref btVector3.Zero, true );
+							btVector3 center = pSlider.m_calculatedTransformB.m_origin;
+							getDebugDrawer().drawArc( ref center, ref normal, ref axis, dbgDrawSize, dbgDrawSize, a_min, a_max, ref btVector3.Zero, true );
 						}
 					}
 					break;

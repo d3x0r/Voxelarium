@@ -76,14 +76,9 @@ namespace Bullet.Collision.Shapes
 		}
 
 		///getAabb's default implementation is brute force, expected derived classes to implement a fast dedicated version
-		public override void getAabb( btITransform t, out btVector3 aabbMin, out btVector3 aabbMax )
-		{
-			getAabbSlow( t, out aabbMin, out aabbMax );
-		}
-
 		public override void getAabb( ref btTransform t, out btVector3 aabbMin, out btVector3 aabbMax )
 		{
-			getAabb( t, out aabbMin, out aabbMax );
+			getAabbSlow( ref t, out aabbMin, out aabbMax );
 		}
 
 
@@ -139,7 +134,7 @@ namespace Bullet.Collision.Shapes
 
 
 
-		public override void getAabbSlow(  btITransform trans, out btVector3 minAabb, out btVector3 maxAabb )
+		public override void getAabbSlow(  ref btTransform trans, out btVector3 minAabb, out btVector3 maxAabb )
 		{
 			//use localGetSupportingVertexWithoutMargin?
 			double margin = getMargin();
@@ -150,13 +145,13 @@ namespace Bullet.Collision.Shapes
 				btVector3 vec = btVector3.Zero;
 				vec[i] = (double)( 1.0 );
 				btVector3 tmp1;
-				trans.getBasis().ApplyInverse( ref vec, out tmp1 );
+				trans.m_basis.ApplyInverse( ref vec, out tmp1 );
 				btVector3 sv; localGetSupportingVertex( ref tmp1, out sv );
 
 				btVector3 tmp; trans.Apply( ref sv, out tmp );
 				max[i] = tmp[i] + margin;
 				vec[i] = (double)( -1.0 );
-				trans.getBasis().ApplyInverse( ref vec, out tmp1 );
+				trans.m_basis.ApplyInverse( ref vec, out tmp1 );
 				localGetSupportingVertex( ref tmp1, out tmp );
 				trans.Apply( ref tmp, out tmp1 );
 				min[i] = tmp1[i] - margin;

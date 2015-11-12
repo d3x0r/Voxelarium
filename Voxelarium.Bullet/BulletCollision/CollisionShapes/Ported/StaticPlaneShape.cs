@@ -46,10 +46,6 @@ namespace Bullet.Collision.Shapes
 		{
 			result = m_planeNormal;
 		}
-		public btIVector3 getPlaneNormal()
-		{
-			return m_planeNormal;
-		}
 
 		public double getPlaneConstant()
 		{
@@ -83,7 +79,7 @@ namespace Bullet.Collision.Shapes
 			//	Debug.Assert( btFuzzyZero(m_planeNormal.length() - btScalar.BT_ONE) );
 		}
 
-		public override void getAabb( btITransform t, out btVector3 aabbMin, out btVector3 aabbMax )
+		public override void getAabb( ref btTransform t, out btVector3 aabbMin, out btVector3 aabbMax )
 		{
 			//(void)t;
 			/*

@@ -1,3 +1,4 @@
+//#define ENABLE_SIMPLE_DYNAMICS_WORLD
 #define DISABLE_ROW4
 //#define DISABLE_OPERATORS
 #define DISABLE_BOOL_IMPLICIT_OPERATOR
@@ -191,7 +192,7 @@ namespace Bullet.Dynamics
 
 		public void predictIntegratedTransform( double timeStep, out btTransform predictedTransform )
 		{
-			btTransformUtil.integrateTransform( m_worldTransform, m_linearVelocity, m_angularVelocity, timeStep, out predictedTransform );
+			btTransformUtil.integrateTransform( ref m_worldTransform, ref m_linearVelocity, ref m_angularVelocity, timeStep, out predictedTransform );
 		}
 
 		/// continuous collision detection needs prediction
@@ -205,6 +206,7 @@ namespace Bullet.Dynamics
 					m_optionalMotionState.getWorldTransform( out m_worldTransform );
 
 				btTransformUtil.calculateVelocity( ref m_interpolationWorldTransform, ref m_worldTransform, timeStep, out m_linearVelocity, out m_angularVelocity );
+				m_updateRevision++;
 				m_interpolationLinearVelocity = m_linearVelocity;
 				m_interpolationAngularVelocity = m_angularVelocity;
 				m_interpolationWorldTransform = m_worldTransform;
@@ -281,7 +283,7 @@ namespace Bullet.Dynamics
 					}
 					else
 					{
-						m_linearVelocity.setValue( btScalar.BT_ZERO, btScalar.BT_ZERO, btScalar.BT_ZERO );
+						m_linearVelocity = btVector3.Zero;
 					}
 				}
 
@@ -298,7 +300,7 @@ namespace Bullet.Dynamics
 					}
 					else
 					{
-						m_angularVelocity.setValue( btScalar.BT_ZERO, btScalar.BT_ZERO, btScalar.BT_ZERO );
+						m_angularVelocity = btVector3.Zero;
 					}
 				}
 			}
@@ -350,7 +352,7 @@ namespace Bullet.Dynamics
 		{
 			btMatrix3x3 tmp;
 			btMatrix3x3 tmp2;
-			m_worldTransform.getBasis().transpose( out tmp );
+			m_worldTransform.m_basis.transpose( out tmp );
 			m_worldTransform.m_basis.scaled( ref m_invInertiaLocal, out tmp2 );
 			tmp2.Mult( ref tmp, out m_invInertiaTensorWorld );
 			//m_invInertiaTensorWorld = m_worldTransform.m_basis.scaled( m_invInertiaLocal ) * m_worldTransform.getBasis().transpose();
@@ -557,18 +559,17 @@ namespace Bullet.Dynamics
 		}
 #endif
 
-
+#if ENABLE_SIMPLE_DYNAMICS_WORLD
+		// used in simple_dynamics_world
 		void integrateVelocities( double step )
 		{
 			if( isStaticOrKinematicObject() )
 				return;
 
 			btVector3 tmp;
-			m_totalForce.Mult( ( m_inverseMass * step ), out tmp );
-			m_linearVelocity.Add( ref tmp, out m_linearVelocity );
+			m_linearVelocity.AddScale( ref m_totalForce, m_inverseMass * step, out m_linearVelocity );
 			m_invInertiaTensorWorld.Apply( ref m_totalTorque, out tmp );
-			tmp.Mult( step, out tmp );
-			m_angularVelocity.Add( ref tmp, out m_angularVelocity );
+			m_angularVelocity.AddScale( ref tmp, step, out m_angularVelocity );
 
 			//#define MAX_ANGVEL SIMD_HALF_PI
 			/// clamp angular velocity. collision calculations will fail on higher angular velocities	
@@ -577,8 +578,8 @@ namespace Bullet.Dynamics
 			{
 				m_angularVelocity.Mult( ( btScalar.SIMD_HALF_PI / step ) / angvel, out m_angularVelocity );
 			}
-
 		}
+#endif
 
 		void getOrientation( out btQuaternion result )
 		{
@@ -597,6 +598,7 @@ namespace Bullet.Dynamics
 			{
 				m_interpolationWorldTransform = xform;
 			}
+			m_updateRevision++;
 			m_interpolationLinearVelocity = m_linearVelocity;
 			m_interpolationAngularVelocity = m_angularVelocity;
 			m_worldTransform = xform;
@@ -827,10 +829,6 @@ namespace Bullet.Dynamics
 		{
 			return m_linearFactor;
 		}
-		public btIMatrix3x3 getInvInertiaTensorWorld()
-		{
-			return m_invInertiaTensorWorld;
-		}
 #endif
 
 		public void applyCentralForce( ref btVector3 force )
@@ -856,10 +854,6 @@ namespace Bullet.Dynamics
 			result = m_invInertiaLocal;
 		}
 
-		public btIVector3 getInvInertiaDiagLocal()
-		{
-			return m_invInertiaLocal;
-		}
 		public void setInvInertiaDiagLocal( ref btVector3 diagInvInertia )
 		{
 			m_invInertiaLocal = diagInvInertia;
@@ -916,6 +910,7 @@ namespace Bullet.Dynamics
 					impulse.Mult( ref m_linearFactor, out tmp );
 					rel_pos.cross( ref tmp, out tmp2 );
 					applyTorqueImpulse( ref tmp2 );
+					btScalar.Dbg( "angular result " + m_angularVelocity );
 				}
 			}
 		}
@@ -934,10 +929,6 @@ namespace Bullet.Dynamics
 		public void getCenterOfMassTransform( out btTransform result )
 		{
 			result = m_worldTransform;
-		}
-		public btITransform getCenterOfMassTransform()
-		{
-			return m_worldTransform;
 		}
 		public void getLinearVelocity( out btVector3 result )
 		{
@@ -1101,12 +1092,6 @@ namespace Bullet.Dynamics
 		{
 			result = m_angularFactor;
 		}
-#if !DISABLE_OPERATORS
-		public btIVector3 getAngularFactor()
-		{
-			return m_angularFactor;
-		}
-#endif
 
 		//is this rigidbody added to a btCollisionWorld/btDynamicsWorld/btBroadphase?
 		public bool isInWorld()

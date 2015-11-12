@@ -223,13 +223,13 @@ namespace Bullet.Collision.Dispatch
 			double capsuleRadiusB,
 			int capsuleAxisA,
 			int capsuleAxisB,
-			btITransform transformA,
-			btITransform transformB,
+			ref btTransform transformA,
+			ref btTransform transformB,
 			double distanceThreshold )
 		{
-			btVector3 directionA; transformA.Basis.getColumn( capsuleAxisA, out directionA );
+			btVector3 directionA; transformA.m_basis.getColumn( capsuleAxisA, out directionA );
 			btVector3 translationA; transformA.getOrigin( out translationA );
-			btVector3 directionB; transformB.getBasis().getColumn( capsuleAxisB, out directionB );
+			btVector3 directionB; transformB.m_basis.getColumn( capsuleAxisB, out directionB );
 			btVector3 translationB; transformB.getOrigin( out translationB );
 
 			// translation between centers
@@ -318,15 +318,16 @@ m_sepDistance((static_cast<btConvexShape*>(body0.getCollisionShape())).getAngula
 		internal class btPerturbedContactResult : btManifoldResult
 		{
 			btManifoldResult m_originalManifoldResult;
-			btITransform m_transformA;
-			btITransform m_transformB;
-			btITransform m_unPerturbedTransform;
+			btTransform m_transformA;
+			btTransform m_transformB;
+			btTransform m_unPerturbedTransform;
 			bool m_perturbA;
 			btIDebugDraw m_debugDrawer;
 
+			public btPerturbedContactResult() { }
 
-			internal btPerturbedContactResult( btManifoldResult originalResult
-				, btITransform transformA, btITransform transformB
+            internal void Initialize( btManifoldResult originalResult
+				, ref btTransform transformA, ref btTransform transformB
 				, ref btTransform unPerturbedTransform, bool perturbA, btIDebugDraw debugDrawer )
 			{
 				m_originalManifoldResult = ( originalResult );
@@ -423,7 +424,7 @@ m_sepDistance((static_cast<btConvexShape*>(body0.getCollisionShape())).getAngula
 						, capsuleA.getHalfHeight(), capsuleA.getRadius()
 						, capsuleB.getHalfHeight(), capsuleB.getRadius()
 						, capsuleA.getUpAxis(), capsuleB.getUpAxis()
-						, body0Wrap.getWorldTransform(), body1Wrap.getWorldTransform(), threshold );
+						, ref body0Wrap.m_worldTransform, ref body1Wrap.m_worldTransform, threshold );
 
 				if( dist < threshold )
 				{
@@ -475,8 +476,8 @@ m_sepDistance((static_cast<btConvexShape*>(body0.getCollisionShape())).getAngula
 					input.m_maximumDistanceSquared *= input.m_maximumDistanceSquared;
 				}
 
-				input.m_transformA = body0Wrap.m_worldTransform.T;
-				input.m_transformB = body1Wrap.m_worldTransform.T;
+				input.m_transformA = body0Wrap.m_worldTransform;
+				input.m_transformB = body1Wrap.m_worldTransform;
 
 
 
@@ -524,8 +525,8 @@ m_sepDistance((static_cast<btConvexShape*>(body0.getCollisionShape())).getAngula
 						{
 							foundSepAxis = btPolyhedralContactClipping.findSeparatingAxis(
 								polyhedronA.getConvexPolyhedron(), polyhedronB.getConvexPolyhedron(),
-								body0Wrap.m_worldTransform,
-								body1Wrap.getWorldTransform(),
+								ref body0Wrap.m_worldTransform,
+								ref body1Wrap.m_worldTransform,
 								out sepNormalWorldSpace, resultOut );
 						}
 						else
@@ -558,8 +559,8 @@ m_sepDistance((static_cast<btConvexShape*>(body0.getCollisionShape())).getAngula
 							//				Console.WriteLine("sepNormalWorldSpace=%f,%f,%f\n",sepNormalWorldSpace.x,sepNormalWorldSpace.y,sepNormalWorldSpace.z);
 
 							btPolyhedralContactClipping.clipHullAgainstHull( ref sepNormalWorldSpace, polyhedronA.getConvexPolyhedron(), polyhedronB.getConvexPolyhedron(),
-								body0Wrap.getWorldTransform(),
-								body1Wrap.getWorldTransform()
+								ref body0Wrap.m_worldTransform,
+								ref body1Wrap.m_worldTransform
 								, minDist - threshold, threshold, resultOut );
 
 						}
@@ -581,11 +582,11 @@ m_sepDistance((static_cast<btConvexShape*>(body0.getCollisionShape())).getAngula
 							btVertexArray vertices = new btVertexArray();
 							btTriangleShape tri = (btTriangleShape)polyhedronB;
 							btVector3 tmp;
-							body1Wrap.getWorldTransform().Apply( ref tri.m_vertices1, out tmp );
+							body1Wrap.m_worldTransform.Apply( ref tri.m_vertices1, out tmp );
 							vertices.Add( ref tmp );
-							body1Wrap.getWorldTransform().Apply( ref tri.m_vertices2, out tmp );
+							body1Wrap.m_worldTransform.Apply( ref tri.m_vertices2, out tmp );
 							vertices.Add( ref tmp );
-							body1Wrap.getWorldTransform().Apply( ref tri.m_vertices3, out tmp );
+							body1Wrap.m_worldTransform.Apply( ref tri.m_vertices3, out tmp );
 							vertices.Add( ref tmp );
 
 							//tri.initializePolyhedralFeatures();
@@ -602,13 +603,13 @@ m_sepDistance((static_cast<btConvexShape*>(body0.getCollisionShape())).getAngula
 								polyhedronB.initializePolyhedralFeatures();
 								foundSepAxis = btPolyhedralContactClipping.findSeparatingAxis(
 										polyhedronA.getConvexPolyhedron(), polyhedronB.getConvexPolyhedron(),
-										body0Wrap.getWorldTransform(),
-										body1Wrap.getWorldTransform(),
+										ref body0Wrap.m_worldTransform,
+										ref body1Wrap.m_worldTransform,
 										out sepNormalWorldSpace, resultOut );
 								//	 Console.WriteLine("sepNormalWorldSpace=%f,%f,%f\n",sepNormalWorldSpace.x,sepNormalWorldSpace.y,sepNormalWorldSpace.z);
 								btPolyhedralContactClipping.clipFaceAgainstHull( ref sepNormalWorldSpace
 									, polyhedronA.getConvexPolyhedron(),
-									body0Wrap.getWorldTransform(), vertices, minDist - threshold, maxDist, resultOut );
+									ref body0Wrap.m_worldTransform, vertices, minDist - threshold, maxDist, resultOut );
 
 							}
 							else
@@ -630,7 +631,7 @@ m_sepDistance((static_cast<btConvexShape*>(body0.getCollisionShape())).getAngula
 									//foundSepAxis = true;
 									btPolyhedralContactClipping.clipFaceAgainstHull( ref sepNormalWorldSpace
 										, polyhedronA.getConvexPolyhedron(),
-										body0Wrap.getWorldTransform(), vertices, minDist - threshold, maxDist, resultOut );
+										ref body0Wrap.m_worldTransform, vertices, minDist - threshold, maxDist, resultOut );
 								}
 								else
 								{
@@ -696,11 +697,11 @@ m_sepDistance((static_cast<btConvexShape*>(body0.getCollisionShape())).getAngula
 						btTransform unPerturbedTransform;
 						if( perturbeA )
 						{
-							unPerturbedTransform = input.m_transformA.T;
+							unPerturbedTransform = input.m_transformA;
 						}
 						else
 						{
-							unPerturbedTransform = input.m_transformB.T;
+							unPerturbedTransform = input.m_transformB;
 						}
 
 						for( i = 0; i < m_numPerturbationIterations; i++ )
@@ -724,7 +725,7 @@ m_sepDistance((static_cast<btConvexShape*>(body0.getCollisionShape())).getAngula
 									btMatrix3x3 m3;
 									btMatrix3x3.Mult( ref m, ref m2, out m3 );
 									input.m_transformA.setBasis( ref m3 );
-									input.m_transformB = body1Wrap.getWorldTransform().T;
+									input.m_transformB = body1Wrap.m_worldTransform;
 #if DEBUG_CONTACTS
 					dispatchInfo.m_debugDraw.drawTransform(input.m_transformA,10.0);
 #endif //DEBUG_CONTACTS
@@ -741,18 +742,28 @@ m_sepDistance((static_cast<btConvexShape*>(body0.getCollisionShape())).getAngula
 									btMatrix3x3 m3;
 									btMatrix3x3.Mult( ref m, ref m2, out m3 );
 
-									input.m_transformA = body0Wrap.getWorldTransform().T;
+									input.m_transformA = body0Wrap.m_worldTransform;
 									input.m_transformB.setBasis( ref m3 );
 #if DEBUG_CONTACTS
 					dispatchInfo.m_debugDraw.drawTransform(input.m_transformB,10.0);
 #endif
 								}
 
-								btPerturbedContactResult perturbedResultOut = new btPerturbedContactResult( resultOut
-										, input.m_transformA, input.m_transformB
-										, ref unPerturbedTransform, perturbeA
+								btPerturbedContactResult perturbedResultOut = BulletGlobals.PerturbedContactResultPool.Get();
+								if( perturbeA )
+									perturbedResultOut.Initialize( resultOut
+										, ref input.m_transformA, ref input.m_transformB
+										, ref input.m_transformA
+										, perturbeA
 										, dispatchInfo.m_debugDraw );
+								else
+									perturbedResultOut.Initialize( resultOut
+										, ref input.m_transformA, ref input.m_transformB
+										, ref input.m_transformB
+												, perturbeA
+												, dispatchInfo.m_debugDraw );
 								gjkPairDetector.getClosestPoints( input, perturbedResultOut, dispatchInfo.m_debugDraw );
+								BulletGlobals.PerturbedContactResultPool.Free( perturbedResultOut );
 							}
 						}
 					}
@@ -827,8 +838,8 @@ m_sepDistance((static_cast<btConvexShape*>(body0.getCollisionShape())).getAngula
 					btGjkConvexCast ccd1 = BulletGlobals.GjkConvexCastPool.Get();
 					ccd1.Initialize( convex0, sphere1, voronoiSimplex );
 					//ContinuousConvexCollision ccd(min0,min1,&voronoiSimplex,0);
-					if( ccd1.calcTimeOfImpact( col0.m_worldTransform, col0.m_interpolationWorldTransform,
-							col1.m_worldTransform, col1.m_interpolationWorldTransform, result ) )
+					if( ccd1.calcTimeOfImpact( ref col0.m_worldTransform, ref col0.m_interpolationWorldTransform,
+							ref col1.m_worldTransform, ref col1.m_interpolationWorldTransform, result ) )
 					{
 
 						//store result.m_fraction in both bodies
@@ -861,8 +872,8 @@ m_sepDistance((static_cast<btConvexShape*>(body0.getCollisionShape())).getAngula
 					btGjkConvexCast ccd1 = BulletGlobals.GjkConvexCastPool.Get();
 					ccd1.Initialize( sphere0, convex1, voronoiSimplex );
 					//ContinuousConvexCollision ccd(min0,min1,&voronoiSimplex,0);
-					if( ccd1.calcTimeOfImpact( col0.m_worldTransform, col0.m_interpolationWorldTransform,
-								col1.m_worldTransform, col1.m_interpolationWorldTransform, result ) )
+					if( ccd1.calcTimeOfImpact( ref col0.m_worldTransform, ref col0.m_interpolationWorldTransform,
+								ref col1.m_worldTransform, ref col1.m_interpolationWorldTransform, result ) )
 					{
 						//store result.m_fraction in both bodies
 

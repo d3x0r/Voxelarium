@@ -157,7 +157,7 @@ namespace Bullet.Collision.NarrowPhase
 
 		public btTriangleConvexcastCallback() { }
 
-		internal void Initialize( btConvexShape convexShape, ref btTransform convexShapeFrom, ref btTransform convexShapeTo, btITransform triangleToWorld, double triangleCollisionMargin )
+		internal void Initialize( btConvexShape convexShape, ref btTransform convexShapeFrom, ref btTransform convexShapeTo, ref btTransform triangleToWorld, double triangleCollisionMargin )
 		{
 			m_convexShape = convexShape;
 			m_convexShapeFrom = convexShapeFrom;
@@ -192,7 +192,7 @@ namespace Bullet.Collision.NarrowPhase
 				castResult.Initialize();
 				castResult.m_fraction = btScalar.BT_ONE;
 				castResult.m_allowedPenetration = m_allowedPenetration;
-				if( convexCaster.calcTimeOfImpact( m_convexShapeFrom, m_convexShapeTo, m_triangleToWorld, m_triangleToWorld, castResult ) )
+				if( convexCaster.calcTimeOfImpact( ref m_convexShapeFrom, ref m_convexShapeTo,ref m_triangleToWorld, ref m_triangleToWorld, castResult ) )
 				{
 					//add hit
 					if( castResult.m_normal.length2() > (double)( 0.0001 ) )

@@ -90,15 +90,6 @@ namespace Bullet.Dynamics.ConstraintSolver
 			m_pivotInB = pivotB;
 		}
 
-		internal btIVector3 getPivotInA()
-		{
-			return m_pivotInA;
-		}
-
-		internal btIVector3 getPivotInB()
-		{
-			return m_pivotInB;
-		}
 		internal void getPivotInA( out btVector3 result )
 		{
 			result = m_pivotInA;
@@ -133,7 +124,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 			: base( btObjectTypes.POINT2POINT_CONSTRAINT_TYPE, rbA )
 		{
 			m_pivotInA = ( pivotInA );
-			rbA.getCenterOfMassTransform().Apply( ref pivotInA, out m_pivotInB );
+			rbA.m_worldTransform.Apply( ref pivotInA, out m_pivotInB );
 			m_flags = ( 0 );
 			m_useSolveConstraintObsolete = ( false );
 
@@ -212,7 +203,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 			int j;
 			for( j = 0; j < 3; j++ )
 			{
-				info.m_solverConstraints[j].m_rhs = k * ( a2[j] + body1_trans.getOrigin()[j] - a1[j] - body0_trans.getOrigin()[j] );
+				info.m_solverConstraints[j].m_rhs = k * ( a2[j] + body1_trans.m_origin[j] - a1[j] - body0_trans.m_origin[j] );
 				//Console.WriteLine("info.m_constraintError[%d]=%f\n",j,info.m_constraintError[j]);
 			}
 			if( ( m_flags & btPoint2PointFlags.BT_P2P_FLAGS_CFM ) != 0 )
@@ -246,7 +237,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 
 		///override the default global value of a parameter (such as ERP or CFM), optionally provide the axis (0..5). 
 		///If no axis is provided, it uses the default axis for this constraint.
-		internal override void setParam( btConstraintParams num, double value, int axis = -1 )
+		public override void setParam( btConstraintParams num, double value, int axis = -1 )
 		{
 			if( axis != -1 )
 			{
@@ -274,7 +265,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 		}
 
 		///return the local value of parameter
-		internal override double getParam( btConstraintParams num, int axis = -1 )
+		public override double getParam( btConstraintParams num, int axis = -1 )
 		{
 			double retVal = ( btScalar.SIMD_INFINITY );
 			if( axis != -1 )

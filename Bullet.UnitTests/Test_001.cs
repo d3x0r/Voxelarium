@@ -68,7 +68,7 @@ namespace Bullet.UnitTests
 				fallingRigidBody.getMotionState().getWorldTransform( out trans );
 				Console.WriteLine( "Iteration {0}", step );
 				Console.WriteLine( trans.ToString( "cube orient\t", "\t\t", "cube origin\t" ) );
-				btIVector3 v = fallingRigidBody.getAngularVelocity();
+				btVector3 v = fallingRigidBody.getAngularVelocity();
 				Console.WriteLine( "cube Ang Vel : {0}", v );
 				v = fallingRigidBody.getLinearVelocity();
 				Console.WriteLine( "cube Lin Vel : {0}", v );

@@ -120,13 +120,6 @@ namespace Bullet.Collision.Shapes
 			t.m_origin.Add( ref extent, out aabbMax );
 		}
 
-		public override void getAabb( btITransform t, out btVector3 aabbMin, out btVector3 aabbMax )
-		{
-			btVector3 extent = new btVector3( getMargin() );
-			t.getOrigin().Sub( ref extent, out aabbMin );
-			t.getOrigin().Add( ref extent, out aabbMax );
-		}
-
 		public override void calculateLocalInertia( double mass, out btVector3 inertia )
 		{
 			double elem = (double)( 0.4 ) * mass * getMargin() * getMargin();

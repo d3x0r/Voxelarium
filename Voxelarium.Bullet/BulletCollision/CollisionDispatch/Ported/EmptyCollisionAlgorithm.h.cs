@@ -49,10 +49,12 @@ namespace Bullet.Collision.Dispatch
 		public btEmptyAlgorithm()
 		{ }
 
+		/*
 		internal void Initialize( btCollisionAlgorithmConstructionInfo ci)
 		{
 			base.Initialize( ci );
         }
+		*/
 
 		internal override void processCollision( btCollisionObjectWrapper a, btCollisionObjectWrapper b, btDispatcherInfo c, btManifoldResult d)
 		{

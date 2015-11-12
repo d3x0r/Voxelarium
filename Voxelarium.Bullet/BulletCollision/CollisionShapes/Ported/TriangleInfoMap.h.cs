@@ -18,7 +18,7 @@ using Bullet.LinearMath;
 namespace Bullet.Collision.Shapes
 {
 
-
+#if USED
 	///The btTriangleInfo structure stores information to adjust collision normals to avoid collisions against internal edges
 	///it can be generated using 
 	internal class btTriangleInfo
@@ -237,5 +237,5 @@ namespace Bullet.Collision.Shapes
 		}
 	}
 #endif
-
+#endif
 }

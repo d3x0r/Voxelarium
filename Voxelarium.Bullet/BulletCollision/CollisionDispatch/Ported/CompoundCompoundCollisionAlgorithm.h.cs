@@ -32,7 +32,7 @@ namespace Bullet.Collision.Dispatch
 		internal static btShapePairCallback gCompoundCompoundChildShapePairCallback;
 
 		btHashedSimplePairCache m_childCollisionAlgorithmCache;
-		btSimplePairArray m_removePairs;
+		btSimplePairArray m_removePairs = new btSimplePairArray();
 
 
 		int m_compoundShapeRevision0;//to keep track of changes, so that childAlgorithm array can be updated
@@ -198,13 +198,13 @@ namespace Bullet.Collision.Dispatch
 				btCollisionShape childShape1 = compoundShape1.getChildShape( childIndex1 );
 
 				//backup
-				btITransform orgTrans0 = m_compound0ColObjWrap.getWorldTransform();
-				btITransform childTrans0 = compoundShape0.getChildTransform( childIndex0 );
-				btTransform newChildWorldTrans0; orgTrans0.Apply( childTrans0, out newChildWorldTrans0 );
+				btTransform orgTrans0 = m_compound0ColObjWrap.m_worldTransform;
+				btTransform childTrans0 = compoundShape0.getChildTransform( childIndex0 );
+				btTransform newChildWorldTrans0; orgTrans0.Apply( ref childTrans0, out newChildWorldTrans0 );
 
-				btITransform orgTrans1 = m_compound1ColObjWrap.getWorldTransform();
-				btITransform childTrans1 = compoundShape1.getChildTransform( childIndex1 );
-				btTransform newChildWorldTrans1; orgTrans1.Apply( childTrans1, out newChildWorldTrans1 );
+				btTransform orgTrans1 = m_compound1ColObjWrap.m_worldTransform;
+				btTransform childTrans1 = compoundShape1.getChildTransform( childIndex1 );
+				btTransform newChildWorldTrans1; orgTrans1.Apply( ref childTrans1, out newChildWorldTrans1 );
 
 
 				//perform an AABB check first
@@ -223,8 +223,8 @@ namespace Bullet.Collision.Dispatch
 					using( btCollisionObjectWrapper compoundWrap0 = BulletGlobals.CollisionObjectWrapperPool.Get()
 											, compoundWrap1 = BulletGlobals.CollisionObjectWrapperPool.Get() )
 					{
-						compoundWrap0.Initialize( this.m_compound0ColObjWrap, childShape0, m_compound0ColObjWrap.m_collisionObject, newChildWorldTrans0, -1, childIndex0 );
-						compoundWrap1.Initialize( this.m_compound1ColObjWrap, childShape1, m_compound1ColObjWrap.m_collisionObject, newChildWorldTrans1, -1, childIndex1 );
+						compoundWrap0.Initialize( this.m_compound0ColObjWrap, childShape0, m_compound0ColObjWrap.m_collisionObject, ref newChildWorldTrans0, -1, childIndex0 );
+						compoundWrap1.Initialize( this.m_compound1ColObjWrap, childShape1, m_compound1ColObjWrap.m_collisionObject, ref newChildWorldTrans1, -1, childIndex1 );
 
 
 						btSimplePair pair = m_childCollisionAlgorithmCache.findPair( childIndex0, childIndex1 );
@@ -278,7 +278,7 @@ namespace Bullet.Collision.Dispatch
 										  btDbvt.btDbvtVolume b, ref btTransform xform )
 		{
 			btVector3 newmin, newmax;
-			btAabbUtil.btTransformAabb( b.Mins(), b.Maxs(), 0, ref xform, out newmin, out newmax );
+			btAabbUtil.btTransformAabb( ref b._min, ref b._max, 0, ref xform, out newmin, out newmax );
 			btDbvt.btDbvtVolume newb = btDbvt.btDbvtVolume.FromMM( ref newmin, ref newmax );
 			return btDbvt.btDbvtVolume.Intersect( ref a, ref newb );
 		}
@@ -405,7 +405,7 @@ namespace Bullet.Collision.Dispatch
 				( col0ObjWrap, col1ObjWrap,this.m_dispatcher, dispatchInfo, resultOut, this.m_childCollisionAlgorithmCache, m_sharedManifold);
 
 
-			btTransform xform; col0ObjWrap.getWorldTransform().inverseTimes( col1ObjWrap.getWorldTransform(), out xform );
+			btTransform xform; col0ObjWrap.m_worldTransform.inverseTimes( ref col1ObjWrap.m_worldTransform, out xform );
 			MycollideTT( tree0.m_root, tree1.m_root, ref xform, callback );
 
 			//Console.WriteLine("#compound-compound child/leaf overlap =%d                      \r",callback.m_numOverlapPairs);
@@ -431,30 +431,24 @@ namespace Bullet.Collision.Dispatch
 						btCollisionAlgorithm algo = (btCollisionAlgorithm)pairs[i].m_userPointer;
 
 						{
-							btITransform orgTrans0;
 							btCollisionShape childShape0 = null;
 
 							btTransform newChildWorldTrans0;
-							btITransform orgInterpolationTrans0;
+							//btTransform orgInterpolationTrans0;
 							childShape0 = compoundShape0.getChildShape( pairs[i].m_indexA );
-							orgTrans0 = col0ObjWrap.getWorldTransform();
-							orgInterpolationTrans0 = col0ObjWrap.getWorldTransform();
-							btITransform childTrans0 = compoundShape0.getChildTransform( pairs[i].m_indexA );
-							orgTrans0.Apply( childTrans0, out newChildWorldTrans0 );
+							//orgInterpolationTrans0 = col0ObjWrap.m_worldTransform;
+							btTransform childTrans0 = compoundShape0.getChildTransform( pairs[i].m_indexA );
+							col0ObjWrap.m_worldTransform.Apply( ref childTrans0, out newChildWorldTrans0 );
 							childShape0.getAabb( ref newChildWorldTrans0, out aabbMin0, out aabbMax0 );
 						}
 
 						{
-							btITransform orgInterpolationTrans1;
 							btCollisionShape childShape1 = null;
-							btITransform orgTrans1;
 							btTransform newChildWorldTrans1;
 
 							childShape1 = compoundShape1.getChildShape( pairs[i].m_indexB );
-							orgTrans1 = col1ObjWrap.getWorldTransform();
-							orgInterpolationTrans1 = col1ObjWrap.getWorldTransform();
-							btITransform childTrans1 = compoundShape1.getChildTransform( pairs[i].m_indexB );
-							orgTrans1.Apply( childTrans1, out newChildWorldTrans1 );
+							btTransform childTrans1 = compoundShape1.getChildTransform( pairs[i].m_indexB );
+							col1ObjWrap.m_worldTransform.Apply( ref childTrans1, out newChildWorldTrans1 );
 							childShape1.getAabb( ref newChildWorldTrans1, out aabbMin1, out aabbMax1 );
 						}
 

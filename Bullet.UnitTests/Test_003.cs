@@ -61,7 +61,8 @@ namespace Bullet.UnitTests
 
 			//-------------------------------------------------------
 
-			btCollisionShape fallShape2 = new btSphereShape( btScalar.BT_ONE );
+			//btCollisionShape fallShape2 = new btSphereShape( btScalar.BT_ONE );
+			btCollisionShape fallShape2 = new btBoxShape( ref btVector3.One );
 
 			origin = new btVector3( sloped?-34:0.25, 1, 0.25 );
 			init = new btTransform( ref btQuaternion.Identity, ref origin );
@@ -86,7 +87,7 @@ namespace Bullet.UnitTests
 		{
 			//for( int i = 0; i < 300; i++ )
 			{
-				if( step == 204 )
+				if( step == 184 )
 				{
 					int a = 3;
 				}
@@ -102,7 +103,7 @@ namespace Bullet.UnitTests
 
 				Console.WriteLine( "Iteration {0}", step );
 				Console.WriteLine( "{0}", trans.ToString( "cube orient\t", "\t\t", "cube origin\t" ) );
-				btIVector3 v = fallingRigidBody.getAngularVelocity();
+				btVector3 v = fallingRigidBody.getAngularVelocity();
 				Console.WriteLine( "cube Ang Vel : {0}", v );
 				v = fallingRigidBody.getLinearVelocity();
 				Console.WriteLine( "cube Lin Vel : {0}", v );

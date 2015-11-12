@@ -329,16 +329,18 @@ namespace Bullet.Collision.Shapes
 				{
 					for( int k = 0; k <= j; k++ )
 					{
-						i[j][k] = i[k][j] = volNeg * ( (double)( 0.1 ) * ( a[j] * a[k] + b[j] * b[k] + c[j] * c[k] )
+						double val = volNeg * ( (double)( 0.1 ) * ( a[j] * a[k] + b[j] * b[k] + c[j] * c[k] )
 						   + (double)( 0.05 ) * ( a[j] * b[k] + a[k] * b[j] + a[j] * c[k] + a[k] * c[j] + b[j] * c[k] + b[k] * c[j] ) );
-					}
+						btMatrix3x3.setValue( ref i, j, k, val );
+						btMatrix3x3.setValue( ref i, k, j, val );
+                    }
 				}
 				double i00 = -i[0][0];
 				double i11 = -i[1][1];
 				double i22 = -i[2][2];
-				i[0][0] = i11 + i22;
-				i[1][1] = i22 + i00;
-				i[2][2] = i00 + i11;
+				btMatrix3x3.setValue( ref i,0,0,  i11 + i22 );
+				btMatrix3x3.setValue( ref i,1,1,  i22 + i00 );
+				btMatrix3x3.setValue( ref i,2,2,  i00 + i11 );
 				sum.m_el0 += i.m_el0;
 				sum.m_el1 += i.m_el1;
 				sum.m_el2 += i.m_el2;

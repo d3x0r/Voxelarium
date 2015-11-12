@@ -953,10 +953,10 @@ void print()
 
 		btVector3 scaling;
 		btVector3 center;
-		Pool<Vertex> vertexPool;
-		Pool<Edge> edgePool;
-		Pool<Face> facePool;
-		btList<Vertex> originalVertices;
+		Pool<Vertex> vertexPool = new Pool<Vertex>();
+		Pool<Edge> edgePool = new Pool<Edge>();
+		Pool<Face> facePool = new Pool<Face>();
+		btList<Vertex> originalVertices = new btList<Vertex>();
 		btConvexHullComputer.Edge mergeStamp;
 		int minAxis;
 		int medAxis;
@@ -2643,13 +2643,13 @@ void print()
 
 
 		// Vertices of the output hull
-		internal btList<btVector3> vertices;
+		internal btList<btVector3> vertices = new btList<btVector3>();
 
 		// Edges of the output hull
-		internal btList<Edge> edges;
+		internal btList<Edge> edges = new btList<Edge>();
 
 		// Faces of the convex hull. Each entry is an index into the "edges" array pointing to an edge of the face. Faces are planar n-gons
-		internal btList<Edge> faces;
+		internal btList<Edge> faces = new btList<Edge>();
 
 		/*
 		Compute convex hull of "count" vertices stored in "coords". "stride" is the difference in bytes

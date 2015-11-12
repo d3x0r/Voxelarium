@@ -312,11 +312,6 @@ namespace Bullet.Collision.Shapes
 			//m_implicitShapeDimensions = ( boxHalfExtents * m_localScaling ) - margin;
 		}
 
-		public override void getAabb( btITransform t, out btVector3 aabbMin, out btVector3 aabbMax )
-		{
-			btAabbUtil.btTransformAabb( ref m_implicitShapeDimensions, getMargin(), t, out aabbMin, out aabbMax );
-		}
-
 		public override void getAabb( ref btTransform t, out btVector3 aabbMin, out btVector3 aabbMax )
 		{
 			btAabbUtil.btTransformAabb( ref m_implicitShapeDimensions, getMargin(), ref t, out aabbMin, out aabbMax );

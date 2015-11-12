@@ -353,14 +353,14 @@ namespace Bullet.Dynamics.ConstraintSolver
 		btJacobianEntry[] m_jacLinear = new btJacobianEntry[3];
 		btJacobianEntry[] m_jacAng = new btJacobianEntry[3];
 
-		btTranslationalLimitMotor2 m_linearLimits;
+		btTranslationalLimitMotor2 m_linearLimits = new btTranslationalLimitMotor2();
 		btRotationalLimitMotor2[] m_angularLimits = new btRotationalLimitMotor2[3];
 
 		RotateOrder m_rotateOrder;
 
 
-		btTransform m_calculatedTransformA;
-		btTransform m_calculatedTransformB;
+		internal btTransform m_calculatedTransformA;
+		internal btTransform m_calculatedTransformB;
 		btVector3 m_calculatedAxisAngleDiff;
 		btVector3[] m_calculatedAxis = new btVector3[3];
 		btVector3 m_calculatedLinearDiff;
@@ -417,12 +417,12 @@ namespace Bullet.Dynamics.ConstraintSolver
 		//void calculateTransforms();
 
 		// Gets the global transform of the offset for body A
-		internal btITransform getCalculatedTransformA() { return m_calculatedTransformA; }
+		//internal btITransform getCalculatedTransformA() { return m_calculatedTransformA; }
 		// Gets the global transform of the offset for body B
-		internal btITransform getCalculatedTransformB() { return m_calculatedTransformB; }
+		//internal btITransform getCalculatedTransformB() { return m_calculatedTransformB; }
 
-		internal btITransform getFrameOffsetA() { return m_frameInA; }
-		internal btITransform getFrameOffsetB() { return m_frameInB; }
+		//internal btITransform getFrameOffsetA() { return m_frameInA; }
+		//internal btITransform getFrameOffsetB() { return m_frameInB; }
 
 
 		// Get the rotation axis in global coordinates ( calculateTransforms() must be called previously )
@@ -575,7 +575,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 			m_rotateOrder = ( rotOrder );
 			m_flags = ( 0 );
 			///not providing rigidbody A means implicitly using worldspace for body A
-			rbB.m_worldTransform.Apply( m_frameInB, out m_frameInA );
+			rbB.m_worldTransform.Apply( ref m_frameInB, out m_frameInA );
 			calculateTransforms();
 		}
 
@@ -584,7 +584,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 		{
 			int i = index % 3;
 			int j = index / 3;
-			return mat[i,j];
+			return btMatrix3x3.getValue( ref mat, i,j );
 		}
 
 		// MatrixToEulerXYZ from http://www.geometrictools.com/LibFoundation/Mathematics/Wm4Matrix3.inl.html
@@ -792,7 +792,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 		void calculateAngleInfo()
 		{
 			btMatrix3x3 inv;
-			m_calculatedTransformA.getBasis().inverse( out inv );
+			m_calculatedTransformA.m_basis.inverse( out inv );
 			btMatrix3x3 relative_frame; inv.Apply( ref m_calculatedTransformB.m_basis, out relative_frame );
 			switch( m_rotateOrder )
 			{
@@ -841,8 +841,8 @@ namespace Bullet.Dynamics.ConstraintSolver
 						//third rotate around x" = X
 						//Original XYZ extrinsic rotation order. 
 						//Planes: xy and YZ normals: z, X.  Plane intersection (N) is z.cross(X)
-						btVector3 axis0 = m_calculatedTransformB.getBasis().getColumn( 0 );
-						btVector3 axis2 = m_calculatedTransformA.getBasis().getColumn( 2 );
+						btVector3 axis0 = m_calculatedTransformB.m_basis.getColumn( 0 );
+						btVector3 axis2 = m_calculatedTransformA.m_basis.getColumn( 2 );
 						m_calculatedAxis[1] = axis2.cross( axis0 );
 						m_calculatedAxis[0] = m_calculatedAxis[1].cross( axis2 );
 						m_calculatedAxis[2] = axis0.cross( m_calculatedAxis[1] );
@@ -854,8 +854,8 @@ namespace Bullet.Dynamics.ConstraintSolver
 						//first rotate around y
 						//second rotate around z'= y.cross(X)
 						//third rotate around x" = X
-						btVector3 axis0 = m_calculatedTransformB.getBasis().getColumn( 0 );
-						btVector3 axis1 = m_calculatedTransformA.getBasis().getColumn( 1 );
+						btVector3 axis0 = m_calculatedTransformB.m_basis.getColumn( 0 );
+						btVector3 axis1 = m_calculatedTransformA.m_basis.getColumn( 1 );
 						m_calculatedAxis[2] = axis0.cross( axis1 );
 						m_calculatedAxis[0] = axis1.cross( m_calculatedAxis[2] );
 						m_calculatedAxis[1] = m_calculatedAxis[2].cross( axis0 );
@@ -867,8 +867,8 @@ namespace Bullet.Dynamics.ConstraintSolver
 						//first rotate around z
 						//second rotate around x'= z.cross(Y)
 						//third rotate around y" = Y
-						btVector3 axis1 = m_calculatedTransformB.getBasis().getColumn( 1 );
-						btVector3 axis2 = m_calculatedTransformA.getBasis().getColumn( 2 );
+						btVector3 axis1 = m_calculatedTransformB.m_basis.getColumn( 1 );
+						btVector3 axis2 = m_calculatedTransformA.m_basis.getColumn( 2 );
 						m_calculatedAxis[0] = axis1.cross( axis2 );
 						m_calculatedAxis[1] = axis2.cross( m_calculatedAxis[0] );
 						m_calculatedAxis[2] = m_calculatedAxis[0].cross( axis1 );
@@ -880,8 +880,8 @@ namespace Bullet.Dynamics.ConstraintSolver
 						//first rotate around x
 						//second rotate around z'= x.cross(Y)
 						//third rotate around y" = Y
-						btVector3 axis0 = m_calculatedTransformA.getBasis().getColumn( 0 );
-						btVector3 axis1 = m_calculatedTransformB.getBasis().getColumn( 1 );
+						btVector3 axis0 = m_calculatedTransformA.m_basis.getColumn( 0 );
+						btVector3 axis1 = m_calculatedTransformB.m_basis.getColumn( 1 );
 						m_calculatedAxis[2] = axis0.cross( axis1 );
 						m_calculatedAxis[0] = axis1.cross( m_calculatedAxis[2] );
 						m_calculatedAxis[1] = m_calculatedAxis[2].cross( axis0 );
@@ -893,8 +893,8 @@ namespace Bullet.Dynamics.ConstraintSolver
 						//first rotate around y
 						//second rotate around x'= y.cross(Z)
 						//third rotate around z" = Z
-						btVector3 axis1 = m_calculatedTransformA.getBasis().getColumn( 1 );
-						btVector3 axis2 = m_calculatedTransformB.getBasis().getColumn( 2 );
+						btVector3 axis1 = m_calculatedTransformA.m_basis.getColumn( 1 );
+						btVector3 axis2 = m_calculatedTransformB.m_basis.getColumn( 2 );
 						m_calculatedAxis[0] = axis1.cross( axis2 );
 						m_calculatedAxis[1] = axis2.cross( m_calculatedAxis[0] );
 						m_calculatedAxis[2] = m_calculatedAxis[0].cross( axis1 );
@@ -906,8 +906,8 @@ namespace Bullet.Dynamics.ConstraintSolver
 						//first rotate around x
 						//second rotate around y' = x.cross(Z)
 						//third rotate around z" = Z
-						btVector3 axis0 = m_calculatedTransformA.getBasis().getColumn( 0 );
-						btVector3 axis2 = m_calculatedTransformB.getBasis().getColumn( 2 );
+						btVector3 axis0 = m_calculatedTransformA.m_basis.getColumn( 0 );
+						btVector3 axis2 = m_calculatedTransformB.m_basis.getColumn( 2 );
 						m_calculatedAxis[1] = axis2.cross( axis0 );
 						m_calculatedAxis[0] = m_calculatedAxis[1].cross( axis2 );
 						m_calculatedAxis[2] = axis0.cross( m_calculatedAxis[1] );
@@ -1033,7 +1033,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 					limot.m_loLimit = m_linearLimits.m_lowerLimit[i];
 					limot.m_maxMotorForce = m_linearLimits.m_maxMotorForce[i];
 					limot.m_targetVelocity = m_linearLimits.m_targetVelocity[i];
-					btVector3 axis = m_calculatedTransformA.getBasis().getColumn( i );
+					btVector3 axis = m_calculatedTransformA.m_basis.getColumn( i );
 					//int flags = m_flags >> ( i * BT_6DOF_FLAGS_AXIS_SHIFT2 );
 					limot.m_stopCFM = ( m_flags & bt6DofFlagsIndexed.BT_6DOF_FLAGS_CFM_STOP2[i] ) != 0 ? m_linearLimits.m_stopCFM[i] : info.m_solverConstraints[0].m_cfm;
 					limot.m_stopERP = ( m_flags & bt6DofFlagsIndexed.BT_6DOF_FLAGS_ERP_STOP2[i] ) != 0 ? m_linearLimits.m_stopERP[i] : info.erp;
@@ -1365,7 +1365,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 
 		//override the default global value of a parameter (such as ERP or CFM), optionally provide the axis (0..5). 
 		//If no axis is provided, it uses the default axis for this constraint.
-		internal override void setParam( btConstraintParams num, double value, int axis = -1 )
+		public override void setParam( btConstraintParams num, double value, int axis = -1 )
 		{
 			if( ( axis >= 0 ) && ( axis < 3 ) )
 			{
@@ -1424,7 +1424,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 		}
 
 		//return the local value of parameter
-		internal override double getParam( btConstraintParams num, int axis = -1 )
+		public override double getParam( btConstraintParams num, int axis = -1 )
 		{
 			double retVal = 0;
 			if( ( axis >= 0 ) && ( axis < 3 ) )
@@ -1493,9 +1493,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 			btVector3 xAxis; yAxis.cross( ref zAxis, out xAxis ); // we want right coordinate system
 
 			btTransform frameInW = btTransform.Identity;
-			frameInW.getBasis().setValue( xAxis[0], yAxis[0], zAxis[0],
-										  xAxis[1], yAxis[1], zAxis[1],
-										  xAxis[2], yAxis[2], zAxis[2] );
+			frameInW.m_basis.setValue( ref xAxis, ref yAxis, ref zAxis );
 
 			// now get constraint frame in local coordinate systems
 			btTransform tmp;

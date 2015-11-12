@@ -70,7 +70,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 		const double SLIDER_CONSTRAINT_DEF_CFM = ( (double)( 0 ) );
 
 		///for backwards compatibility during the transition to 'getInfo/getInfo2'
-		protected bool m_useSolveConstraintObsolete;
+		//protected bool m_useSolveConstraintObsolete;
 		protected bool m_useOffsetForConstraintFrame;
 		protected btTransform m_frameInA;
 		protected btTransform m_frameInB;
@@ -129,9 +129,9 @@ namespace Bullet.Dynamics.ConstraintSolver
 
 		protected btJacobianEntry[] m_jacAng = new btJacobianEntry[3];
 
-		protected double m_timeStep;
-		protected btTransform m_calculatedTransformA;
-		protected btTransform m_calculatedTransformB;
+		//protected double m_timeStep;
+		internal btTransform m_calculatedTransformA;
+		internal btTransform m_calculatedTransformB;
 
 		protected btVector3 m_sliderAxis;
 		protected btVector3 m_realPivotAInW;
@@ -139,14 +139,14 @@ namespace Bullet.Dynamics.ConstraintSolver
 		protected btVector3 m_projPivotInW;
 		protected btVector3 m_delta;
 		protected btVector3 m_depth;
-		protected btVector3 m_relPosA;
-		protected btVector3 m_relPosB;
+		//protected btVector3 m_relPosA;
+		//protected btVector3 m_relPosB;
 
 		protected double m_linPos;
 		protected double m_angPos;
 
 		protected double m_angDepth;
-		protected double m_kAngle;
+		//protected double m_kAngle;
 
 		protected bool m_poweredLinMotor;
 		protected double m_targetLinMotorVelocity;
@@ -179,10 +179,10 @@ namespace Bullet.Dynamics.ConstraintSolver
 #endif
 
 		// access
-		public btITransform getCalculatedTransformA() { return m_calculatedTransformA; }
-		public btITransform getCalculatedTransformB() { return m_calculatedTransformB; }
-		public btITransform getFrameOffsetA() { return m_frameInA; }
-		public btITransform getFrameOffsetB() { return m_frameInB; }
+		//public btITransform getCalculatedTransformA() { return m_calculatedTransformA; }
+		//public btITransform getCalculatedTransformB() { return m_calculatedTransformB; }
+		//public btITransform getFrameOffsetA() { return m_frameInA; }
+		//public btITransform getFrameOffsetB() { return m_frameInB; }
 		public double getLowerLinLimit() { return m_lowerLinLimit; }
 		public void setLowerLinLimit( double lowerLimit ) { m_lowerLinLimit = lowerLimit; }
 		public double getUpperLinLimit() { return m_upperLinLimit; }
@@ -334,7 +334,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 			m_frameInA = ( frameInA );
 			m_frameInB = ( frameInB );
 			m_useLinearReferenceFrameA = ( useLinearReferenceFrameA );
-            initParams();
+			initParams();
 		}
 
 
@@ -345,7 +345,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 			//m_useSolveConstraintObsolete = (false),
 			m_frameInB = ( frameInB );
 			m_useLinearReferenceFrameA = ( useLinearReferenceFrameA );
-				///not providing rigidbody A means implicitly using worldspace for body A
+			///not providing rigidbody A means implicitly using worldspace for body A
 			rbB.m_worldTransform.Apply( ref m_frameInB, out m_frameInA );
 			//	m_frameInA.m_origin = m_rbA.m_worldTransform(m_frameInA.m_origin);
 
@@ -359,12 +359,14 @@ namespace Bullet.Dynamics.ConstraintSolver
 
 		internal override void getInfo1( ref btConstraintInfo1 info )
 		{
+			/*
 			if( m_useSolveConstraintObsolete )
 			{
 				info.m_numConstraintRows = 0;
 				info.nub = 0;
 			}
 			else
+			*/
 			{
 				info.m_numConstraintRows = 4; // Fixed 2 linear + 2 angular
 				info.nub = 2;
@@ -392,7 +394,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 			info.nub = 0;
 		}
 
-		internal override void getInfo2(  btConstraintInfo2 info )
+		internal override void getInfo2( btConstraintInfo2 info )
 		{
 			getInfo2NonVirtual( info, ref m_rbA.m_worldTransform, ref m_rbB.m_worldTransform
 				, ref m_rbA.m_linearVelocity, ref m_rbB.m_linearVelocity
@@ -407,7 +409,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 
 		internal void calculateTransforms( ref btTransform transA, ref btTransform transB )
 		{
-			if( m_useLinearReferenceFrameA || ( !m_useSolveConstraintObsolete ) )
+			if( m_useLinearReferenceFrameA /*|| ( !m_useSolveConstraintObsolete )*/ )
 			{
 				transA.Apply( ref m_frameInA, out m_calculatedTransformA );
 				transB.Apply( ref m_frameInB, out m_calculatedTransformB );
@@ -420,16 +422,18 @@ namespace Bullet.Dynamics.ConstraintSolver
 			m_realPivotAInW = m_calculatedTransformA.m_origin;
 			m_realPivotBInW = m_calculatedTransformB.m_origin;
 			m_sliderAxis = m_calculatedTransformA.m_basis.getColumn( 0 ); // along X
+			/*
 			if( m_useLinearReferenceFrameA || m_useSolveConstraintObsolete )
 			{
-				m_delta = m_realPivotBInW - m_realPivotAInW;
+			  m_delta = m_realPivotBInW - m_realPivotAInW;
 			}
 			else
+			*/
 			{
 				m_delta = m_realPivotAInW - m_realPivotBInW;
 			}
-			m_realPivotAInW.AddScale( m_sliderAxis, m_sliderAxis.dot( ref m_delta ), out m_projPivotInW );
-            //m_projPivotInW = m_realPivotAInW + m_sliderAxis.dot( ref m_delta ) * m_sliderAxis;
+			m_realPivotAInW.AddScale( ref m_sliderAxis, m_sliderAxis.dot( ref m_delta ), out m_projPivotInW );
+			//m_projPivotInW = m_realPivotAInW + m_sliderAxis.dot( ref m_delta ) * m_sliderAxis;
 			btVector3 normalWorld;
 			int i;
 			//linear part
@@ -526,13 +530,13 @@ namespace Bullet.Dynamics.ConstraintSolver
 		{
 			//btITransform m_calculatedTransformB = getCalculatedTransformB();
 
-			Debug.Assert( !m_useSolveConstraintObsolete );
+			//Debug.Assert( !m_useSolveConstraintObsolete );
 			//int i;//, s = info.rowskip;
 
 			double signFact = m_useLinearReferenceFrameA ? (double)( 1.0f ) : (double)( -1.0f );
 
 			// difference between frames in WCS
-			btVector3 ofs; m_calculatedTransformB.m_origin.Sub( m_calculatedTransformA.m_origin, out ofs );
+			btVector3 ofs; m_calculatedTransformB.m_origin.Sub( ref m_calculatedTransformA.m_origin, out ofs );
 			// now get weight factors depending on masses
 			double miA = rbAinvMass;
 			double miB = rbBinvMass;
@@ -596,20 +600,20 @@ namespace Bullet.Dynamics.ConstraintSolver
 			// ax1 x ax2 is in the plane space of ax1, so we project the angular
 			// velocity to p and q to find the right hand side.
 			//	double k = info.fps * info.erp * getSoftnessOrthoAng();
-			double currERP = (( m_flags & btSliderFlags.BT_SLIDER_FLAGS_ERP_ORTANG) != 0 )? m_softnessOrthoAng: m_softnessOrthoAng* info.erp;
+			double currERP = ( ( m_flags & btSliderFlags.BT_SLIDER_FLAGS_ERP_ORTANG ) != 0 ) ? m_softnessOrthoAng : m_softnessOrthoAng * info.erp;
 			double k = info.fps * currERP;
 
 			btVector3 u = ax1A.cross( ax1B );
 			info.m_solverConstraints[0].m_rhs = k * u.dot( p );
 			info.m_solverConstraints[1].m_rhs = k * u.dot( q );
-			if( ( m_flags & btSliderFlags.BT_SLIDER_FLAGS_CFM_ORTANG) != 0 )
-	{
+			if( ( m_flags & btSliderFlags.BT_SLIDER_FLAGS_CFM_ORTANG ) != 0 )
+			{
 				info.m_solverConstraints[0].m_cfm = m_cfmOrthoAng;
 				info.m_solverConstraints[1].m_cfm = m_cfmOrthoAng;
 			}
 
 			int nrow = 1; // last filled row
-			//int srow;
+						  //int srow;
 			double limit_err;
 			int limit;
 			bool powered;
@@ -714,7 +718,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 			// compute two elements of right hand side
 
 			//	k = info.fps * info.erp * getSoftnessOrthoLin();
-			currERP = ( ( m_flags & btSliderFlags.BT_SLIDER_FLAGS_ERP_ORTLIN )!=0) ? m_softnessOrthoLin : m_softnessOrthoLin * info.erp;
+			currERP = ( ( m_flags & btSliderFlags.BT_SLIDER_FLAGS_ERP_ORTLIN ) != 0 ) ? m_softnessOrthoLin : m_softnessOrthoLin * info.erp;
 			k = info.fps * currERP;
 
 			double rhs = k * p.dot( ofs );
@@ -723,7 +727,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 			rhs = k * q.dot( ofs );
 			info.m_solverConstraints[3].m_rhs = rhs;
 			//info.m_constraintError[s3] = rhs;
-			if(( m_flags & btSliderFlags.BT_SLIDER_FLAGS_CFM_ORTLIN )!= 0)
+			if( ( m_flags & btSliderFlags.BT_SLIDER_FLAGS_CFM_ORTLIN ) != 0 )
 			{
 				info.m_solverConstraints[2].m_cfm = m_cfmOrthoLin;
 				info.m_solverConstraints[3].m_cfm = m_cfmOrthoLin;
@@ -798,17 +802,17 @@ namespace Bullet.Dynamics.ConstraintSolver
 				// right-hand part
 				double lostop = getLowerLinLimit();
 				double histop = getUpperLinLimit();
-				if( ( limit!= 0) && ( lostop == histop ) )
+				if( ( limit != 0 ) && ( lostop == histop ) )
 				{  // the joint motor is ineffective
 					powered = false;
 				}
 				info.m_solverConstraints[4].m_rhs = 0;
 				info.m_solverConstraints[4].m_lowerLimit = 0;
 				info.m_solverConstraints[4].m_upperLimit = 0;
-				currERP = (( m_flags & btSliderFlags.BT_SLIDER_FLAGS_ERP_LIMLIN ) != 0 )? m_softnessLimLin : info.erp;
+				currERP = ( ( m_flags & btSliderFlags.BT_SLIDER_FLAGS_ERP_LIMLIN ) != 0 ) ? m_softnessLimLin : info.erp;
 				if( powered )
 				{
-					if(( m_flags & btSliderFlags.BT_SLIDER_FLAGS_CFM_DIRLIN ) != 0 )
+					if( ( m_flags & btSliderFlags.BT_SLIDER_FLAGS_CFM_DIRLIN ) != 0 )
 					{
 						info.m_solverConstraints[4].m_cfm = m_cfmDirLin;
 					}
@@ -890,7 +894,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 			{
 				powered = true;
 			}
-			if( limit!=0 || powered )
+			if( limit != 0 || powered )
 			{
 				nrow++;
 				//srow = nrow * info.rowskip;
@@ -913,7 +917,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 				currERP = ( m_flags & btSliderFlags.BT_SLIDER_FLAGS_ERP_LIMANG ) != 0 ? m_softnessLimAng : info.erp;
 				if( powered )
 				{
-					if(( m_flags & btSliderFlags.BT_SLIDER_FLAGS_CFM_DIRANG )!= 0)
+					if( ( m_flags & btSliderFlags.BT_SLIDER_FLAGS_CFM_DIRANG ) != 0 )
 					{
 						info.m_solverConstraints[nrow].m_cfm = m_cfmDirAng;
 					}
@@ -985,7 +989,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 
 		///override the default global value of a parameter (such as ERP or CFM), optionally provide the axis (0..5). 
 		///If no axis is provided, it uses the default axis for this constraint.
-		internal override void setParam( btConstraintParams num, double value, int axis )
+		public override void setParam( btConstraintParams num, double value, int axis )
 		{
 			switch( num )
 			{
@@ -1061,7 +1065,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 		}
 
 		///return the local value of parameter
-		internal override double getParam( btConstraintParams num, int axis )
+		public override double getParam( btConstraintParams num, int axis )
 		{
 			double retVal = ( btScalar.BT_LARGE_FLOAT );
 			switch( num )
@@ -1069,22 +1073,22 @@ namespace Bullet.Dynamics.ConstraintSolver
 				case btConstraintParams.BT_CONSTRAINT_STOP_ERP:
 					if( axis < 1 )
 					{
-						btAssertConstrParams( ( m_flags & btSliderFlags.BT_SLIDER_FLAGS_ERP_LIMLIN ) != 0);
+						btAssertConstrParams( ( m_flags & btSliderFlags.BT_SLIDER_FLAGS_ERP_LIMLIN ) != 0 );
 						retVal = m_softnessLimLin;
 					}
 					else if( axis < 3 )
 					{
-						btAssertConstrParams( ( m_flags & btSliderFlags.BT_SLIDER_FLAGS_ERP_ORTLIN ) != 0);
+						btAssertConstrParams( ( m_flags & btSliderFlags.BT_SLIDER_FLAGS_ERP_ORTLIN ) != 0 );
 						retVal = m_softnessOrthoLin;
 					}
 					else if( axis == 3 )
 					{
-						btAssertConstrParams( ( m_flags & btSliderFlags.BT_SLIDER_FLAGS_ERP_LIMANG ) != 0);
+						btAssertConstrParams( ( m_flags & btSliderFlags.BT_SLIDER_FLAGS_ERP_LIMANG ) != 0 );
 						retVal = m_softnessLimAng;
 					}
 					else if( axis < 6 )
 					{
-						btAssertConstrParams( ( m_flags & btSliderFlags.BT_SLIDER_FLAGS_ERP_ORTANG ) != 0);
+						btAssertConstrParams( ( m_flags & btSliderFlags.BT_SLIDER_FLAGS_ERP_ORTANG ) != 0 );
 						retVal = m_softnessOrthoAng;
 					}
 					else
@@ -1095,12 +1099,12 @@ namespace Bullet.Dynamics.ConstraintSolver
 				case btConstraintParams.BT_CONSTRAINT_CFM:
 					if( axis < 1 )
 					{
-						btAssertConstrParams( ( m_flags & btSliderFlags.BT_SLIDER_FLAGS_CFM_DIRLIN ) != 0);
+						btAssertConstrParams( ( m_flags & btSliderFlags.BT_SLIDER_FLAGS_CFM_DIRLIN ) != 0 );
 						retVal = m_cfmDirLin;
 					}
 					else if( axis == 3 )
 					{
-						btAssertConstrParams( ( m_flags & btSliderFlags.BT_SLIDER_FLAGS_CFM_DIRANG ) != 0);
+						btAssertConstrParams( ( m_flags & btSliderFlags.BT_SLIDER_FLAGS_CFM_DIRANG ) != 0 );
 						retVal = m_cfmDirAng;
 					}
 					else
@@ -1111,22 +1115,22 @@ namespace Bullet.Dynamics.ConstraintSolver
 				case btConstraintParams.BT_CONSTRAINT_STOP_CFM:
 					if( axis < 1 )
 					{
-						btAssertConstrParams( (m_flags & btSliderFlags.BT_SLIDER_FLAGS_CFM_LIMLIN ) != 0 );
+						btAssertConstrParams( ( m_flags & btSliderFlags.BT_SLIDER_FLAGS_CFM_LIMLIN ) != 0 );
 						retVal = m_cfmLimLin;
 					}
 					else if( axis < 3 )
 					{
-						btAssertConstrParams( (m_flags & btSliderFlags.BT_SLIDER_FLAGS_CFM_ORTLIN ) != 0 );
+						btAssertConstrParams( ( m_flags & btSliderFlags.BT_SLIDER_FLAGS_CFM_ORTLIN ) != 0 );
 						retVal = m_cfmOrthoLin;
 					}
 					else if( axis == 3 )
 					{
-						btAssertConstrParams( (m_flags & btSliderFlags.BT_SLIDER_FLAGS_CFM_LIMANG ) != 0 );
+						btAssertConstrParams( ( m_flags & btSliderFlags.BT_SLIDER_FLAGS_CFM_LIMANG ) != 0 );
 						retVal = m_cfmLimAng;
 					}
 					else if( axis < 6 )
 					{
-						btAssertConstrParams( (m_flags & btSliderFlags.BT_SLIDER_FLAGS_CFM_ORTANG ) != 0 );
+						btAssertConstrParams( ( m_flags & btSliderFlags.BT_SLIDER_FLAGS_CFM_ORTANG ) != 0 );
 						retVal = m_cfmOrthoAng;
 					}
 					else

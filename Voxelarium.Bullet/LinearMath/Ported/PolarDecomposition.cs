@@ -12,12 +12,16 @@ namespace Bullet.LinearMath
 
 		public double abs_column_sum( ref btMatrix3x3 a, int i )
 		{
-			return btScalar.btFabs( a[0, i] ) + btScalar.btFabs( a[1, i] ) + btScalar.btFabs( a[2, i] );
+			return btScalar.btFabs( btMatrix3x3.getValue( ref a,0, i ) ) 
+				+ btScalar.btFabs( btMatrix3x3.getValue( ref a,1, i ) ) 
+				+ btScalar.btFabs( btMatrix3x3.getValue( ref a,2, i ) );
 		}
 
 		public double abs_row_sum( btMatrix3x3 a, int i )
 		{
-			return btScalar.btFabs( a[i, 0] ) + btScalar.btFabs( a[i, 1] ) + btScalar.btFabs( a[i, 2] );
+			return btScalar.btFabs( btMatrix3x3.getValue( ref a,i, 0 ) ) 
+				+ btScalar.btFabs( btMatrix3x3.getValue( ref a,i, 1 ) ) 
+				+ btScalar.btFabs( btMatrix3x3.getValue( ref a,i, 2) );
 		}
 
 		public double p1_norm( btMatrix3x3 a )

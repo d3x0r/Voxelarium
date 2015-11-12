@@ -595,8 +595,8 @@ namespace Bullet.Collision.BroadPhase
 					{
 						btDbvtNode node = stackDataBlock.stack[--depth];
 
-						node.volume.Mins().Copy( out stackDataBlock.bounds[0] );
-						node.volume.Maxs().Copy( out stackDataBlock.bounds[1] );
+						stackDataBlock.bounds[0] = node.volume._min;
+						stackDataBlock.bounds[1] = node.volume._max;
 
 						double tmin = 1.0f, lambda_min = 0.0f;
 						bool result1 = btAabbUtil.btRayAabb2( ref rayFrom, ref rayDirectionInverse, stackDataBlock.signs, stackDataBlock.bounds, out tmin, lambda_min, lambda_max );
@@ -655,8 +655,8 @@ namespace Bullet.Collision.BroadPhase
 					do
 					{
 						btDbvtNode node = stackDataBlock.stack[--depth];
-						node.volume.Mins().Sub( aabbMax, out stackDataBlock.bounds[0] );
-						node.volume.Maxs().Sub( aabbMin, out stackDataBlock.bounds[1] );
+						node.volume._min.Sub( ref aabbMax, out stackDataBlock.bounds[0] );
+						node.volume._max.Sub( ref aabbMin, out stackDataBlock.bounds[1] );
 						double tmin = 1.0f, lambda_min = 0.0f;
 						bool result1 = btAabbUtil.btRayAabb2( ref rayFrom, ref rayDirectionInverse, signs, stackDataBlock.bounds, out tmin, lambda_min, lambda_max );
 						if( result1 )
@@ -1148,8 +1148,8 @@ namespace Bullet.Collision.BroadPhase
 
 			public btVector3 Center() { return ( _max + _min ) * 0.5; }
 			public btVector3 Extent() { return ( _max - _min ) * 0.5f; }
-			public btIVector3 Mins() { return _min; }    // should be ref?
-			public btIVector3 Maxs() { return _max; }    // should be ref?
+			//public btIVector3 Mins() { return _min; }    // should be ref?
+			//public btIVector3 Maxs() { return _max; }    // should be ref?
 			public btVector3 Lengths() { return new btVector3(); }
 
 			public static double Proximity( ref btDbvtVolume a, ref btDbvtVolume b )
@@ -1410,6 +1410,8 @@ namespace Bullet.Collision.BroadPhase
 			public btList<btDbvtNode> stack = new btList<btDbvtNode>();
 			public uint[] signs = new uint[3];
 			public btVector3[] bounds = new btVector3[2];
+			//public btVector3 bounds0;
+			//public btVector3 bounds1;
 
 			public void Dispose()
 			{

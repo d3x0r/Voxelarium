@@ -537,7 +537,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 
 		//! Linear_Limit_parameters
 		//!@{
-		btTranslationalLimitMotor m_linearLimits;
+		btTranslationalLimitMotor m_linearLimits = new btTranslationalLimitMotor();
 		//!@}
 
 
@@ -549,7 +549,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 
 		//! temporal variables
 		//!@{
-		double m_timeStep;
+		//double m_timeStep;
 		internal btTransform m_calculatedTransformA;
 		internal btTransform m_calculatedTransformB;
 		btVector3 m_calculatedAxisAngleDiff;
@@ -622,7 +622,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 		}
 
 
-
+#if asdfasdf
 		//! Gets the global transform of the offset for body A
 		/*!
 		\sa btGeneric6DofConstraint.getFrameOffsetA, btGeneric6DofConstraint.getFrameOffsetB, btGeneric6DofConstraint.calculateAngleInfo.
@@ -650,7 +650,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 		{
 			return m_frameInB;
 		}
-
+#endif
 		void setLinearLowerLimit( ref btVector3 linearLower )
 		{
 			m_linearLimits.m_lowerLimit = linearLower;
@@ -1204,11 +1204,11 @@ namespace Bullet.Dynamics.ConstraintSolver
 			{
 				weight = imA / ( imA + imB );
 			}
-			btIVector3 pA = m_calculatedTransformA.m_origin;
-			btIVector3 pB = m_calculatedTransformB.m_origin;
+			//btVector3 pA = m_calculatedTransformA.m_origin;
+			//btVector3 pB = m_calculatedTransformB.m_origin;
 			btVector3 tmp, tmp2;
-			pA.Mult( weight, out tmp );
-			pB.Mult( btScalar.BT_ONE - weight, out tmp2 );
+			m_calculatedTransformA.m_origin.Mult( weight, out tmp );
+			m_calculatedTransformB.m_origin.Mult( btScalar.BT_ONE - weight, out tmp2 );
 			tmp.Add( ref tmp2, out m_AnchorPos );
 			//m_AnchorPos[0] = pA * weight + pB * ( btScalar.BT_ONE - weight );
 			return;
@@ -1420,7 +1420,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 
 		///override the default global value of a parameter (such as ERP or CFM), optionally provide the axis (0..5). 
 		///If no axis is provided, it uses the default axis for this constraint.
-		internal override void setParam( btConstraintParams num, double value, int axis = -1 )
+		public override void setParam( btConstraintParams num, double value, int axis = -1 )
 		{
 			if( ( axis >= 0 ) && ( axis < 3 ) )
 			{
@@ -1471,7 +1471,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 		}
 
 		///return the local value of parameter
-		internal override double getParam( btConstraintParams num, int axis = -1 )
+		public override double getParam( btConstraintParams num, int axis = -1 )
 		{
 			double retVal = 0;
 			if( ( axis >= 0 ) && ( axis < 3 ) )

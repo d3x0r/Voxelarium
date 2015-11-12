@@ -117,6 +117,7 @@ namespace Bullet
 		internal static PooledType<btSphereTriangleCollisionAlgorithm> SphereTriangleCollisionAlgorithmPool = new PooledType<btSphereTriangleCollisionAlgorithm>();
 		internal static PooledType<SphereTriangleDetector> SphereTriangleDetectorPool = new PooledType<SphereTriangleDetector>();
 		internal static PooledType<btDiscreteCollisionDetectorInterface.ClosestPointInput> ClosestPointInputPool = new PooledType<btDiscreteCollisionDetectorInterface.ClosestPointInput>();
+		internal static PooledType<btConvexConvexAlgorithm.btPerturbedContactResult> PerturbedContactResultPool = new PooledType<btConvexConvexAlgorithm.btPerturbedContactResult>();
 		//internal static PooledType<btGImpactCollisionAlgorithm> GImpactCollisionAlgorithmPool = new PooledType<btGImpactCollisionAlgorithm>();
 		//internal static PooledType<btGjkEpaSolver2MinkowskiDiff> GjkEpaSolver2MinkowskiDiffPool = new PooledType<btGjkEpaSolver2MinkowskiDiff>();
 		internal static PooledType<btPersistentManifold> PersistentManifoldPool = new PooledType<btPersistentManifold>();

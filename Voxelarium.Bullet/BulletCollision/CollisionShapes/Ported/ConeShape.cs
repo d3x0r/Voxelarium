@@ -35,7 +35,7 @@ namespace Bullet.Collision.Shapes
 		public override void calculateLocalInertia( double mass, out btVector3 inertia )
 		{
 			btVector3 aabbMin, aabbMax;
-			getAabb( btTransform.Identity, out aabbMin, out aabbMax );
+			getAabb( ref btTransform.Identity, out aabbMin, out aabbMax );
 			btVector3 tmp;
 			aabbMax.Sub( ref aabbMin, out tmp );
 			btVector3 halfExtents;

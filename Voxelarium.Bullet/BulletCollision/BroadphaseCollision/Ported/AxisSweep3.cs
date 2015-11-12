@@ -81,7 +81,7 @@ namespace Bullet.Collision.BroadPhase
 		protected ushort m_maxHandles;                      // max number of handles
 		//protected btList<Handle> m_pHandles;                       // handles pool
 
-		protected ushort m_firstFreeHandle;     // free handles list
+		//protected ushort m_firstFreeHandle;     // free handles list
 
 		protected Edge[][] m_pEdges = new Edge[3][];                        // edge arrays for the 3 axes (each array has m_maxHandles * 2 + 2 sentinel entries)
 		//Edge[][] m_pEdgesRawPtr = new Edge[3][];
@@ -93,7 +93,7 @@ namespace Bullet.Collision.BroadPhase
 
 		bool m_ownsPairCache;
 
-		int m_invalidPair;
+		//int m_invalidPair;
 
 		///additional dynamic aabb structure, used to accelerate ray cast queries.
 		///can be disabled using a optional argument in the constructor
@@ -317,7 +317,7 @@ namespace Bullet.Collision.BroadPhase
 			m_pairCache = ( pairCache );
 			m_userPairCallback = ( null );
 			m_ownsPairCache = ( false );
-			m_invalidPair = ( 0 );
+			//m_invalidPair = ( 0 );
 			m_raycastAccelerator = ( null );
 			ushort maxHandles = (ushort)( userMaxHandles + 1 );//need to add one sentinel handle
 

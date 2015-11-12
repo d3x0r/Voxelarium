@@ -626,7 +626,7 @@ namespace Bullet.Collision.BroadPhase
 	{
 
 		//avoid brute-force finding all the time
-		protected btBroadphasePairArray m_overlappingPairArray;
+		protected btBroadphasePairArray m_overlappingPairArray = new btBroadphasePairArray();
 
 		//during the dispatch, check that user doesn't destroy/create proxy
 		protected bool m_blockedForChanges;
@@ -898,8 +898,7 @@ namespace Bullet.Collision.BroadPhase
 	///btNullPairCache skips add/removal of overlapping pairs. Userful for benchmarking and unit testing.
 	internal class btNullPairCache : btOverlappingPairCache
 	{
-
-		btBroadphasePairArray m_overlappingPairArray;
+		btBroadphasePairArray m_overlappingPairArray = new btBroadphasePairArray();
 
 		internal override btBroadphasePair[] getOverlappingPairArrayPtr()
 		{

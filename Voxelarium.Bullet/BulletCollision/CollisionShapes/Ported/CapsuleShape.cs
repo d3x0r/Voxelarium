@@ -46,7 +46,7 @@ namespace Bullet.Collision.Shapes
 
 		}
 
-		public override void getAabb( btITransform t, out btVector3 aabbMin, out btVector3 aabbMax )
+		public override void getAabb( ref btTransform t, out btVector3 aabbMin, out btVector3 aabbMax )
 		{
 			btVector3 halfExtents = new btVector3( getRadius(), getRadius(), getRadius() );
 			btVector3 tmp = halfExtents;
@@ -54,12 +54,11 @@ namespace Bullet.Collision.Shapes
 
 			halfExtents.Add( ref tmp, out halfExtents );
 
-			btMatrix3x3 abs_b; t.getBasis().absolute( out abs_b );
-			btVector3 center; t.getOrigin().Copy( out center );
+			btMatrix3x3 abs_b; t.m_basis.absolute( out abs_b );
 			btVector3 extent; halfExtents.dot3( ref abs_b.m_el0, ref abs_b.m_el1, ref abs_b.m_el2, out extent );
 
-			center.Sub( ref extent, out aabbMin );
-			center.Add( ref extent, out aabbMax );
+			t.m_origin.Sub( ref extent, out aabbMin );
+			t.m_origin.Add( ref extent, out aabbMax );
 		}
 
 		public override string ToString()

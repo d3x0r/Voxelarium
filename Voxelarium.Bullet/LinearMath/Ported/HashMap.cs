@@ -209,11 +209,11 @@ namespace Bullet.LinearMath
 	{
 		const int BT_HASH_NULL = -1;
 
-		protected btList<int> m_hashTable;
-		protected btList<int> m_next;
+		protected btList<int> m_hashTable = new btList<int>();
+		protected btList<int> m_next = new btList<int>();
 
-		protected btList<Value> m_valueArray;
-		protected btList<Key> m_keyArray;
+		protected btList<Value> m_valueArray = new btList<Value>();
+		protected btList<Key> m_keyArray = new btList<Key>();
 
 		protected void growTables( Key key )
 		{

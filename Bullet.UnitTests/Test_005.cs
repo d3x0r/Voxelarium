@@ -1,6 +1,7 @@
 ﻿using Bullet.Collision.BroadPhase;
 using Bullet.Collision.Shapes;
 using Bullet.Dynamics;
+using Bullet.Dynamics.ConstraintSolver;
 using Bullet.LinearMath;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ using System.Threading;
 //using BulletSharp;
 namespace Bullet.UnitTests
 {
-	public class Test_004
+	public class Test_005
 	{
 		int step;
 		bool sloped;
@@ -17,7 +18,7 @@ namespace Bullet.UnitTests
 		btDiscreteDynamicsWorld world;
 		btRigidBody fallingRigidBody;
 		btRigidBody fallingRigidBody2;
-
+		btRigidBody[] staticRigidBody = new btRigidBody[10];
 		void Setup()
 		{
 			world = new btDiscreteDynamicsWorld();
@@ -41,18 +42,36 @@ namespace Bullet.UnitTests
 
 			//-------------------------------------------------------
 
-			btCollisionShape fallShape = new btSphereShape( btScalar.BT_ONE );
+			btCollisionShape staticShape = new btBoxShape( ref btVector3.One );
 
-			btVector3 origin = new btVector3( 0, 50, 0 );
+			btVector3 origin = new btVector3( -3, 4, 0 );
 			btTransform init = new btTransform( ref btQuaternion.Identity, ref origin );
 			btDefaultMotionState fallMotionState = new btDefaultMotionState( ref init );
 
 			btScalar mass = 1;
 			btVector3 fallInertia;
-			fallShape.calculateLocalInertia( mass, out fallInertia );
+			staticShape.calculateLocalInertia( mass, out fallInertia );
 
 			btRigidBody.btRigidBodyConstructionInfo
 				fallingRigidBodyCI = new btRigidBody.btRigidBodyConstructionInfo( mass, fallMotionState
+							, staticShape, ref fallInertia );
+
+			staticRigidBody[0] = new btRigidBody( fallingRigidBodyCI );
+
+			world.addRigidBody( staticRigidBody[0] );
+
+			//-------------------------------------------------------
+
+			btCollisionShape fallShape = new btBoxShape( ref btVector3.One );
+
+			origin = new btVector3( -3, 10, 0 );
+			init = new btTransform( ref btQuaternion.Identity, ref origin );
+			fallMotionState = new btDefaultMotionState( ref init );
+
+			mass = 1;
+			fallShape.calculateLocalInertia( mass, out fallInertia );
+
+			fallingRigidBodyCI = new btRigidBody.btRigidBodyConstructionInfo( mass, fallMotionState
 							, fallShape, ref fallInertia );
 
 			fallingRigidBody = new btRigidBody( fallingRigidBodyCI );
@@ -61,10 +80,9 @@ namespace Bullet.UnitTests
 
 			//-------------------------------------------------------
 
-			//btCollisionShape fallShape2 = new btSphereShape( btScalar.BT_ONE );
 			btCollisionShape fallShape2 = new btBoxShape( ref btVector3.One );
 
-			origin = new btVector3( sloped ? -34 : 0.25, 1, 0.25 );
+			origin = new btVector3( 3, 10, 0 );
 			init = new btTransform( ref btQuaternion.Identity, ref origin );
 			fallMotionState = new btDefaultMotionState( ref init );
 
@@ -77,7 +95,24 @@ namespace Bullet.UnitTests
 			fallingRigidBody2 = new btRigidBody( fallingRigidBodyCI );
 
 			world.addRigidBody( fallingRigidBody2 );
-		}
+
+			//---------------------------------------------------
+			// Hinge them together
+			btVector3 pivotInA; btVector3.xAxis.Mult( 3, out pivotInA );
+			btVector3 axisInA = btVector3.yAxis;
+			btVector3 pivotInB; btVector3.xAxis.Mult( -3, out pivotInB );
+			btVector3 axisInB = btVector3.yAxis;
+
+			btHingeConstraint constraint = new btHingeConstraint( fallingRigidBody, fallingRigidBody2
+				, ref pivotInA, ref pivotInB, ref axisInA, ref axisInB );
+			//constraint.enableMotor( true );
+
+			//constraint.enableAngularMotor( true, 1, 1 );
+			//constraint.setLimit( 1, -1 );
+			//constraint.setMotorTargetVelocity( 1 );
+
+			//world.addConstraint( constraint );
+        }
 
 
 		//-------------------------------------------------------
@@ -119,13 +154,13 @@ namespace Bullet.UnitTests
 
 		static public void Run( bool sloped )
 		{
-			Test_004 test = new Test_004();
+			Test_005 test = new Test_005();
 			test.sloped = sloped;
 			test.Setup();
 			if( Program.Display != null )
 			{
 				Program.Display.Tick += test.Tick;
-				while( test.step < 300 )
+				while( test.step < 1300 )
 				{
 					Thread.Sleep( 50 );
 				}

@@ -32,9 +32,11 @@ namespace Bullet.Collision.NarrowPhase
 	public class btPolyhedralContactClipping
 	{
 
+#if TEST_INTERNAL_OBJECTS
 		static int gExpectedNbTests = 0;
 		static int gActualNbTests = 0;
 		static bool gUseInternalObject = true;
+#endif
 
 		// Clips a face to the back of a plane
 		public static void clipFace( btVertexArray pVtxIn, btVertexArray ppVtxOut, ref btVector3 planeNormalWS, double planeEqWS )
@@ -89,15 +91,15 @@ namespace Bullet.Collision.NarrowPhase
 		}
 
 
-		static bool TestSepAxis( btConvexPolyhedron hullA, btConvexPolyhedron hullB, btITransform transA, btITransform transB, ref btVector3 sep_axis, out double depth, out btVector3 witnessPointA, out btVector3 witnessPointB )
+		static bool TestSepAxis( btConvexPolyhedron hullA, btConvexPolyhedron hullB, ref btTransform transA, ref btTransform transB, ref btVector3 sep_axis, out double depth, out btVector3 witnessPointA, out btVector3 witnessPointB )
 		{
 			double Min0, Max0;
 			double Min1, Max1;
 			btVector3 witnesPtMinA, witnesPtMaxA;
 			btVector3 witnesPtMinB, witnesPtMaxB;
 
-			hullA.project( transA, ref sep_axis, out Min0, out Max0, out witnesPtMinA, out witnesPtMaxA );
-			hullB.project( transB, ref sep_axis, out Min1, out Max1, out witnesPtMinB, out witnesPtMaxB );
+			hullA.project( ref transA, ref sep_axis, out Min0, out Max0, out witnesPtMinA, out witnesPtMaxA );
+			hullB.project( ref transB, ref sep_axis, out Min1, out Max1, out witnesPtMinB, out witnesPtMaxB );
 
 			if( Max0 < Min1 || Max1 < Min0 )
 			{
@@ -257,7 +259,7 @@ void InverseTransformPoint3x3(ref btVector3 out, ref btVector3 in, ref btTransfo
 
 
 		internal static bool findSeparatingAxis( btConvexPolyhedron hullA, btConvexPolyhedron hullB
-			, btITransform transA, btITransform transB, out btVector3 sep
+			, ref btTransform transA, ref btTransform transB, out btVector3 sep
 			, btDiscreteCollisionDetectorInterface.Result resultOut )
 		{
 			sep = btVector3.Zero;
@@ -277,7 +279,7 @@ void InverseTransformPoint3x3(ref btVector3 out, ref btVector3 in, ref btTransfo
 			for( int i = 0; i < numFacesA; i++ )
 			{
 				btVector3 Normal = new btVector3( hullA.m_faces[i].m_plane[0], hullA.m_faces[i].m_plane[1], hullA.m_faces[i].m_plane[2] );
-				btVector3 faceANormalWS; transA.getBasis().Apply( ref Normal, out faceANormalWS );
+				btVector3 faceANormalWS; transA.m_basis.Apply( ref Normal, out faceANormalWS );
 				if( DeltaC2.dot( ref faceANormalWS ) < 0 )
 					faceANormalWS.Mult( -1, out faceANormalWS );
 
@@ -291,7 +293,7 @@ void InverseTransformPoint3x3(ref btVector3 out, ref btVector3 in, ref btTransfo
 
 				double d;
 				btVector3 wA, wB;
-				if( !TestSepAxis( hullA, hullB, transA, transB, ref faceANormalWS, out d, out wA, out wB ) )
+				if( !TestSepAxis( hullA, hullB, ref transA, ref transB, ref faceANormalWS, out d, out wA, out wB ) )
 				{
 					return false;
 				}
@@ -308,7 +310,7 @@ void InverseTransformPoint3x3(ref btVector3 out, ref btVector3 in, ref btTransfo
 			for( int i = 0; i < numFacesB; i++ )
 			{
 				btVector3 Normal = new btVector3( hullB.m_faces[i].m_plane[0], hullB.m_faces[i].m_plane[1], hullB.m_faces[i].m_plane[2] );
-				btVector3 WorldNormal; transB.getBasis().Apply( ref Normal, out WorldNormal );
+				btVector3 WorldNormal; transB.m_basis.Apply( ref Normal, out WorldNormal );
 				if( DeltaC2.dot( ref WorldNormal ) < 0 )
 					WorldNormal.Mult( -1, out WorldNormal );
 
@@ -322,7 +324,7 @@ void InverseTransformPoint3x3(ref btVector3 out, ref btVector3 in, ref btTransfo
 
 				double d;
 				btVector3 wA, wB;
-				if( !TestSepAxis( hullA, hullB, transA, transB, ref WorldNormal, out d, out wA, out wB ) )
+				if( !TestSepAxis( hullA, hullB, ref transA, ref transB, ref WorldNormal, out d, out wA, out wB ) )
 				{
 					return false;
 				}
@@ -348,17 +350,17 @@ void InverseTransformPoint3x3(ref btVector3 out, ref btVector3 in, ref btTransfo
 			for( int e0 = 0; e0 < hullA.m_uniqueEdges.Count; e0++ )
 			{
 				btVector3 edge0 = hullA.m_uniqueEdges[e0];
-				btVector3 WorldEdge0; transA.getBasis().Apply( ref edge0, out WorldEdge0 );
+				btVector3 WorldEdge0; transA.m_basis.Apply( ref edge0, out WorldEdge0 );
 				for( int e1 = 0; e1 < hullB.m_uniqueEdges.Count; e1++ )
 				{
 					btVector3 edge1 = hullB.m_uniqueEdges[e1];
-					btVector3 WorldEdge1; transB.getBasis().Apply( ref edge1, out WorldEdge1 );
+					btVector3 WorldEdge1; transB.m_basis.Apply( ref edge1, out WorldEdge1 );
 
 					btVector3 Cross; WorldEdge0.cross( ref WorldEdge1, out Cross );
 					curEdgeEdge++;
 					if( !Cross.IsAlmostZero() )
 					{
-						Cross = Cross.normalize();
+						Cross.normalize();
 						if( DeltaC2.dot( ref Cross ) < 0 )
 							Cross.Invert( out Cross );
 
@@ -372,7 +374,7 @@ void InverseTransformPoint3x3(ref btVector3 out, ref btVector3 in, ref btTransfo
 
 						double dist;
 						btVector3 wA, wB;
-						if( !TestSepAxis( hullA, hullB, transA, transB, ref Cross, out dist, out wA, out wB ) )
+						if( !TestSepAxis( hullA, hullB, ref transA, ref transB, ref Cross, out dist, out wA, out wB ) )
 						{
 							return false;
 						}
@@ -439,7 +441,7 @@ void InverseTransformPoint3x3(ref btVector3 out, ref btVector3 in, ref btTransfo
 		}
 
 		internal static void clipFaceAgainstHull( ref btVector3 separatingNormal
-				, btConvexPolyhedron hullA, btITransform transA
+				, btConvexPolyhedron hullA, ref btTransform transA
 				, btVertexArray worldVertsB1, double minDist, double maxDist
 				, btDiscreteCollisionDetectorInterface.Result resultOut )
 		{
@@ -454,7 +456,7 @@ void InverseTransformPoint3x3(ref btVector3 out, ref btVector3 in, ref btTransfo
 				for( int face = 0; face < hullA.m_faces.Count; face++ )
 				{
 					btVector3 Normal = new btVector3( hullA.m_faces[face].m_plane[0], hullA.m_faces[face].m_plane[1], hullA.m_faces[face].m_plane[2] );
-					btVector3 faceANormalWS; transA.getBasis().Apply( ref Normal, out faceANormalWS );
+					btVector3 faceANormalWS; transA.m_basis.Apply( ref Normal, out faceANormalWS );
 
 					double d = faceANormalWS.dot( ref separatingNormal );
 					if( d < dmin )
@@ -476,9 +478,9 @@ void InverseTransformPoint3x3(ref btVector3 out, ref btVector3 in, ref btTransfo
 				btVector3 a = hullA.m_vertices[polyA.m_indices[e0]];
 				btVector3 b = hullA.m_vertices[polyA.m_indices[( e0 + 1 ) % numVerticesA]];
 				btVector3 edge0; a.Sub( ref b, out edge0 );
-				btVector3 WorldEdge0; transA.getBasis().Apply( ref edge0, out WorldEdge0 );
+				btVector3 WorldEdge0; transA.m_basis.Apply( ref edge0, out WorldEdge0 );
 				btVector3 tmp = new btVector3( polyA.m_plane[0], polyA.m_plane[1], polyA.m_plane[2] );
-				btVector3 worldPlaneAnormal1; transA.getBasis().Apply( ref tmp, out worldPlaneAnormal1 );
+				btVector3 worldPlaneAnormal1; transA.m_basis.Apply( ref tmp, out worldPlaneAnormal1 );
 
 				btVector3 planeNormalWS1; WorldEdge0.cross( ref worldPlaneAnormal1, out planeNormalWS1 );//.cross(WorldEdge0);
 				planeNormalWS1.Invert( out planeNormalWS1 );
@@ -514,7 +516,7 @@ void InverseTransformPoint3x3(ref btVector3 out, ref btVector3 in, ref btTransfo
 			{
 				btVector3 localPlaneNormal = new btVector3( polyA.m_plane[0], polyA.m_plane[1], polyA.m_plane[2]);
 				double localPlaneEq = polyA.m_plane[3];
-				btVector3 planeNormalWS; transA.getBasis().Apply( ref localPlaneNormal, out planeNormalWS );
+				btVector3 planeNormalWS; transA.m_basis.Apply( ref localPlaneNormal, out planeNormalWS );
 				btVector3 origin;
 				transA.getOrigin( out origin );
                 double planeEqWS = localPlaneEq - planeNormalWS.dot( ref origin );
@@ -561,7 +563,7 @@ void InverseTransformPoint3x3(ref btVector3 out, ref btVector3 in, ref btTransfo
 
 		internal static void clipHullAgainstHull( ref btVector3 separatingNormal1, btConvexPolyhedron hullA
 			, btConvexPolyhedron hullB
-			, btITransform transA, btITransform transB, double minDist, double maxDist, btDiscreteCollisionDetectorInterface.Result resultOut)
+			, ref btTransform transA, ref btTransform transB, double minDist, double maxDist, btDiscreteCollisionDetectorInterface.Result resultOut)
 		{
 
 			btVector3 separatingNormal; separatingNormal1.normalized( out separatingNormal);
@@ -577,7 +579,7 @@ void InverseTransformPoint3x3(ref btVector3 out, ref btVector3 in, ref btTransfo
 				for( int face = 0; face < hullB.m_faces.Count; face++ )
 				{
 					btVector3 Normal = new btVector3( hullB.m_faces[face].m_plane[0], hullB.m_faces[face].m_plane[1], hullB.m_faces[face].m_plane[2] );
-					btVector3 WorldNormal;  transB.getBasis().Apply( ref Normal, out WorldNormal );
+					btVector3 WorldNormal;  transB.m_basis.Apply( ref Normal, out WorldNormal );
 					double d = WorldNormal.dot( ref separatingNormal );
 					if( d > dmax )
 					{
@@ -601,7 +603,7 @@ void InverseTransformPoint3x3(ref btVector3 out, ref btVector3 in, ref btTransfo
 
 
 			if( closestFaceB >= 0 )
-				clipFaceAgainstHull( ref separatingNormal, hullA, transA, worldVertsB1, minDist, maxDist, resultOut );
+				clipFaceAgainstHull( ref separatingNormal, hullA, ref transA, worldVertsB1, minDist, maxDist, resultOut );
 
 		}
 

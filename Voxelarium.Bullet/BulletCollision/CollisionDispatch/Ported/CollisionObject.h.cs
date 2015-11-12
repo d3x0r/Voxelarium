@@ -65,8 +65,8 @@ namespace Bullet.Collision.Dispatch
 		public btTransform m_interpolationWorldTransform;
 		//those two are experimental: just added for bullet time effect, so you can still apply impulses (directly modifying velocities) 
 		//without destroying the continuous interpolated motion (which uses this interpolation velocities)
-		protected btVector3 m_interpolationLinearVelocity;
-		protected btVector3 m_interpolationAngularVelocity;
+		internal btVector3 m_interpolationLinearVelocity;
+		internal btVector3 m_interpolationAngularVelocity;
 
 		public btVector3 m_anisotropicFriction;
 		protected AnisotropicFrictionFlags m_hasAnisotropicFriction;
@@ -330,23 +330,25 @@ namespace Bullet.Collision.Dispatch
 			return m_internalType;
 		}
 
+#if InterfacesDidntSuck
 		public btITransform getWorldTransform(  )
 		{
 			return m_worldTransform;
 		}
-
+#endif
 		public void setWorldTransform( ref btTransform worldTrans )
 		{
 			m_updateRevision++;
 			m_worldTransform = worldTrans;
 		}
 
+#if InterfacesDidntSuck
 		public void setWorldTransform( btITransform worldTrans )
 		{
 			m_updateRevision++;
 			m_worldTransform = worldTrans.T;
 		}
-
+#endif
 
 		public btBroadphaseProxy getBroadphaseHandle()
 		{
@@ -364,11 +366,13 @@ namespace Bullet.Collision.Dispatch
 			result = m_interpolationWorldTransform;
 		}
 
+#if InterfacesDidntSuck
 		public btITransform getInterpolationWorldTransform( )
 		{
 			return m_interpolationWorldTransform;
 		}
-
+#endif
+		/*
 		public void setInterpolationWorldTransform( ref btTransform trans )
 		{
 			m_updateRevision++;
@@ -386,7 +390,9 @@ namespace Bullet.Collision.Dispatch
 			m_updateRevision++;
 			m_interpolationAngularVelocity = angvel;
 		}
+		*/
 
+		/*
 		public void getInterpolationLinearVelocity( out btVector3 result )
 		{
 			result = m_interpolationLinearVelocity;
@@ -405,6 +411,7 @@ namespace Bullet.Collision.Dispatch
 		{
 			return m_interpolationAngularVelocity;
 		}
+		*/
 
 		public int getIslandTag()
 		{
@@ -606,6 +613,6 @@ namespace Bullet.Collision.Dispatch
 	{
 		return sizeof( btCollisionObjectData );
 	}
-#endif 
+#endif
 }
 

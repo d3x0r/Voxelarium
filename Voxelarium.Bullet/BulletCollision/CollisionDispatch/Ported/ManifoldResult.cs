@@ -197,13 +197,13 @@ namespace Bullet.Collision.Dispatch
 
 			if( isSwapped )
 			{
-				m_body1Wrap.m_collisionObject.getWorldTransform().invXform( ref pointA, out localA );
-				m_body0Wrap.m_collisionObject.getWorldTransform().invXform( ref pointInWorld, out localB );
+				m_body1Wrap.m_collisionObject.m_worldTransform.invXform( ref pointA, out localA );
+				m_body0Wrap.m_collisionObject.m_worldTransform.invXform( ref pointInWorld, out localB );
 			}
 			else
 			{
-				m_body0Wrap.m_collisionObject.getWorldTransform().invXform( ref pointA, out localA );
-				m_body1Wrap.m_collisionObject.getWorldTransform().invXform( ref pointInWorld, out localB );
+				m_body0Wrap.m_collisionObject.m_worldTransform.invXform( ref pointA, out localA );
+				m_body1Wrap.m_collisionObject.m_worldTransform.invXform( ref pointInWorld, out localB );
 			}
 
 			btManifoldPoint newPt = BulletGlobals.ManifoldPointPool.Get();

@@ -20,6 +20,8 @@ using Bullet.Types;
 
 namespace Bullet.Dynamics.ConstraintSolver
 {
+	internal delegate void useInfo( ref btTypedConstraint.btConstraintInfo1 info1 );
+
 	///TypedConstraint is the baseclass for Bullet constraints and vehicles
 	public abstract class btTypedConstraint : btTypedObject
 	{
@@ -35,7 +37,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 	*/
 
 
-		internal enum btConstraintParams
+		public enum btConstraintParams
 		{
 			BT_CONSTRAINT_ERP = 1,
 			BT_CONSTRAINT_STOP_ERP,
@@ -194,7 +196,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 		}
 
 		///internal method used by the constraint solver, don't use them directly
-		public virtual void solveConstraintObsolete( btSolverBody bodyA, btSolverBody bodyB, double timeStep )
+		internal virtual void solveConstraintObsolete( btSolverBody bodyA, btSolverBody bodyB, double timeStep )
 		{ }
 
 		public btRigidBody getRigidBodyA()
@@ -288,10 +290,10 @@ namespace Bullet.Dynamics.ConstraintSolver
 
 		///override the default global value of a parameter (such as ERP or CFM), optionally provide the axis (0..5). 
 		///If no axis is provided, it uses the default axis for this constraint.
-		internal abstract void setParam( btConstraintParams num, double value, int axis = -1 );
+		public abstract void setParam( btConstraintParams num, double value, int axis = -1 );
 
 		///return the local value of parameter
-		internal abstract double getParam( btConstraintParams num, int axis = -1 );
+		public abstract double getParam( btConstraintParams num, int axis = -1 );
 
 #if SERIALIZE_DONE
 		public int calculateSerializeBufferSize();

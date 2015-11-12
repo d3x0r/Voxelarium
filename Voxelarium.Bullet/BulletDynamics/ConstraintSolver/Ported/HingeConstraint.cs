@@ -48,11 +48,11 @@ namespace Bullet.Dynamics.ConstraintSolver
 
 	/// hinge constraint between two rigidbodies each with a pivotpoint that descibes the axis location in local space
 	/// axis defines the orientation of the hinge axis
-	internal class btHingeConstraint : btTypedConstraint
+	public class btHingeConstraint : btTypedConstraint
 	{
 
-		internal btJacobianEntry[] m_jac = new btJacobianEntry[3]; //3 orthogonal linear constraints
-		internal btJacobianEntry[] m_jacAng = new btJacobianEntry[3]; //2 orthogonal angular constraints+ 1 for limit/motor
+		//internal btJacobianEntry[] m_jac = new btJacobianEntry[3]; //3 orthogonal linear constraints
+		//internal btJacobianEntry[] m_jacAng = new btJacobianEntry[3]; //2 orthogonal angular constraints+ 1 for limit/motor
 
 		internal btTransform m_rbAFrame; // constraint axii. Assumes z is hinge axis.
 		internal btTransform m_rbBFrame;
@@ -76,20 +76,19 @@ namespace Bullet.Dynamics.ConstraintSolver
 		bool m_solveLimit;
 #endif
 
-		double m_kHinge;
+		//double m_kHinge;
+		//double m_accLimitImpulse;
+		//bool m_useSolveConstraintObsolete;
+		//double m_accMotorImpulse;
 
-
-		double m_accLimitImpulse;
 		double m_hingeAngle;
 		double m_referenceSign;
 
 		bool m_angularOnly;
 		bool m_enableAngularMotor;
-		//bool m_useSolveConstraintObsolete;
-		bool m_useOffsetForConstraintFrame;
+		//bool m_useOffsetForConstraintFrame;
 		bool m_useReferenceFrameA;
 
-		double m_accMotorImpulse;
 
 		btHingeFlags m_flags;
 		double m_normalCFM;
@@ -97,7 +96,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 		double m_stopCFM;
 		double m_stopERP;
 
-
+#if asdfasdf
 		internal btITransform getFrameOffsetA()
 		{
 			return m_rbAFrame;
@@ -107,7 +106,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 		{
 			return m_rbBFrame;
 		}
-
+#endif
 		//void setFrames( ref btTransform frameA, ref btTransform frameB );
 
 		internal void setAngularOnly( bool angularOnly )
@@ -115,7 +114,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 			m_angularOnly = angularOnly;
 		}
 
-		internal void enableAngularMotor( bool enableMotor, double targetVelocity, double maxMotorImpulse )
+		public void enableAngularMotor( bool enableMotor, double targetVelocity, double maxMotorImpulse )
 		{
 			m_enableAngularMotor = enableMotor;
 			m_motorTargetVelocity = targetVelocity;
@@ -132,7 +131,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 		//void setMotorTarget( double targetAngle, double dt );
 
 
-		internal void setLimit( double low, double high, double _softness = 0.9f, double _biasFactor = 0.3f, double _relaxationFactor = 1.0f )
+		public void setLimit( double low, double high, double _softness = 0.9f, double _biasFactor = 0.3f, double _relaxationFactor = 1.0f )
 		{
 #if _BT_USE_CENTER_LIMIT_
 			m_limit.set( low, high, _softness, _biasFactor, _relaxationFactor );
@@ -179,27 +178,23 @@ namespace Bullet.Dynamics.ConstraintSolver
 			btVector3.btPlaneSpace1( ref axisInA, out rbAxisA1, out rbAxisA2 );
 			btVector3 pivotInA; m_rbAFrame.getOrigin( out pivotInA );
 			//		m_rbAFrame.getOrigin() = pivotInA;
-			m_rbAFrame.getBasis().setValue( rbAxisA1.x, rbAxisA2.x, axisInA.x,
-											rbAxisA1.y, rbAxisA2.y, axisInA.y,
-											rbAxisA1.z, rbAxisA2.z, axisInA.z );
+			m_rbAFrame.m_basis.setValue( ref rbAxisA1, ref rbAxisA2, ref axisInA );
 
-			btVector3 axisInB = m_rbA.getCenterOfMassTransform().getBasis() * axisInA;
+			btVector3 axisInB; m_rbA.m_worldTransform.m_basis.Apply( ref  axisInA, out axisInB );
 
 			btQuaternion rotationArc; btQuaternion.shortestArcQuat( ref axisInA, ref axisInB, out rotationArc );
 			btVector3 rbAxisB1; btQuaternion.quatRotate( ref rotationArc, ref rbAxisA1, out rbAxisB1 );
 			btVector3 rbAxisB2; axisInB.cross( ref rbAxisB1, out rbAxisB2 );
 
 			btTransform tmp;
-			m_rbB.getCenterOfMassTransform().inverse( out tmp );
+			m_rbB.m_worldTransform.inverse( out tmp );
 			btVector3 tmp2;
-			m_rbA.getCenterOfMassTransform().Apply( ref pivotInA, out tmp2 );
+			m_rbA.m_worldTransform.Apply( ref pivotInA, out tmp2 );
 			tmp.Apply( ref tmp2, out m_rbBFrame.m_origin );
 
-			m_rbBFrame.getBasis().setValue( rbAxisB1.x, rbAxisB2.x, axisInB.x,
-											rbAxisB1.y, rbAxisB2.y, axisInB.y,
-											rbAxisB1.z, rbAxisB2.z, axisInB.z );
+			m_rbBFrame.m_basis.setValue( ref rbAxisB1, ref rbAxisB2, ref axisInB );
 
-			m_rbB.getCenterOfMassTransform().inverse( out tmp );
+			//m_rbB.m_worldTransform.inverse( out tmp );
 
 			tmp.m_basis.Apply( ref m_rbBFrame.m_basis, out m_rbBFrame.m_basis );
 
@@ -239,8 +234,8 @@ namespace Bullet.Dynamics.ConstraintSolver
 		//double getHingeAngle( ref btTransform transA, ref btTransform transB );
 
 
-		internal btITransform getAFrame() { return m_rbAFrame; }
-		internal btITransform getBFrame() { return m_rbBFrame; }
+		//internal btITransform getAFrame() { return m_rbAFrame; }
+		//internal btITransform getBFrame() { return m_rbBFrame; }
 
 #if ALLOW_INLINE
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
@@ -296,14 +291,15 @@ namespace Bullet.Dynamics.ConstraintSolver
 		}
 		// access for UseFrameOffset
 
-		public bool getUseFrameOffset() { return m_useOffsetForConstraintFrame; }
-		public void setUseFrameOffset( bool frameOffsetOnOff ) { m_useOffsetForConstraintFrame = frameOffsetOnOff; }
+		//public bool getUseFrameOffset() { return m_useOffsetForConstraintFrame; }
+		//public void setUseFrameOffset( bool frameOffsetOnOff ) { m_useOffsetForConstraintFrame = frameOffsetOnOff; }
 
 		// access for UseReferenceFrameA
 		public bool getUseReferenceFrameA() { return m_useReferenceFrameA; }
 		public void setUseReferenceFrameA( bool useReferenceFrameA ) { m_useReferenceFrameA = useReferenceFrameA; }
 
-		public btHingeFlags getFlags()
+		// thse should be set with set/getParameter... so only internal usage is required?
+		internal btHingeFlags getFlags()
 		{
 			return m_flags;
 		}
@@ -319,48 +315,64 @@ namespace Bullet.Dynamics.ConstraintSolver
 		virtual string serialize( object dataBuffer, btSerializer* serializer );
 #endif
 
-
-		public btHingeConstraint( btRigidBody rbA, btRigidBody rbB, ref btVector3 pivotInA, ref btVector3 pivotInB,
-												  ref btVector3 axisInA, ref btVector3 axisInB, bool useReferenceFrameA = false )
-										 : base( btObjectTypes.HINGE_CONSTRAINT_TYPE, rbA, rbB )
+		void Init()
 		{
-#if _BT_USE_CENTER_LIMIT_
-			m_limit = new btAngularLimit();
-#endif
 			m_angularOnly = ( false );
 			m_enableAngularMotor = ( false );
 			//m_useSolveConstraintObsolete = ( false/*HINGE_USE_OBSOLETE_SOLVER*/ );
 			//m_useOffsetForConstraintFrame = ( true/*HINGE_USE_FRAME_OFFSET*/ );
-			m_useReferenceFrameA = ( useReferenceFrameA );
 			m_flags = ( 0 );
 			m_normalCFM = ( 0 );
 			m_normalERP = ( 0 );
 			m_stopCFM = ( 0 );
 			m_stopERP = ( 0 );
+#if !_BT_USE_CENTER_LIMIT_
+			//start with free
+			m_lowerLimit = (double)( 1.0f );
+			m_upperLimit = (double)( -1.0f );
+			m_biasFactor = 0.3f;
+			m_relaxationFactor = 1.0f;
+			m_limitSoftness = 0.9f;
+			m_solveLimit = false;
+#endif
+
+		}
+
+		public btHingeConstraint( btRigidBody rbA, btRigidBody rbB, ref btVector3 pivotInA, ref btVector3 pivotInB,
+												  ref btVector3 axisInA, ref btVector3 axisInB, bool useReferenceFrameA = false )
+										 : base( btObjectTypes.HINGE_CONSTRAINT_TYPE, rbA, rbB )
+		{
+			Init();
+#if _BT_USE_CENTER_LIMIT_
+			m_limit = new btAngularLimit();
+#endif
+			m_useReferenceFrameA = ( useReferenceFrameA );
 			m_rbAFrame.m_origin = pivotInA;
 
 			// since no frame is given, assume this to be zero angle and just pick rb transform axis
-			btVector3 rbAxisA1 = rbA.getCenterOfMassTransform().getBasis().getColumn( 0 );
+			btVector3 rbAxisA1; rbA.m_worldTransform.m_basis.getColumn( 0, out rbAxisA1 );
 
 			btVector3 rbAxisA2;
 			double projection = axisInA.dot( rbAxisA1 );
 			if( projection >= 1.0f - btScalar.SIMD_EPSILON )
 			{
-				rbAxisA1 = -rbA.getCenterOfMassTransform().getBasis().getColumn( 2 );
-				rbAxisA2 = rbA.getCenterOfMassTransform().getBasis().getColumn( 1 );
+				btVector3 tmp;
+				rbA.m_worldTransform.m_basis.getColumn( 2, out tmp );
+				tmp.Invert( out rbAxisA1 );
+				rbA.m_worldTransform.m_basis.getColumn( 1, out rbAxisA2 );
 			}
 			else if( projection <= -1.0f + btScalar.SIMD_EPSILON )
 			{
-				rbAxisA1 = rbA.getCenterOfMassTransform().getBasis().getColumn( 2 );
-				rbAxisA2 = rbA.getCenterOfMassTransform().getBasis().getColumn( 1 );
+				rbA.m_worldTransform.m_basis.getColumn( 2, out rbAxisA1 );
+				rbA.m_worldTransform.m_basis.getColumn( 1, out rbAxisA2 );
 			}
 			else
 			{
-				rbAxisA2 = axisInA.cross( rbAxisA1 );
-				rbAxisA1 = rbAxisA2.cross( axisInA );
+				axisInA.cross( ref rbAxisA1, out rbAxisA2 );
+				rbAxisA2.cross( ref axisInA, out rbAxisA1 );
 			}
 
-			m_rbAFrame.getBasis().setValue( rbAxisA1.x, rbAxisA2.x, axisInA.x,
+			btMatrix3x3.setValue( out m_rbAFrame.m_basis, rbAxisA1.x, rbAxisA2.x, axisInA.x,
 											rbAxisA1.y, rbAxisA2.y, axisInA.y,
 											rbAxisA1.z, rbAxisA2.z, axisInA.z );
 
@@ -369,19 +381,9 @@ namespace Bullet.Dynamics.ConstraintSolver
 			btVector3 rbAxisB2; axisInB.cross( ref rbAxisB1, out rbAxisB2 );
 
 			m_rbBFrame.m_origin = pivotInB;
-			m_rbBFrame.getBasis().setValue( rbAxisB1.x, rbAxisB2.x, axisInB.x,
-											rbAxisB1.y, rbAxisB2.y, axisInB.y,
-											rbAxisB1.z, rbAxisB2.z, axisInB.z );
+			m_rbBFrame.m_basis.setValue( ref rbAxisB1, ref rbAxisB2, ref axisInB );
+			btMatrix3x3.setValue( out m_rbBFrame.m_basis, ref rbAxisB1, ref rbAxisB2, ref axisInB );
 
-#if !_BT_USE_CENTER_LIMIT_
-			//start with free
-			m_lowerLimit = (double)( 1.0f );
-			m_upperLimit = (double)( -1.0f );
-			m_biasFactor = 0.3f;
-			m_relaxationFactor = 1.0f;
-			m_limitSoftness = 0.9f;
-			m_solveLimit = false;
-#endif
 			m_referenceSign = m_useReferenceFrameA ? (double)( -1 ) : (double)( 1 );
 		}
 
@@ -390,18 +392,11 @@ namespace Bullet.Dynamics.ConstraintSolver
 		public btHingeConstraint( btRigidBody rbA, ref btVector3 pivotInA, ref btVector3 axisInA, bool useReferenceFrameA = false )
 				: base( btObjectTypes.HINGE_CONSTRAINT_TYPE, rbA )
 		{
+			Init();
 #if _BT_USE_CENTER_LIMIT_
 			m_limit = new btAngularLimit();
 #endif
-			m_angularOnly = ( false ); m_enableAngularMotor = ( false );
-			//m_useSolveConstraintObsolete = ( false/*HINGE_USE_OBSOLETE_SOLVER*/ );
-			//m_useOffsetForConstraintFrame = ( true/*HINGE_USE_FRAME_OFFSET*/ );
 			m_useReferenceFrameA = ( useReferenceFrameA );
-			m_flags = ( 0 );
-			m_normalCFM = ( 0 );
-			m_normalERP = ( 0 );
-			m_stopCFM = ( 0 );
-			m_stopERP = ( 0 );
 
 			// since no frame is given; assume this to be zero angle and just pick rb transform axis
 			// fixed axis in worldspace
@@ -409,11 +404,11 @@ namespace Bullet.Dynamics.ConstraintSolver
 			btVector3.btPlaneSpace1( ref axisInA, out rbAxisA1, out rbAxisA2 );
 
 			m_rbAFrame.m_origin = pivotInA;
-			m_rbAFrame.getBasis().setValue( rbAxisA1.x, rbAxisA2.x, axisInA.x,
+			m_rbAFrame.m_basis.setValue( rbAxisA1.x, rbAxisA2.x, axisInA.x,
 											rbAxisA1.y, rbAxisA2.y, axisInA.y,
 											rbAxisA1.z, rbAxisA2.z, axisInA.z );
 
-			btVector3 axisInB = rbA.getCenterOfMassTransform().getBasis() * axisInA;
+			btVector3 axisInB; rbA.m_worldTransform.m_basis.Apply( ref axisInA, out axisInB );
 
 			btQuaternion rotationArc; btQuaternion.shortestArcQuat( ref axisInA, ref axisInB, out rotationArc );
 			btVector3 rbAxisB1; btQuaternion.quatRotate( ref rotationArc, ref rbAxisA1, out rbAxisB1 );
@@ -422,52 +417,25 @@ namespace Bullet.Dynamics.ConstraintSolver
 			//btVector3 tmp;
 			rbA.m_worldTransform.Apply( ref pivotInA, out m_rbBFrame.m_origin );
 			//m_rbBFrame.m_origin = rbA.getCenterOfMassTransform()( pivotInA );
-			m_rbBFrame.getBasis().setValue( rbAxisB1.x, rbAxisB2.x, axisInB.x,
+			m_rbBFrame.m_basis.setValue( rbAxisB1.x, rbAxisB2.x, axisInB.x,
 											rbAxisB1.y, rbAxisB2.y, axisInB.y,
 											rbAxisB1.z, rbAxisB2.z, axisInB.z );
 
-#if !_BT_USE_CENTER_LIMIT_
-			//start with free
-			m_lowerLimit = (double)( 1.0f );
-			m_upperLimit = (double)( -1.0f );
-			m_biasFactor = 0.3f;
-			m_relaxationFactor = 1.0f;
-			m_limitSoftness = 0.9f;
-			m_solveLimit = false;
-#endif
 			m_referenceSign = m_useReferenceFrameA ? (double)( -1 ) : (double)( 1 );
 		}
-
 
 
 		public btHingeConstraint( btRigidBody rbA, btRigidBody rbB,
 									 ref btTransform rbAFrame, ref btTransform rbBFrame, bool useReferenceFrameA = false )
 						: base( btObjectTypes.HINGE_CONSTRAINT_TYPE, rbA, rbB )
 		{
+			Init();
 			m_rbAFrame = ( rbAFrame );
 			m_rbBFrame = ( rbBFrame );
 #if _BT_USE_CENTER_LIMIT_
 			m_limit = new btAngularLimit();
 #endif
-			m_angularOnly = ( false );
-			m_enableAngularMotor = ( false );
-			//m_useSolveConstraintObsolete = ( false/*HINGE_USE_OBSOLETE_SOLVER*/ );
-			//m_useOffsetForConstraintFrame = ( true /*HINGE_USE_FRAME_OFFSET*/ );
 			m_useReferenceFrameA = ( useReferenceFrameA );
-			m_flags = ( 0 );
-			m_normalCFM = ( 0 );
-			m_normalERP = ( 0 );
-			m_stopCFM = ( 0 );
-			m_stopERP = ( 0 );
-#if !_BT_USE_CENTER_LIMIT_
-			//start with free
-			m_lowerLimit = (double)( 1.0f );
-			m_upperLimit = (double)( -1.0f );
-			m_biasFactor = 0.3f;
-			m_relaxationFactor = 1.0f;
-			m_limitSoftness = 0.9f;
-			m_solveLimit = false;
-#endif
 			m_referenceSign = m_useReferenceFrameA ? (double)( -1 ) : (double)( 1 );
 		}
 
@@ -476,131 +444,19 @@ namespace Bullet.Dynamics.ConstraintSolver
 		public btHingeConstraint( btRigidBody rbA, ref btTransform rbAFrame, bool useReferenceFrameA = false )
 							: base( btObjectTypes.HINGE_CONSTRAINT_TYPE, rbA )
 		{
+			Init();
 			m_rbAFrame = ( rbAFrame );
 			m_rbBFrame = ( rbAFrame );
 #if _BT_USE_CENTER_LIMIT_
 			m_limit = new btAngularLimit();
 #endif
-			m_angularOnly = ( false );
-			m_enableAngularMotor = ( false );
 			//m_useSolveConstraintObsolete = ( false/*HINGE_USE_OBSOLETE_SOLVER*/ );
 			//m_useOffsetForConstraintFrame = ( true/*HINGE_USE_FRAME_OFFSET*/ );
 			m_useReferenceFrameA = ( useReferenceFrameA );
-			m_flags = ( 0 );
-			m_normalCFM = ( 0 );
-			m_normalERP = ( 0 );
-			m_stopCFM = ( 0 );
-			m_stopERP = ( 0 );
 			///not providing rigidbody B means implicitly using worldspace for body B
 			m_rbA.m_worldTransform.Apply( ref m_rbAFrame.m_origin, out m_rbBFrame.m_origin );
 			//m_rbBFrame.getOrigin() = m_rbA.getCenterOfMassTransform()( m_rbAFrame.getOrigin() );
-#if !_BT_USE_CENTER_LIMIT_
-			//start with free
-			m_lowerLimit = (double)( 1.0f );
-			m_upperLimit = (double)( -1.0f );
-			m_biasFactor = 0.3f;
-			m_relaxationFactor = 1.0f;
-			m_limitSoftness = 0.9f;
-			m_solveLimit = false;
-#endif
 			m_referenceSign = m_useReferenceFrameA ? (double)( -1 ) : (double)( 1 );
-		}
-
-		internal override void buildJacobian()
-		{
-			/*
-			if( m_useSolveConstraintObsolete )
-			{
-				m_appliedImpulse = btScalar.BT_ZERO;
-				m_accMotorImpulse = btScalar.BT_ZERO;
-
-				btMatrix3x3 tmpm1;
-				btMatrix3x3 tmpm2;
-				m_rbA.m_worldTransform.m_basis.transpose( out tmpm1 );
-				m_rbB.m_worldTransform.m_basis.transpose( out tmpm2 );
-
-				if( !m_angularOnly )
-				{
-					btVector3 pivotAInW; m_rbA.m_worldTransform.Apply( ref m_rbAFrame.m_origin, out pivotAInW );
-					btVector3 pivotBInW; m_rbB.m_worldTransform.Apply( ref m_rbBFrame.m_origin, out pivotBInW );
-					btVector3 relPos = pivotBInW - pivotAInW;
-
-					btVector3[] normal = new btVector3[3];
-					if( relPos.length2() > btScalar.SIMD_EPSILON )
-					{
-						relPos.normalized( out normal[0] );
-					}
-					else
-					{
-						normal[0] = btVector3.xAxis;
-					}
-
-					btVector3.btPlaneSpace1( ref normal[0], out normal[1], out normal[2] );
-
-
-					for( int i = 0; i < 3; i++ )
-					{
-						btVector3 pivA, pivB;
-						pivotAInW.Sub( ref m_rbA.m_worldTransform.m_origin, out pivA );
-						pivotBInW.Sub( ref m_rbB.m_worldTransform.m_origin, out pivB );
-                        m_jac[i] = new btJacobianEntry(
-						  ref tmpm1,
-						  ref tmpm2,
-						  ref pivA,
-						  ref pivB,
-						  ref normal[i],
-						  m_rbA.getInvInertiaDiagLocal(),
-						  m_rbA.getInvMass(),
-						  m_rbB.getInvInertiaDiagLocal(),
-						  m_rbB.getInvMass() );
-					}
-				}
-
-				//calculate two perpendicular jointAxis, orthogonal to hingeAxis
-				//these two jointAxis require equal angular velocities for both bodies
-
-				//this is unused for now, it's a todo
-				btVector3 jointAxis0local;
-				btVector3 jointAxis1local;
-
-				btVector3 tmp; m_rbAFrame.getBasis().getColumn( 2, out tmp );
-                btVector3.btPlaneSpace1( ref tmp, out jointAxis0local, out jointAxis1local );
-
-				btVector3 jointAxis0; m_rbA.m_worldTransform.m_basis.Apply( ref jointAxis0local, out jointAxis0 );
-				btVector3 jointAxis1; m_rbA.m_worldTransform.m_basis.Apply( ref jointAxis1local, out jointAxis1 );
-				btVector3 hingeAxisWorld = m_rbA.m_worldTransform.getBasis() * m_rbAFrame.getBasis().getColumn( 2 );
-
-				m_jacAng[0] = new btJacobianEntry( ref jointAxis0,
-					 ref tmpm1,
-					  ref tmpm2,
-					  m_rbA.getInvInertiaDiagLocal(),
-					  m_rbB.getInvInertiaDiagLocal() );
-
-				m_jacAng[1] = new btJacobianEntry( ref jointAxis1,
-					 ref tmpm1,
-					  ref tmpm2,
-					  m_rbA.getInvInertiaDiagLocal(),
-					  m_rbB.getInvInertiaDiagLocal() );
-
-				m_jacAng[2] = new btJacobianEntry( ref hingeAxisWorld,
-					 ref tmpm1,
-					  ref tmpm2,
-					  m_rbA.getInvInertiaDiagLocal(),
-					  m_rbB.getInvInertiaDiagLocal() );
-
-				// clear accumulator
-				m_accLimitImpulse = btScalar.BT_ZERO;
-
-				// test angular limit
-				testLimit( ref m_rbA.m_worldTransform, ref m_rbB.m_worldTransform );
-
-				//Compute K = J*W*J' for hinge axis
-				btVector3 axisA = getRigidBodyA().getCenterOfMassTransform().getBasis() * m_rbAFrame.getBasis().getColumn( 2 );
-				m_kHinge = 1.0f / ( getRigidBodyA().computeAngularImpulseDenominator( ref axisA ) +
-									 getRigidBodyB().computeAngularImpulseDenominator( ref axisA ) );
-
-			}
-			*/
 		}
 
 
@@ -662,14 +518,6 @@ namespace Bullet.Dynamics.ConstraintSolver
 
 		public void getInfo1NonVirtual( out btConstraintInfo1 info )
 		{
-			/*
-			if( m_useSolveConstraintObsolete )
-			{
-				info.m_numConstraintRows = 0;
-				info.nub = 0;
-			}
-			else
-			*/
 			{
 				//always add the 'limit' row, to avoid computation (data is not available yet)
 				info.m_numConstraintRows = 6; // Fixed 3 linear + 2 angular
@@ -679,276 +527,21 @@ namespace Bullet.Dynamics.ConstraintSolver
 
 		internal override void getInfo2( btConstraintInfo2 info )
 		{
-			if( m_useOffsetForConstraintFrame )
+			//if( m_useOffsetForConstraintFrame )
 			{
 				getInfo2InternalUsingFrameOffset( ref info, ref m_rbA.m_worldTransform, ref m_rbB.m_worldTransform, ref m_rbA.m_angularVelocity, ref m_rbB.m_angularVelocity );
 			}
-			/*
-			else
-			{
-				getInfo2Internal( ref info, ref m_rbA.m_worldTransform, ref m_rbB.m_worldTransform, ref m_rbA.m_angularVelocity, ref m_rbB.m_angularVelocity );
-			}
-			*/
 		}
 
-
+		/*
 		public void getInfo2NonVirtual( ref btConstraintInfo2 info, ref btTransform transA, ref btTransform transB, ref btVector3 angVelA, ref btVector3 angVelB )
 		{
 			///the regular (virtual) implementation getInfo2 already performs 'testLimit' during getInfo1, so we need to do it now
 			testLimit( ref transA, ref transB );
 
 			getInfo2InternalUsingFrameOffset( ref info, ref transA, ref transB, ref angVelA, ref angVelB );
-			//getInfo2Internal( ref info, ref transA, ref transB, ref angVelA, ref angVelB );
 		}
-		/*
-
-				public void getInfo2Internal( ref btConstraintInfo2 info, ref btTransform transA, ref btTransform transB, ref btVector3 angVelA, ref btVector3 angVelB )
-				{
-
-					//Debug.Assert( !m_useSolveConstraintObsolete );
-					int i, skip = info.rowskip;
-					// transforms in world space
-					btTransform trA; transA.Apply( ref m_rbAFrame, out trA );
-					btTransform trB; transB.Apply( ref m_rbBFrame, out trB );
-					// pivot point
-					btVector3 pivotAInW; trA.getOrigin( out pivotAInW );
-					btVector3 pivotBInW; trB.getOrigin( out pivotBInW );
-		#if false
-			if (0)
-			{
-				for (i=0;i<6;i++)
-				{
-					info.m_J1linearAxis[i*skip]=0;
-					info.m_J1linearAxis[i*skip+1]=0;
-					info.m_J1linearAxis[i*skip+2]=0;
-
-					info.m_J1angularAxis[i*skip]=0;
-					info.m_J1angularAxis[i*skip+1]=0;
-					info.m_J1angularAxis[i*skip+2]=0;
-
-					info.m_J2linearAxis[i*skip]=0;
-					info.m_J2linearAxis[i*skip+1]=0;
-					info.m_J2linearAxis[i*skip+2]=0;
-
-					info.m_J2angularAxis[i*skip]=0;
-					info.m_J2angularAxis[i*skip+1]=0;
-					info.m_J2angularAxis[i*skip+2]=0;
-
-					info.m_constraintError[i*skip]=0;
-				}
-			}
-		#endif //#if 0
-					// linear (all fixed)
-
-					if( !m_angularOnly )
-					{
-						info.m_J1linearAxis[0] = 1;
-						info.m_J1linearAxis[skip + 1] = 1;
-						info.m_J1linearAxis[2 * skip + 2] = 1;
-
-						info.m_J2linearAxis[0] = -1;
-						info.m_J2linearAxis[skip + 1] = -1;
-						info.m_J2linearAxis[2 * skip + 2] = -1;
-					}
-
-
-
-
-					btVector3 a1 = pivotAInW - transA.getOrigin();
-					{
-						btIVector3[] angular0 = ( info.m_J1angularAxis );
-						//btIVector3[] angular1 = (btVector3*)( info.m_J1angularAxis + skip );
-						//btIVector3[] angular2 = (btVector3*)( info.m_J1angularAxis + 2 * skip );
-						btVector3 a1neg = -a1;
-						a1neg.getSkewSymmetricMatrix( angular0, angular1, angular2 );
-					}
-					btVector3 a2 = pivotBInW - transB.getOrigin();
-					{
-						btIVector3 angular0 = (btVector3*)( info.m_J2angularAxis );
-						btIVector3 angular1 = (btVector3*)( info.m_J2angularAxis + skip );
-						btIVector3 angular2 = (btVector3*)( info.m_J2angularAxis + 2 * skip );
-						a2.getSkewSymmetricMatrix( angular0, angular1, angular2 );
-					}
-					// linear RHS
-					double normalErp = (0!= (m_flags & btHingeFlags.BT_HINGE_FLAGS_ERP_NORM) ) ? m_normalERP : info.erp;
-
-					double k = info.fps * normalErp;
-					if( !m_angularOnly )
-					{
-						for( i = 0; i < 3; i++ )
-						{
-							info.m_constraintError[i * skip] = k * ( pivotBInW[i] - pivotAInW[i] );
-						}
-					}
-					// make rotations around X and Y equal
-					// the hinge axis should be the only unconstrained
-					// rotational axis, the angular velocity of the two bodies perpendicular to
-					// the hinge axis should be equal. thus the constraint equations are
-					//    p*w1 - p*w2 = 0
-					//    q*w1 - q*w2 = 0
-					// where p and q are unit vectors normal to the hinge axis, and w1 and w2
-					// are the angular velocity vectors of the two bodies.
-					// get hinge axis (Z)
-					btVector3 ax1 = trA.getBasis().getColumn( 2 );
-					// get 2 orthos to hinge axis (X, Y)
-					btVector3 p = trA.getBasis().getColumn( 0 );
-					btVector3 q = trA.getBasis().getColumn( 1 );
-					// set the two hinge angular rows 
-					int s3 = 3 * info.rowskip;
-					int s4 = 4 * info.rowskip;
-
-					info.m_J1angularAxis[s3 + 0] = p[0];
-					info.m_J1angularAxis[s3 + 1] = p[1];
-					info.m_J1angularAxis[s3 + 2] = p[2];
-					info.m_J1angularAxis[s4 + 0] = q[0];
-					info.m_J1angularAxis[s4 + 1] = q[1];
-					info.m_J1angularAxis[s4 + 2] = q[2];
-
-					info.m_J2angularAxis[s3 + 0] = -p[0];
-					info.m_J2angularAxis[s3 + 1] = -p[1];
-					info.m_J2angularAxis[s3 + 2] = -p[2];
-					info.m_J2angularAxis[s4 + 0] = -q[0];
-					info.m_J2angularAxis[s4 + 1] = -q[1];
-					info.m_J2angularAxis[s4 + 2] = -q[2];
-					// compute the right hand side of the constraint equation. set relative
-					// body velocities along p and q to bring the hinge back into alignment.
-					// if ax1,ax2 are the unit length hinge axes as computed from body1 and
-					// body2, we need to rotate both bodies along the axis u = (ax1 x ax2).
-					// if `theta' is the angle between ax1 and ax2, we need an angular velocity
-					// along u to cover angle erp*theta in one step :
-					//   |angular_velocity| = angle/time = erp*theta / stepsize
-					//                      = (erp*fps) * theta
-					//    angular_velocity  = |angular_velocity| * (ax1 x ax2) / |ax1 x ax2|
-					//                      = (erp*fps) * theta * (ax1 x ax2) / sin(theta)
-					// ...as ax1 and ax2 are unit length. if theta is smallish,
-					// theta ~= sin(theta), so
-					//    angular_velocity  = (erp*fps) * (ax1 x ax2)
-					// ax1 x ax2 is in the plane space of ax1, so we project the angular
-					// velocity to p and q to find the right hand side.
-					btVector3 ax2 = trB.getBasis().getColumn( 2 );
-					btVector3 u = ax1.cross( ax2 );
-					info.m_constraintError[s3] = k * u.dot( p );
-					info.m_constraintError[s4] = k * u.dot( q );
-					// check angular limits
-					int nrow = 4; // last filled row
-					int srow;
-					double limit_err = (double)( 0.0 );
-					int limit = 0;
-					if( getSolveLimit() )
-					{
-		#if _BT_USE_CENTER_LIMIT_
-			limit_err = m_limit.getCorrection() * m_referenceSign;
-		#else
-						limit_err = m_correction * m_referenceSign;
-		#endif
-						limit = ( limit_err > (double)( 0.0 ) ) ? 1 : 2;
-
-					}
-					// if the hinge has joint limits or motor, add in the extra row
-					bool powered = false;
-					if( getEnableAngularMotor() )
-					{
-						powered = true;
-					}
-					if( limit!= 0 || powered )
-					{
-						nrow++;
-						srow = nrow * info.rowskip;
-						info.m_J1angularAxis[srow + 0] = ax1[0];
-						info.m_J1angularAxis[srow + 1] = ax1[1];
-						info.m_J1angularAxis[srow + 2] = ax1[2];
-
-						info.m_J2angularAxis[srow + 0] = -ax1[0];
-						info.m_J2angularAxis[srow + 1] = -ax1[1];
-						info.m_J2angularAxis[srow + 2] = -ax1[2];
-
-						double lostop = getLowerLimit();
-						double histop = getUpperLimit();
-						if( limit != 0 && ( lostop == histop ) )
-						{  // the joint motor is ineffective
-							powered = false;
-						}
-						info.m_constraintError[srow] = (double)( 0.0f );
-						double currERP = ( m_flags & BT_HINGE_FLAGS_ERP_STOP ) ? m_stopERP : normalErp;
-						if( powered )
-						{
-							if( m_flags & BT_HINGE_FLAGS_CFM_NORM )
-							{
-								info.cfm[srow] = m_normalCFM;
-							}
-							double mot_fact = getMotorFactor( m_hingeAngle, lostop, histop, m_motorTargetVelocity, info.fps * currERP );
-							info.m_constraintError[srow] += mot_fact * m_motorTargetVelocity * m_referenceSign;
-							info.m_lowerLimit[srow] = -m_maxMotorImpulse;
-							info.m_upperLimit[srow] = m_maxMotorImpulse;
-						}
-						if( limit )
-						{
-							k = info.fps * currERP;
-							info.m_constraintError[srow] += k * limit_err;
-							if( m_flags & BT_HINGE_FLAGS_CFM_STOP )
-							{
-								info.cfm[srow] = m_stopCFM;
-							}
-							if( lostop == histop )
-							{
-								// limited low and high simultaneously
-								info.m_lowerLimit[srow] = -SIMD_INFINITY;
-								info.m_upperLimit[srow] = SIMD_INFINITY;
-							}
-							else if( limit == 1 )
-							{ // low limit
-								info.m_lowerLimit[srow] = 0;
-								info.m_upperLimit[srow] = SIMD_INFINITY;
-							}
-							else
-							{ // high limit
-								info.m_lowerLimit[srow] = -SIMD_INFINITY;
-								info.m_upperLimit[srow] = 0;
-							}
-							// bounce (we'll use slider parameter abs(1.0 - m_dampingLimAng) for that)
-		#if _BT_USE_CENTER_LIMIT_
-					double bounce = m_limit.getRelaxationFactor();
-		#else
-							double bounce = m_relaxationFactor;
-		#endif
-							if( bounce > (double)( 0.0 ) )
-							{
-								double vel = angVelA.dot( ax1 );
-								vel -= angVelB.dot( ax1 );
-								// only apply bounce if the velocity is incoming, and if the
-								// resulting c[] exceeds what we already have.
-								if( limit == 1 )
-								{   // low limit
-									if( vel < 0 )
-									{
-										double newc = -bounce * vel;
-										if( newc > info.m_constraintError[srow] )
-										{
-											info.m_constraintError[srow] = newc;
-										}
-									}
-								}
-								else
-								{   // high limit - all those computations are reversed
-									if( vel > 0 )
-									{
-										double newc = -bounce * vel;
-										if( newc < info.m_constraintError[srow] )
-										{
-											info.m_constraintError[srow] = newc;
-										}
-									}
-								}
-							}
-		#if _BT_USE_CENTER_LIMIT_
-					info.m_constraintError[srow] *= m_limit.getBiasFactor();
-		#else
-							info.m_constraintError[srow] *= m_biasFactor;
-		#endif
-						} // if(limit)
-					} // if angular limit or powered
-				}
-				*/
+		*/
 
 		internal void setFrames( ref btTransform frameA, ref btTransform frameB )
 		{
@@ -958,15 +551,6 @@ namespace Bullet.Dynamics.ConstraintSolver
 		}
 
 
-		internal void updateRHS( double timeStep )
-		{
-			//(void)timeStep;
-
-		}
-
-
-
-
 		internal double getHingeAngle()
 		{
 			return getHingeAngle( ref m_rbA.m_worldTransform, ref m_rbB.m_worldTransform );
@@ -974,9 +558,13 @@ namespace Bullet.Dynamics.ConstraintSolver
 
 		internal double getHingeAngle( ref btTransform transA, ref btTransform transB )
 		{
-			btVector3 refAxis0 = transA.getBasis() * m_rbAFrame.getBasis().getColumn( 0 );
-			btVector3 refAxis1 = transA.getBasis() * m_rbAFrame.getBasis().getColumn( 1 );
-			btVector3 swingAxis = transB.getBasis() * m_rbBFrame.getBasis().getColumn( 1 );
+			btVector3 tmp;
+			m_rbAFrame.m_basis.getColumn( 0, out tmp );
+			btVector3 refAxis0; transA.m_basis.Apply( ref tmp, out refAxis0 );
+			m_rbAFrame.m_basis.getColumn( 1, out tmp );
+			btVector3 refAxis1; transA.m_basis.Apply( ref tmp, out refAxis1 );
+			m_rbBFrame.m_basis.getColumn( 1, out tmp );
+			btVector3 swingAxis; transB.m_basis.Apply( ref tmp, out swingAxis );
 			//	double angle = btAtan2Fast(swingAxis.dot(refAxis0), swingAxis.dot(refAxis1));
 			double angle = btScalar.btAtan2( swingAxis.dot( refAxis0 ), swingAxis.dot( refAxis1 ) );
 			return m_referenceSign * angle;
@@ -1088,7 +676,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 
 #if true
 			// difference between frames in WCS
-			btVector3 ofs; trB.m_origin.Sub( trA.m_origin, out ofs );// getOrigin() - trA.getOrigin();
+			btVector3 ofs; trB.m_origin.Sub( ref trA.m_origin, out ofs );// getOrigin() - trA.getOrigin();
 																	 // now get weight factors depending on masses
 			double miA = getRigidBodyA().getInvMass();
 			double miB = getRigidBodyB().getInvMass();
@@ -1106,9 +694,12 @@ namespace Bullet.Dynamics.ConstraintSolver
 			factB = (double)( 1.0f ) - factA;
 			// get the desired direction of hinge axis
 			// as weighted sum of Z-orthos of frameA and frameB in WCS
-			btVector3 ax1A = trA.getBasis().getColumn( 2 );
-			btVector3 ax1B = trB.getBasis().getColumn( 2 );
-			btVector3 ax1 = ax1A * factA + ax1B * factB;
+			btVector3 ax1A; trA.m_basis.getColumn( 2, out ax1A );
+			btVector3 ax1B; trB.m_basis.getColumn( 2, out ax1B );
+			btVector3 tmp;
+			ax1A.Mult( factA, out tmp );
+
+			btVector3 ax1; tmp.AddScale( ref ax1B, factB, out ax1 );
 			ax1.normalize();
 			// fill first 3 rows 
 			// we want: velA + wA x relA == velB + wB x relB
@@ -1119,30 +710,31 @@ namespace Bullet.Dynamics.ConstraintSolver
 			// get vector from bodyB to frameB in WCS
 			trB.m_origin.Sub( ref bodyB_trans.m_origin, out relB );
 			// get its projection to hinge axis
-			btVector3 projB = ax1 * relB.dot( ax1 );
+			btVector3 projB; ax1.Mult( relB.dot( ref ax1 ), out projB );
 			// get vector directed from bodyB to hinge axis (and orthogonal to it)
-			btVector3 orthoB = relB - projB;
+			btVector3 orthoB; relB.Sub( ref projB, out orthoB );
 			// same for bodyA
 			trA.m_origin.Sub( ref bodyA_trans.m_origin, out relA );
-			btVector3 projA = ax1 * relA.dot( ax1 );
-			btVector3 orthoA = relA - projA;
-			btVector3 totalDist = projA - projB;
+			btVector3 projA; ax1.Mult( relA.dot( ref ax1 ), out projA );
+			btVector3 orthoA; relA.Sub( ref projA, out orthoA );
+			btVector3 totalDist; projA.Sub( ref projB, out totalDist );
 			// get offset vectors relA and relB
-			relA = orthoA + totalDist * factA;
-			relB = orthoB - totalDist * factB;
+			orthoA.AddScale( ref totalDist, factA, out relA );
+			orthoB.AddScale( ref totalDist, -factB, out relB );
 			// now choose average ortho to hinge axis
-			p = orthoB * factA + orthoA * factB;
+			orthoB.Mult( factA, out tmp );
+			tmp.AddScale( ref orthoA, factB, out p );
 			double len2 = p.length2();
 			if( len2 > btScalar.SIMD_EPSILON )
 			{
-				p /= btScalar.btSqrt( len2 );
+				p.normalize();
 			}
 			else
 			{
-				p = trA.getBasis().getColumn( 1 );
+				trA.m_basis.getColumn( 1, out p );
 			}
 			// make one more ortho
-			q = ax1.cross( p );
+			ax1.cross( ref p, out q );
 			// fill three rows
 			relA.cross( ref p, out tmpA );
 			relB.cross( ref p, out tmpB );
@@ -1153,8 +745,8 @@ namespace Bullet.Dynamics.ConstraintSolver
 			if( hasStaticBody && getSolveLimit() )
 			{ // to make constraint between static and dynamic objects more rigid
 			  // remove wA (or wB) from equation if angular limit is hit
-				tmpB *= factB;
-				tmpA *= factA;
+				tmpB.Mult( factB, out tmpB );
+				tmpA.Mult( factA, out tmpA );
 			}
 			info.m_solverConstraints[1].m_relpos1CrossNormal = tmpA;
 			tmpB.Invert( out info.m_solverConstraints[1].m_relpos1CrossNormal );
@@ -1163,8 +755,8 @@ namespace Bullet.Dynamics.ConstraintSolver
 			if( hasStaticBody )
 			{ // to make constraint between static and dynamic objects more rigid
 			  // remove wA (or wB) from equation
-				tmpB *= factB;
-				tmpA *= factA;
+				tmpB.Mult( factB, out tmpB );
+				tmpA.Mult( factA, out tmpA );
 			}
 			info.m_solverConstraints[2].m_relpos1CrossNormal = tmpA;
 			tmpB.Invert( out info.m_solverConstraints[2].m_relpos1CrossNormal );
@@ -1222,7 +814,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 			// velocity to p and q to find the right hand side.
 			k = info.fps * normalErp;//??
 
-			btVector3 u = ax1A.cross( ax1B );
+			btVector3 u; ax1A.cross( ref ax1B, out u );
 			info.m_solverConstraints[3].m_rhs = k * u.dot( p );
 			info.m_solverConstraints[4].m_rhs = k * u.dot( q );
 #endif
@@ -1343,7 +935,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 
 		///override the default global value of a parameter (such as ERP or CFM), optionally provide the axis (0..5). 
 		///If no axis is provided, it uses the default axis for this constraint.
-		internal override void setParam( btTypedConstraint.btConstraintParams num, double value, int axis = -1 )
+		public override void setParam( btTypedConstraint.btConstraintParams num, double value, int axis = -1 )
 		{
 			if( ( axis == -1 ) || ( axis == 5 ) )
 			{
@@ -1377,7 +969,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 		}
 
 		///return the local value of parameter
-		internal override double getParam( btConstraintParams num, int axis = -1 )
+		public override double getParam( btConstraintParams num, int axis = -1 )
 		{
 			double retVal = 0;
 			if( ( axis == -1 ) || ( axis == 5 ) )

@@ -24,7 +24,7 @@ namespace Bullet.Collision.Shapes
 	///Bullet provides a general and fast collision detector for convex shapes based on GJK and EPA using localGetSupportingVertex.
 	public class btConvexHullShape : btPolyhedralConvexAabbCachingShape
 	{
-		btList<btVector3> m_unscaledPoints;
+		btList<btVector3> m_unscaledPoints = new btList<btVector3>();
 
 
 		public btVector3[] getUnscaledPoints()

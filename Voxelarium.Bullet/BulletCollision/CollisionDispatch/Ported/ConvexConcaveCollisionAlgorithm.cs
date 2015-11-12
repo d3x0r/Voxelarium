@@ -38,27 +38,17 @@ namespace Bullet.Collision.Dispatch
 		btDispatcherInfo m_dispatchInfoPtr;
 		double m_collisionMarginTriangle;
 
-		public int m_triangleCount;
+		//public int m_triangleCount;
 
 		public btPersistentManifold m_manifoldPtr;
 
-		/*
-		public btConvexTriangleCallback( btDispatcher dispatcher, btCollisionObjectWrapper body0Wrap, btCollisionObjectWrapper body1Wrap, bool isSwapped );
-
-		public void setTimeStepAndCounters( double collisionMarginTriangle, btDispatcherInfo dispatchInfo, btCollisionObjectWrapper convexBodyWrap, btCollisionObjectWrapper triBodyWrap, btManifoldResult resultOut );
-		*/
 		public void clearWrapperData()
 		{
 			m_convexBodyWrap = null;
 			m_triBodyWrap = null;
 		}
-		/*
-		public virtual ~btConvexTriangleCallback();
 
-		public virtual void processTriangle( btVector3* triangle, int partId, int triangleIndex );
-
-		void clearCache();
-		*/
+#if InterfacesDidntSuck
 		public btIVector3 getAabbMin()
 		{
 			return m_aabbMin;
@@ -67,6 +57,7 @@ namespace Bullet.Collision.Dispatch
 		{
 			return m_aabbMax;
 		}
+#endif
 
 		public btConvexTriangleCallback() { }
 
@@ -102,7 +93,7 @@ namespace Bullet.Collision.Dispatch
 		public void processTriangle( btVector3[] triangle, int partId, int triangleIndex )
 		{
 
-			if( !btAabbUtil.TestTriangleAgainstAabb2( triangle, m_aabbMin, m_aabbMax ) )
+			if( !btAabbUtil.TestTriangleAgainstAabb2( triangle, ref m_aabbMin,ref  m_aabbMax ) )
 			{
 				return;
 			}
@@ -139,7 +130,7 @@ namespace Bullet.Collision.Dispatch
 
 
 				btCollisionObjectWrapper triObWrap = BulletGlobals.CollisionObjectWrapperPool.Get();
-				triObWrap.Initialize( m_triBodyWrap, tm, m_triBodyWrap.m_collisionObject, m_triBodyWrap.getWorldTransform(), partId, triangleIndex );//correct transform?
+				triObWrap.Initialize( m_triBodyWrap, tm, m_triBodyWrap.m_collisionObject,ref m_triBodyWrap.m_worldTransform, partId, triangleIndex );//correct transform?
 				btCollisionAlgorithm colAlgo = ci.m_dispatcher1.findAlgorithm( m_convexBodyWrap, triObWrap, m_manifoldPtr );
 
 				btCollisionObjectWrapper tmpWrap = null;
@@ -191,8 +182,8 @@ namespace Bullet.Collision.Dispatch
 			//recalc aabbs
 			btTransform convexInTriangleSpace;
 			btTransform invTrans;
-			m_triBodyWrap.getWorldTransform().inverse( out invTrans );
-			invTrans.Apply( m_convexBodyWrap.m_worldTransform, out convexInTriangleSpace );
+			m_triBodyWrap.m_worldTransform.inverse( out invTrans );
+			invTrans.Apply( ref m_convexBodyWrap.m_worldTransform, out convexInTriangleSpace );
 			btCollisionShape convexShape = m_convexBodyWrap.getCollisionShape();
 			//CollisionShape* triangleShape = static_cast<btCollisionShape*>(triBody.m_collisionShape);
 			convexShape.getAabb( ref convexInTriangleSpace, out m_aabbMin, out m_aabbMax );
@@ -342,8 +333,8 @@ namespace Bullet.Collision.Dispatch
 									//ContinuousConvexCollision convexCaster(&pointShape,convexShape,&simplexSolver,0);
 									//local space?
 
-									if( convexCaster.calcTimeOfImpact( m_ccdSphereFromTrans, m_ccdSphereToTrans,
-										ident, ident, castResult ) )
+									if( convexCaster.calcTimeOfImpact( ref m_ccdSphereFromTrans, ref m_ccdSphereToTrans,
+										ref ident,ref ident, castResult ) )
 									{
 										if( m_hitFraction > castResult.m_fraction )
 											m_hitFraction = castResult.m_fraction;
@@ -380,9 +371,9 @@ namespace Bullet.Collision.Dispatch
 			//btVector3 to = convexbody.m_interpolationWorldTransform.getOrigin();
 			//todo: only do if the motion exceeds the 'radius'
 
-			btTransform triInv; triBody.getWorldTransform().inverse( out triInv );
-			btTransform convexFromLocal; triInv.Apply( convexbody.getWorldTransform(), out convexFromLocal );
-			btTransform convexToLocal; triInv.Apply( convexbody.getInterpolationWorldTransform(), out convexToLocal );
+			btTransform triInv; triBody.m_worldTransform.inverse( out triInv );
+			btTransform convexFromLocal; triInv.Apply( ref convexbody.m_worldTransform, out convexFromLocal );
+			btTransform convexToLocal; triInv.Apply( ref convexbody.m_interpolationWorldTransform, out convexToLocal );
 
 			if( triBody.getCollisionShape().isConcave() )
 			{

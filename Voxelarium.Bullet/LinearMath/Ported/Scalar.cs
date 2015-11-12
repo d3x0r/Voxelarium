@@ -37,7 +37,8 @@ namespace Bullet.LinearMath
 	{
 #if BT_USE_DOUBLE_PRECISION
 		double v;
-		public const double SIMD_EPSILON = ( 0.0000001 );// double.Epsilon;
+		public const double SIMD_EPSILON = 2.2204460492503131e-016;
+			//( 0.0000001 );// double.Epsilon;
 		public const double SIMD_LARGE_EPSILON = 0.0001;
         public const double SIMD_INFINITY = double.MaxValue;
 		public const double SIMD_NEG_INFINITY = double.MinValue;
@@ -65,7 +66,7 @@ namespace Bullet.LinearMath
 
 #else
 		float v;
-		public const float SIMD_EPSILON = float.Epsilon;
+		public const float SIMD_EPSILON = 1.192092896e-07F;//float.Epsilon;
 		public const float SIMD_INFINITY = float.MaxValue;
 		public const float SIMDSQRT12 = 0.7071067811865475244008443621048490f;
 		public const float SIMD_PI = Math.PI;

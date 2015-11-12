@@ -25,6 +25,7 @@ namespace Bullet.LinearMath
     // how-to-inline C# 4.5 (mono-2.0?) 2012
     [MethodImpl( MethodImplOptions.AggressiveInlining )]
     */
+#if InterfacesDidntSuck
 #if IMPLEMENT_AS_ABSTRACT
 		public abstract class
 #else
@@ -90,7 +91,7 @@ namespace Bullet.LinearMath
 
 		/*@brief Normalize this vector 
           x^2 + y^2 + z^2 = 1 */
-		btVector3 normalize();
+		void normalize();
 
 		bool IsAlmostZero();
 
@@ -173,9 +174,12 @@ namespace Bullet.LinearMath
 		float[] ToFloat4();
 		float[] ToFloat3();
 	}
+#endif
 
-
-	public struct btVector3 : btIVector3
+	public struct btVector3
+#if InterfacesDidntSuck
+		: btIVector3
+#endif
 	{
 		public double x;
 		public double y;
@@ -259,6 +263,7 @@ namespace Bullet.LinearMath
 			result.z = z + b.z;
 			result.w = w + b.w;
 		}
+#if InterfacesDidntSuck
 		public void Add( btIVector3 b, out btVector3 result )
 		{
 			result.x = x + b.X;
@@ -266,6 +271,7 @@ namespace Bullet.LinearMath
 			result.z = z + b.Z;
 			result.w = w + b.W;
 		}
+#endif
 		public void AddScale( ref btVector3 b, double s, out btVector3 result )
 		{
 			result.x = x + b.x * s;
@@ -273,6 +279,7 @@ namespace Bullet.LinearMath
 			result.z = z + b.z * s;
 			result.w = w + b.w * s;
 		}
+#if InterfacesDidntSuck
 		public void AddScale( btIVector3 b, double s, out btVector3 result )
 		{
 			result.x = x + b[0] * s;
@@ -280,6 +287,7 @@ namespace Bullet.LinearMath
 			result.z = z + b[2] * s;
 			result.w = w + b[3] * s;
 		}
+#endif
 		public void AddAndScale( ref btVector3 b, double s, out btVector3 result )
 		{
 			result.x = ( x + b.x ) * s;
@@ -296,6 +304,7 @@ namespace Bullet.LinearMath
 			result.w = w - b.w;
 		}
 
+#if InterfacesDidntSuck
 		public void Sub( btIVector3 b, out btVector3 result )
 		{
 			result.x = x - b.X;
@@ -303,7 +312,7 @@ namespace Bullet.LinearMath
 			result.z = z - b.Z;
 			result.w = w - b.W;
 		}
-
+#endif
 		public void SubScale( ref btVector3 b, double s, out btVector3 result )
 		{
 			result.x = x - b.x * s;
@@ -327,6 +336,21 @@ namespace Bullet.LinearMath
 			result.w = w * b;
 		}
 
+		public void Mult2( ref btVector3 v, double b, out btVector3 result )
+		{
+			result.x = x * v.x * b;
+			result.y = y * v.y * b;
+			result.z = z * v.z * b;
+			result.w = w * v.w * b;
+		}
+		public void Mult2( ref btVector3 v, ref btVector3 b, out btVector3 result )
+		{
+			result.x = x * v.x * b.x;
+			result.y = y * v.y * b.y;
+			result.z = z * v.z * b.z;
+			result.w = w * v.w * b.w;
+		}
+
 		public void Div( double b, out btVector3 result )
 		{
 #if PARANOID_ASSERTS
@@ -343,12 +367,20 @@ namespace Bullet.LinearMath
 					y * v.y +
 					z * v.z;
 		}
+		public double dotAdded( ref btVector3 v, ref btVector3 v2 )
+		{
+			return x * ( v.x + v2.x )+
+					y * ( v.y + v2.y ) +
+					z * ( v.z + v2.z );
+		}
+#if InterfacesDidntSuck
 		public double dot( btIVector3 v )
 		{
 			return x * v.X +
 					y * v.Y +
 					z * v.Z;
 		}
+#endif
 		public static double dot( ref btVector3 a, ref btVector3 b )
 		{
 			return a.x * b.x +
@@ -449,11 +481,10 @@ namespace Bullet.LinearMath
 
 		/*@brief Normalize this vector 
           x^2 + y^2 + z^2 = 1 */
-		public btVector3 normalize()
+		public void normalize()
 		{
 			Debug.Assert( !fuzzyZero() );
 			this.Div( length(), out this );
-			return this;
 		}
 
 		public static bool IsAlmostZero( ref btVector3 v )
@@ -475,8 +506,7 @@ namespace Bullet.LinearMath
 		/*@brief Return a normalized version of this vector */
 		public void normalized( out btVector3 result )
 		{
-			btVector3 nrm = new btVector3( ref this );
-			result = nrm.normalize();
+			this.Div( length(), out result );
 		}
 
 		/*@brief Return a rotated version of this vector
@@ -563,6 +593,7 @@ namespace Bullet.LinearMath
 			//		m_co[3] = s  v0[3] + rt  v1[3];
 		}
 
+#if InterfacesDidntSuck
 		public static void setInterpolate3( out btVector3 result, btIVector3 v0, btIVector3 v1, double rt )
 		{
 			double s = 1.0 - rt;
@@ -573,7 +604,7 @@ namespace Bullet.LinearMath
 			//don't do the unused w component
 			//		m_co[3] = s  v0[3] + rt  v1[3];
 		}
-
+#endif
 		public void setInterpolate3( ref btVector3 v0, ref btVector3 v1, double rt )
 		{
 			double s = 1.0 - rt;
@@ -585,6 +616,7 @@ namespace Bullet.LinearMath
 			//		m_co[3] = s  v0[3] + rt  v1[3];
 		}
 
+#if InterfacesDidntSuck
 		public void setInterpolate3( btIVector3 v0, btIVector3 v1, double rt )
 		{
 			double s = 1.0 - rt;
@@ -595,6 +627,7 @@ namespace Bullet.LinearMath
 			//don't do the unused w component
 			//		m_co[3] = s  v0[3] + rt  v1[3];
 		}
+#endif
 
 		/*@brief Return the linear interpolation between this and another vector 
           @param v The other vector 
@@ -907,7 +940,7 @@ namespace Bullet.LinearMath
 		public static double btDelLength( ref btVector3 linVelB, ref btVector3 linVelA )
 		{
 			btVector3 tmp;
-			linVelB.Sub( linVelA, out tmp );
+			linVelB.Sub( ref linVelA, out tmp );
 			return tmp.length();
 		}
 
@@ -995,10 +1028,12 @@ namespace Bullet.LinearMath
 		{
 			return new btVector3( a.x - b.x, a.y - b.y, a.z - b.z );
 		}
+#if InterfacesDidntSuck
 		public static btVector3 operator -( btVector3 a, btIVector3 b )
 		{
 			return new btVector3( a.x - b[0], a.y - b[1], a.z - b[2] );
 		}
+#endif
 		public static btVector3 operator -( btVector3 a )
 		{
 			return new btVector3( -a.x, -a.y, -a.z );
@@ -1016,10 +1051,12 @@ namespace Bullet.LinearMath
 			b = 1.0 / b;
 			return new btVector3( a.x * b, a.y * b, a.z * b );
 		}
+#if InterfacesDidntSuck
 		public static btVector3 operator *( btVector3 a, btIVector3 b )
 		{
 			return new btVector3( a.x * b[0], a.y * b[1], a.z * b[2] );
 		}
+
 		public static btVector3 operator *( btIMatrix3x3 m, btVector3 v )
 		{
 			return new btVector3( m[0].dot( ref v ),
@@ -1032,6 +1069,7 @@ namespace Bullet.LinearMath
 					m.tdoty( ref v ),
 					m.tdotz( ref v ) );
 		}
+#endif
 
 
 		public btVector3 cross( btVector3 v )
@@ -1064,7 +1102,7 @@ namespace Bullet.LinearMath
 
 		public override string ToString()
 		{
-			return String.Format( "({0:g12},{1:g12},{2:g12})", x, y, z );
+			return String.Format( "({0:g17},{1:g17},{2:g17})", x, y, z );
 		}
 
 		public float[] ToFloat4 (  )

@@ -51,8 +51,8 @@ namespace Bullet.Collision.NarrowPhase
 				m_allowedPenetration = 0;
 			}
 
-			internal btTransform m_hitTransformA;
-			internal btTransform m_hitTransformB;
+			//internal btTransform m_hitTransformA;
+			//internal btTransform m_hitTransformB;
 			internal btVector3 m_normal;
 			internal btVector3 m_hitPoint;
 			internal double m_fraction; //input and output
@@ -63,10 +63,10 @@ namespace Bullet.Collision.NarrowPhase
 
 		/// cast a convex against another convex object
 		internal abstract bool calcTimeOfImpact(
-						btITransform fromA,
-						btITransform toA,
-						btITransform fromB,
-						btITransform toB,
+						ref btTransform fromA,
+						ref btTransform toA,
+						ref btTransform fromB,
+						ref btTransform toB,
 						CastResult result );
 	};
 

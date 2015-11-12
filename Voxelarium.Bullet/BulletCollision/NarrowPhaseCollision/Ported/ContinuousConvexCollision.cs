@@ -63,7 +63,7 @@ namespace Bullet.Collision.NarrowPhase
 		/// This maximum should not be necessary. It allows for untested/degenerate cases in production code.
 		/// You don't want your game ever to lock-up.
 
-		void computeClosestPoints( btITransform transA, btITransform transB, btPointCollector pointCollector)
+		void computeClosestPoints( ref btTransform transA, ref btTransform transB, btPointCollector pointCollector)
 		{
 			if( m_convexB1 != null)
 			{
@@ -71,8 +71,8 @@ namespace Bullet.Collision.NarrowPhase
 				btGjkPairDetector gjk = BulletGlobals.GjkPairDetectorPool.Get();
 				gjk.Initialize( m_convexA, m_convexB1, m_convexA.getShapeType(), m_convexB1.getShapeType(), m_convexA.getMargin(), m_convexB1.getMargin(), m_simplexSolver, m_penetrationDepthSolver);
 				btGjkPairDetector.ClosestPointInput input = new btDiscreteCollisionDetectorInterface.ClosestPointInput();
-				input.m_transformA = transA.T;
-				input.m_transformB = transB.T;
+				input.m_transformA = transA;
+				input.m_transformB = transB;
 				gjk.getClosestPoints( input, pointCollector, null );
 				BulletGlobals.GjkPairDetectorPool.Free( gjk );
 			}
@@ -89,24 +89,24 @@ namespace Bullet.Collision.NarrowPhase
 				btTransform convexInPlaneTrans;
 				btTransform tmpInv;
 				transB.inverse( out tmpInv );
-				tmpInv.Apply( transA, out convexInPlaneTrans );
+				tmpInv.Apply( ref transA, out convexInPlaneTrans );
 				btTransform planeInConvex;
 				convexInPlaneTrans.inverse( out tmpInv );
-				tmpInv.Apply( transB, out planeInConvex );
+				tmpInv.Apply( ref transB, out planeInConvex );
 				//planeInConvex = convexWorldTransform.inverse() * transB;
 
 				btVector3 tmp;
-				planeInConvex.getBasis().Mult( ref planeNormal, out tmp );
+				planeInConvex.m_basis.Mult( ref planeNormal, out tmp );
 				tmp.Invert( out tmp );
                 btVector3 vtx; convexShape.localGetSupportingVertex( ref tmp, out vtx );
 
-				btVector3 vtxInPlane; convexInPlaneTrans.Apply( vtx, out vtxInPlane );
+				btVector3 vtxInPlane; convexInPlaneTrans.Apply( ref vtx, out vtxInPlane );
 				double distance = ( planeNormal.dot( vtxInPlane ) - planeConstant );
 
 				btVector3 vtxInPlaneProjected;// = vtxInPlane - distance * planeNormal;
 				vtxInPlane.SubScale( ref planeNormal, distance, out vtxInPlaneProjected );
 				btVector3 vtxInPlaneWorld; transB.Apply(ref  vtxInPlaneProjected, out vtxInPlaneWorld );
-				btVector3 normalOnSurfaceB = transB.getBasis() * planeNormal;
+				btVector3 normalOnSurfaceB; transB.m_basis.Apply( ref planeNormal, out normalOnSurfaceB );
 
 				pointCollector.addContactPoint(
 					ref normalOnSurfaceB,
@@ -116,18 +116,18 @@ namespace Bullet.Collision.NarrowPhase
 		}
 
 		internal override bool calcTimeOfImpact(
-						btITransform fromA,
-						btITransform toA,
-						btITransform fromB,
-						btITransform toB,
+						ref btTransform fromA,
+						ref btTransform toA,
+						ref btTransform fromB,
+						ref btTransform toB,
 						CastResult result)
 		{
 
 
 			/// compute linear and angular velocity for this interval, to interpolate
 			btVector3 linVelA, angVelA, linVelB, angVelB;
-			btTransformUtil.calculateVelocity( fromA, toA, btScalar.BT_ONE, out linVelA, out angVelA );
-			btTransformUtil.calculateVelocity( fromB, toB, btScalar.BT_ONE, out linVelB, out angVelB );
+			btTransformUtil.calculateVelocity( ref fromA,ref toA, btScalar.BT_ONE, out linVelA, out angVelA );
+			btTransformUtil.calculateVelocity( ref fromB, ref toB, btScalar.BT_ONE, out linVelB, out angVelB );
 
 
 			double boundingRadiusA = m_convexA.getAngularMotionDisc();
@@ -166,7 +166,7 @@ namespace Bullet.Collision.NarrowPhase
 
 			{
 
-				computeClosestPoints( fromA, fromB, pointCollector1 );
+				computeClosestPoints( ref fromA, ref fromB, pointCollector1 );
 
 				hasResult = pointCollector1.m_hasResult;
 				c = pointCollector1.m_pointInWorld;
@@ -222,8 +222,8 @@ namespace Bullet.Collision.NarrowPhase
 					//interpolate to next lambda
 					btTransform interpolatedTransA, interpolatedTransB, relativeTrans;
 
-					btTransformUtil.integrateTransform( fromA, linVelA, angVelA, lambda, out interpolatedTransA );
-					btTransformUtil.integrateTransform( fromB, linVelB, angVelB, lambda, out interpolatedTransB );
+					btTransformUtil.integrateTransform( ref fromA, ref linVelA, ref angVelA, lambda, out interpolatedTransA );
+					btTransformUtil.integrateTransform( ref fromB, ref linVelB, ref angVelB, lambda, out interpolatedTransB );
 					interpolatedTransB.inverseTimes( ref interpolatedTransA, out relativeTrans );
 
 					if( result.m_debugDrawer != null )
@@ -234,7 +234,7 @@ namespace Bullet.Collision.NarrowPhase
 					result.DebugDraw( lambda );
 
 					btPointCollector pointCollector = new btPointCollector();
-					computeClosestPoints( interpolatedTransA, interpolatedTransB, pointCollector );
+					computeClosestPoints( ref interpolatedTransA, ref interpolatedTransB, pointCollector );
 
 					if( pointCollector.m_hasResult )
 					{

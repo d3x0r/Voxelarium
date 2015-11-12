@@ -274,9 +274,9 @@ namespace Bullet.Collision.Dispatch
 			if( dispatcher.needsCollision( colObj0, colObj1 ) )
 			{
 				btCollisionObjectWrapper obj0Wrap = BulletGlobals.CollisionObjectWrapperPool.Get();
-				obj0Wrap.Initialize( null, colObj0.getCollisionShape(), colObj0, colObj0.getWorldTransform(), -1, -1 );
+				obj0Wrap.Initialize( null, colObj0.getCollisionShape(), colObj0, ref colObj0.m_worldTransform, -1, -1 );
 				btCollisionObjectWrapper obj1Wrap = BulletGlobals.CollisionObjectWrapperPool.Get();
-				obj1Wrap.Initialize( null, colObj1.getCollisionShape(), colObj1, colObj1.getWorldTransform(), -1, -1 );
+				obj1Wrap.Initialize( null, colObj1.getCollisionShape(), colObj1, ref colObj1.m_worldTransform, -1, -1 );
 
 
 				//dispatcher will keep algorithms persistent in the collision pair

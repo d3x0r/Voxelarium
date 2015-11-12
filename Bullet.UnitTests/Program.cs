@@ -38,15 +38,22 @@ namespace Bullet.UnitTests
 			}
 			if( args.Length == 0 || FindArg( args, "math" ) )
 				MathTest_001.Run();
+
 			if( args.Length == 0 || FindArg( args, "1" ) )
 				Test_001.Run( FindArg( args, "1s" ) );
+
 			if( args.Length == 0 || FindArg( args, "2" ) )
 				Test_002.Run( FindArg( args, "2s" ) );
 
 			if( args.Length == 0 || FindArg( args, "3" ) )
 				Test_003.Run( FindArg( args, "3s" ) );
+
 			if( args.Length == 0 || FindArg( args, "4" ) )
 				Test_004.Run( FindArg( args, "4s" ) );
+
+			if( args.Length == 0 || FindArg( args, "5" ) )
+				Test_005.Run( FindArg( args, "5s" ) );
+
 			Console.Read();
 		}
 	}

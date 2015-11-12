@@ -14,8 +14,8 @@ namespace Bullet.UnitTests
 		{
 			int n;
 			for( n = 0; n < 3; n++ )
-				Console.WriteLine( "   < {0} {1} {2} {3} >", t.getBasis()[n][0], t.getBasis()[n][1], t.getBasis()[n][2], t.getBasis()[n][3] );
-			Console.WriteLine( "O = <{0},{1},{2}>", t.getOrigin()[0], t.getOrigin()[1], t.getOrigin()[1] );
+				Console.WriteLine( "   < {0} {1} {2} {3} >", t.m_basis[n][0], t.m_basis[n][1], t.m_basis[n][2], t.m_basis[n][3] );
+			Console.WriteLine( "O = <{0},{1},{2}>", t.m_basis[0], t.m_basis[1], t.m_basis[1] );
 		}
 
 		public static void Run()
@@ -27,7 +27,7 @@ namespace Bullet.UnitTests
 				btTransform convexInPlaneTrans;
 				btTransform tmp;
 				planeObjWorld.inverse( out tmp );
-				tmp.Apply( convexWorldTransform, out convexInPlaneTrans );
+				tmp.Apply( ref convexWorldTransform, out convexInPlaneTrans );
 				PrintTransform( ref convexInPlaneTrans );
 
 				planeObjWorld.inverseTimes( ref convexWorldTransform, out convexInPlaneTrans );
@@ -41,7 +41,7 @@ namespace Bullet.UnitTests
 				btTransform convexInPlaneTrans;
 				btTransform tmp;
 				planeObjWorld.inverse( out tmp );
-				tmp.Apply( convexWorldTransform, out convexInPlaneTrans );
+				tmp.Apply( ref convexWorldTransform, out convexInPlaneTrans );
 				PrintTransform( ref convexInPlaneTrans );
 
 				planeObjWorld.inverseTimes( ref convexWorldTransform, out convexInPlaneTrans );
@@ -53,7 +53,7 @@ namespace Bullet.UnitTests
 				perturbeRot.normalize();
 
 				btTransform planeObjWrapTrans = new btTransform( new btQuaternion( 0.2, 0.1, 0.3, 1 ), new btVector3( 4, 7, 2 ) );
-				planeObjWrapTrans.inverseTimes( convexWorldTransform, out convexInPlaneTrans );
+				planeObjWrapTrans.inverseTimes( ref convexWorldTransform, out convexInPlaneTrans );
 
 				//now perturbe the convex-world transform
 				btMatrix3x3 perturbeMat = new btMatrix3x3( ref perturbeRot );

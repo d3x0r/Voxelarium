@@ -50,7 +50,7 @@ namespace Bullet.Collision.Shapes
 	internal class btCompoundShape : btCollisionShape
 	{
 
-		protected btList<btCompoundShapeChild> m_children = new btList<btCompoundShapeChild>();
+		internal btList<btCompoundShapeChild> m_children = new btList<btCompoundShapeChild>();
 		protected btVector3 m_localAabbMin;
 		protected btVector3 m_localAabbMax;
 
@@ -73,7 +73,7 @@ namespace Bullet.Collision.Shapes
 			return m_children[index].m_childShape;
 		}
 
-		internal btITransform getChildTransform( int index )
+		internal btTransform getChildTransform( int index )
 		{
 			return m_children[index].m_transform;
 		}
@@ -207,26 +207,6 @@ virtual string serialize( object dataBuffer, btSerializer* serializer );
 			}
 		}
 
-		void updateChildTransform( int childIndex, btITransform newChildTransform, bool shouldRecalculateLocalAabb )
-		{
-			m_children[childIndex].m_transform = newChildTransform.T;
-
-			if( m_dynamicAabbTree != null )
-			{
-				///update the dynamic aabb tree
-				btVector3 localAabbMin, localAabbMax;
-				m_children[childIndex].m_childShape.getAabb( ref m_children[childIndex].m_transform, out localAabbMin, out localAabbMax );
-				btDbvt.btDbvtVolume bounds = btDbvt.btDbvtVolume.FromMM( ref localAabbMin, ref localAabbMax );
-				//int index = m_children.Count-1;
-				m_dynamicAabbTree.update( m_children[childIndex].m_node, ref bounds );
-			}
-
-			if( shouldRecalculateLocalAabb )
-			{
-				recalculateLocalAabb();
-			}
-		}
-
 		public void removeChildShapeByIndex( int childShapeIndex )
 		{
 			m_updateRevision++;
@@ -289,7 +269,7 @@ virtual string serialize( object dataBuffer, btSerializer* serializer );
 		}
 
 		///getAabb's default implementation is brute force, expected derived classes to implement a fast dedicated version
-		public override void getAabb( btITransform trans, out btVector3 aabbMin, out btVector3 aabbMax )
+		public override void getAabb( ref btTransform trans, out btVector3 aabbMin, out btVector3 aabbMax )
 		{
 			btVector3 localHalfExtents; btVector3.getHalfExtent( ref m_localAabbMin, ref m_localAabbMax, out localHalfExtents );
 			btVector3 localCenter; btVector3.getCenter( ref m_localAabbMin, ref m_localAabbMax, out localCenter );
@@ -304,7 +284,7 @@ virtual string serialize( object dataBuffer, btSerializer* serializer );
             localHalfExtents.Add( ref margin, out localHalfExtents );
 
 
-			btMatrix3x3 abs_b; trans.getBasis().absolute( out abs_b );
+			btMatrix3x3 abs_b; trans.m_basis.absolute( out abs_b );
 
 			btVector3 center; trans.Apply( ref localCenter, out center );
 
@@ -351,7 +331,7 @@ virtual string serialize( object dataBuffer, btSerializer* serializer );
 			for( k = 0; k < n; k++ )
 			{
 				Debug.Assert( masses[k] > 0 );
-				center.AddScale( m_children[k].m_transform.getOrigin(), masses[k], out center );
+				center.AddScale( ref m_children[k].m_transform.m_origin, masses[k], out center );
 				totalMass += masses[k];
 			}
 
@@ -366,16 +346,16 @@ virtual string serialize( object dataBuffer, btSerializer* serializer );
 				btVector3 i;
 				m_children[k].m_childShape.calculateLocalInertia( masses[k], out i );
 
-				btITransform t = m_children[k].m_transform;
-				btVector3 o; t.getOrigin().Sub(ref center, out o );
+				btTransform t = m_children[k].m_transform;
+				btVector3 o; t.m_origin.Sub(ref center, out o );
 
 				//compute inertia tensor in coordinate system of compound shape
-				btMatrix3x3 j; t.getBasis().transpose( out j);
+				btMatrix3x3 j; t.m_basis.transpose( out j);
 				j.m_el0 *= i.x;
 				j.m_el1 *= i.y;
 				j.m_el2 *= i.z;
 				btMatrix3x3 j2;
-				t.getBasis().Mult( ref j, out j2 );
+				t.m_basis.Mult( ref j, out j2 );
 
 				//add inertia tensor
 				tensor.m_el0 += j2.m_el0;
@@ -410,7 +390,7 @@ virtual string serialize( object dataBuffer, btSerializer* serializer );
 
 			for( int i = 0; i < m_children.Count; i++ )
 			{
-				btITransform childTrans = getChildTransform( i );
+				btTransform childTrans = getChildTransform( i );
 				btVector3 childScale; m_children[i].m_childShape.getLocalScaling( out childScale );
 				//		childScale = childScale * (childTrans.getBasis() * scaling);
 				childScale.Mult( ref scaling, out childScale );
@@ -418,10 +398,10 @@ virtual string serialize( object dataBuffer, btSerializer* serializer );
 				//childScale = childScale * scaling / m_localScaling;
 				m_children[i].m_childShape.setLocalScaling( ref childScale );
 				btVector3 tmp;
-				childTrans.getOrigin().Mult( ref scaling, out tmp );
+				childTrans.m_origin.Mult( ref scaling, out tmp );
 				tmp.Div( ref m_localScaling, out tmp );
 				childTrans.setOrigin( ref tmp );
-				updateChildTransform( i, childTrans, false );
+				updateChildTransform( i,ref childTrans, false );
 			}
 
 			m_localScaling = scaling;

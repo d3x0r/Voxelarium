@@ -41,8 +41,13 @@ namespace Bullet.Collision.Dispatch
 
 
 
-	class btHashedSimplePairCache
+	internal class btHashedSimplePairCache
 	{
+		//static int gOverlappingSimplePairs = BulletGlobals.OverlappingSimplePairPool.Created;
+		static int gRemoveSimplePairs = 0;
+		static int gAddedSimplePairs = 0;
+		static int gFindSimplePairs = 0;
+
 		const int BT_SIMPLE_NULL_PAIR = -1;
 		btSimplePairArray m_overlappingPairArray = new btSimplePairArray();
 
@@ -133,10 +138,6 @@ namespace Bullet.Collision.Dispatch
 		}
 
 
-		static int gOverlappingSimplePairs = 0;
-		static int gRemoveSimplePairs = 0;
-		static int gAddedSimplePairs = 0;
-		static int gFindSimplePairs = 0;
 
 
 

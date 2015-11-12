@@ -38,9 +38,9 @@ namespace Bullet.Dynamics.ConstraintSolver
 			ref btMatrix3x3 world2B,
 			ref btVector3 rel_pos1, ref btVector3 rel_pos2,
 			ref btVector3 jointAxis,
-			btIVector3 inertiaInvA,
+			ref btVector3 inertiaInvA,
 			double massInvA,
-			btIVector3 inertiaInvB,
+			ref btVector3 inertiaInvB,
 			double massInvB )
 		{
 			m_linearJointAxis = ( jointAxis );
@@ -57,8 +57,8 @@ namespace Bullet.Dynamics.ConstraintSolver
 		internal btJacobianEntry( ref btVector3 jointAxis,
 			ref btMatrix3x3 world2A,
 			ref btMatrix3x3 world2B,
-			btIVector3 inertiaInvA,
-			btIVector3 inertiaInvB )
+			ref btVector3 inertiaInvA,
+			ref btVector3 inertiaInvB )
 		{
 			m_linearJointAxis = btVector3.Zero;// ( btVector3( btScalar.BT_ZERO, btScalar.BT_ZERO, btScalar.BT_ZERO ) )
 			m_aJ = world2A * jointAxis;

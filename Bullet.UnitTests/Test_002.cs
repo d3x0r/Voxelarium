@@ -74,7 +74,7 @@ namespace Bullet.UnitTests
 
 				Console.WriteLine( "Iteration {0}", step );
 				Console.WriteLine( "{0}", trans.ToString( "ball orient\t", "\t\t", "ball origin\t" ) );
-				btIVector3 v = fallingRigidBody.getAngularVelocity();
+				btVector3 v = fallingRigidBody.getAngularVelocity();
 				Console.WriteLine( "ball Ang Vel : {0}", v );
 				v = fallingRigidBody.getLinearVelocity();
 				Console.WriteLine( "ball Lin Vel : {0}", v );

@@ -23,7 +23,10 @@ namespace Bullet.Dynamics
 	//#define NO_FRICTION_TANGENTIALS 1
 
 
+	internal delegate void useSolverConstraint( ref btSolverConstraint solver );
+
 	///1D constraint along a normal axis between bodyA and bodyB. It can be combined to solve contact and friction constraints.
+	///do want to keep these packed.
 	public class btSolverConstraint
 	{
 

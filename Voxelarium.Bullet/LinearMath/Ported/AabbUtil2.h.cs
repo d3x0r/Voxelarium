@@ -55,7 +55,7 @@ namespace Bullet.LinearMath
 
 		/// conservative test for overlap between triangle and aabb
 		public static bool TestTriangleAgainstAabb2( btVector3[] vertices,
-											btIVector3 aabbMin, btIVector3 aabbMax )
+											ref btVector3 aabbMin, ref btVector3 aabbMax )
 		{
 			btVector3 p1 = vertices[0];
 			btVector3 p2 = vertices[1];
@@ -179,23 +179,23 @@ namespace Bullet.LinearMath
 				, out btVector3 aabbMinOut, out btVector3 aabbMaxOut )
 		{
 			btVector3 halfExtentsWithMargin; halfExtents.AddScale( ref btVector3.One, margin, out halfExtentsWithMargin  );
-			btMatrix3x3 abs_b; t.getBasis().absolute( out abs_b);
-			btIVector3 center = t.getOrigin();
+			btMatrix3x3 abs_b; t.m_basis.absolute( out abs_b);
 			btVector3 extent; halfExtentsWithMargin.dot3( ref abs_b.m_el0, ref abs_b.m_el1, ref abs_b.m_el2, out extent );
-			center.Sub(ref extent, out aabbMinOut );
-			center.Add( ref extent, out aabbMaxOut );
+			t.m_origin.Sub(ref extent, out aabbMinOut );
+			t.m_origin.Add( ref extent, out aabbMaxOut );
 		}
+#if InterfacesDidntSuck
 		public static void btTransformAabb( ref btVector3 halfExtents, double margin,  btITransform t
 				, out btVector3 aabbMinOut, out btVector3 aabbMaxOut )
 		{
 			btVector3 halfExtentsWithMargin; halfExtents.AddScale( ref btVector3.One, margin, out halfExtentsWithMargin );
 			btMatrix3x3 abs_b; t.getBasis().absolute( out abs_b );
-			btIVector3 center = t.getOrigin();
 			btVector3 extent; halfExtentsWithMargin.dot3( ref abs_b.m_el0, ref abs_b.m_el1, ref abs_b.m_el2, out extent );
-			center.Sub( ref extent, out aabbMinOut );
-			center.Add( ref extent, out aabbMaxOut );
+			t.m_origin.Sub( ref extent, out aabbMinOut );
+			t.m_origin.Add( ref extent, out aabbMaxOut );
 		}
-
+#endif
+#if InterfacesDidntSuck
 		public static void btTransformAabb( btIVector3 localAabbMin, btIVector3 localAabbMax, double margin, ref btTransform trans, out btVector3 aabbMinOut, out btVector3 aabbMaxOut )
 		{
 			Debug.Assert( localAabbMin.X <= localAabbMax.X );
@@ -215,7 +215,7 @@ namespace Bullet.LinearMath
 			center.Sub( ref extent, out aabbMinOut );
 			center.Add( ref extent, out aabbMaxOut );
 		}
-
+#endif
 		public static void btTransformAabb( ref btVector3 localAabbMin, ref btVector3 localAabbMax, double margin, ref btTransform trans, out btVector3 aabbMinOut, out btVector3 aabbMaxOut )
 		{
 			Debug.Assert( localAabbMin.x <= localAabbMax.x );

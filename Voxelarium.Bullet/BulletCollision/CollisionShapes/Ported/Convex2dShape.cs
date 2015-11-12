@@ -81,18 +81,9 @@ namespace Bullet.Collision.Shapes
 			m_childConvexShape.getAabb( ref t, out aabbMin, out aabbMax );
 		}
 
-		public override void getAabb( btITransform t, out btVector3 aabbMin, out btVector3 aabbMax )
-		{
-			m_childConvexShape.getAabb( t, out aabbMin, out aabbMax );
-		}
-
 		public override void getAabbSlow( ref btTransform t, out btVector3 aabbMin, out btVector3 aabbMax )
 		{
 			m_childConvexShape.getAabbSlow( ref t, out aabbMin, out aabbMax );
-		}
-		public override void getAabbSlow( btITransform t, out btVector3 aabbMin, out btVector3 aabbMax )
-		{
-			m_childConvexShape.getAabbSlow( t, out aabbMin, out aabbMax );
 		}
 
 		public override void setLocalScaling( ref btVector3 scaling )

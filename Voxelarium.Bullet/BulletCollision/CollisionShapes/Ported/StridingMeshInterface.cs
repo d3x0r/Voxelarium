@@ -71,10 +71,6 @@ namespace Bullet.Collision.Shapes
 		{
 			result = m_scaling;
 		}
-		public btIVector3 getScaling()
-		{
-			return m_scaling;
-		}
 		public void setScaling( ref btVector3 scaling )
 		{
 			m_scaling = scaling;

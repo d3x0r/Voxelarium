@@ -26,17 +26,17 @@ namespace Bullet.Collision.Shapes
 	public class btMultiSphereShape : btConvexInternalAabbCachingShape
 	{
 
-		btList<btVector3> m_localPositionArray;
-		btList<double> m_radiArray;
+		btList<btVector3> m_localPositionArray = new btList<btVector3>();
+		btList<double> m_radiArray = new btList<double>();
 
 		internal int getSphereCount()
 		{
 			return m_localPositionArray.Count;
 		}
 
-		public btIVector3 getSpherePosition( int index )
+		public void getSpherePosition( int index, out btVector3 result )
 		{
-			return m_localPositionArray[index];
+			result = m_localPositionArray[index];
 		}
 
 		public double getSphereRadius( int index )
@@ -89,7 +89,7 @@ namespace Bullet.Collision.Shapes
 				vec *= rlen;
 			}
 
-			btVector3 vtx;
+			//btVector3 vtx;
 			double newDot;
 
 			btVector3[] pos = m_localPositionArray.InternalArray;
@@ -124,7 +124,7 @@ namespace Bullet.Collision.Shapes
 
 				btVector3 vec = vectors[j];
 
-				btVector3 vtx;
+				//btVector3 vtx;
 				double newDot;
 
 				btVector3[] pos = m_localPositionArray.InternalArray;

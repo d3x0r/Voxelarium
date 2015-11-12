@@ -21,11 +21,11 @@ namespace Bullet.Debug.OpenGL2
 		{
 			btVector3 tmpD;
 			PointOnB.Add( ref normalOnB, out tmpD );
-			drawLine( normalOnB, tmpD, ref color, ref color );
+			drawLine( ref normalOnB, ref tmpD, ref color, ref color );
 
 		}
 
-		public override void drawLine( btIVector3 from, btIVector3 to, ref btVector3 fromColor, ref btVector3 toColor )
+		public override void drawLine( ref btVector3 from, ref btVector3 to, ref btVector3 fromColor, ref btVector3 toColor )
 		{
 
 			GL.Begin( PrimitiveType.Lines );
@@ -43,6 +43,8 @@ namespace Bullet.Debug.OpenGL2
 
 		DebugDrawModes mode = DebugDrawModes.DBG_DrawWireframe 
 			| DebugDrawModes.DBG_DrawNormals
+			| DebugDrawModes.DBG_DrawConstraints
+			| DebugDrawModes.DBG_DrawContactPoints
 			| DebugDrawModes.DBG_DrawAabb;
 		public override void setDebugMode( DebugDrawModes debugMode )
 		{

@@ -37,11 +37,7 @@ namespace Bullet.Collision.Shapes
 		///getAabb's default implementation is brute force, expected derived classes to implement a fast dedicated version
 		public override abstract void getAabb( ref btTransform t, out btVector3 aabbMin, out btVector3 aabbMax );
 
-		public virtual void getAabbSlow( ref btTransform t, out btVector3 aabbMin, out btVector3 aabbMax )
-		{
-			getAabbSlow( t, out aabbMin, out aabbMax );
-		}
-		public abstract void getAabbSlow( btITransform t, out btVector3 aabbMin, out btVector3 aabbMax );
+		public abstract void getAabbSlow( ref btTransform t, out btVector3 aabbMin, out btVector3 aabbMax );
 
 		public abstract override void setLocalScaling( ref btVector3 scaling );
 		public abstract override void getLocalScaling( out btVector3 result );
@@ -60,7 +56,7 @@ namespace Bullet.Collision.Shapes
 			, ref double min, ref double max
 			, out btVector3 witnesPtMin, out btVector3 witnesPtMax )
 		{
-			btVector3 localAxis; trans.getBasis().ApplyInverse( ref dir, out localAxis );
+			btVector3 localAxis; trans.m_basis.ApplyInverse( ref dir, out localAxis );
 			btVector3 tmpv;
 			localGetSupportingVertex( ref localAxis, out tmpv );
 			btVector3 vtx1; trans.Apply( ref tmpv, out vtx1 );
@@ -253,7 +249,7 @@ namespace Bullet.Collision.Shapes
 						btVector3 halfExtents = convexShape.getImplicitShapeDimensions();
 						btVector3 tmp = new btVector3( margin, margin, margin );
 						halfExtents.Add( ref tmp, out halfExtents );
-						btMatrix3x3 abs_b; t.getBasis().absolute( out abs_b );
+						btMatrix3x3 abs_b; t.m_basis.absolute( out abs_b );
 						btVector3 extent; halfExtents.dot3( ref abs_b.m_el0, ref abs_b.m_el1, ref abs_b.m_el2, out extent );
 
 						t.m_origin.Sub( ref extent, out aabbMin );
@@ -293,7 +289,7 @@ namespace Bullet.Collision.Shapes
 						halfExtents[m_upAxis] = capsuleShape.getRadius() + capsuleShape.getHalfHeight();
 						btVector3 tmp = new btVector3( capsuleShape.getMarginNonVirtual(), capsuleShape.getMarginNonVirtual(), capsuleShape.getMarginNonVirtual() );
                         halfExtents.Add( ref tmp, out halfExtents );
-						btMatrix3x3 abs_b; t.getBasis().absolute( out abs_b );
+						btMatrix3x3 abs_b; t.m_basis.absolute( out abs_b );
 						btVector3 extent; halfExtents.dot3( ref abs_b.m_el0, ref abs_b.m_el1, ref abs_b.m_el2, out extent );
 						t.m_origin.Sub( ref extent, out aabbMin );
 						t.m_origin.Add( ref extent, out aabbMax );

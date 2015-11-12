@@ -202,6 +202,7 @@ namespace Bullet.LinearMath
 			return flag;
 		}
 
+		/*
 		internal struct VertFlag
 		{
 			public byte planetest;
@@ -227,7 +228,7 @@ namespace Bullet.LinearMath
 			public byte v0;
 			public byte v1;
 		};
-
+		*/
 
 
 
@@ -409,8 +410,8 @@ namespace Bullet.LinearMath
 
 		internal partial class HullLibrary
 		{
-			btList<btHullTriangle> m_tris;
-			public btList<int> m_vertexIndexMapping;
+			btList<btHullTriangle> m_tris = new btList<btHullTriangle>();
+			public btList<int> m_vertexIndexMapping = new btList<int>();
 
 			void b2bfix( btHullTriangle s, btHullTriangle t )
 			{

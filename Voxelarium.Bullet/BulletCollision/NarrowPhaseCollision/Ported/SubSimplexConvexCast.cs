@@ -57,18 +57,18 @@ namespace Bullet.Collision.NarrowPhase
 		///Typically the conservative advancement reaches solution in a few iterations, clip it to 32 for degenerate cases.
 		///See discussion about this here http://continuousphysics.com/Bullet/phpBB2/viewtopic.php?t=565
 		internal override bool calcTimeOfImpact(
-				btITransform fromA,
-				btITransform toA,
-				btITransform fromB,
-				btITransform toB,
+				ref btTransform fromA,
+				ref btTransform toA,
+				ref btTransform fromB,
+				ref btTransform toB,
 				CastResult result )
 		{
 
 			m_simplexSolver.reset();
 
 			btVector3 linVelA, linVelB;
-			toA.getOrigin().Sub( fromA.getOrigin(), out linVelA );
-			toB.getOrigin().Sub( fromB.getOrigin(), out linVelB );
+			toA.m_origin.Sub( ref fromA.m_origin, out linVelA );
+			toB.m_origin.Sub( ref fromB.m_origin, out linVelB );
 
 			double lambda = btScalar.BT_ZERO;
 
@@ -82,12 +82,12 @@ namespace Bullet.Collision.NarrowPhase
 			btVector3 tmp2;
 
 			r.Invert( out v );
-			fromA.Basis.ApplyInverse( ref v, out tmp );
+			fromA.m_basis.ApplyInverse( ref v, out tmp );
 			m_convexA.localGetSupportingVertex( ref tmp, out tmp2 );
 			btVector3 supVertexA; fromA.Apply( ref tmp2, out supVertexA );
 			//btVector3 supVertexA = fromA( m_convexA.localGetSupportingVertex( -r * fromA.getBasis() ) );
 
-			fromB.Basis.ApplyInverse( ref r, out tmp );
+			fromB.m_basis.ApplyInverse( ref r, out tmp );
 			m_convexB.localGetSupportingVertex( ref tmp, out tmp2 );
 			btVector3 supVertexB; fromB.Apply( ref tmp2, out supVertexB );
 			//btVector3 supVertexB = fromB( m_convexB.localGetSupportingVertex( r * fromB.getBasis() ) );
@@ -108,11 +108,11 @@ namespace Bullet.Collision.NarrowPhase
 			{
 				//btVector3 tmp, tmp2;
 				v.Invert( out tmp );
-				interpolatedTransA.Basis.ApplyInverse( ref tmp, out tmp2 );
+				interpolatedTransA.m_basis.ApplyInverse( ref tmp, out tmp2 );
 				m_convexA.localGetSupportingVertex( ref tmp2, out tmp );
 				interpolatedTransA.Apply( ref tmp, out supVertexA );
 				//supVertexA = interpolatedTransA( m_convexA.localGetSupportingVertex( -v * interpolatedTransA.getBasis() ) );
-				interpolatedTransB.Basis.ApplyInverse( ref v, out tmp2 );
+				interpolatedTransB.m_basis.ApplyInverse( ref v, out tmp2 );
 				m_convexB.localGetSupportingVertex( ref tmp2, out tmp );
 				interpolatedTransB.Apply( ref tmp, out supVertexB );
 				//supVertexB = interpolatedTransB( m_convexB.localGetSupportingVertex( v * interpolatedTransB.getBasis() ) );
@@ -137,8 +137,8 @@ namespace Bullet.Collision.NarrowPhase
 						lambda = lambda - VdotW / VdotR;
 						//interpolate to next lambda
 						//	x = s + lambda * r;
-						interpolatedTransA.m_origin.setInterpolate3( fromA.getOrigin(), toA.getOrigin(), lambda );
-						interpolatedTransB.m_origin.setInterpolate3( fromB.getOrigin(), toB.getOrigin(), lambda );
+						interpolatedTransA.m_origin.setInterpolate3( ref fromA.m_origin, ref toA.m_origin, lambda );
+						interpolatedTransB.m_origin.setInterpolate3( ref fromB.m_origin, ref toB.m_origin, lambda );
 						//m_simplexSolver.reset();
 						//check next line
 						supVertexA.Sub( ref supVertexB, out w );

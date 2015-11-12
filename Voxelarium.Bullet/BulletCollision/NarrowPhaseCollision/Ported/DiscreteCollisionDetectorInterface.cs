@@ -15,6 +15,7 @@ subject to the following restrictions:
 
 using System;
 using Bullet.LinearMath;
+using Bullet.Collision.Dispatch;
 
 namespace Bullet.Collision.NarrowPhase
 {
@@ -46,9 +47,10 @@ namespace Bullet.Collision.NarrowPhase
 			{
 				m_maximumDistanceSquared = btScalar.BT_LARGE_FLOAT;
 			}
-
-			internal btITransform m_transformA;
-			internal btITransform m_transformB;
+			//internal btCollisionObjectWrapper objA;
+			//internal btCollisionObjectWrapper objB;
+			internal btTransform m_transformA;
+			internal btTransform m_transformB;
 			internal double m_maximumDistanceSquared;
 		};
 

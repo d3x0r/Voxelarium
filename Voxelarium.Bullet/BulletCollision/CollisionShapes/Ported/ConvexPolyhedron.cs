@@ -303,7 +303,7 @@ namespace Bullet.Collision.Shapes
 #endif
 		}
 
-		public void project( btITransform trans, ref btVector3 dir, out double minProj, out double maxProj, out btVector3 witnesPtMin, out btVector3 witnesPtMax )
+		public void project( ref btTransform trans, ref btVector3 dir, out double minProj, out double maxProj, out btVector3 witnesPtMin, out btVector3 witnesPtMax )
 		{
 			btVector3[] arr_vertices = m_vertices.InternalArray;
 			int numVerts;

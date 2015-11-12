@@ -49,11 +49,7 @@ namespace Bullet.Collision.Dispatch
 	///@todo: describe the meaning
 	class btDefaultCollisionConfiguration : btCollisionConfiguration
 	{
-
-
-
-		int m_persistentManifoldPoolSize;
-
+		//int m_persistentManifoldPoolSize;
 
 		//btPoolAllocator* m_persistentManifoldPool;
 		//bool m_ownsPersistentManifoldPool;
@@ -77,8 +73,10 @@ namespace Bullet.Collision.Dispatch
 		btCollisionAlgorithmCreateFunc m_swappedCompoundCreateFunc;
 		btCollisionAlgorithmCreateFunc m_emptyCreateFunc;
 		btCollisionAlgorithmCreateFunc m_sphereSphereCF;
+#if USE_BUGGY_SPHERE_BOX_ALGORITHM
 		btCollisionAlgorithmCreateFunc m_sphereBoxCF;
 		btCollisionAlgorithmCreateFunc m_boxSphereCF;
+#endif
 
 		btCollisionAlgorithmCreateFunc m_boxBoxCF;
 		btCollisionAlgorithmCreateFunc m_sphereTriangleCF;

@@ -64,7 +64,7 @@ namespace Bullet.Collision.NarrowPhase
 			base.Initialize( btObjectTypes.BT_PERSISTENT_MANIFOLD_TYPE );
 			m_body0 = ( body0 ); m_body1 = ( body1 ); m_cachedPoints = ( 0 );
 			m_contactBreakingThreshold = ( contactBreakingThreshold );
-			btScalar.Dbg( "breaking contact threshold set to " + contactBreakingThreshold.ToString( "g12" ) );
+			btScalar.Dbg( "breaking contact threshold set to " + contactBreakingThreshold.ToString( "g17" ) );
 			m_contactBreakingThresholdSquared = contactBreakingThreshold * contactBreakingThreshold;
 			m_contactProcessingThreshold = ( contactProcessingThreshold );
 		}
@@ -395,7 +395,7 @@ namespace Bullet.Collision.NarrowPhase
 		void setContactBreakingThreshold( double contactBreakingThreshold )
 		{
 			m_contactBreakingThreshold = contactBreakingThreshold;
-			btScalar.Dbg( "breaking contact threshold reset to " + contactBreakingThreshold.ToString( "g12" ) );
+			btScalar.Dbg( "breaking contact threshold reset to " + contactBreakingThreshold.ToString( "g17" ) );
 
 			m_contactBreakingThresholdSquared = contactBreakingThreshold * contactBreakingThreshold;
 		}

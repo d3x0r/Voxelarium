@@ -79,8 +79,8 @@ namespace Bullet.Collision.Dispatch
 				return;
 
 
-			btBoxShape box0 = (btBoxShape)body0Wrap.getCollisionShape();
-			btBoxShape box1 = (btBoxShape)body1Wrap.getCollisionShape();
+			btBoxShape box0 = (btBoxShape)body0Wrap.m_shape;
+			btBoxShape box1 = (btBoxShape)body1Wrap.m_shape;
 
 
 
@@ -92,8 +92,8 @@ namespace Bullet.Collision.Dispatch
 
 			btDiscreteCollisionDetectorInterface.ClosestPointInput input = new btDiscreteCollisionDetectorInterface.ClosestPointInput();
 			input.m_maximumDistanceSquared = btScalar.BT_LARGE_FLOAT;
-			input.m_transformA = body0Wrap.m_worldTransform.T;
-			input.m_transformB = body1Wrap.m_worldTransform.T;
+			input.m_transformA = body0Wrap.m_worldTransform;
+			input.m_transformB = body1Wrap.m_worldTransform;
 
 			//btBoxBoxDetector detector = BulletGlobals.
 			//	new btBoxBoxDetectors( box0, box1 );
@@ -121,7 +121,7 @@ namespace Bullet.Collision.Dispatch
 			internal override btCollisionAlgorithm CreateCollisionAlgorithm( btCollisionAlgorithmConstructionInfo ci, btCollisionObjectWrapper body0Wrap, btCollisionObjectWrapper body1Wrap )
 			{
 				btBoxBoxCollisionAlgorithm ca = BulletGlobals.BoxBoxCollisionAlgorithmPool.Get();
-				ca.Initialize( ci, body0Wrap, body1Wrap );
+				ca.Initialize( null, ci, body0Wrap, body1Wrap );
 				return ca;
 			}
 		};

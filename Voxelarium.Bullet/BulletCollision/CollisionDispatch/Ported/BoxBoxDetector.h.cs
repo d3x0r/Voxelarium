@@ -81,7 +81,7 @@ namespace Bullet.Collision.Dispatch
 		static double dDOT( double[] a, double[] b ) { return dDOTpq( a, b, 1, 1 ); }
 		static double dDOT( ref btVector3 a, double[] b, int bofs ) { return dDOTpq( ref a, b, bofs, 1, 1 ); }
 		static double dDOT44( double[] a, double[] b ) { return dDOTpq( a, b, 4, 4 ); }
-		static double dDOT44( double[] a, int ofsa, double[] b, int ofsb ) { return dDOTpq( a, b, 4, 4 ); }
+		static double dDOT44( double[] a, int aofs, double[] b, int bofs ) { return dDOTpq( a, aofs, b, bofs, 4, 4 ); }
 		static double dDOT41( double[] a, double[] b ) { return dDOTpq( a, b, 4, 1 ); }
 		static double dDOT41( double[] a, int aofs, double[] b ) { return dDOTpq( a, aofs, b, 0, 4, 1 ); }
 		static double dDOT14( double[] a, double[] b ) { return dDOTpq( a, b, 1, 4 ); }
@@ -105,12 +105,13 @@ namespace Bullet.Collision.Dispatch
 			A.y = B[1 + 0] * C.x + B[1 + 4] * C.y + B[1 + 8] * C.z;
 			A.z = B[2 + 0] * C.x + B[2 + 4] * C.y + B[2 + 8] * C.z;
 		}
-		static void dMULTIPLY0_331( ref btVector3 A, double[] B, ref btVector3 C )
+		static void dMULTIPLY0_331( out btVector3 A, double[] B, ref btVector3 C )
 		{
 			//( ( a )[0] * ( b )[0] + ( a )[p] * ( b )[q] + ( a )[2 * ( p )] * ( b )[2 * ( q )] )
 			A.x = B[0 + 0] * C.x + B[0 + 1] * C.y + B[0 + 2] * C.z;
 			A.y = B[4 + 0] * C.x + B[4 + 1] * C.y + B[4 + 2] * C.z;
 			A.z = B[8 + 0] * C.x + B[8 + 1] * C.y + B[8 + 2] * C.z;
+			A.w = 0;
 		}
 		/*
 		#define dMULTIPLYOP1_331(A,op,B,C) \
@@ -183,6 +184,7 @@ namespace Bullet.Collision.Dispatch
 			int nq = 4, nr = 0, inq = 0;
 			double[] buffer = new double[16];
 			double[] q = p;
+
 			double[] r = ret;
 			for( int dir = 0; dir <= 1; dir++ )
 			{
@@ -190,18 +192,19 @@ namespace Bullet.Collision.Dispatch
 				for( int sign = -1; sign <= 1; sign += 2 )
 				{
 					// chop q along the line xy[dir] = sign*h[dir]
-					double[] pq = q;
+					//double[] pq = q;
 					inq = 0;
-					double[] pr = r;
+					//double[] pr = r;
 					nr = 0;
 					for( int i = nq; i > 0; i-- )
 					{
 						// go through all points in q and all lines between adjacent points
-						if( sign * pq[inq * 2 + dir] < h[dir] )
+						if( sign * q[inq * 2 + dir] < h[dir] )
 						{
+
 							// this point is inside the chopping line
-							pr[nr * 2 + 0] = pq[inq * 2 + 0];
-							pr[nr * 2 + 1] = pq[inq * 2 + 1];
+							r[nr * 2 + 0] = q[inq * 2 + 0];
+							r[nr * 2 + 1] = q[inq * 2 + 1];
 							//pr += 2;
 							nr++;
 							if( ( nr & 8 ) != 0 )
@@ -211,20 +214,18 @@ namespace Bullet.Collision.Dispatch
 							}
 						}
 						int q_idx;
-						double[] nextq;
-						if( i > 1 ) { nextq = pq; q_idx = inq * 2 + 2; } else { nextq = q; q_idx = 0; }
+						if( i > 1 ) { q_idx = inq+1; } else { q_idx = 0; }
 
-						if( ( sign * pq[inq * 2 + dir] < h[dir] ) ^ ( sign * nextq[q_idx + dir] < h[dir] ) )
+						if( ( sign * q[inq * 2 + dir] < h[dir] ) ^ ( sign * q[q_idx *2 + dir] < h[dir] ) )
 						{
 							// this line crosses the chopping line
-							pr[nr * 2 + ( 1 - dir )] = pq[inq * 2 + ( 1 - dir )] + ( nextq[q_idx + ( 1 - dir )] - pq[inq * 2 + ( 1 - dir )] ) /
-							  ( nextq[q_idx + dir] - pq[inq * 2 + dir] ) * ( sign * h[dir] - pq[inq * 2 + dir] );
-							pr[nr * 2 + dir] = sign * h[dir];
+							r[nr * 2 + ( 1 - dir )] = q[inq * 2 + ( 1 - dir )] + ( q[q_idx * 2 + ( 1 - dir )] - q[inq * 2 + ( 1 - dir )] ) /
+							  ( q[q_idx * 2 + dir] - q[inq * 2 + dir] ) * ( sign * h[dir] - q[inq * 2 + dir] );
+							r[nr * 2 + dir] = sign * h[dir];
 							//pr += 2;
 							nr++;
-							if( ( nr & 8 ) != 0 )
-							{
-								q = r;
+							if( ( nr & 8 ) != 0 ) {
+								q = ret;
 								goto done;
 							}
 						}
@@ -238,7 +239,7 @@ namespace Bullet.Collision.Dispatch
 			}
 			done:
 			if( q != ret )
-				for( int n = 0; n < nr * 2; nr++ )
+				for( int n = 0; n < nr * 2; n++ )
 					ret[n] = q[n];
 			//memcpy( ret, q, nr * 2 * sizeof( double ) );
 			return nr;
@@ -411,7 +412,7 @@ namespace Bullet.Collision.Dispatch
 		static int dBoxBox2( ref btVector3 p1, double[] R1,
 							 ref btVector3 side1, ref btVector3 p2,
 							 double[] R2, ref btVector3 side2,
-							 out btVector3 normal, out double depth, out int return_code,
+							// out btVector3 normal, out double depth, out int return_code,
 							 int maxc, int skip, btDiscreteCollisionDetectorInterface.Result output )
 		{
 			double[] p = new double[3], pp = new double[3];
@@ -420,14 +421,14 @@ namespace Bullet.Collision.Dispatch
 			int normalRstart = 0;
 			double[] A = new double[3], B = new double[3];
 			double R11, R12, R13, R21, R22, R23, R31, R32, R33,
-			  Q11, Q12, Q13, Q21, Q22, Q23, Q31, Q32, Q33, s, s2, l;
+			  Q11, Q12, Q13, Q21, Q22, Q23, Q31, Q32, Q33, s;
 			int i, j, code;
 			bool invert_normal;
-			normal = btVector3.Zero;
+			//normal = btVector3.Zero;
 			// get vector from centers of box 1 to box 2, relative to box 1
 			p[0] = p2.x - p1.x;
-			p[1] = p2.x - p1.x;
-			p[2] = p2.x - p1.x;
+			p[1] = p2.y - p1.y;
+			p[2] = p2.z - p1.z;
 
 			dMULTIPLY1_331( pp, R1, p );        // get pp = p relative to body 1
 
@@ -462,8 +463,8 @@ namespace Bullet.Collision.Dispatch
 			s = btScalar.BT_MIN_FLOAT;
 			invert_normal = false;
 			code = 0;
-			depth = 0;
-			return_code = 0;
+			//depth = 0;
+			//return_code = 0;
 
 			// separating axis = u1,u2,u3
 			if( !TST1( ref s, ref normalR, ref normalRstart, ref invert_normal, ref code, pp[0]
@@ -536,19 +537,21 @@ namespace Bullet.Collision.Dispatch
 				return 0;
 
 
-			if( code != 0 ) return 0;
+			if( code == 0 ) return 0;
 
+			btVector3 normal;
 			// if we get to this point, the boxes interpenetrate. compute the normal
 			// in global coordinates.
 			if( normalR != null )
 			{
-				normal[0] = normalR[normalRstart + 0];
-				normal[1] = normalR[normalRstart + 4];
-				normal[2] = normalR[normalRstart + 8];
+				normal.x = normalR[normalRstart + 0];
+				normal.y = normalR[normalRstart + 4];
+				normal.z = normalR[normalRstart + 8];
+				normal.w = 0;
 			}
 			else
 			{
-				dMULTIPLY0_331( ref normal, R1, ref normalC );
+				dMULTIPLY0_331( out normal, R1, ref normalC );
 			}
 			if( invert_normal )
 			{
@@ -556,7 +559,7 @@ namespace Bullet.Collision.Dispatch
 				normal[1] = -normal[1];
 				normal[2] = -normal[2];
 			}
-			depth = -s;
+			double depth = -s;
 
 			// compute contact point(s)
 
@@ -614,7 +617,7 @@ namespace Bullet.Collision.Dispatch
 					output.addContactPoint( ref tmp, ref pb2, -depth );
 
 #endif //
-					return_code = code;
+					//return_code = code;
 				}
 				return 1;
 			}
@@ -876,7 +879,7 @@ namespace Bullet.Collision.Dispatch
 				cnum = maxc;
 			}
 
-			return_code = code;
+			//return_code = code;
 			return cnum;
 		}
 
@@ -886,8 +889,8 @@ namespace Bullet.Collision.Dispatch
 				, btIDebugDraw debugDraw, bool swapResults = false )
 		{
 
-			btTransform transformA; input.m_transformA.Get( out transformA );
-			btTransform transformB; input.m_transformB.Get( out transformB );
+			//btTransform transformA; input.m_transformA.Get( out transformA );
+			//btTransform transformB; input.m_transformB.Get( out transformB );
 
 			int skip = 0;
 			//dContactGeom* contact = 0;
@@ -899,23 +902,21 @@ namespace Bullet.Collision.Dispatch
 
 			for( int j = 0; j < 3; j++ )
 			{
-				R1[0 + 4 * j] = transformA.m_basis[j].X;
-				R2[0 + 4 * j] = transformB.m_basis[j].X;
+				R1[0 + 4 * j] = btMatrix3x3.getValue( ref input.m_transformA.m_basis, j,0 );
+				R2[0 + 4 * j] = btMatrix3x3.getValue( ref input.m_transformB.m_basis, j, 0 );
 
-				R1[1 + 4 * j] = transformA.m_basis[j].Y;
-				R2[1 + 4 * j] = transformB.m_basis[j].Y;
+				R1[1 + 4 * j] = btMatrix3x3.getValue( ref input.m_transformA.m_basis,j,1);
+				R2[1 + 4 * j] = btMatrix3x3.getValue( ref input.m_transformB.m_basis,j,1 );
 
-
-				R1[2 + 4 * j] = transformA.m_basis[j].Z;
-				R2[2 + 4 * j] = transformB.m_basis[j].Z;
-
+				R1[2 + 4 * j] = btMatrix3x3.getValue( ref input.m_transformA.m_basis,j,2 );
+				R2[2 + 4 * j] = btMatrix3x3.getValue( ref input.m_transformB.m_basis,j,2 );
 			}
 
 
 
-			btVector3 normal;
-			double depth;
-			int return_code;
+			//btVector3 normal;
+			//double depth;
+			//int return_code;
 			int maxc = 4;
 			btVector3 half1, half2;
 
@@ -924,13 +925,13 @@ namespace Bullet.Collision.Dispatch
 			m_box2.getHalfExtentsWithMargin( out half2 );
 			half2.Mult( btScalar.BT_TWO, out half2 );
 
-			dBoxBox2( ref transformA.m_origin,
+			dBoxBox2( ref input.m_transformA.m_origin,
 					R1,
 					ref half1,
-					ref transformB.m_origin,
+					ref input.m_transformB.m_origin,
 					R2,
 					ref half2,
-					out normal, out depth, out return_code,
+					//out normal, out depth, out return_code,
 					maxc, skip,
 					output
 			);

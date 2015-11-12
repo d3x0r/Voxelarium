@@ -1,4 +1,4 @@
-//#define COLUMN_MAJOR_EXPECTED
+#define COLUMN_MAJOR_EXPECTED
 //#define DISABLE_OPERATORS
 #define DISABLE_ROW4
 /*
@@ -17,6 +17,7 @@ subject to the following restrictions:
 
 namespace Bullet.LinearMath
 {
+#if InterfacesDidntSuck
 	public interface btIMatrix3x3
 	{
 		btIVector3 this[int n] { get; }
@@ -36,6 +37,10 @@ namespace Bullet.LinearMath
 		void setValue( double xx, double xy, double xz,
 			double yx, double yy, double yz,
 			double zx, double zy, double zz );
+
+		void setValue( ref btVector3 col1, ref btVector3 col2, ref btVector3 col3 );
+
+		void setValueTransposed( ref btVector3 row1, ref btVector3 row2, ref btVector3 row3 );
 
 		/* @brief Set the matrix from euler angles using YPR around YXZ respectively
 		 * @param yaw Yaw about Y axis
@@ -146,15 +151,19 @@ namespace Bullet.LinearMath
 		bool Equals( ref btMatrix3x3 m1 );
 
 	}
+#endif
 
-	public struct btMatrix3x3 : btIMatrix3x3
+	public struct btMatrix3x3
+#if InterfacesDidntSuck
+		: btIMatrix3x3
+#endif
 	{
 		/*
-		#if BT_USE_DOUBLE_PRECISION
-		#define btMatrix3x3Data	btMatrix3x3DoubleData 
-		#else
-		#define btMatrix3x3Data	btMatrix3x3FloatData
-		#endif //BT_USE_DOUBLE_PRECISION
+#if BT_USE_DOUBLE_PRECISION
+#define btMatrix3x3Data	btMatrix3x3DoubleData 
+#else
+#define btMatrix3x3Data	btMatrix3x3FloatData
+#endif //BT_USE_DOUBLE_PRECISION
 		*/
 
 		/*@brief The btMatrix3x3 class implements a 3x3 rotation matrix, to perform linear algebra in combination with btQuaternion, btTransform and btVector3.
@@ -274,10 +283,33 @@ namespace Bullet.LinearMath
 			}
 			return;
 		}
+		public void getScaledColumn( int i, double scale, out btVector3 result )
+		{
+			switch( i )
+			{
+				default:
+#if PARANOID_ASSERTS
+					Debug.Assert( i > 3 || i < 0 );
+#endif
+				case 0:
+					result.x = scale * m_el0.x; result.y = scale * m_el1.x; result.z = scale* m_el2.x; result.w = 0;
+					break;
+				case 1:
+					result.x = scale * m_el0.y; result.y = scale * m_el1.y; result.z = scale * m_el2.y; result.w = 0;
+					break;
+				case 2:
+					result.x = scale * m_el0.z; result.y = scale * m_el1.z; result.z = scale * m_el2.z; result.w = 0;
+					break;
+				case 3:
+					result.x = result.y = result.z = 0;
+					result.w = 1;
+					break;
+			}
+		}
 
 		/* @brief Get a row of the matrix as a vector 
 		 * @param i Row number 0 indexed */
-		public btIVector3 getRow( int i )
+		public btVector3 getRow( int i )
 		{
 			switch( i )
 			{
@@ -313,14 +345,14 @@ namespace Bullet.LinearMath
 
 		/* @brief Get a reference to a row of the matrix as a vector 
 		 * @param i Row number 0 indexed */
-		public btIVector3 this[int i]
+		public btVector3 this[int i]
 		{
 			get
 			{
 				return getRow( i );
 			}
 		}
-		public double this[int i, int j]
+		 double this[int i, int j]
 		{
 			set
 			{
@@ -448,6 +480,132 @@ namespace Bullet.LinearMath
 			}
 		}
 
+		public static double setValue( ref btMatrix3x3 m, int i, int j, double value )
+		{
+			{
+				switch( i )
+				{
+					default:
+#if PARANOID_ASSERTS
+						Debug.Assert( i > 3 || i < 0 );
+#endif
+					case 0:
+						switch( j )
+						{
+							default:
+#if PARANOID_ASSERTS
+								Debug.Assert( j > 3 || j < 0 );
+#endif
+							case 0: return m.m_el0.x = value; 
+							case 1: return m.m_el0.y = value; 
+							case 2: return m.m_el0.z = value; 
+							case 3: return m.m_el0.w = value; 
+						}
+						break;
+					case 1:
+						switch( j )
+						{
+							default:
+#if PARANOID_ASSERTS
+								Debug.Assert( j > 3 || j < 0 );
+#endif
+							case 0: return m.m_el1.x = value;
+							case 1: return m.m_el1.y = value;
+							case 2: return m.m_el1.z = value;
+							case 3: return m.m_el1.w = value;
+						}											 
+					case 2:
+						switch( j )
+						{
+							default:
+#if PARANOID_ASSERTS
+								Debug.Assert( j > 3 || j < 0 );
+#endif
+							case 0: return m.m_el2.x = value;
+							case 1: return m.m_el2.y = value;
+							case 2: return m.m_el2.z = value;
+							case 3: return m.m_el2.w = value;  
+						}
+#if !DISABLE_ROW4
+					case 3:
+						switch( j )
+						{
+							default:
+#if PARANOID_ASSERTS
+								Debug.Assert( j > 3 || j < 0 );
+#endif
+							case 0: m_el3.x = value; break;
+							case 1: m_el3.y = value; break;
+							case 2: m_el3.z = value; break;
+							case 3: m_el3.w = value; break;
+						}
+						break;
+#endif
+				}
+			}
+		}
+			public static double getValue( ref btMatrix3x3 m, int i, int j)
+		{
+			{
+				switch( i )
+				{
+					default:
+#if PARANOID_ASSERTS
+						Debug.Assert( i > 3 || i < 0 );
+#endif
+					case 0:
+						switch( j )
+						{
+							default:
+#if PARANOID_ASSERTS
+								Debug.Assert( j > 3 || j < 0 );
+#endif
+							case 0: return m.m_el0.x;
+							case 1: return m.m_el0.y;
+							case 2: return m.m_el0.z;
+							case 3: return m.m_el0.w;
+						}
+					case 1:
+						switch( j )
+						{
+							default:
+#if PARANOID_ASSERTS
+								Debug.Assert( j > 3 || j < 0 );
+#endif
+							case 0: return m.m_el1.x;
+							case 1: return m.m_el1.y;
+							case 2: return m.m_el1.z;
+							case 3: return m.m_el1.w;
+						}
+					case 2:
+						switch( j )
+						{
+							default:
+#if PARANOID_ASSERTS
+								Debug.Assert( j > 3 || j < 0 );
+#endif
+							case 0: return m.m_el2.x;
+							case 1: return m.m_el2.y;
+							case 2: return m.m_el2.z;
+							case 3: return m.m_el2.w;
+						}
+#if !DISABLE_ROW4
+					case 3:
+						switch( j )
+						{
+							default:
+#if PARANOID_ASSERTS
+								Debug.Assert( j > 3 || j < 0 );
+#endif
+							case 0: return m_el3.x;
+							case 1: return m_el3.y;
+							case 2: return m_el3.z;
+							case 3: return m_el3.w;
+						}
+#endif
+				}
+			}
+		}
 #if asdfasdf
 		/* @brief Set from the rotational part of a 4x4 OpenGL matrix
 		 * @param m A pointer to the beginning of the array of scalars*/
@@ -476,6 +634,24 @@ namespace Bullet.LinearMath
 			m_el0.x = xx; m_el0.y = xy; m_el0.z = xz;
 			m_el1.x = yx; m_el1.y = yy; m_el1.z = yz;
 			m_el2.x = zx; m_el2.y = zy; m_el2.z = zz;
+		}
+		public void setValue( ref btVector3 col1, ref btVector3 col2, ref btVector3 col3  )
+		{
+			m_el0.x = col1.x; m_el0.y = col2.x; m_el0.z = col3.x;
+			m_el1.x = col1.y; m_el1.y = col2.y; m_el1.z = col3.y;
+			m_el2.x = col1.z; m_el2.y = col2.z; m_el2.z = col3.z;
+		}
+		public static void setValue( out btMatrix3x3 m, ref btVector3 col1, ref btVector3 col2, ref btVector3 col3 )
+		{
+			m.m_el0.x = col1.x; m.m_el0.y = col2.x; m.m_el0.z = col3.x; m.m_el0.w = 0;
+			m.m_el1.x = col1.y; m.m_el1.y = col2.y; m.m_el1.z = col3.y; m.m_el1.w = 0;
+            m.m_el2.x = col1.z; m.m_el2.y = col2.z; m.m_el2.z = col3.z; m.m_el2.w = 0;
+        }
+		public void setValueTransposed( ref btVector3 row1, ref btVector3 row2, ref btVector3 row3 )
+		{
+			m_el0 = row1;
+			m_el1 = row2;
+			m_el2 = row3;
 		}
 
 		public static void setValue( out btMatrix3x3 m, double xx, double xy, double xz,
@@ -926,7 +1102,7 @@ namespace Bullet.LinearMath
 				// apply rotation to rot (rot = rot * J)
 				for( int i = 0; i < 3; i++ )
 				{
-					btIVector3 row = rot[i];
+					btVector3 row = rot[i];
 					mrp = row[p];
 					mrq = row[q];
 					row[p] = cos * mrp - sin * mrq;
@@ -1254,6 +1430,7 @@ namespace Bullet.LinearMath
 			result.z = m_el2.dot( ref v );
 			result.w = 0;
 		}
+#if InterafaceDidntSuck
 		public void Apply( btIVector3 v, out btVector3 result )
 		{
 			result.x = m_el0.dot( v );
@@ -1261,6 +1438,7 @@ namespace Bullet.LinearMath
 			result.z = m_el2.dot( v );
 			result.w = 0;
 		}
+#endif
 		public void ApplyInverse( ref btVector3 v, out btVector3 result )
 		{
 			result.x = tdotx( ref v );
@@ -1301,6 +1479,7 @@ namespace Bullet.LinearMath
 #endif
 		}
 
+#if InterfacesDidntSuck
 		public void Apply( btIMatrix3x3 m2, out btMatrix3x3 result )
 		{
 			result.m_el0.x = m2.tdotx( ref m_el0 );
@@ -1325,6 +1504,7 @@ namespace Bullet.LinearMath
 			result.m_el3.w = 1;
 #endif
 		}
+#endif
 
 		/*
 		public btMatrix3x3 btMultTransposeLeft(btMatrix3x3 m1, btMatrix3x3 m2) {

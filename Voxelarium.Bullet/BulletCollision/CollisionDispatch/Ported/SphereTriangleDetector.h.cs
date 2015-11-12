@@ -50,15 +50,15 @@ namespace Bullet.Collision.Dispatch
 			double depth = btScalar.BT_ZERO;
 			//	output.m_distance = (double)(BT_LARGE_FLOAT);
 			//move sphere into triangle space
-			btTransform sphereInTr; input.m_transformB.inverseTimes( input.m_transformA, out sphereInTr );
+			btTransform sphereInTr; input.m_transformB.inverseTimes( ref input.m_transformA, out sphereInTr );
 
 			if( collide( ref sphereInTr.m_origin, out point, out normal, out depth, timeOfImpact, m_contactBreakingThreshold ) )
 			{
 				if( swapResults )
 				{
-					
-					btVector3 normalOnB = input.m_transformB.getBasis() * normal;
-					btVector3 normalOnA = -normalOnB;
+
+					btVector3 normalOnB; input.m_transformB.m_basis.Apply( ref normal, out normalOnB );
+					btVector3 normalOnA; normalOnB.Invert( out normalOnA ); 
 					btVector3 tmp;
 					input.m_transformB.Apply( ref point, out tmp );
 
@@ -68,7 +68,7 @@ namespace Bullet.Collision.Dispatch
 				else
 				{
 					btVector3 tmp, tmp2;
-					input.m_transformB.getBasis().Apply( ref normal, out tmp );
+					input.m_transformB.m_basis.Apply( ref normal, out tmp );
 					input.m_transformB.Apply( ref point, out tmp2 );
 					output.addContactPoint( ref tmp, ref tmp2, depth );
 				}

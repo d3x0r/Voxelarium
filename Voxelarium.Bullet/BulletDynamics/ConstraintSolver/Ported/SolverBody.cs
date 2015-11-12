@@ -29,7 +29,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 	public class btSolverBody
 	{
 
-		public btITransform m_worldTransform;
+		public btTransform m_worldTransform;
 		public btVector3 m_deltaLinearVelocity;
 		public btVector3 m_deltaAngularVelocity;
 		public btVector3 m_angularFactor;
@@ -49,9 +49,9 @@ namespace Bullet.Dynamics.ConstraintSolver
 			m_worldTransform = worldTransform;
 		}
 
-		btITransform getWorldTransform()
+		void getWorldTransform( out btTransform result )
 		{
-			return m_worldTransform;
+			result = m_worldTransform;
 		}
 
 		/// <summary>
@@ -151,17 +151,18 @@ namespace Bullet.Dynamics.ConstraintSolver
 
 		////////////////////////////////////////////////
 		///some internal methods, don't use them
-
+		/*
 		public void internalSetDeltaLinearVelocity( ref btVector3 result )
 		{
 			m_deltaLinearVelocity = result;
+			btScalar.Dbg( "Delta Linear Vel set " + result );
 		}
 
 		public void internalSetDeltaAngularVelocity( ref btVector3 result )
 		{
 			m_deltaAngularVelocity = result;
 		}
-
+		*/
 		public void internalSetAngularFactor( ref btVector3 result )
 		{
 			m_angularFactor = result;
@@ -242,6 +243,8 @@ namespace Bullet.Dynamics.ConstraintSolver
 				angularComponent.Mult( ref m_angularFactor, out tmp );
 				m_deltaAngularVelocity.AddScale( ref tmp, impulseMagnitude, out m_deltaAngularVelocity );
 				//m_deltaAngularVelocity += angularComponent * ( impulseMagnitude * m_angularFactor );
+				btScalar.Dbg( "apply impulse delta linear velocity is " + m_deltaLinearVelocity.ToString() );
+
 			}
 		}
 
@@ -278,8 +281,8 @@ namespace Bullet.Dynamics.ConstraintSolver
 					btVector3 tmp;
 					m_turnVelocity.Mult( splitImpulseTurnErp, out tmp );
 					//	btQuaternion orn = m_worldTransform.getRotation();
-					btTransformUtil.integrateTransform( m_worldTransform, m_pushVelocity
-						, tmp
+					btTransformUtil.integrateTransform(ref  m_worldTransform,ref  m_pushVelocity
+						,ref  tmp
 						, timeStep, out newTransform );
 					m_worldTransform = newTransform;
 				}

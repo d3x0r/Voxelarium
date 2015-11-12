@@ -38,11 +38,7 @@ namespace Bullet.Collision.Shapes
 		}
 
 		///getAabb returns the axis aligned bounding box in the coordinate frame of the given transform t.
-		public virtual void getAabb( ref btTransform t, out btVector3 aabbMin, out btVector3 aabbMax )
-		{
-			getAabb( t, out aabbMin, out aabbMax );
-		}
-		public abstract void getAabb( btITransform t, out btVector3 aabbMin, out btVector3 aabbMax );
+		public abstract void getAabb( ref btTransform t, out btVector3 aabbMin, out btVector3 aabbMax );
 		//public abstract void getAabb( btITransform t, out btVector3 aabbMin, out btVector3 aabbMax );
 
 		///getAngularMotionDisc returns the maximus radius needed for Conservative Advancement to handle time-of-impact with rotations.

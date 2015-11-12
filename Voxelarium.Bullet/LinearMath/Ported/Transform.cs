@@ -1,4 +1,4 @@
-//#define COLUMN_MAJOR_EXPECTED
+#define COLUMN_MAJOR_EXPECTED
 
 //#define DISABLE_NON_REF_CONSTRUCTORS
 //#define DISABLE_OPERATORS
@@ -27,6 +27,7 @@ namespace Bullet.LinearMath
 #endif
 	*/
 
+#if InterfacesDidntSuck
 		/* btITransform can be used to maintain a reference to another transform.  This will 
 		avoid accidental copies. */
 	public interface btITransform
@@ -105,10 +106,14 @@ namespace Bullet.LinearMath
 		/*@brief Test if two transforms have all elements equal */
 		bool Equals( ref btTransform t2 );
 	}
+#endif
 
 	/*@brief The btTransform class supports rigid transforms with only translation and rotation and no scaling/shear.
 	 It can be used in combination with btVector3, btQuaternion and btMatrix3x3 linear algebra classes. */
-	public struct btTransform : btITransform
+	public struct btTransform
+#if InterfacesDidntSuck
+		: btITransform
+#endif
 	{
 		public static btTransform Identity = new btTransform( ref btMatrix3x3.Identity );
 		public btTransform T { get { return this; } set { this = value; } }
@@ -202,12 +207,13 @@ namespace Bullet.LinearMath
 			m_basis.Apply( ref t2.m_basis, out result.m_basis );
 			Apply( ref t2.m_origin, out result.m_origin );
 		}
+#if InterfacesDidntSuck
 		public void Apply( btITransform t2, out btTransform result )
 		{
 			m_basis.Apply( t2.getBasis(), out result.m_basis );
 			Apply( t2.getOrigin(), out result.m_origin );
 		}
-
+#endif
 		/*		void multInverseLeft(btTransform t1, btTransform t2) {
 					btVector3 v = t2.m_origin - t1.m_origin;
 					m_basis = btMultTransposeLeft(t1.m_basis, t2.m_basis);
@@ -223,13 +229,14 @@ namespace Bullet.LinearMath
 			tmp.Add( ref m_origin, out result );
 		}
 		/*@brief Return the transform of the vector */
+#if InterfacesDidntSuck
 		public void Apply( btIVector3 x, out btVector3 result )
 		{
 			btVector3 tmp;
 			x.dot3( ref m_basis, out tmp );
 			tmp.Add( ref m_origin, out result );
 		}
-
+#endif
 		/*@brief Return the transform of the vector */
 		public static void Apply( ref btTransform t, ref btVector3 x, out btVector3 result )
 		{
@@ -244,6 +251,7 @@ namespace Bullet.LinearMath
 			tmp.Mult( ref q, out result );
 		}
 
+#if InterfacesDidntSuck
 #if !DISABLE_OPERATOR
 		public static btVector3 operator *( btTransform t, btIVector3 x )
 		{
@@ -254,14 +262,16 @@ namespace Bullet.LinearMath
 #endif
 
 		/*@brief Return the basis matrix for the rotation */
-		public btIMatrix3x3 getBasis() { return m_basis; }
+		public btIMatrix3x3 getBasis() { return (btIMatrix3x3)m_basis; }
 		public btIMatrix3x3 Basis { get { return m_basis; } }
+#endif
 		public void getBasis( out btMatrix3x3 m ) { m = m_basis; }
+#if InterfacesDidntSuck
 
 #if !DISABLE_OPERATORS
 		public btIVector3 getOrigin() { return m_origin; }
 #endif
-
+#endif
 
 		/*@brief Return the origin vector translation */
 		public void getOrigin(out btVector3 result ) { result = m_origin; }
@@ -300,10 +310,12 @@ namespace Bullet.LinearMath
 			m_origin = origin;
 		}
 
+#if InterfacesDidntSuck
 		public void setOrigin( btIVector3 origin )
 		{
 			origin.Copy( out m_origin );
 		}
+#endif
 		/*@brief Set the rotational element by btMatrix3x3 */
 		public void setBasis( ref btMatrix3x3 basis )
 		{
@@ -354,6 +366,7 @@ namespace Bullet.LinearMath
 			m_basis.transposeTimes( ref t.m_basis, out result.m_basis );
 			m_basis.ApplyInverse( ref v, out result.m_origin );
 		}
+#if InterfacesDidntSuck
 		public void inverseTimes( btITransform t, out btTransform result )
 		{
 			btVector3 v;
@@ -363,7 +376,7 @@ namespace Bullet.LinearMath
 			m_basis.transposeTimes( ref m, out result.m_basis );
 			m_basis.ApplyInverse( ref v, out result.m_origin );
 		}
-
+#endif
 
 		/*@brief Test if two transforms have all elements equal */
 		public static bool Equals( ref btTransform t1, ref btTransform t2 )
@@ -433,10 +446,12 @@ namespace Bullet.LinearMath
 			m[1]  = (float)m_basis.m_el0.y;
 			m[2]  = (float)m_basis.m_el0.z;
 			m[3]  = 0;
+
 			m[4]  = (float)m_basis.m_el1.x;
 			m[5]  = (float)m_basis.m_el1.y;
 			m[6]  = (float)m_basis.m_el1.z;
 			m[7]  = 0;
+
 			m[8]  = (float)m_basis.m_el2.x;
 			m[9]  = (float)m_basis.m_el2.y;
 			m[10] = (float)m_basis.m_el2.z;
@@ -447,22 +462,25 @@ namespace Bullet.LinearMath
 			m[14] = (float)m_origin.z;
 			m[15] = 1;
 #else
-			m.m_el0.x = m_basis.m_el0.x;
-			m.m_el0.y = m_basis.m_el1.x;
-			m.m_el0.z = m_basis.m_el2.x;
-			m.m_el0.w = m_basis.m_el0.w;
+			m[0]  = (float)m_basis.m_el0.x;
+			m[1]  = (float)m_basis.m_el1.x;
+			m[2]  = (float)m_basis.m_el2.x;
+			m[3]  = 0;
 
-			m.m_el1.x = m_basis.m_el0.y;
-			m.m_el1.y = m_basis.m_el1.y;
-			m.m_el1.z = m_basis.m_el2.y;
-			m.m_el1.w = m_basis.m_el1.w;
+			m[4]  = (float)m_basis.m_el0.y;
+			m[5]  =(float) m_basis.m_el1.y;
+			m[6]  =(float) m_basis.m_el2.y;
+			m[7]  = 0;
 
-			m.m_el2.x = m_basis.m_el0.z;
-			m.m_el2.y = m_basis.m_el1.z;
-			m.m_el2.z = m_basis.m_el2.z;
-			m.m_el2.w = m_basis.m_el2.w;
-			m.m_el3 = m_origin;
-			m.m_el3.w = m_basis[3][3];
+			m[8]  = (float)m_basis.m_el0.z;
+			m[9]  = (float)m_basis.m_el1.z;
+			m[10] = (float)m_basis.m_el2.z;
+			m[11] = 0;
+
+			m[12] = (float)m_origin.x;
+			m[13] = (float)m_origin.y;
+			m[14] = (float)m_origin.z;
+			m[15] = 1;
 #endif
 		}
 
@@ -496,13 +514,25 @@ namespace Bullet.LinearMath
 			m[14] = (float)tmp.z;
 			m[15] = 1;
 #else
-			m = m_basis;
+			m[0] = (float)m_basis.m_el0.x;
+			m[1] = (float)m_basis.m_el0.y;
+			m[2] = -(float)m_basis.m_el0.z;
+			m[3] = 0;
+
+			m[4] = (float)m_basis.m_el1.x;
+			m[5] = (float)m_basis.m_el1.y;
+			m[6] = -(float)m_basis.m_el1.z;
+			m[7] = 0;
+
+			m[8] = (float)m_basis.m_el2.x;
+			m[9] = (float)m_basis.m_el2.y;
+			m[10] = -(float)m_basis.m_el2.z;
+			m[11] = 0;
+
 			btVector3 tmp;
 			btVector3 negOrigin;
 			m_origin.Invert( out negOrigin );
-			m.m_el0.z = -m.m_el0.z;
-			m.m_el1.z = -m.m_el1.z;
-			m.m_el2.z = -m.m_el2.z;
+
 			m_basis.m_el0.z = -m_basis.m_el0.z;
 			m_basis.m_el1.z = -m_basis.m_el1.z;
 			m_basis.m_el2.z = -m_basis.m_el2.z;
@@ -510,10 +540,10 @@ namespace Bullet.LinearMath
 			m_basis.m_el0.z = -m_basis.m_el0.z;
 			m_basis.m_el1.z = -m_basis.m_el1.z;
 			m_basis.m_el2.z = -m_basis.m_el2.z;
-			m.m_el3.x = tmp.x;
-			m.m_el3.y = tmp.y;
-			m.m_el3.z = tmp.z;
-			m.m_el3.w = m_basis[3][3];
+			m[12] = (float)tmp.x;
+			m[13] = (float)tmp.y;
+			m[14] = (float)tmp.z;
+			m[15] = 1;
 #endif
 		}
 
@@ -534,6 +564,12 @@ namespace Bullet.LinearMath
 			m_origin.y += y;
 			m_origin.z += z;
 		}
+		public void Move( ref btVector3 dir )
+		{
+			m_origin.x += dir.x;
+			m_origin.y += dir.y;
+			m_origin.z += dir.z;
+		}
 
 		public void MoveTo( double x, double y, double z )
 		{
@@ -545,7 +581,11 @@ namespace Bullet.LinearMath
 		}
 		public void RotatePitch( double pitch )
 		{
+#if COLUMN_MAJOR_EXPECTED
+			m_basis.Rotate( 0, -pitch );
+#else
 			m_basis.Rotate( 0, pitch );
+#endif
 		}
 		public void RotateRoll( double roll )
 		{
@@ -555,31 +595,31 @@ namespace Bullet.LinearMath
 		{
 			btVector3 dir;
 #if COLUMN_MAJOR_EXPECTED
-			location.m_basis.getColumn( 2 ).Mult( delta, out dir );
+			m_basis.getScaledColumn( 2, delta, out dir );
 #else
 			m_basis.getRow( 2 ).Mult( delta, out dir );
 #endif
-			Move( dir.x, dir.y, dir.z );
+			Move( ref dir );
 		}
 		public void MoveRight( double delta )
 		{
 			btVector3 dir;
 #if COLUMN_MAJOR_EXPECTED
-			location.m_basis.getColumn( 0 ).Mult( delta, out dir );
+			m_basis.getScaledColumn( 0, delta, out dir );
 #else
 			m_basis.getRow( 0 ).Mult( delta, out dir );
 #endif
-			Move( dir.x, dir.y, dir.z );
+			Move( ref dir );
 		}
 		public void MoveUp( double delta )
 		{
 			btVector3 dir;
 #if COLUMN_MAJOR_EXPECTED
-			location.m_basis.getColumn( 1 ).Mult( delta, out dir );
+			m_basis.getScaledColumn( 1, delta, out dir );
 #else
 			m_basis.getRow( 1 ).Mult( delta, out dir );
 #endif
-			Move( dir.x, dir.y, dir.z );
+			Move( ref dir );
 		}
 
 

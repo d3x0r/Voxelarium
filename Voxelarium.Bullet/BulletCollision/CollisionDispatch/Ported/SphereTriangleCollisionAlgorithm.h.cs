@@ -100,8 +100,8 @@ namespace Bullet.Collision.Dispatch
 			btDiscreteCollisionDetectorInterface.ClosestPointInput input = BulletGlobals.ClosestPointInputPool.Get();
 
 			input.m_maximumDistanceSquared = btScalar.BT_LARGE_FLOAT;///@todo: tighter bounds
-			input.m_transformA = sphereObjWrap.getWorldTransform();
-			input.m_transformB = triObjWrap.getWorldTransform();
+			input.m_transformA = sphereObjWrap.m_worldTransform;
+			input.m_transformB = triObjWrap.m_worldTransform;
 
 			bool swapResults = m_swapped;
 

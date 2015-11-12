@@ -122,7 +122,7 @@ namespace Bullet.Collision.BroadPhase
 		double m_updates_ratio;         // m_updates_done/m_updates_call
 		int m_pid;                      // Parse id
 		int m_cid;                      // Cleanup index
-		int m_gid;                      // Gen id
+		//int m_gid;                      // Gen id
 		bool m_releasepaircache;            // Release pair cache on delete
 		internal protected bool m_deferedcollide;          // Defere dynamic/static collision to collide call
 		bool m_needcleanup;              // Need to run cleanup?
@@ -244,7 +244,7 @@ namespace Bullet.Collision.BroadPhase
 			m_updates_done = 0;
 			m_updates_ratio = 0;
 			m_paircache = paircache != null ? paircache : new btHashedOverlappingPairCache();
-			m_gid = 0;
+			//m_gid = 0;
 			m_pid = 0;
 			m_cid = 0;
 			for( int i = 0; i <= STAGECOUNT; ++i )
@@ -761,8 +761,8 @@ namespace Bullet.Collision.BroadPhase
 			else if( !DbvtSet1.Empty() ) bounds = DbvtSet1.m_root.volume;
 			else
 				bounds = btDbvt.btDbvtVolume.FromCR( ref btVector3.Zero, 0 );
-			bounds.Mins().Copy( out aabbMin );
-			bounds.Maxs().Copy( out aabbMax );
+			aabbMin = bounds._min;
+			aabbMax = bounds._max;
 		}
 
 		public override void resetPool( btDispatcher dispatcher )
@@ -787,7 +787,7 @@ namespace Bullet.Collision.BroadPhase
 				m_updates_done = 0;
 				m_updates_ratio = 0;
 
-				m_gid = 0;
+				//m_gid = 0;
 				m_pid = 0;
 				m_cid = 0;
 				for( int i = 0; i <= STAGECOUNT; ++i )

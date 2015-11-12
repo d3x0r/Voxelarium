@@ -263,14 +263,14 @@ namespace Bullet.Collision.Dispatch
 				m_rayToWorld = ( rayToWorld );
 			}
 
-			btList<btCollisionObject> m_collisionObjects;
+			btList<btCollisionObject> m_collisionObjects = new btList<btCollisionObject>();
 
 			btVector3 m_rayFromWorld;//used to calculate hitPointWorld from hitFraction
 			btVector3 m_rayToWorld;
 
-			btList<btVector3> m_hitNormalWorld;
-			btList<btVector3> m_hitPointWorld;
-			btList<double> m_hitFractions;
+			btList<btVector3> m_hitNormalWorld = new btList<btVector3>();
+			btList<btVector3> m_hitPointWorld = new btList<btVector3>();
+			btList<double> m_hitFractions = new btList<double>();
 
 			public override double addSingleResult( LocalRayResult rayResult, bool normalInWorldSpace )
 			{

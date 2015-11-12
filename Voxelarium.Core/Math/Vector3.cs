@@ -1,4 +1,4 @@
-//#define DISABLE_OPERATORS
+#define DISABLE_OPERATORS
 /*
  Copyright (c) 2011 Apple Inc.
  http://continuousphysics.com/Bullet/
@@ -70,16 +70,17 @@ namespace Voxelarium.LinearMath
           This is symantically treating the vector like a point */
 		float distance( ref btVector3 v );
 
-		btVector3 safeNormalize();
 
 		void setValue( float _x, float _y, float _z );
 
+#if !DISABLE_OPERATORS
+		btVector3 safeNormalize();
 		/*@brief Return a vector will the absolute values of each element */
 		btVector3 absolute();
-
 		/*@brief Normalize this vector 
           x^2 + y^2 + z^2 = 1 */
 		btVector3 normalize();
+#endif
 
 		bool IsAlmostZero();
 
@@ -352,7 +353,7 @@ namespace Voxelarium.LinearMath
 
 		public btVector3 safeNormalize()
 		{
-			btVector3 absVec = this.absolute();
+			btVector3 absVec; this.absolute( out absVec );
 			int maxIndex = absVec.maxAxis();
 			if( absVec[maxIndex] > 0 )
 			{
@@ -387,20 +388,6 @@ namespace Voxelarium.LinearMath
 			result.w = _w;
 		}
 
-		/*@brief Return a vector will the absolute values of each element */
-		public btVector3 absolute()
-		{
-			return new btVector3( btScalar.btFabs( x ), btScalar.btFabs( y ), btScalar.btFabs( z ) );
-		}
-
-		/*@brief Normalize this vector 
-          x^2 + y^2 + z^2 = 1 */
-		public btVector3 normalize()
-		{
-			Debug.Assert( !fuzzyZero() );
-			this.Div( length(), out this );
-			return this;
-		}
 
 		public static bool IsAlmostZero( ref btVector3 v )
 		{
@@ -418,11 +405,16 @@ namespace Voxelarium.LinearMath
 			return length2() < btScalar.SIMD_EPSILON * btScalar.SIMD_EPSILON;
 		}
 
+		public void normalize(  )
+		{
+			Debug.Assert( !fuzzyZero() );
+			this.Div( length(), out this );
+		}
+
 		/*@brief Return a normalized version of this vector */
 		public void normalized( out btVector3 result )
 		{
-			btVector3 nrm = new btVector3( ref this );
-			result = nrm.normalize();
+			this.Div( length(), out result );
 		}
 
 		/*@brief Return a rotated version of this vector
@@ -490,12 +482,16 @@ namespace Voxelarium.LinearMath
 
 		public int furthestAxis()
 		{
-			return absolute().minAxis();
+			return ( btScalar.btFabs( x ) < btScalar.btFabs( y ) 
+			       ? ( btScalar.btFabs( x ) < btScalar.btFabs( z ) ? 0 : 2 ) 
+			       : ( btScalar.btFabs( y )< btScalar.btFabs( z ) ? 1 : 2 ) );
 		}
 
 		public int closestAxis()
 		{
-			return absolute().maxAxis();
+			return ( btScalar.btFabs( x ) > btScalar.btFabs( y ) 
+			       ? ( btScalar.btFabs( x ) > btScalar.btFabs( z ) ? 0 : 2 ) 
+			       : ( btScalar.btFabs( y ) > btScalar.btFabs( z ) ? 1 : 2 ) );
 		}
 
 		public static void setInterpolate3( out btVector3 result, ref btVector3 v0, ref btVector3 v1, float rt )
@@ -806,12 +802,6 @@ namespace Voxelarium.LinearMath
 			p.w = 0;
 		}
 
-		public static btVector3 btAabbSupport( ref btVector3 halfExtents, ref btVector3 supportDir )
-		{
-			return new btVector3( ( supportDir.x < 0.0 ) ? (float)-halfExtents.x : (float)halfExtents.x,
-			  ( supportDir.y < 0.0 ) ? (float)-halfExtents.y : (float)halfExtents.y,
-			  ( supportDir.z < 0 ) ? (float)-halfExtents.z : (float)halfExtents.z );
-		}
 
 		public static void getHalfExtent( ref btVector3 min, ref btVector3 max, out btVector3 half )
 		{
@@ -828,7 +818,35 @@ namespace Voxelarium.LinearMath
 			half.w = ( min.w + max.w ) * btScalar.BT_HALF; ;
 		}
 
+		/*@brief Return a vector will the absolute values of each element */
+		public void absolute( out btVector3 result )
+		{
+			result.x = btScalar.btFabs( x ); result.y = btScalar.btFabs( y ); result.z = btScalar.btFabs( z ); result.w = 0;
+		}
+
 #if !DISABLE_OPERATORS
+		/*@brief Return a vector will the absolute values of each element */
+		public btVector3 absolute()
+		{
+			return new btVector3( btScalar.btFabs( x ), btScalar.btFabs( y ), btScalar.btFabs( z ) );
+		}
+
+		/*@brief Normalize this vector 
+          x^2 + y^2 + z^2 = 1 */
+		public btVector3 normalize()
+		{
+			Debug.Assert( !fuzzyZero() );
+			this.Div( length(), out this );
+			return this;
+		}
+
+		public static btVector3 btAabbSupport( ref btVector3 halfExtents, ref btVector3 supportDir )
+		{
+			return new btVector3( ( supportDir.x < 0.0 ) ? (float)-halfExtents.x : (float)halfExtents.x,
+			  ( supportDir.y < 0.0 ) ? (float)-halfExtents.y : (float)halfExtents.y,
+			  ( supportDir.z < 0 ) ? (float)-halfExtents.z : (float)halfExtents.z );
+		}
+
 		public static btVector3 operator +( btVector3 a, btVector3 b )
 		{
 			return new btVector3( a.x + b.x, a.y + b.y, a.z + b.z );
@@ -1037,7 +1055,7 @@ namespace Voxelarium.LinearMath
 					dest[6] = src[1];
 					dest[7] = src[0];
 #else
-	byte dest = ( byte) destVal;
+		byte dest = ( byte) destVal;
 					byte src = ( byte) &sourceVal;
 					dest = src[3];
 					dest[1] = src[2];
