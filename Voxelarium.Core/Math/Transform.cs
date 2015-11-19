@@ -17,97 +17,10 @@ subject to the following restrictions:
 namespace Voxelarium.LinearMath
 {
 
-	/*
-#if BT_USE_DOUBLE_PRECISION
-#define btTransformData btTransformDoubleData
-#else
-#define btTransformData btTransformFloatData
-#endif
-	*/
-
-		/* btITransform can be used to maintain a reference to another transform.  This will 
-		avoid accidental copies. */
-	public interface btITransform
-	{
-		/*@brief Return reference to the basis matrix for the rotation */
-		btIMatrix3x3 Basis {get;}
-
-		float x { get; set; }
-		float y { get; set; }
-		float z { get; set; }
-		btTransform T { get; set; }
-		/*@brief Constructor from btQuaternion (optional btVector3 )
-		  @param q Rotation from quaternion 
-		  @param c Translation from Vector (default 0,0,0) */
-		void setValue( ref btQuaternion q, ref btVector3 c );
-
-		/*@brief Constructor from btMatrix3x3 (optional btVector3)
-		  @param b Rotation from Matrix 
-		  @param c Translation from Vector default (0,0,0)*/
-		void setValue( ref btMatrix3x3 b, ref btVector3 c );
-
-		/*@brief Set the current transform as the value of the product of two transforms
-		  @param t1 Transform 1
-		  @param t2 Transform 2
-		  This = Transform1  Transform2 */
-		void mult( ref btTransform t1, ref btTransform t2 );
-		/*		void multInverseLeft(btTransform t1, btTransform t2) {
-					btVector3 v = t2.m_origin - t1.m_origin;
-					m_basis = btMultTransposeLeft(t1.m_basis, t2.m_basis);
-					m_origin = v  t1.m_basis;
-				} */
-
-		/*@brief Return the transform of the vector */
-		void Apply( ref btVector3 x, out btVector3 result );
-		void Apply( ref btTransform t2, out btTransform result );
-		void Apply( btITransform t2, out btTransform result );
-
-		/*@brief Return the basis matrix for the rotation */
-		btIMatrix3x3 getBasis();
-		void getBasis( out btMatrix3x3 m );
-
-		/*@brief Return the origin vector translation */
-		void getOrigin( out btVector3 result );
-		btIVector3 getOrigin();
-
-		/*@brief Return a quaternion representing the rotation */
-		void getRotation( out btQuaternion result );
-
-
-		/*@brief Set the translational element
-		  @param origin The vector to set the translation to */
-		void setOrigin( ref btVector3 origin );
-
-		/*@brief Set the rotational element by btMatrix3x3 */
-		void setBasis( ref btMatrix3x3 basis );
-
-		/*@brief Set the rotational element by btQuaternion */
-		void setRotation( ref btQuaternion q );
-
-
-		/*@brief Set this transformation to the identity */
-		void setIdentity();
-
-
-		/*@brief Return the inverse of this transform */
-		void inverse( out btTransform result );
-
-
-		void invXform( ref btVector3 inVec, out btVector3 result );
-
-		/*@brief Return the inverse of this transform times the other transform
-		  @param t The other transform 
-		  return this.inverse()  the other */
-		void inverseTimes( ref btTransform t, out btTransform result );
-		void inverseTimes( btITransform t, out btTransform result );
-
-		/*@brief Test if two transforms have all elements equal */
-		bool Equals( ref btTransform t2 );
-	}
 
 	/*@brief The btTransform class supports rigid transforms with only translation and rotation and no scaling/shear.
 	 It can be used in combination with btVector3, btQuaternion and btMatrix3x3 linear algebra classes. */
-	public struct btTransform : btITransform
+	public struct btTransform 
 	{
 		public static btTransform Identity = new btTransform( ref btMatrix3x3.Identity );
 		public btTransform T { get { return this; } set { this = value; } }
@@ -202,11 +115,6 @@ namespace Voxelarium.LinearMath
 			m_basis.Apply( ref t2.m_basis, out result.m_basis );
 			Apply( ref t2.m_origin, out result.m_origin );
 		}
-		public void Apply( btITransform t2, out btTransform result )
-		{
-			m_basis.Apply( t2.getBasis(), out result.m_basis );
-			Apply( t2.getOrigin(), out result.m_origin );
-		}
 
 		/*		void multInverseLeft(btTransform t1, btTransform t2) {
 					btVector3 v = t2.m_origin - t1.m_origin;
@@ -217,13 +125,6 @@ namespace Voxelarium.LinearMath
 
 		/*@brief Return the transform of the vector */
 		public void Apply( ref btVector3 x, out btVector3 result )
-		{
-			btVector3 tmp;
-			x.dot3( ref m_basis, out tmp );
-			tmp.Add( ref m_origin, out result );
-		}
-		/*@brief Return the transform of the vector */
-		public void Apply( btIVector3 x, out btVector3 result )
 		{
 			btVector3 tmp;
 			x.dot3( ref m_basis, out tmp );
@@ -244,24 +145,8 @@ namespace Voxelarium.LinearMath
 			tmp.Mult( ref q, out result );
 		}
 
-#if !DISABLE_OPERATOR
-		public static btVector3 operator *( btTransform t, btIVector3 x )
-		{
-			btVector3 result;
-			t.Apply( x, out result );
-			return result;
-		}
-#endif
 
 		/*@brief Return the basis matrix for the rotation */
-		public btIMatrix3x3 getBasis() { return m_basis; }
-		public btIMatrix3x3 Basis { get { return m_basis; } }
-		public void getBasis( out btMatrix3x3 m ) { m = m_basis; }
-
-#if !DISABLE_OPERATORS
-		public btIVector3 getOrigin() { return m_origin; }
-#endif
-
 
 		/*@brief Return the origin vector translation */
 		public void getOrigin(out btVector3 result ) { result = m_origin; }
@@ -325,15 +210,6 @@ namespace Voxelarium.LinearMath
 			btVector3 v;
 			t.m_origin.Sub( ref m_origin, out v );
 			m_basis.transposeTimes( ref t.m_basis, out result.m_basis );
-			m_basis.ApplyInverse( ref v, out result.m_origin );
-		}
-		public void inverseTimes( btITransform t, out btTransform result )
-		{
-			btVector3 v;
-			t.getOrigin().Sub( ref m_origin, out v );
-			btMatrix3x3 m;
-			t.getBasis( out m );
-			m_basis.transposeTimes( ref m, out result.m_basis );
 			m_basis.ApplyInverse( ref v, out result.m_origin );
 		}
 

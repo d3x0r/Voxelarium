@@ -1,3 +1,5 @@
+using Bullet.Collision.Dispatch;
+using Bullet.Dynamics;
 using Bullet.LinearMath;
 /*
 Bullet Continuous Collision Detection and Physics Library
@@ -112,7 +114,7 @@ namespace Bullet.Collision.BroadPhase
 		};
 
 		//Usually the client btCollisionObject or Rigidbody class
-		public object m_clientObject;
+		public btCollisionObject m_clientObject;
 		public btBroadphaseProxy.CollisionFilterGroups m_collisionFilterGroup;
 		public btBroadphaseProxy.CollisionFilterGroups m_collisionFilterMask;
 		public object m_multiSapParentProxy;
@@ -130,7 +132,7 @@ namespace Bullet.Collision.BroadPhase
 		}
 
 		public void Initialize( ref btVector3 aabbMin, ref btVector3 aabbMax
-				, object userPtr, CollisionFilterGroups collisionFilterGroup
+				, btCollisionObject userPtr, CollisionFilterGroups collisionFilterGroup
 				, CollisionFilterGroups collisionFilterMask )
 		{
 			//m_uniqueId = 0;
@@ -143,8 +145,8 @@ namespace Bullet.Collision.BroadPhase
 		}
 
 
-		public btBroadphaseProxy( ref btVector3 aabbMin, ref btVector3 aabbMax
-				, object userPtr, CollisionFilterGroups collisionFilterGroup
+		 btBroadphaseProxy( ref btVector3 aabbMin, ref btVector3 aabbMax
+				, btCollisionObject userPtr, CollisionFilterGroups collisionFilterGroup
 				, CollisionFilterGroups collisionFilterMask, object multiSapParentProxy )
 		{
 			//m_uniqueId = 0;

@@ -40,7 +40,7 @@ namespace Voxelarium.Core.Voxels.UI
 #if COLUMN_MAJOR_EXPECTED
 			location.m_basis.getColumn( 2 ).Mult( delta, out dir );
 #else
-			location.m_basis.getRow( 2 ).Mult( delta, out dir );
+			location.m_basis.m_el2.Mult( delta, out dir );
 #endif
 			location.Move( dir.x, dir.y, dir.z );
 		}
@@ -50,7 +50,7 @@ namespace Voxelarium.Core.Voxels.UI
 #if COLUMN_MAJOR_EXPECTED
 			location.m_basis.getColumn( 0 ).Mult( delta, out dir );
 #else
-			location.m_basis.getRow( 0 ).Mult( delta, out dir );
+			location.m_basis.m_el0.Mult( delta, out dir );
 #endif
 			location.Move( dir.x, dir.y, dir.z );
 		}
@@ -60,7 +60,7 @@ namespace Voxelarium.Core.Voxels.UI
 #if COLUMN_MAJOR_EXPECTED
 			location.m_basis.getColumn( 1 ).Mult( delta, out dir );
 #else
-			location.m_basis.getRow( 1 ).Mult( delta, out dir );
+			location.m_basis.m_el1.Mult( delta, out dir );
 #endif
 			location.Move( dir.x, dir.y, dir.z );
 		}

@@ -184,7 +184,7 @@ namespace Bullet.Dynamics
 						}
 					}
 
-					btScalar.Dbg( predictedTrans.ToString( "predicted orient\t", "\t\t\t", "predicted origin\t" ) );
+					btScalar.Dbg( DbgFlag.PredictedTransform, predictedTrans.ToString( "predicted orient\t", "\t\t\t", "predicted origin\t" ) );
 					body.proceedToTransform( ref predictedTrans );
 
 				}
@@ -682,9 +682,9 @@ namespace Bullet.Dynamics
 						ref body.m_interpolationLinearVelocity,ref  body.m_interpolationAngularVelocity,
 						( m_latencyMotionStateInterpolation && m_fixedTimeStep != 0 ) ? m_localTime - m_fixedTimeStep : m_localTime * body.getHitFraction(),
 						out interpolatedTransform );
-					btScalar.Dbg( body.m_interpolationWorldTransform.ToString( "old int orn\t", "\t\t", "old int org\t" ) );
-					btScalar.Dbg( "Sync transform state " + body.m_interpolationAngularVelocity );
-					btScalar.Dbg( interpolatedTransform.ToString( "inter orient\t", "\t\t", "inter origin\t" ) );
+					btScalar.Dbg( DbgFlag.PredictedTransform, body.m_interpolationWorldTransform.ToString( "old int orn\t", "\t\t", "old int org\t" ) );
+					btScalar.Dbg( DbgFlag.PredictedTransform, "Sync transform state " + body.m_interpolationAngularVelocity );
+					btScalar.Dbg( DbgFlag.PredictedTransform, interpolatedTransform.ToString( "inter orient\t", "\t\t", "inter origin\t" ) );
                     body.getMotionState().setWorldTransform( ref interpolatedTransform );
 				}
 			}
@@ -1404,7 +1404,7 @@ namespace Bullet.Dynamics
 					{
 						{
 							btGeneric6DofSpring2Constraint p6DOF = (btGeneric6DofSpring2Constraint)constraint;
-							btTransform tr;// = p6DOF.getCalculatedTransformA();
+							//btTransform tr;// = p6DOF.getCalculatedTransformA();
 							if( drawFrames ) getDebugDrawer().drawTransform( ref p6DOF.m_calculatedTransformA, dbgDrawSize );
 							//tr = p6DOF.getCalculatedTransformB();
 							if( drawFrames ) getDebugDrawer().drawTransform( ref p6DOF.m_calculatedTransformB, dbgDrawSize );

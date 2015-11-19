@@ -21,7 +21,7 @@ namespace Bullet.Debug.OpenGL2
 		{
 			btVector3 tmpD;
 			PointOnB.Add( ref normalOnB, out tmpD );
-			drawLine( ref normalOnB, ref tmpD, ref color, ref color );
+			drawLine( ref PointOnB, ref tmpD, ref color, ref color );
 
 		}
 

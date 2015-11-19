@@ -1,3 +1,4 @@
+using Bullet.Collision.Dispatch;
 using Bullet.LinearMath;
 /*
 Bullet Continuous Collision Detection and Physics Library
@@ -41,7 +42,7 @@ namespace Bullet.Collision.BroadPhase
 	{
 
 		btBroadphaseProxy createProxy( ref btVector3 aabbMin, ref btVector3 aabbMax, BroadphaseNativeTypes shapeType
-					, object userPtr
+					, btCollisionObject userPtr
 					, btBroadphaseProxy.CollisionFilterGroups collisionFilterGroup
 					, btBroadphaseProxy.CollisionFilterGroups collisionFilterMask
 					, btDispatcher dispatcher, object multiSapProxy );
@@ -74,7 +75,7 @@ namespace Bullet.Collision.BroadPhase
 	{
 		public abstract void aabbTest( ref btVector3 aabbMin, ref btVector3 aabbMax, btBroadphaseAabbCallback callback );
 		public abstract void calculateOverlappingPairs( btDispatcher dispatcher );
-		public abstract btBroadphaseProxy createProxy( ref btVector3 aabbMin, ref btVector3 aabbMax, BroadphaseNativeTypes shapeType, object userPtr, btBroadphaseProxy.CollisionFilterGroups collisionFilterGroup, btBroadphaseProxy.CollisionFilterGroups collisionFilterMask, btDispatcher dispatcher, object multiSapProxy );
+		public abstract btBroadphaseProxy createProxy( ref btVector3 aabbMin, ref btVector3 aabbMax, BroadphaseNativeTypes shapeType, btCollisionObject userPtr, btBroadphaseProxy.CollisionFilterGroups collisionFilterGroup, btBroadphaseProxy.CollisionFilterGroups collisionFilterMask, btDispatcher dispatcher, object multiSapProxy );
 		public abstract void destroyProxy( btBroadphaseProxy proxy, btDispatcher dispatcher );
 		public abstract void getAabb( btBroadphaseProxy proxy, ref btVector3 aabbMin, ref btVector3 aabbMax );
 		public abstract void getBroadphaseAabb( out btVector3 aabbMin, out btVector3 aabbMax );

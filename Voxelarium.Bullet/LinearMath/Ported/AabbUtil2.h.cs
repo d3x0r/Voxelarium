@@ -88,17 +88,33 @@ namespace Bullet.LinearMath
 		public static bool btRayAabb2( ref btVector3 rayFrom,
 										  ref btVector3 rayInvDirection,
 										  uint[] raySign,
-										  btVector3[] bounds,
+										  ref btVector3 bounds0,
+										  ref btVector3 bounds1,
 										  out double tmin,
 										  double lambda_min,
 										  double lambda_max )
 		{
 			double tmax, tymin, tymax, tzmin, tzmax;
-			tmin = ( bounds[raySign[0]].x - rayFrom.x ) * rayInvDirection.x;
-			tmax = ( bounds[1 - raySign[0]].x - rayFrom.x ) * rayInvDirection.x;
-			tymin = ( bounds[raySign[1]].y - rayFrom.y ) * rayInvDirection.y;
-			tymax = ( bounds[1 - raySign[1]].y - rayFrom.y ) * rayInvDirection.y;
-
+			if( raySign[0] == 0 )
+			{
+				tmin = ( bounds0.x - rayFrom.x ) * rayInvDirection.x;
+				tmax = ( bounds1.x - rayFrom.x ) * rayInvDirection.x;
+			}
+			else
+			{
+				tmin = ( bounds1.x - rayFrom.x ) * rayInvDirection.x;
+				tmax = ( bounds0.x - rayFrom.x ) * rayInvDirection.x;
+			}
+			if( raySign[1] == 0 )
+			{
+				tymin = ( bounds0.y - rayFrom.y ) * rayInvDirection.y;
+				tymax = ( bounds1.y - rayFrom.y ) * rayInvDirection.y;
+			}
+			else
+			{
+				tymin = ( bounds1.y - rayFrom.y ) * rayInvDirection.y;
+				tymax = ( bounds0.y - rayFrom.y ) * rayInvDirection.y;
+			}
 			if( ( tmin > tymax ) || ( tymin > tmax ) )
 				return false;
 
@@ -108,9 +124,16 @@ namespace Bullet.LinearMath
 			if( tymax < tmax )
 				tmax = tymax;
 
-			tzmin = ( bounds[raySign[2]].z - rayFrom.z ) * rayInvDirection.z;
-			tzmax = ( bounds[1 - raySign[2]].z - rayFrom.z ) * rayInvDirection.z;
-
+			if( raySign[2] == 0 )
+			{
+				tzmin = ( bounds0.z - rayFrom.z ) * rayInvDirection.z;
+				tzmax = ( bounds1.z - rayFrom.z ) * rayInvDirection.z;
+			}
+			else
+			{
+				tzmin = ( bounds1.z - rayFrom.z ) * rayInvDirection.z;
+				tzmax = ( bounds0.z - rayFrom.z ) * rayInvDirection.z;
+			}
 			if( ( tmin > tzmax ) || ( tzmin > tmax ) )
 				return false;
 			if( tzmin > tmin )

@@ -25,7 +25,8 @@ namespace Voxelarium.Core.Game.Screens
 				{
 					Frame_Loading = new FontFrame();
 					Frame_Loading.SetDisplayText( "LOADING..." );
-					Frame_Loading.SetStyle( GameEnv.TileSetStyles.GetStyle( 1 ) );
+					Frame_Loading.Font = GameEnv.default_font;// SetStyle( GameEnv.TileSetStyles.GetStyle( 1 ) );
+					Frame_Loading.FontSize = ( 2.0f / 10 );
 					Frame_Loading.GetTextDisplaySize( out Loading_Size );
 					Frame_Loading.SetPosition(  1-Loading_Size.X / 2.0f, 1-Loading_Size.Y / 2.0f );
 					Frame_Loading.SetSize( Loading_Size.X + 1.0f, Loading_Size.Y );

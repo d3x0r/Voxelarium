@@ -51,7 +51,11 @@ namespace Bullet.Collision.BroadPhase
 			m_dispatcher = ci.m_dispatcher1;
 		}
 		internal abstract void Cleanup();
-		internal abstract void processCollision( btCollisionObjectWrapper body0Wrap, btCollisionObjectWrapper body1Wrap, btDispatcherInfo dispatchInfo, btManifoldResult resultOut );
+		internal abstract void processCollision( btCollisionObjectWrapper body0Wrap
+												, ref btTransform body0Transform
+												, btCollisionObjectWrapper body1Wrap
+												, ref btTransform body1Transform
+												, btDispatcherInfo dispatchInfo, btManifoldResult resultOut );
 
 		internal abstract double calculateTimeOfImpact( btCollisionObject body0, btCollisionObject body1, btDispatcherInfo dispatchInfo, btManifoldResult resultOut );
 

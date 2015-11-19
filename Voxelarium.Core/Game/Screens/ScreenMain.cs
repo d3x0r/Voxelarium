@@ -56,14 +56,16 @@ namespace Voxelarium.Core.Game.Screens
 				Frame_Version.SetSize( SclX( 53.0f * 8.0f + 1.0f ), SclY( 100.0f ) );
 				Frame_Version.SetDisplayText( VoxelGlobalSettings.COMPILEOPTION_VERSIONSTRING );
 				Frame_Version.TextureNum = 3;
-				Frame_Version.SetStyle( GameEnv.TileSetStyles.GetStyle( 0 ) );
+				Frame_Version.Font = GameEnv.default_font;// SetStyle( GameEnv.TileSetStyles.GetStyle( 0 ) );
+				Frame_Version.FontSize = ( 2.0f / 60 );
 				TitleBackground.AddFrame( Frame_Version );
 
 
 
 				PlayGame_Size.X = SclX( 9.0f * 32.0f + 1.0f ); PlayGame_Size.Y = SclY( 32.0f );
-				Frame_PlayGame.SetDisplayText( "PLAY GAME" );
-				Frame_PlayGame.SetStyle( GameEnv.TileSetStyles.GetStyle( 1 ) );
+				Frame_PlayGame.SetDisplayText( "Play Game" );
+				Frame_PlayGame.Font = GameEnv.default_font;// .SetStyle( GameEnv.TileSetStyles.GetStyle( 1 ) );
+				Frame_PlayGame.FontSize = ( 2.0f / 10 );
 				Frame_PlayGame.GetTextDisplaySize( out PlayGame_Size );
 				Frame_PlayGame.SetPosition( screen_x / 2.0f - PlayGame_Size.X / 2.0f, screen_y / 1.64f + SclY( 32.0f ) );
 				Frame_PlayGame.SetSize( PlayGame_Size.X + SclX( 128.0f ), PlayGame_Size.Y );
@@ -72,18 +74,20 @@ namespace Voxelarium.Core.Game.Screens
 
 
 				Frame_Options.SetDisplayText( "OPTIONS" );
-				Frame_Options.SetStyle( GameEnv.TileSetStyles.GetStyle( 1 ) );
+				Frame_Options.Font = GameEnv.default_font;// .SetStyle( GameEnv.TileSetStyles.GetStyle( 1 ) );
+				Frame_Options.FontSize = ( 2.0f / 10 );
 				Frame_Options.GetTextDisplaySize( out Options_Size );
-				Frame_Options.SetPosition( screen_x / 2.0f - Options_Size.X / 2.0f, screen_y / 1.64f - SclY( 32.0f ) );
+				Frame_Options.SetPosition( screen_x / 2.0f - Options_Size.X / 2.0f,  screen_y / 1.64f - SclY( 32.0f ) - PlayGame_Size.Y );
 				Frame_Options.SetSize( Options_Size.X + 1.0f, Options_Size.Y );
 				Frame_Options.TextureNum = 3;
 				TitleBackground.AddFrame( Frame_Options );
 
 
 				Frame_Quit.SetDisplayText( "QUIT" );
-				Frame_Quit.SetStyle( GameEnv.TileSetStyles.GetStyle( 1 ) );
+				Frame_Quit.Font = GameEnv.default_font;// .SetStyle( GameEnv.TileSetStyles.GetStyle( 1 ) );
+				Frame_Quit.FontSize = ( 2.0f / 10 );
 				Frame_Quit.GetTextDisplaySize( out Quit_Size );
-				Frame_Quit.SetPosition( screen_x / 2.0f - Quit_Size.X / 2.0f, screen_y / 1.64f - SclY( 96.0f ) );
+				Frame_Quit.SetPosition( screen_x / 2.0f - Quit_Size.X / 2.0f,  screen_y / 1.64f - SclY( 96.0f ) - (PlayGame_Size.Y + Options_Size.Y) );
 				Frame_Quit.SetSize( Quit_Size.X + 1.0f, Quit_Size.Y );
 				Frame_Quit.TextureNum = 3;
 

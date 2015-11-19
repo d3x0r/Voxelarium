@@ -1,4 +1,4 @@
-#define CLEAN_INVALID_PAIRS 
+#define CLEAN_INVALID_PAIRS
 #define USE_OVERLAP_TEST_ON_REMOVES
 
 //Bullet Continuous Collision Detection and Physics Library
@@ -20,6 +20,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 
+using Bullet.Collision.Dispatch;
 using Bullet.LinearMath;
 using Bullet.Types;
 using System.Diagnostics;
@@ -52,7 +53,7 @@ namespace Bullet.Collision.BroadPhase
 			public Handle() { }
 
 			internal void Initialize( ref btVector3 aabbMin, ref btVector3 aabbMax
-				, object pOwner, CollisionFilterGroups collisionFilterGroup
+				, btCollisionObject pOwner, CollisionFilterGroups collisionFilterGroup
 				, CollisionFilterGroups collisionFilterMask
 				, btDispatcher dispatcher, object multiSapProxy )
 			{
@@ -178,7 +179,7 @@ namespace Bullet.Collision.BroadPhase
 #endif //DEBUG_BROADPHASE
 
 
-		public btBroadphaseProxy createProxy( ref btVector3 aabbMin, ref btVector3 aabbMax, BroadphaseNativeTypes shapeType, object userPtr
+		public btBroadphaseProxy createProxy( ref btVector3 aabbMin, ref btVector3 aabbMax, BroadphaseNativeTypes shapeType, btCollisionObject userPtr
 			, btBroadphaseProxy.CollisionFilterGroups collisionFilterGroup
 			, btBroadphaseProxy.CollisionFilterGroups collisionFilterMask
 			, btDispatcher dispatcher, object multiSapProxy )
@@ -393,6 +394,7 @@ namespace Bullet.Collision.BroadPhase
 
 		}
 
+#if destructor_should_be_cleanup
 		~btAxisSweep3()
 		{
 			if( m_raycastAccelerator != null )
@@ -408,7 +410,7 @@ namespace Bullet.Collision.BroadPhase
 				m_pairCache = null;//.~btOverlappingPairCache();
 			}
 		}
-
+#endif
 
 		void quantize( ushort[] outdata, ref btVector3 point, int isMax )
 		{
@@ -450,7 +452,7 @@ namespace Bullet.Collision.BroadPhase
 
 
 
-		Handle addHandle( ref btVector3 aabbMin, ref btVector3 aabbMax, object pOwner
+		Handle addHandle( ref btVector3 aabbMin, ref btVector3 aabbMax, btCollisionObject pOwner
 			, btBroadphaseProxy.CollisionFilterGroups collisionFilterGroup
 			, btBroadphaseProxy.CollisionFilterGroups collisionFilterMask, btDispatcher dispatcher, object multiSapProxy )
 		{

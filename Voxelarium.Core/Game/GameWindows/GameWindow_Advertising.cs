@@ -102,7 +102,8 @@ namespace Voxelarium.Core.Game.GameWindows
 						case Visibility.VISIBILITY_HIGH:
 							ActualText = ActualyDisplayedEntry.Message;
 							Frame_Text.SetDisplayText( ActualText );
-							Frame_Text.SetStyle( GameEnv.TileSetStyles.GetStyle( 2 ) );
+							Frame_Text.Font = GameEnv.default_font;
+							Frame_Text.FontSize = 2.0f / 40;
 							Frame_Text.GetTextDisplaySize( out Size );
 							if( Size.X > 2.0f - 0.125f ) Size.X = 2.0f - 0.125f;
 							Frame_Text.SetPosition( ( 2.0f - Size.X ) / 2.0f, ( 2.0f / 4.0f ) - ( Size.Y / 2.0f ) );
@@ -113,7 +114,8 @@ namespace Voxelarium.Core.Game.GameWindows
 						case Visibility.VISIBILITY_MEDIUM:
 							ActualText = ActualyDisplayedEntry.Message;
 							Frame_Text.SetDisplayText( ActualText );
-							Frame_Text.SetStyle( GameEnv.TileSetStyles.GetStyle( 4 ) );
+							Frame_Text.Font = GameEnv.default_font;
+							Frame_Text.FontSize = 2.0f / 20;
 							Frame_Text.GetTextDisplaySize( out Size );
 							if( Size.X > 2.0f - 0.125f ) Size.X = 2.0f - 0.125f;
 							Frame_Text.SetPosition( ( 2.0f - Size.X ) / 2.0f, ( 2.0f / 4.0f ) - ( Size.Y / 2.0f ) );
@@ -123,7 +125,8 @@ namespace Voxelarium.Core.Game.GameWindows
 						case Visibility.VISIBILITY_MEDLOW:
 							ActualText = ActualyDisplayedEntry.Message;
 							Frame_Text.SetDisplayText( ActualText );
-							Frame_Text.SetStyle( GameEnv.TileSetStyles.GetStyle( 4 ) );
+							Frame_Text.Font = GameEnv.default_font;
+							Frame_Text.FontSize = 2.0f / 20;
 							Frame_Text.GetTextDisplaySize( out Size );
 							if( Size.X > 2.0f - 0.125f ) Size.X = 2.0f - 0.125f;
 							Frame_Text.SetPosition( ( 2.0f - Size.X ) / 2.0f, ( 2.0f * 0.75f ) - ( Size.Y / 2.0f ) );
@@ -133,7 +136,8 @@ namespace Voxelarium.Core.Game.GameWindows
 						case Visibility.VISIBILITY_LOW:
 							ActualText = ActualyDisplayedEntry.Message;
 							Frame_Text.SetDisplayText( ActualText );
-							Frame_Text.SetStyle( GameEnv.TileSetStyles.GetStyle( 3 ) );
+							Frame_Text.Font = GameEnv.default_font;
+							Frame_Text.FontSize = 2.0f / 30;
 							Frame_Text.GetTextDisplaySize( out Size );
 							if( Size.X > 2.0f - 0.125f ) Size.X = 2.0f - 0.125f;
 							Frame_Text.SetPosition( ( 2.0f - Size.X ) / 2.0f, ( 2.0f * 0.75f ) - ( Size.Y / 2.0f ) );
@@ -143,7 +147,8 @@ namespace Voxelarium.Core.Game.GameWindows
 						case Visibility.VISIBILITY_VERYLOW:
 							ActualText = ActualyDisplayedEntry.Message;
 							Frame_Text.SetDisplayText( ActualText );
-							Frame_Text.SetStyle( GameEnv.TileSetStyles.GetStyle( 3 ) );
+							Frame_Text.Font = GameEnv.default_font;
+							Frame_Text.FontSize = 2.0f / 30;
 							Frame_Text.GetTextDisplaySize( out Size );
 							if( Size.X > 2.0f - 0.125f ) Size.X = 2.0f - 0.125f;
 							Frame_Text.SetPosition( ( 2.0f - Size.X ) / 2.0f, ( 2.0f * 0.95f ) - ( Size.Y / 2.0f ) );
@@ -153,7 +158,8 @@ namespace Voxelarium.Core.Game.GameWindows
 						case Visibility.VISIBILITY_VERYHARDTOREAD:
 							ActualText = ActualyDisplayedEntry.Message;
 							Frame_Text.SetDisplayText( ActualText );
-							Frame_Text.SetStyle( GameEnv.TileSetStyles.GetStyle( 0 ) );
+							Frame_Text.Font = GameEnv.default_font;
+							Frame_Text.FontSize = 2.0f / 80;
 							Frame_Text.GetTextDisplaySize( out Size );
 							if( Size.X > 2.0f - 0.125f ) Size.X = 2.0f - 0.125f;
 							Frame_Text.SetPosition( ( 2.0f - Size.X ) / 2.0f, ( 2.0f * 0.95f ) - ( Size.Y / 2.0f ) );

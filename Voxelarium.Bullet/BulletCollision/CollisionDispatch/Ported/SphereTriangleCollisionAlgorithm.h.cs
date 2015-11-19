@@ -81,7 +81,11 @@ namespace Bullet.Collision.Dispatch
 		}
 
 
-		internal override void processCollision( btCollisionObjectWrapper col0Wrap, btCollisionObjectWrapper col1Wrap, btDispatcherInfo dispatchInfo, btManifoldResult resultOut )
+		internal override void processCollision( btCollisionObjectWrapper col0Wrap
+			, ref btTransform body0Transform
+			, btCollisionObjectWrapper col1Wrap
+			, ref btTransform body1Transform
+			, btDispatcherInfo dispatchInfo, btManifoldResult resultOut )
 		{
 			if( m_manifoldPtr == null )
 				return;
@@ -100,8 +104,16 @@ namespace Bullet.Collision.Dispatch
 			btDiscreteCollisionDetectorInterface.ClosestPointInput input = BulletGlobals.ClosestPointInputPool.Get();
 
 			input.m_maximumDistanceSquared = btScalar.BT_LARGE_FLOAT;///@todo: tighter bounds
-			input.m_transformA = sphereObjWrap.m_worldTransform;
-			input.m_transformB = triObjWrap.m_worldTransform;
+			if( m_swapped )
+			{
+				input.m_transformA = body1Transform;
+				input.m_transformB = body0Transform;
+			}
+			else
+			{
+				input.m_transformA = body0Transform;
+				input.m_transformB = body1Transform;
+			}
 
 			bool swapResults = m_swapped;
 

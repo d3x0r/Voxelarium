@@ -130,7 +130,7 @@ namespace Bullet.Collision.Dispatch
 
 
 				btCollisionObjectWrapper triObWrap = BulletGlobals.CollisionObjectWrapperPool.Get();
-				triObWrap.Initialize( m_triBodyWrap, tm, m_triBodyWrap.m_collisionObject,ref m_triBodyWrap.m_worldTransform, partId, triangleIndex );//correct transform?
+				triObWrap.Initialize( m_triBodyWrap, tm, m_triBodyWrap.m_collisionObject, partId, triangleIndex );//correct transform?
 				btCollisionAlgorithm colAlgo = ci.m_dispatcher1.findAlgorithm( m_convexBodyWrap, triObWrap, m_manifoldPtr );
 
 				btCollisionObjectWrapper tmpWrap = null;
@@ -148,7 +148,10 @@ namespace Bullet.Collision.Dispatch
 					m_resultOut.setShapeIdentifiersB( partId, triangleIndex );
 				}
 
-				colAlgo.processCollision( m_convexBodyWrap, triObWrap, m_dispatchInfoPtr, m_resultOut );
+				colAlgo.processCollision( m_convexBodyWrap
+					, ref m_convexBodyWrap.m_collisionObject.m_worldTransform
+					, triObWrap
+					, ref m_triBodyWrap.m_collisionObject.m_worldTransform, m_dispatchInfoPtr, m_resultOut );
 
 				if( m_resultOut.getBody0Internal() == m_triBodyWrap.m_collisionObject )
 				{
@@ -170,7 +173,12 @@ namespace Bullet.Collision.Dispatch
 
 
 
-		public void setTimeStepAndCounters( double collisionMarginTriangle, btDispatcherInfo dispatchInfo, btCollisionObjectWrapper convexBodyWrap, btCollisionObjectWrapper triBodyWrap, btManifoldResult resultOut )
+		public void setTimeStepAndCounters( double collisionMarginTriangle
+			, btDispatcherInfo dispatchInfo, btCollisionObjectWrapper convexBodyWrap
+			, ref btTransform convexTransform
+			, btCollisionObjectWrapper triBodyWrap
+			, ref btTransform triBodyTransform
+			, btManifoldResult resultOut )
 		{
 			m_convexBodyWrap = convexBodyWrap;
 			m_triBodyWrap = triBodyWrap;
@@ -182,8 +190,8 @@ namespace Bullet.Collision.Dispatch
 			//recalc aabbs
 			btTransform convexInTriangleSpace;
 			btTransform invTrans;
-			m_triBodyWrap.m_worldTransform.inverse( out invTrans );
-			invTrans.Apply( ref m_convexBodyWrap.m_worldTransform, out convexInTriangleSpace );
+			triBodyTransform.inverse( out invTrans );
+			invTrans.Apply( ref convexTransform, out convexInTriangleSpace );
 			btCollisionShape convexShape = m_convexBodyWrap.getCollisionShape();
 			//CollisionShape* triangleShape = static_cast<btCollisionShape*>(triBody.m_collisionShape);
 			convexShape.getAabb( ref convexInTriangleSpace, out m_aabbMin, out m_aabbMax );
@@ -259,7 +267,11 @@ namespace Bullet.Collision.Dispatch
 
 		}
 
-		internal override void processCollision( btCollisionObjectWrapper body0Wrap, btCollisionObjectWrapper body1Wrap, btDispatcherInfo dispatchInfo, btManifoldResult resultOut )
+		internal override void processCollision( btCollisionObjectWrapper body0Wrap
+			, ref btTransform body0Transform
+			, btCollisionObjectWrapper body1Wrap
+			, ref btTransform body1Transform
+			, btDispatcherInfo dispatchInfo, btManifoldResult resultOut )
 		{
 
 
@@ -275,7 +287,16 @@ namespace Bullet.Collision.Dispatch
 					double collisionMarginTriangle = concaveShape.getMargin();
 
 					resultOut.setPersistentManifold( m_btConvexTriangleCallback.m_manifoldPtr );
-					m_btConvexTriangleCallback.setTimeStepAndCounters( collisionMarginTriangle, dispatchInfo, convexBodyWrap, triBodyWrap, resultOut );
+					if( m_isSwapped )
+						m_btConvexTriangleCallback.setTimeStepAndCounters( collisionMarginTriangle, dispatchInfo
+								, convexBodyWrap, ref body1Transform
+								, triBodyWrap, ref body0Transform
+								, resultOut );
+					else
+						m_btConvexTriangleCallback.setTimeStepAndCounters( collisionMarginTriangle, dispatchInfo
+								, convexBodyWrap, ref body0Transform
+								, triBodyWrap, ref body1Transform
+								, resultOut );
 
 					m_btConvexTriangleCallback.m_manifoldPtr.setBodies( convexBodyWrap.m_collisionObject, triBodyWrap.m_collisionObject );
 

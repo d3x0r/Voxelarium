@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Bullet.LinearMath;
+using Voxelarium.LinearMath;
 using Voxelarium.Core.Support;
 #if !USE_GLES2
 using OpenTK.Graphics.OpenGL;

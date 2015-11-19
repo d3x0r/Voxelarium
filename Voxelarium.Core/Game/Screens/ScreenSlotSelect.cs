@@ -64,7 +64,8 @@ namespace Voxelarium.Core.Game.Screens
 				// DÃ©finition et rÃ©glage du sous-titre
 
 				Frame_MainTitle.SetDisplayText( "GAME UNIVERSE SELECTION" );
-				Frame_MainTitle.SetStyle( GameEnv.TileSetStyles.GetStyle( 1 ) );
+				Frame_MainTitle.Font = GameEnv.default_font;// .SetStyle( GameEnv.TileSetStyles.GetStyle( 1 ) );
+				Frame_MainTitle.FontSize = ( 2.0f / 20 );
 				Frame_MainTitle.GetTextDisplaySize( out Size );
 				Frame_MainTitle.SetPosition( 1 - Size.X/2, 2-0.4f );
 				//Frame_MainTitle.SetPosition(2.0f / 2.0f - Size.X/2.0f, 2.0f / 2.0f - Size.Y / 2.0f);
@@ -113,7 +114,8 @@ namespace Voxelarium.Core.Game.Screens
 
 					SlotString[i] = "UNIVERSE " + (i+1);
 					SlotTitle[i].SetDisplayText( SlotString[i] );
-					SlotTitle[i].SetStyle( GameEnv.TileSetStyles.GetStyle( 3 ) );
+					SlotTitle[i].Font = GameEnv.default_font;//.SetStyle( GameEnv.TileSetStyles.GetStyle( 3 ) );
+					SlotTitle[i].FontSize = ( 2.0f / 30 );
 					SlotTitle[i].SetTexture( 3 );
 					SlotTitle[i].GetTextDisplaySize( out Size );
 					SlotTitle[i].SetPosition( SlotSize.X * 0.07f, SlotSize.Y * 0.2f );
@@ -127,7 +129,8 @@ namespace Voxelarium.Core.Game.Screens
 					if( SlotUsed[i] ) StatusString[i] = "USED";
 					else StatusString[i] = "FREE";
 					SlotStatus[i].SetDisplayText( StatusString[i] );
-					SlotStatus[i].SetStyle( GameEnv.TileSetStyles.GetStyle( 3 ) );
+					SlotStatus[i].Font = GameEnv.default_font;//.SetStyle( GameEnv.TileSetStyles.GetStyle( 3 ) );
+					SlotStatus[i].FontSize = ( 2.0f / 30 );
 					SlotStatus[i].SetTexture( 3 );
 					SlotStatus[i].GetTextDisplaySize( out Size );
 					SlotStatus[i].SetPosition( SlotSize.X * 0.65f, SlotSize.Y * 0.65f );

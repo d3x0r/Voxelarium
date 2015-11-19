@@ -21,6 +21,8 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -42,6 +44,7 @@
   <ItemGroup>
     <Compile Include="MathTest_001.cs" />
     <Compile Include="Test_003.cs" />
+    <Compile Include="Test_006.cs" />
     <Compile Include="Test_005.cs" />
     <Compile Include="Test_004.cs" />
     <Compile Include="Test_002.cs" />

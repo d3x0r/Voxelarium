@@ -28,7 +28,8 @@ namespace Bullet.Dynamics.ConstraintSolver
 	///The btSolverBody is an internal datastructure for the constraint solver. Only necessary data is packed to increase cache coherence/performance.
 	public class btSolverBody
 	{
-
+		public bool modified;
+		public bool pushed;
 		public btTransform m_worldTransform;
 		public btVector3 m_deltaLinearVelocity;
 		public btVector3 m_deltaAngularVelocity;
@@ -41,9 +42,8 @@ namespace Bullet.Dynamics.ConstraintSolver
 		public btVector3 m_angularVelocity;
 		public btVector3 m_externalForceImpulse;
 		public btVector3 m_externalTorqueImpulse;
-
 		public btRigidBody m_originalBody;
-
+		/*
 		void setWorldTransform( ref btTransform worldTransform )
 		{
 			m_worldTransform = worldTransform;
@@ -53,7 +53,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 		{
 			result = m_worldTransform;
 		}
-
+		*/
 		/// <summary>
 		/// Reset all vectors
 		/// </summary>
@@ -117,6 +117,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 			if( m_originalBody != null )
 			{
 				btVector3 tmp;
+				pushed = true;
 				linearComponent.Mult( ref m_linearFactor, out tmp );
 				m_pushVelocity.AddScale( ref tmp, impulseMagnitude, out m_pushVelocity );
 				//m_pushVelocity += linearComponent * impulseMagnitude * m_linearFactor;
@@ -172,12 +173,12 @@ namespace Bullet.Dynamics.ConstraintSolver
 		{
 			m_invMass = invMass;
 		}
-
+		/*
 		public void internalSetPushVelocity( ref btVector3 result )
 		{
 			m_pushVelocity = result;
 		}
-
+		*/
 		public void internalSetTurnVelocity( ref btVector3 result )
 		{
 			m_turnVelocity = result;
@@ -242,6 +243,8 @@ namespace Bullet.Dynamics.ConstraintSolver
 				//m_deltaLinearVelocity += linearComponent * impulseMagnitude * m_linearFactor;
 				angularComponent.Mult( ref m_angularFactor, out tmp );
 				m_deltaAngularVelocity.AddScale( ref tmp, impulseMagnitude, out m_deltaAngularVelocity );
+				//if( m_deltaLinearVelocity.length() > 20 )
+				//	Debugger.Break();
 				//m_deltaAngularVelocity += angularComponent * ( impulseMagnitude * m_angularFactor );
 				btScalar.Dbg( "apply impulse delta linear velocity is " + m_deltaLinearVelocity.ToString() );
 
@@ -273,13 +276,16 @@ namespace Bullet.Dynamics.ConstraintSolver
 				m_angularVelocity.Add( ref m_deltaAngularVelocity, out m_angularVelocity );
 				//m_linearVelocity += m_deltaLinearVelocity;
 				//m_angularVelocity += m_deltaAngularVelocity;
-
 				//correct the position/orientation based on push/turn recovery
 				btTransform newTransform;
-				if( m_pushVelocity[0] != 0 || m_pushVelocity[1] != 0 || m_pushVelocity[2] != 0 || m_turnVelocity[0] != 0 || m_turnVelocity[1] != 0 || m_turnVelocity[2] != 0 )
+				if( pushed 
+				   && ( !m_pushVelocity.isZero()
+					  || !m_turnVelocity.isZero() ) )
 				{
 					btVector3 tmp;
-					m_turnVelocity.Mult( splitImpulseTurnErp, out tmp );
+					modified = true;
+                    m_turnVelocity.Mult( splitImpulseTurnErp, out tmp );
+					btScalar.Dbg( DbgFlag.PredictedTransform, "To Push Solver with " + m_pushVelocity.ToString() + " " + tmp.ToString() );
 					//	btQuaternion orn = m_worldTransform.getRotation();
 					btTransformUtil.integrateTransform(ref  m_worldTransform,ref  m_pushVelocity
 						,ref  tmp

@@ -18,7 +18,6 @@ namespace Bullet.Collision.Dispatch
 		public btCollisionObjectWrapper m_parent;
 		public btCollisionShape m_shape;
 		public btCollisionObject m_collisionObject;
-		public btTransform m_worldTransform;
 		public int m_partId;
 		public int m_index;
 
@@ -28,19 +27,19 @@ namespace Bullet.Collision.Dispatch
 		}
 
 		public void Initialize( btCollisionObjectWrapper parent, btCollisionShape shape, btCollisionObject collisionObject
-			, ref btTransform worldTransform
+			//, ref btTransform worldTransform
 			, int partId, int index )
 		{
 			m_parent = ( parent );
 			m_shape = ( shape );
 			m_collisionObject = ( collisionObject );
-			m_worldTransform = ( worldTransform );
+			//m_worldTransform = ( worldTransform );
 			m_partId = ( partId );
 			m_index = ( index );
 		}
 
 		//public btTransform getWorldTransform() {  return m_worldTransform; }
-		public void getWorldTransform( out btTransform result ) { result = m_worldTransform; }
+		//public void getWorldTransform( out btTransform result ) { result = m_worldTransform; }
 		//public btCollisionObject getCollisionObject() { return m_collisionObject; }
 		public btCollisionShape getCollisionShape() { return m_shape; }
 	};

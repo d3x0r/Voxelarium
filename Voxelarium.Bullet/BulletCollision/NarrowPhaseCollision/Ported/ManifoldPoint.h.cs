@@ -32,22 +32,22 @@ namespace Bullet.Collision.NarrowPhase
 			m_lateralFrictionDir1 = btVector3.Zero;
 			m_lateralFrictionDir2 = btVector3.Zero;
 			m_lifeTime = 0;
-			m_appliedImpulseLateral1 = 0f;
-			m_appliedImpulseLateral2 = 0f;
-			m_contactMotion1 = 0f;
-			m_contactMotion2 = 0f;
-			m_contactCFM1 = 0f;
-			m_contactCFM2 = 0f;
+			m_appliedImpulseLateral1 = 0;
+			m_appliedImpulseLateral2 = 0;
+			m_contactMotion1 = 0;
+			m_contactMotion2 = 0;
+			m_contactCFM1 = 0;
+			m_contactCFM2 = 0;
 
 			m_lateralFrictionInitialized = false;
 			m_userPersistentData = null;
-			m_appliedImpulse = 0f;
+			m_appliedImpulse = 0;
 			m_partId0 = 0;
 			m_partId1 = 0;
 			m_index0 = 0;
 			m_index1 = 0;
-			m_combinedRestitution = 0f;
-			m_combinedFriction = 0f;
+			m_combinedRestitution = 0;
+			m_combinedFriction = 0;
 			m_positionWorldOnA = btVector3.Zero;
 			m_positionWorldOnB = btVector3.Zero;
 

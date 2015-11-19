@@ -187,7 +187,7 @@ namespace Bullet.Collision.Dispatch
 				btTransform childWorldTrans; m_colObjWorldTransform.Apply( ref childTrans, out childWorldTrans );
 
 				btCollisionObjectWrapper tmpOb = BulletGlobals.CollisionObjectWrapperPool.Get();
-				tmpOb.Initialize( null, childCollisionShape, m_collisionObject, ref childWorldTrans, -1, i );
+				//tmpOb.Initialize( null, childCollisionShape, m_collisionObject, ref childWorldTrans, -1, i );
 				// replace collision shape so that callback can determine the triangle
 
 				LocalInfoAdder2 my_cb = new LocalInfoAdder2( i, m_resultCallback );
@@ -195,10 +195,12 @@ namespace Bullet.Collision.Dispatch
 				rayTestSingleInternal(
 					ref m_rayFromTrans,
 					ref m_rayToTrans,
-					tmpOb,
+					childCollisionShape,
+					m_collisionObject,
+					ref childWorldTrans,
 					my_cb );
 
-				BulletGlobals.CollisionObjectWrapperPool.Free( tmpOb );
+				//BulletGlobals.CollisionObjectWrapperPool.Free( tmpOb );
 			}
 
 			public void Process( btDbvt.btDbvtNode leaf )
@@ -379,15 +381,16 @@ namespace Bullet.Collision.Dispatch
 		/// In a future implementation, we consider moving the ray test as a virtual method in btCollisionShape.
 		/// This allows more customization.
 		public static void rayTestSingle( ref btTransform rayFromTrans, ref btTransform rayToTrans,
-										btCollisionObject collisionObject,
+											btCollisionObject collisionObject,
 											btCollisionShape collisionShape,
 											ref btTransform colObjWorldTransform,
 											RayResultCallback resultCallback )
 		{
-			btCollisionObjectWrapper colObWrap = BulletGlobals.CollisionObjectWrapperPool.Get();
-			colObWrap.Initialize( null, collisionShape, collisionObject, ref colObjWorldTransform, -1, -1 );
-			rayTestSingleInternal( ref rayFromTrans, ref rayToTrans, colObWrap, resultCallback );
-			BulletGlobals.CollisionObjectWrapperPool.Free( colObWrap );
+			//btCollisionObjectWrapper colObWrap = BulletGlobals.CollisionObjectWrapperPool.Get();
+			//colObWrap.Initialize( null, collisionShape, collisionObject, ref colObjWorldTransform, -1, -1 );
+			rayTestSingleInternal( ref rayFromTrans, ref rayToTrans, collisionShape, collisionObject
+				, ref colObjWorldTransform, resultCallback );
+			//BulletGlobals.CollisionObjectWrapperPool.Free( colObWrap );
 		}
 
 
@@ -395,15 +398,17 @@ namespace Bullet.Collision.Dispatch
 
 
 		public static void rayTestSingleInternal( ref btTransform rayFromTrans, ref btTransform rayToTrans,
-												btCollisionObjectWrapper collisionObjectWrap,
+												btCollisionShape collisionShape,
+												btCollisionObject collisionObject,
+												ref btTransform useTransform,
 												RayResultCallback resultCallback )
 		{
 			btSphereShape pointShape = BulletGlobals.SphereShapePool.Get();
 			pointShape.Initialize( btScalar.BT_ZERO );
 			pointShape.setMargin( 0f );
 			btConvexShape castShape = pointShape;
-			btCollisionShape collisionShape = collisionObjectWrap.getCollisionShape();
-			btTransform colObjWorldTransform = collisionObjectWrap.m_worldTransform;
+			//btCollisionShape collisionShape = collisionObjectWrap.getCollisionShape();
+			btTransform colObjWorldTransform = useTransform;// collisionObjectWrap.m_worldTransform;
 
 			if( collisionShape.isConvex() )
 			{
@@ -434,7 +439,10 @@ namespace Bullet.Collision.Dispatch
 
 				btConvexCast convexCaster = convexCasterPtr;
 
-				if( convexCaster.calcTimeOfImpact( ref rayFromTrans, ref rayToTrans, ref collisionObjectWrap.m_worldTransform, ref collisionObjectWrap.m_worldTransform, castResult ) )
+				if( convexCaster.calcTimeOfImpact( ref rayFromTrans, ref rayToTrans
+					, ref useTransform/*collisionObjectWrap.m_worldTransform*/
+					, ref useTransform/*collisionObjectWrap.m_worldTransform*/
+					, castResult ) )
 				{
 					//add hit
 					if( castResult.m_normal.length2() > (double)( 0.0001 ) )
@@ -450,7 +458,7 @@ namespace Bullet.Collision.Dispatch
 							castResult.m_normal.normalize();
 							LocalRayResult localRayResult = new LocalRayResult
 								(
-								collisionObjectWrap.m_collisionObject,
+								collisionObject,
 								null,
 								castResult.m_normal,
 								castResult.m_fraction
@@ -496,7 +504,7 @@ namespace Bullet.Collision.Dispatch
 
 
 						BridgeTriangleRaycastCallback rcb = new BridgeTriangleRaycastCallback( ref rayFromLocal, ref rayToLocal, resultCallback
-							, collisionObjectWrap.m_collisionObject, concaveShape, ref colObjWorldTransform );
+							, collisionObject, concaveShape, ref colObjWorldTransform );
 						rcb.m_hitFraction = resultCallback.m_closestHitFraction;
 
 						btVector3 rayAabbMinLocal = rayFromLocal;
@@ -518,7 +526,7 @@ namespace Bullet.Collision.Dispatch
 
 
 						RayTester rayCB = new RayTester(
-							collisionObjectWrap.m_collisionObject,
+									collisionObject,
 									compoundShape,
 									ref colObjWorldTransform,
 									ref rayFromTrans,
@@ -599,10 +607,12 @@ namespace Bullet.Collision.Dispatch
 													ref btTransform colObjWorldTransform,
 													ConvexResultCallback resultCallback, double allowedPenetration )
 		{
-			btCollisionObjectWrapper tmpOb = BulletGlobals.CollisionObjectWrapperPool.Get();
-			tmpOb.Initialize( null, collisionShape, collisionObject, ref colObjWorldTransform, -1, -1 );
-			objectQuerySingleInternal( castShape, ref convexFromTrans, ref convexToTrans, tmpOb, resultCallback, allowedPenetration );
-			BulletGlobals.CollisionObjectWrapperPool.Free( tmpOb );
+			//btCollisionObjectWrapper tmpOb = BulletGlobals.CollisionObjectWrapperPool.Get();
+			//tmpOb.Initialize( null, collisionShape, collisionObject, ref colObjWorldTransform, -1, -1 );
+			objectQuerySingleInternal( castShape, ref convexFromTrans, ref convexToTrans
+				, collisionShape, collisionObject
+				, ref colObjWorldTransform, resultCallback, allowedPenetration );
+			//BulletGlobals.CollisionObjectWrapperPool.Free( tmpOb );
 		}
 
 		internal class LocalInfoAdder : ConvexResultCallback
@@ -633,11 +643,13 @@ namespace Bullet.Collision.Dispatch
 		};
 
 
-		public static void objectQuerySingleInternal( btConvexShape castShape, ref btTransform convexFromTrans, ref btTransform convexToTrans,
-														btCollisionObjectWrapper colObjWrap,
-														ConvexResultCallback resultCallback, double allowedPenetration )
+		public static void objectQuerySingleInternal( btConvexShape castShape, ref btTransform convexFromTrans, ref btTransform convexToTrans
+														, btCollisionShape collisionShape//btCollisionObjectWrapper colObjWrap
+														, btCollisionObject collisionObject
+														, ref btTransform colObjTransform
+														, ConvexResultCallback resultCallback, double allowedPenetration )
 		{
-			btCollisionShape collisionShape = colObjWrap.getCollisionShape();
+			//btCollisionShape collisionShape = colObjWrap.getCollisionShape();
 			//btTransform colObjWorldTransform = colObjWrap.m_worldTransform;
 
 			if( collisionShape.isConvex() )
@@ -660,7 +672,7 @@ namespace Bullet.Collision.Dispatch
 
 				btConvexCast castPtr = convexCaster1;
 
-				if( castPtr.calcTimeOfImpact( ref convexFromTrans, ref convexToTrans, ref colObjWrap.m_worldTransform, ref colObjWrap.m_worldTransform, castResult ) )
+				if( castPtr.calcTimeOfImpact( ref convexFromTrans, ref convexToTrans, ref colObjTransform, ref colObjTransform, castResult ) )
 				{
 					//add hit
 					if( castResult.m_normal.length2() > (double)( 0.0001 ) )
@@ -671,7 +683,7 @@ namespace Bullet.Collision.Dispatch
 							LocalConvexResult localConvexResult =
 								new LocalConvexResult
 								(
-								colObjWrap.m_collisionObject,
+								collisionObject,
 								null,
 								ref castResult.m_normal,
 								ref castResult.m_hitPoint,
@@ -696,7 +708,7 @@ namespace Bullet.Collision.Dispatch
 					{
 						//CProfileSample sample = new CProfileSample("convexSweepbtBvhTriangleMesh");
 						btConcaveShape triangleMesh = (btConcaveShape)collisionShape;
-						btTransform worldTocollisionObject; colObjWrap.m_worldTransform.inverse( out worldTocollisionObject );
+						btTransform worldTocollisionObject; colObjTransform.inverse( out worldTocollisionObject );
 						btVector3 convexFromLocal; worldTocollisionObject.Apply( ref convexFromTrans.m_origin, out convexFromLocal );
 						btVector3 convexToLocal; worldTocollisionObject.Apply( ref convexToTrans.m_origin, out convexToLocal );
 						// rotation of box in local mesh space = MeshRotation^-1  ConvexToRotation
@@ -706,8 +718,8 @@ namespace Bullet.Collision.Dispatch
 
 						BridgeTriangleConvexcastCallback tccb = BulletGlobals.BridgeTriangleConvexcastCallbackPool.Get();
 						tccb.Initialize( castShape, ref convexFromTrans, ref convexToTrans
-							, resultCallback, colObjWrap.m_collisionObject
-							, triangleMesh, ref colObjWrap.m_worldTransform );
+							, resultCallback, collisionObject
+							, triangleMesh, ref colObjTransform );
 						tccb.m_hitFraction = resultCallback.m_closestHitFraction;
 						tccb.m_allowedPenetration = allowedPenetration;
 						btVector3 boxMinLocal, boxMaxLocal;
@@ -728,7 +740,7 @@ namespace Bullet.Collision.Dispatch
 							convexCaster1.Initialize( castShape, planeShape );
 							btConvexCast castPtr = convexCaster1;
 
-							if( castPtr.calcTimeOfImpact(ref  convexFromTrans, ref convexToTrans, ref colObjWrap.m_worldTransform, ref colObjWrap.m_worldTransform, castResult ) )
+							if( castPtr.calcTimeOfImpact(ref  convexFromTrans, ref convexToTrans, ref colObjTransform, ref colObjTransform, castResult ) )
 							{
 								//add hit
 								if( castResult.m_normal.length2() > (double)( 0.0001 ) )
@@ -738,7 +750,7 @@ namespace Bullet.Collision.Dispatch
 										castResult.m_normal.normalize();
 										LocalConvexResult localConvexResult = new LocalConvexResult
 											(
-											colObjWrap.m_collisionObject,
+											collisionObject,
 											null,
 											ref castResult.m_normal,
 											ref castResult.m_hitPoint,
@@ -756,7 +768,7 @@ namespace Bullet.Collision.Dispatch
 						{
 							//CProfileSample sample = new CProfileSample("convexSweepConcave");
 							btConcaveShape concaveShape = (btConcaveShape)collisionShape;
-							btTransform worldTocollisionObject; colObjWrap.m_worldTransform.inverse( out worldTocollisionObject );
+							btTransform worldTocollisionObject; colObjTransform.inverse( out worldTocollisionObject );
 							btVector3 convexFromLocal; worldTocollisionObject.Apply( ref convexFromTrans.m_origin, out convexFromLocal );
 							btVector3 convexToLocal; worldTocollisionObject.Apply( ref convexToTrans.m_origin, out convexToLocal );
 							// rotation of box in local mesh space = MeshRotation^-1  ConvexToRotation
@@ -765,8 +777,8 @@ namespace Bullet.Collision.Dispatch
 
 
 							BridgeTriangleConvexcastCallback tccb = BulletGlobals.BridgeTriangleConvexcastCallbackPool.Get();
-							tccb.Initialize( castShape, ref convexFromTrans, ref convexToTrans, resultCallback, colObjWrap.m_collisionObject
-								, concaveShape, ref colObjWrap.m_worldTransform );
+							tccb.Initialize( castShape, ref convexFromTrans, ref convexToTrans, resultCallback, collisionObject
+								, concaveShape, ref colObjTransform );
 							tccb.m_hitFraction = resultCallback.m_closestHitFraction;
 							tccb.m_allowedPenetration = allowedPenetration;
 							btVector3 boxMinLocal, boxMaxLocal;
@@ -795,18 +807,21 @@ namespace Bullet.Collision.Dispatch
 						{
 							//btTransform childTrans = compoundShape.getChildTransform( i );
 							btCollisionShape childCollisionShape = compoundShape.getChildShape( i );
-							btTransform childWorldTrans; colObjWrap.m_worldTransform.Apply( ref  compoundShape.m_children.InternalArray[i].m_transform
+							btTransform childWorldTrans; colObjTransform.Apply( ref  compoundShape.m_children.InternalArray[i].m_transform
 										, out childWorldTrans );
 
 
 							LocalInfoAdder my_cb = new LocalInfoAdder( i, resultCallback );
 
-							btCollisionObjectWrapper tmpObj = BulletGlobals.CollisionObjectWrapperPool.Get();
-							tmpObj.Initialize( colObjWrap, childCollisionShape, colObjWrap.m_collisionObject, ref childWorldTrans, -1, i );
+							//btCollisionObjectWrapper tmpObj = BulletGlobals.CollisionObjectWrapperPool.Get();
+							//tmpObj.Initialize( colObjWrap, childCollisionShape, colObjWrap.m_collisionObject, ref childWorldTrans, -1, i );
 
-							objectQuerySingleInternal( castShape, ref convexFromTrans, ref convexToTrans,
-								tmpObj, my_cb, allowedPenetration );
-							BulletGlobals.CollisionObjectWrapperPool.Free( tmpObj );
+							objectQuerySingleInternal( castShape, ref convexFromTrans, ref convexToTrans
+								, childCollisionShape
+								, collisionObject
+								, ref childWorldTrans
+								, my_cb, allowedPenetration );
+							//BulletGlobals.CollisionObjectWrapperPool.Free( tmpObj );
 						}
 					}
 				}
@@ -992,7 +1007,7 @@ namespace Bullet.Collision.Dispatch
 			convexToTrans = convexToWorld;
 			btVector3 castShapeAabbMin, castShapeAabbMax;
 			/* Compute AABB that encompasses angular movement */
-			{
+            {
 				btVector3 linVel, angVel;
 				btTransformUtil.calculateVelocity( ref convexFromWorld, ref convexToWorld, 1.0f, out linVel, out angVel );
 				btVector3 zeroLinVel = btVector3.Zero;
@@ -1072,6 +1087,7 @@ namespace Bullet.Collision.Dispatch
 
 				btManifoldPoint newPt = BulletGlobals.ManifoldPointPool.Get();
 				newPt.Initialize( ref localA, ref localB, ref normalOnBInWorld, depth );
+				btScalar.Dbg( "2 add contact point " + pointA.ToString() + " and " + pointInWorld.ToString() );
 				newPt.m_positionWorldOnA = pointA;
 				newPt.m_positionWorldOnB = pointInWorld;
 
@@ -1127,9 +1143,9 @@ namespace Bullet.Collision.Dispatch
 				if( m_resultCallback.needsCollision( collisionObject.getBroadphaseHandle() ) )
 				{
 					btCollisionObjectWrapper ob0 = BulletGlobals.CollisionObjectWrapperPool.Get();
-					ob0.Initialize( null, m_collisionObject.getCollisionShape(), m_collisionObject, ref m_collisionObject.m_worldTransform, -1, -1 );
+					ob0.Initialize( null, m_collisionObject.getCollisionShape(), m_collisionObject, -1, -1 );
 					btCollisionObjectWrapper ob1 = BulletGlobals.CollisionObjectWrapperPool.Get();
-					ob1.Initialize( null, collisionObject.getCollisionShape(), collisionObject, ref collisionObject.m_worldTransform, -1, -1 );
+					ob1.Initialize( null, collisionObject.getCollisionShape(), collisionObject, -1, -1 );
 
 					btCollisionAlgorithm algorithm = m_world.m_dispatcher1.findAlgorithm( ob0, ob1, null );
 					if( algorithm != null )
@@ -1139,7 +1155,10 @@ namespace Bullet.Collision.Dispatch
 						contactPointResult.Initialize( ob0, ob1, m_resultCallback );
 						//discrete collision detection query
 
-						algorithm.processCollision( ob0, ob1, m_world.getDispatchInfo(), contactPointResult );
+						algorithm.processCollision( ob0
+							, ref ob0.m_collisionObject.m_worldTransform
+							, ob1
+							, ref ob1.m_collisionObject.m_worldTransform, m_world.getDispatchInfo(), contactPointResult );
 
 						//algorithm.~btCollisionAlgorithm();
 						m_world.m_dispatcher1.freeCollisionAlgorithm( algorithm );
@@ -1170,9 +1189,9 @@ namespace Bullet.Collision.Dispatch
 		void contactPairTest( btCollisionObject colObjA, btCollisionObject colObjB, ContactResultCallback resultCallback )
 		{
 			btCollisionObjectWrapper obA = BulletGlobals.CollisionObjectWrapperPool.Get();
-			obA.Initialize( null, colObjA.getCollisionShape(), colObjA, ref colObjA.m_worldTransform, -1, -1 );
+			obA.Initialize( null, colObjA.getCollisionShape(), colObjA, -1, -1 );
 			btCollisionObjectWrapper obB = BulletGlobals.CollisionObjectWrapperPool.Get();
-			obB.Initialize( null, colObjB.getCollisionShape(), colObjB, ref colObjB.m_worldTransform, -1, -1 );
+			obB.Initialize( null, colObjB.getCollisionShape(), colObjB, -1, -1 );
 
 			btCollisionAlgorithm algorithm = m_dispatcher1.findAlgorithm( obA, obB, null );
 			if( algorithm != null )
@@ -1180,7 +1199,9 @@ namespace Bullet.Collision.Dispatch
 				btBridgedManifoldResult contactPointResult = BulletGlobals.BridgedManifoldResultPool.Get();
 				contactPointResult.Initialize( obA, obB, resultCallback );
 				//discrete collision detection query
-				algorithm.processCollision( obA, obB, getDispatchInfo(), contactPointResult );
+				algorithm.processCollision( obA, ref obA.m_collisionObject.m_worldTransform
+					, obB, ref obB.m_collisionObject.m_worldTransform
+					, getDispatchInfo(), contactPointResult );
 
 				//algorithm.~btCollisionAlgorithm();
 				m_dispatcher1.freeCollisionAlgorithm( algorithm );
@@ -1455,7 +1476,9 @@ namespace Bullet.Collision.Dispatch
 							for( int j = 0; j < numContacts; j++ )
 							{
 								btManifoldPoint cp = contactManifold.getContactPoint( j );
-								m_debugDrawer.drawContactPoint( ref cp.m_positionWorldOnB, ref cp.m_normalWorldOnB, cp.getDistance(), cp.getLifeTime(), ref defaultColors.m_contactPoint );
+								m_debugDrawer.drawContactPoint( ref cp.m_positionWorldOnB, ref cp.m_normalWorldOnB
+									, cp.getDistance(), cp.getLifeTime()
+									, ref defaultColors.m_contactPoint );
 							}
 						}
 					}

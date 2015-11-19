@@ -19,6 +19,7 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+using Bullet.Collision.Dispatch;
 using Bullet.LinearMath;
 using Bullet.Types;
 using System.Collections.Generic;
@@ -47,7 +48,7 @@ namespace Bullet.Collision.BroadPhase
 		/* ctor			*/
 		public btDbvtProxy() { }
 
-		new internal void Initialize( ref btVector3 aabbMin, ref btVector3 aabbMax, object userPtr
+		new internal void Initialize( ref btVector3 aabbMin, ref btVector3 aabbMax, btCollisionObject userPtr
 			  , btBroadphaseProxy.CollisionFilterGroups collisionFilterGroup, btBroadphaseProxy.CollisionFilterGroups collisionFilterMask )
 		{
 			base.Initialize( ref aabbMin, ref aabbMax, userPtr, collisionFilterGroup, collisionFilterMask );
@@ -271,7 +272,7 @@ namespace Bullet.Collision.BroadPhase
 		public override btBroadphaseProxy createProxy( ref btVector3 aabbMin,
 																	  ref btVector3 aabbMax,
 																	  BroadphaseNativeTypes shapeType,
-																	  object userPtr,
+																	  btCollisionObject userPtr,
 																	  btBroadphaseProxy.CollisionFilterGroups collisionFilterGroup,
 																	  btBroadphaseProxy.CollisionFilterGroups collisionFilterMask,
 																	  btDispatcher dispatcher,

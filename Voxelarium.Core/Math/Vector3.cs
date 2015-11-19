@@ -25,145 +25,8 @@ namespace Voxelarium.LinearMath
     // how-to-inline C# 4.5 (mono-2.0?) 2012
     [MethodImpl( MethodImplOptions.AggressiveInlining )]
     */
-#if IMPLEMENT_AS_ABSTRACT
-		public abstract class
-#else
-	public interface
-#endif
-		btIVector3
-	{
-		float this[int n] { get; set; }
 
-		/*@brief Add a vector to this one 
-          @param The vector to add to this one */
-		void Add( ref btVector3 b, out btVector3 result );
-		void AddScale( ref btVector3 b, float s, out btVector3 result );
-		void AddAndScale( ref btVector3 b, float s, out btVector3 result );
-
-		void Sub( ref btVector3 b, out btVector3 result );
-
-		void SubScale( ref btVector3 b, float s, out btVector3 result );
-		void SubAndScale( ref btVector3 b, float s, out btVector3 result );
-
-		void Mult( float b, out btVector3 result );
-
-		void Div( float b, out btVector3 result );
-
-		/*@brief Return the dot product
-          @param v The other vector in the dot product */
-		float dot( ref btVector3 v );
-
-		/*@brief Return the length of the vector squared */
-		float length2();
-
-		/*@brief Return the length of the vector */
-		float length();
-
-		/*@brief Return the norm (length); of the vector */
-		float norm();
-
-		/*@brief Return the distance squared between the ends of this and another vector
-          This is symantically treating the vector like a point */
-		float distance2( ref btVector3 v );
-
-		/*@brief Return the distance between the ends of this and another vector
-          This is symantically treating the vector like a point */
-		float distance( ref btVector3 v );
-
-
-		void setValue( float _x, float _y, float _z );
-
-#if !DISABLE_OPERATORS
-		btVector3 safeNormalize();
-		/*@brief Return a vector will the absolute values of each element */
-		btVector3 absolute();
-		/*@brief Normalize this vector 
-          x^2 + y^2 + z^2 = 1 */
-		btVector3 normalize();
-#endif
-
-		bool IsAlmostZero();
-
-		bool fuzzyZero();
-
-		/*@brief Return a normalized version of this vector */
-		void normalized( out btVector3 result );
-		/*@brief Return a rotated version of this vector
-          @param wAxis The axis to rotate about 
-          @param angle The angle to rotate by */
-		void rotate( ref btVector3 wAxis, float angle, out btVector3 result );
-		/*@brief Return the cross product between this and another vector 
-          @param v The other vector */
-		void cross( ref btVector3 v, out btVector3 result );
-
-		/*@brief Return the angle between this and another vector
-          @param v The other vector */
-		float angle( ref btVector3 v );
-
-
-		float triple( ref btVector3 v1, ref btVector3 v2 );
-
-		/*@brief Return the axis with the smallest value 
-          Note return values are 0,1,2 for x, y, or z */
-		int minAxis();
-
-		/*@brief Return the axis with the largest value 
-          Note return values are 0,1,2 for x, y, or z */
-		int maxAxis();
-		int furthestAxis();
-
-		int closestAxis();
-
-
-		/*@brief Return the linear interpolation between this and another vector 
-          @param v The other vector 
-          @param t The ration of this to v (t = 0 => return this, t=1 => return other); */
-		void lerp( ref btVector3 v, float t, out btVector3 result );
-
-		bool Equals( ref btVector3 other );
-
-		/*@brief Set each element to the max of the current values and the values of another btVector3
-		  @param other The other btVector3 to compare with 
-		 */
-		void setMax( ref btVector3 other );
-
-		/*@brief Set each element to the min of the current values and the values of another btVector3
-		  @param other The other btVector3 to compare with 
-		 */
-		void setMin( ref btVector3 other );
-
-		void getSkewSymmetricMatrix( out btVector3 v0, out btVector3 v1, out btVector3 v2 );
-
-		void setZero();
-
-		bool isZero();
-
-
-		/* create a vector as  btVector3( this.dot( btVector3 v0 );, this.dot( btVector3 v1);, this.dot( btVector3 v2 ););  */
-		void dot3( ref btVector3 v0, ref btVector3 v1, ref btVector3 v2, out btVector3 result );
-		void dot3( ref btMatrix3x3 m, out btVector3 result );
-
-		/*@brief Return the elementwise product of two vectors */
-		void Mult( ref btVector3 v2, out btVector3 result );
-
-		void Invert( out btVector3 result );
-
-
-		/*@brief Return the vector inversely scaled by s */
-		void Div( ref btVector3 v2, out btVector3 result );
-
-		/*@brief Return the angle between two vectors */
-		float btAngle( ref btVector3 v1, ref btVector3 v2 );
-
-
-		long maxDot( btVector3[] array, long array_count, out float dotOut );
-
-		long minDot( btVector3[] array, long array_count, ref float dotOut );
-
-	}
-
-
-	public struct btVector3 : btIVector3
+	public struct btVector3 
 	{
 		public float x;
 		public float y;
@@ -242,13 +105,7 @@ namespace Voxelarium.LinearMath
 			result.z = z + b.z * s;
 			result.w = w + b.w * s;
 		}
-		public void AddScale( btIVector3 b, float s, out btVector3 result )
-		{
-			result.x = x + b[0] * s;
-			result.y = y + b[1] * s;
-			result.z = z + b[2] * s;
-			result.w = w + b[3] * s;
-		}
+
 		public void AddAndScale( ref btVector3 b, float s, out btVector3 result )
 		{
 			result.x = ( x + b.x ) * s;

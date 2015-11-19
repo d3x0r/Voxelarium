@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Voxelarium.Core</RootNamespace>
     <AssemblyName>Voxelarium.Core</AssemblyName>
-    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -23,6 +23,7 @@
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Prefer32Bit>false</Prefer32Bit>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -101,6 +102,7 @@
     <Compile Include="UI\EventManager.cs" />
     <Compile Include="UI\Controls\FontFrame.cs" />
     <Compile Include="UI\Controls\Frame.cs" />
+    <Compile Include="UI\FontRenderer.cs" />
     <Compile Include="UI\GraphicUserManager.cs" />
     <Compile Include="UI\IVoxelCuller.cs" />
     <Compile Include="UI\Shaders\SimpleInstanceShader.cs" />
@@ -172,9 +174,13 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Voxelarium.Bullet\Voxelarium.Bullet.csproj">
-      <Project>{51f24014-65d4-414e-ac8d-1c9a2481308d}</Project>
-      <Name>Voxelarium.Bullet</Name>
+    <ProjectReference Include="..\BEPU\BEPUphysics\BEPUphysics.csproj">
+      <Project>{c0d52c9f-14b8-4008-8ddc-109c27561a5c}</Project>
+      <Name>BEPUphysics</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TrueTypeSharp\TrueTypeSharp\TrueTypeSharp.csproj">
+      <Project>{b722113f-1252-4be1-9d43-6bc82b3e37d1}</Project>
+      <Name>TrueTypeSharp</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

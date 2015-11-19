@@ -917,8 +917,8 @@ namespace Bullet.Dynamics
 
 		public void clearForces()
 		{
-			m_totalForce.setValue( btScalar.BT_ZERO, btScalar.BT_ZERO, btScalar.BT_ZERO );
-			m_totalTorque.setValue( btScalar.BT_ZERO, btScalar.BT_ZERO, btScalar.BT_ZERO );
+			m_totalForce = btVector3.Zero;
+			m_totalTorque = btVector3.Zero;
 		}
 
 		public void getCenterOfMassPosition( out btVector3 result )

@@ -19,132 +19,7 @@ using Voxelarium.Core.Support;
 
 namespace Voxelarium.LinearMath
 {
-	public interface btIMatrix3x3
-	{
-		btIVector3 this[int n] { get; }
-		/* @brief Get a column of the matrix as a vector 
-		 * @param i Column number 0 indexed */
-		btVector3 getColumn( int i );
-		void getColumn( int i, out btVector3 result );
-		/* @brief Get a row of the matrix as a vector 
-		 * @param i Row number 0 indexed */
-		btIVector3 getRow( int i );
-		void getRow( int i, out btVector3 result );
-
-		/* @brief Set the matrix from a quaternion
-		 * @param q The Quaternion to match */
-		void setRotation( ref btQuaternion q );
-
-
-		/* @brief Set the matrix from euler angles using YPR around YXZ respectively
-		 * @param yaw Yaw about Y axis
-		 * @param pitch Pitch about X axis
-		 * @param roll Roll about Z axis 
-*/
-		void setEulerYPR( float yaw, float pitch, float roll );
-
-		/* @brief Set the matrix from euler angles YPR around ZYX axes
-		 @param eulerX Roll about X axis
-		 @param eulerY Pitch around Y axis
-		 @param eulerZ Yaw aboud Z axis
-		 
-		 These angles are used to produce a rotation matrix. The euler
-		 angles are applied in ZYX order. I.e a vector is first rotated 
-		 about X then Y and then Z
-		*/
-		void setEulerZYX( float eulerX, float eulerY, float eulerZ );
-
-		/*@brief Get the matrix represented as a quaternion 
-		 @param q The quaternion which will be set */
-		void getRotation( out btQuaternion result );
-		/*@brief Get the matrix represented as euler angles around YXZ, roundtrip with setEulerYPR
-		 @param yaw Yaw around Y axis
-		 @param pitch Pitch around X axis
-		 @param roll around Z axis */
-		void getEulerYPR( out float yaw, out float pitch, out float roll );
-
-		/*@brief Get the matrix represented as euler angles around ZYX
-		 @param yaw Yaw around X axis
-		 @param pitch Pitch around Y axis
-		 @param roll around X axis 
-		 @param solution_number Which solution of two possible solutions ( 1 or 2) are possible values*/
-		void getEulerZYX( out float yaw, out float pitch, out float roll, int solution_number = 1 );
-
-		/*@brief Create a scaled copy of the matrix 
-		 @param s Scaling vector The elements of the vector will scale each column */
-
-		//btMatrix3x3 scaled( ref btVector3 s );
-		void scaled( ref btVector3 s, out btMatrix3x3 result );
-
-		/// Solve A * x = b, where b is a column vector. This is more efficient
-		/// than computing the inverse in one-shot cases.
-		///Solve33 is from Box2d, thanks to Erin Catto,
-		void solve33( ref btVector3 b, out btVector3 result );
-
-		void Mult( float k, out btMatrix3x3 result );
-
-		void Mult( ref btVector3 v, out btVector3 result );
-
-		void Mult( ref btMatrix3x3 m2, out btMatrix3x3 result );
-
-		void Add( ref btMatrix3x3 m2, out btMatrix3x3 result );
-
-		void Sub( ref btMatrix3x3 m2, out btMatrix3x3 result );
-
-		float determinant();
-		void absolute( out btMatrix3x3 m );
-
-		// btMatrix3x3 absolute();
-		// btMatrix3x3 transpose()
-		void transpose( out btMatrix3x3 result );
-		btMatrix3x3 adjoint();
-		void adjoint( out btMatrix3x3 result );
-
-		//btMatrix3x3 inverse();
-
-		void inverse( out btMatrix3x3 result );
-
-		void transposeTimes( ref btMatrix3x3 m, out btMatrix3x3 result );
-
-		void timesTranspose( ref btMatrix3x3 m, out btMatrix3x3 result );
-
-		void Apply( ref btVector3 v, out btVector3 result );
-		void ApplyInverse( ref btVector3 v, out btVector3 result );
-
-		/*
-				public static btVector3 operator *( ref btVector3 v, ref btMatrix3x3 m )
-				{
-					return new btVector3( m.tdotx( ref v ), m.tdoty( ref v ), m.tdotz( ref v ) );
-				}
-				*/
-
-		void Apply( ref btMatrix3x3 m2, out btMatrix3x3 result );
-
-		float tdotx( ref btVector3 v );
-        float tdoty( ref btVector3 v );
-        float tdotz( ref btVector3 v );
-		/*
-		public btMatrix3x3 btMultTransposeLeft(btMatrix3x3 m1, btMatrix3x3 m2) {
-		return btMatrix3x3(
-		m1[0,0] * m2[0,0] + m1[1,0] * m2[1,0] + m1[2,0] * m2[2,0],
-		m1[0,0] * m2[0,1] + m1[1,0] * m2[1,1] + m1[2,0] * m2[2,1],
-		m1[0,0] * m2[0,2] + m1[1,0] * m2[1,2] + m1[2,0] * m2[2,2],
-		m1[0,1] * m2[0,0] + m1[1,1] * m2[1,0] + m1[2,1] * m2[2,0],
-		m1[0,1] * m2[0,1] + m1[1,1] * m2[1,1] + m1[2,1] * m2[2,1],
-		m1[0,1] * m2[0,2] + m1[1,1] * m2[1,2] + m1[2,1] * m2[2,2],
-		m1[0,2] * m2[0,0] + m1[1,2] * m2[1,0] + m1[2,2] * m2[2,0],
-		m1[0,2] * m2[0,1] + m1[1,2] * m2[1,1] + m1[2,2] * m2[2,1],
-		m1[0,2] * m2[0,2] + m1[1,2] * m2[1,2] + m1[2,2] * m2[2,2]);
-		}
-		*/
-
-		/*@brief Equality operator between two matrices
-		 It will test all elements are equal. * */
-		bool Equals( ref btMatrix3x3 m1 );
-
-	}
-
-	public struct btMatrix3x3 : btIMatrix3x3
+	public struct btMatrix3x3 
 	{
 		/*
 		#if BT_USE_DOUBLE_PRECISION
@@ -371,23 +246,6 @@ namespace Voxelarium.LinearMath
 			return;
 		}
 
-		/* @brief Get a row of the matrix as a vector 
-		 * @param i Row number 0 indexed */
-		public btIVector3 getRow( int i )
-		{
-			switch( i )
-			{
-				default:
-#if PARANOID_ASSERTS
-					Debug.Assert( i > 3 || i < 0 );
-#endif
-				case 0: return m_el0;
-				case 1: return m_el1;
-				case 2: return m_el2;
-				case 3: return m_el3;
-			}
-		}
-
 		public void getRow( int i, out btVector3 result )
 		{
 			switch( i )
@@ -403,15 +261,6 @@ namespace Voxelarium.LinearMath
 			}
 		}
 
-		/* @brief Get a reference to a row of the matrix as a vector 
-		 * @param i Row number 0 indexed */
-		public btIVector3 this[int i]
-		{
-			get
-			{
-				return getRow( i );
-			}
-		}
 		public float this[int i, int j]
 		{
 			set
@@ -876,94 +725,6 @@ namespace Voxelarium.LinearMath
 		}
 
 
-		/*@brief diagonalizes this matrix by the Jacobi method.
-		 @param rot stores the rotation from the coordinate system in which the matrix is diagonal to the original
-		 coordinate system, i.e., old_this = rot * new_this * rot^T. 
-		 @param threshold See iteration
-		 @param iteration The iteration stops when all off-diagonal elements are less than the threshold multiplied 
-		 by the sum of the absolute values of the diagonal, or when maxSteps have been executed. 
-		 
-		 Note that this matrix is assumed to be symmetric. 
-*/
-		public void diagonalize( out btMatrix3x3 rot, float threshold, int maxSteps )
-		{
-			rot = Identity;
-			for( int step = maxSteps; step > 0; step-- )
-			{
-				// find off-diagonal element [p,q] with largest magnitude
-				int p = 0;
-				int q = 1;
-				int r = 2;
-				float max = btScalar.btFabs( m_el0.y );
-				float v = btScalar.btFabs( m_el0.z );
-				if( v > max )
-				{
-					q = 2;
-					r = 1;
-					max = v;
-				}
-				v = btScalar.btFabs( m_el1.z );
-				if( v > max )
-				{
-					p = 1;
-					q = 2;
-					r = 0;
-					max = v;
-				}
-
-				float t = threshold * ( btScalar.btFabs( m_el0.x ) + btScalar.btFabs( m_el1.y ) + btScalar.btFabs( m_el2.z ) );
-				if( max <= t )
-				{
-					if( max <= btScalar.SIMD_EPSILON * t )
-					{
-						return;
-					}
-					step = 1;
-				}
-
-				// compute Jacobi rotation J which leads to a zero for element [p,q] 
-				float mpq = this[p, q];
-				float theta = ( this[q, q] - this[p, p] ) / ( 2 * mpq );
-				float theta2 = theta * theta;
-				float cos;
-				float sin;
-				if( theta2 * theta2 < 10 / btScalar.SIMD_EPSILON )
-				{
-					t = ( theta >= 0 ) ? 1 / ( theta + btScalar.btSqrt( 1 + theta2 ) )
-						: 1 / ( theta - btScalar.btSqrt( 1 + theta2 ) );
-					cos = 1 / btScalar.btSqrt( 1 + t * t );
-					sin = cos * t;
-				}
-				else
-				{
-					// approximation for large theta-value, i.e., a nearly diagonal matrix
-					t = 1 / ( theta * ( 2 + btScalar.BT_HALF / theta2 ) );
-					cos = 1 - btScalar.BT_HALF * t * t;
-					sin = cos * t;
-				}
-
-				// apply rotation to matrix (this = J^T * this * J)
-				this[p, q] = this[q, p] = 0;
-				this[p, p] -= t * mpq;
-				this[q, q] += t * mpq;
-				float mrp = this[r, p];
-				float mrq = this[r, q];
-				this[r, p] = this[p, r] = cos * mrp - sin * mrq;
-				this[r, q] = this[q, r] = cos * mrq + sin * mrp;
-
-				// apply rotation to rot (rot = rot * J)
-				for( int i = 0; i < 3; i++ )
-				{
-					btIVector3 row = rot[i];
-					mrp = row[p];
-					mrq = row[q];
-					row[p] = cos * mrp - sin * mrq;
-					row[q] = cos * mrq + sin * mrp;
-				}
-			}
-		}
-
-
 
 
 		/*@brief Calculate the matrix cofactor 
@@ -1336,28 +1097,6 @@ namespace Voxelarium.LinearMath
 			result.m_el3.w = 1;
 		}
 
-		public void Apply( btIMatrix3x3 m2, out btMatrix3x3 result )
-		{
-			result.m_el0.x = m2.tdotx( ref m_el0 );
-			result.m_el0.y = m2.tdoty( ref m_el0 );
-			result.m_el0.z = m2.tdotz( ref m_el0 );
-			result.m_el0.w = 0;
-
-			result.m_el1.x = m2.tdotx( ref m_el1 );
-			result.m_el1.y = m2.tdoty( ref m_el1 );
-			result.m_el1.z = m2.tdotz( ref m_el1 );
-			result.m_el1.w = 0;
-
-			result.m_el2.x = m2.tdotx( ref m_el2 );
-			result.m_el2.y = m2.tdoty( ref m_el2 );
-			result.m_el2.z = m2.tdotz( ref m_el2 );
-			result.m_el2.w = 0;
-
-			result.m_el3.x = 0;
-			result.m_el3.y = 0;
-			result.m_el3.z = 0;
-			result.m_el3.w = 1;
-		}
 
 		/*
 		public btMatrix3x3 btMultTransposeLeft(btMatrix3x3 m1, btMatrix3x3 m2) {

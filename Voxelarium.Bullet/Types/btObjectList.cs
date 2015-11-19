@@ -25,6 +25,7 @@ using System.Collections.Generic;
 
 namespace Bullet.Types
 {
+#if btObjectListNeeded
 	// Implements a variable-size List that uses an array of objects to store the
 	// elements. A List has a capacity, which is the allocated length
 	// of the internal array. As elements are added to a List, the capacity
@@ -1235,5 +1236,6 @@ namespace Bullet.Types
 
 		}
 	}
+#endif
 }
 

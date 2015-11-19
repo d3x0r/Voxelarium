@@ -13,6 +13,8 @@ namespace Bullet.UnitTests
 	{
 		int step;
 		bool sloped;
+		bool box;
+		bool timing_only;
 
 		btDiscreteDynamicsWorld world;
 		btRigidBody fallingRigidBody;
@@ -61,8 +63,11 @@ namespace Bullet.UnitTests
 
 			//-------------------------------------------------------
 
-			//btCollisionShape fallShape2 = new btSphereShape( btScalar.BT_ONE );
-			btCollisionShape fallShape2 = new btBoxShape( ref btVector3.One );
+			btCollisionShape fallShape2;
+			if( !box )
+				fallShape2 = new btSphereShape( btScalar.BT_ONE );
+			else
+				fallShape2 = new btBoxShape( ref btVector3.One );
 
 			origin = new btVector3( sloped ? -34 : 0.25, 1, 0.25 );
 			init = new btTransform( ref btQuaternion.Identity, ref origin );
@@ -90,37 +95,42 @@ namespace Bullet.UnitTests
 					int a = 3;
 				}
 				world.stepSimulation( 1 / 60.0f, 10 );
-				if( Program.Display != null )
-					world.debugDrawWorld();
+				if( !timing_only )
+				{
+					if( Program.Display != null )
+						world.debugDrawWorld();
 
-				btTransform trans;
-				fallingRigidBody.getMotionState().getWorldTransform( out trans );
-				btTransform trans2;
-				fallingRigidBody2.getMotionState().getWorldTransform( out trans2 );
+					btTransform trans;
+					fallingRigidBody.getMotionState().getWorldTransform( out trans );
+					btTransform trans2;
+					fallingRigidBody2.getMotionState().getWorldTransform( out trans2 );
 
-				Console.WriteLine( "Iteration {0}", step );
+					Console.WriteLine( "Iteration {0}", step );
 
-				Console.WriteLine( "{0}", trans.ToString( "ball orient\t", "\t\t", "ball origin\t" ) );
-				btVector3 v = fallingRigidBody.getAngularVelocity();
-				Console.WriteLine( "ball Ang Vel : {0}", v );
-				v = fallingRigidBody.getLinearVelocity();
-				Console.WriteLine( "ball Lin Vel : {0}", v );
+					Console.WriteLine( "{0}", trans.ToString( "ball orient\t", "\t\t", "ball origin\t" ) );
+					btVector3 v = fallingRigidBody.getAngularVelocity();
+					Console.WriteLine( "ball Ang Vel : {0}", v );
+					v = fallingRigidBody.getLinearVelocity();
+					Console.WriteLine( "ball Lin Vel : {0}", v );
 
-				Console.WriteLine( "{0}", trans2.ToString( "ball2 orient\t", "\t\t", "ball2 origin\t" ) );
-				v = fallingRigidBody2.getAngularVelocity();
-				Console.WriteLine( "ball2 Ang Vel : {0}", v );
-				v = fallingRigidBody2.getLinearVelocity();
-				Console.WriteLine( "ball2 Lin Vel : {0}", v );
+					Console.WriteLine( "{0}", trans2.ToString( "ball2 orient\t", "\t\t", "ball2 origin\t" ) );
+					v = fallingRigidBody2.getAngularVelocity();
+					Console.WriteLine( "ball2 Ang Vel : {0}", v );
+					v = fallingRigidBody2.getLinearVelocity();
+					Console.WriteLine( "ball2 Lin Vel : {0}", v );
+				}
 			}
 			step++;
 			//  world = new DiscreteDynamicsWorld( null, null, null, null );
 		}
 
 
-		static public void Run( bool sloped )
+		static public void Run( bool timing_only, bool sloped, bool box = false )
 		{
 			Test_004 test = new Test_004();
+			test.timing_only = timing_only;
 			test.sloped = sloped;
+			test.box = box;
 			test.Setup();
 			if( Program.Display != null )
 			{

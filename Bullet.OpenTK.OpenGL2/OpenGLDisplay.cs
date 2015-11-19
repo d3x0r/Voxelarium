@@ -7,6 +7,11 @@ using System;
 
 namespace Bullet.Debug.OpenGL2
 {
+	public interface ITest
+	{
+		void Reset();
+	}
+
 	public class OpenGLDisplay : OpenTK.GameWindow
 	{
 		public delegate void DoTick();
@@ -15,6 +20,7 @@ namespace Bullet.Debug.OpenGL2
 		BulletDebugDrawer drawer;
 
 		internal Matrix4 projection;
+		public ITest Test;
 		btTransform free_camera = btTransform.Identity;
 		float[] m = new float[16];
 		bool HiddenMouse;
@@ -146,6 +152,10 @@ namespace Bullet.Debug.OpenGL2
 			if( Keyboard[Key.E] )
 			{
 				free_camera.RotateRoll( 2f * (float)time );
+			}
+			if( Keyboard[Key.R] )
+			{
+				Test.Reset();
 			}
 		}
 

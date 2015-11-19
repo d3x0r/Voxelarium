@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading;
 using Voxelarium.Core.Support;
 using Voxelarium.Core.Voxels.Types;
+using Voxelarium.LinearMath;
 
 namespace Voxelarium.Core.Voxels
 {
@@ -43,18 +44,18 @@ namespace Voxelarium.Core.Voxels
 		internal void SetGameEnv( VoxelGameEnvironment GameEnv ) { this.GameEnv = GameEnv; }
 		internal void SetSectorEjectDistance( float SectorEjectDistance ) { this.SectorEjectDistance = SectorEjectDistance; }
 
-		internal void SetPlayerPosition( float x, float y, float z )
+		internal void SetPlayerPosition( ref btVector3 v )
 		{
 			{
-				Player_Position.x = x;
-				Player_Position.y = y;
-				Player_Position.z = z;
-				Player_Sector.x = (int)( x / ( VoxelGlobalSettings.WorldVoxelBlockSize * 16.0 ) );
-				Player_Sector.y = (int)( y / ( VoxelGlobalSettings.WorldVoxelBlockSize * 64.0 ) );
-				Player_Sector.z = (int)( z / ( VoxelGlobalSettings.WorldVoxelBlockSize * 16.0 ) );
-				Player_Voxel.x = (int)( x / VoxelGlobalSettings.WorldVoxelBlockSize );
-				Player_Voxel.y = (int)( y / VoxelGlobalSettings.WorldVoxelBlockSize );
-				Player_Voxel.z = (int)( z / VoxelGlobalSettings.WorldVoxelBlockSize );
+				Player_Position.x = v.x;
+				Player_Position.y = v.y;
+				Player_Position.z = v.z;
+				Player_Sector.x = (int)( v.x / ( VoxelGlobalSettings.WorldVoxelBlockSize * VoxelSector.ZVOXELBLOCSIZE_X ) );
+				Player_Sector.y = (int)( v.y / ( VoxelGlobalSettings.WorldVoxelBlockSize * VoxelSector.ZVOXELBLOCSIZE_Y ) );
+				Player_Sector.z = (int)( v.z / ( VoxelGlobalSettings.WorldVoxelBlockSize * VoxelSector.ZVOXELBLOCSIZE_Z ) );
+				Player_Voxel.x = (int)( v.x / VoxelGlobalSettings.WorldVoxelBlockSize );
+				Player_Voxel.y = (int)( v.y / VoxelGlobalSettings.WorldVoxelBlockSize );
+				Player_Voxel.z = (int)( v.z / VoxelGlobalSettings.WorldVoxelBlockSize );
 			}
 		}
 
@@ -129,8 +130,6 @@ namespace Voxelarium.Core.Voxels
 
 		internal void MakeSectorTasks( VoxelSector Sector )
 		{
-
-
 			// Sector Unloading.
 			//
 			// Compute distance of the sector from the player position sector.

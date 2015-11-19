@@ -153,7 +153,7 @@ namespace Bullet.Collision.Dispatch
 			btPersistentManifold manifold = BulletGlobals.PersistentManifoldPool.Get();
 			manifold.Initialize( body0, body1, 0, contactBreakingThreshold, contactProcessingThreshold );
 			manifold.m_index1a = m_manifoldsPtr.Count;
-			btScalar.Dbg( "add a manifold (getNewManifold)" );
+			btScalar.Dbg( DbgFlag.Manifolds, "add a manifold (getNewManifold)" );
 			m_manifoldsPtr.Add( manifold );
 
 			return manifold;
@@ -274,9 +274,9 @@ namespace Bullet.Collision.Dispatch
 			if( dispatcher.needsCollision( colObj0, colObj1 ) )
 			{
 				btCollisionObjectWrapper obj0Wrap = BulletGlobals.CollisionObjectWrapperPool.Get();
-				obj0Wrap.Initialize( null, colObj0.getCollisionShape(), colObj0, ref colObj0.m_worldTransform, -1, -1 );
+				obj0Wrap.Initialize( null, colObj0.getCollisionShape(), colObj0, -1, -1 );
 				btCollisionObjectWrapper obj1Wrap = BulletGlobals.CollisionObjectWrapperPool.Get();
-				obj1Wrap.Initialize( null, colObj1.getCollisionShape(), colObj1, ref colObj1.m_worldTransform, -1, -1 );
+				obj1Wrap.Initialize( null, colObj1.getCollisionShape(), colObj1, -1, -1 );
 
 
 				//dispatcher will keep algorithms persistent in the collision pair
@@ -294,7 +294,11 @@ namespace Bullet.Collision.Dispatch
 					{
 						//discrete collision detection query
 
-						collisionPair.m_algorithm.processCollision( obj0Wrap, obj1Wrap, dispatchInfo, contactPointResult );
+						collisionPair.m_algorithm.processCollision( obj0Wrap
+							, ref obj0Wrap.m_collisionObject.m_worldTransform
+							, obj1Wrap
+							, ref obj1Wrap.m_collisionObject.m_worldTransform
+							, dispatchInfo, contactPointResult );
 					}
 					else
 					{

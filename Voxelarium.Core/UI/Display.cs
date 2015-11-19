@@ -86,7 +86,7 @@ namespace Voxelarium.Core.UI
 			// generic fly camera not attached to any object
 			free_camera = new Camera();
 			active_camera = free_camera; // default to freecam;
-			free_camera.MoveTo( 0, 32, 3948 );
+			free_camera.MoveTo( 0, 32, 0 );
 			debug_cube_transform = btTransform.Identity;
 
 			shaders.Add( new SimpleShader() );
@@ -334,7 +334,9 @@ namespace Voxelarium.Core.UI
 			{
 				initialized = true;
 			}
-		}
+			if( game.VoxelProcessor != null )
+				game.VoxelProcessor.SetPlayerPosition( ref free_camera.location.m_origin );
+        }
 
 		void InitGame( object o )
 		{

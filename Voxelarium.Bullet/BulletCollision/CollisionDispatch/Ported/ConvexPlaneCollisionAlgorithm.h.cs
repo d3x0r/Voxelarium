@@ -99,7 +99,10 @@ namespace Bullet.Collision.Dispatch
 		}
 
 		void collideSingleContact( bool usePertube, ref btQuaternion perturbeRot
-			, btCollisionObjectWrapper convexObjWrap, btCollisionObjectWrapper planeObjWrap
+			, btCollisionObjectWrapper convexObjWrap
+			, ref btTransform convexTransform
+			, btCollisionObjectWrapper planeObjWrap
+			, ref btTransform planeTransform
 			, btDispatcherInfo dispatchInfo, btManifoldResult resultOut
 			, ref btVector3 planeNormal, double planeConstant
 			)
@@ -114,10 +117,10 @@ namespace Bullet.Collision.Dispatch
 			//planeNormal = planeShape.getPlaneNormal().Copy( out planeNormal );
 			//double planeConstant = planeShape.getPlaneConstant();
 
-			btTransform convexWorldTransform; convexObjWrap.getWorldTransform( out convexWorldTransform );
+			btTransform convexWorldTransform = convexTransform;
 			//btTransform planeWorldTransform = planeObjWrap.m_worldTransform;
 			btTransform convexInPlaneTrans;
-			planeObjWrap.m_worldTransform.inverseTimes( ref convexWorldTransform, out convexInPlaneTrans );
+			planeTransform.inverseTimes( ref convexWorldTransform, out convexInPlaneTrans );
 
 			if( usePertube )
 			{
@@ -129,7 +132,7 @@ namespace Bullet.Collision.Dispatch
 			}
 
 			btTransform planeInConvex;
-			convexObjWrap.m_worldTransform.inverseTimes( ref planeObjWrap.m_worldTransform, out planeInConvex );
+			convexTransform.inverseTimes( ref planeObjWrap.m_collisionObject.m_worldTransform, out planeInConvex );
 
 			btVector3 tmp, tmp2;
 			planeNormal.Invert( out tmp );
@@ -140,21 +143,25 @@ namespace Bullet.Collision.Dispatch
 			double distance = ( planeNormal.dot( ref vtxInPlane ) - planeConstant );
 
 			btVector3 vtxInPlaneProjected; vtxInPlane.AddScale( ref planeNormal, -distance, out vtxInPlaneProjected );
-			btVector3 vtxInPlaneWorld; planeObjWrap.m_worldTransform.Apply( ref vtxInPlaneProjected, out vtxInPlaneWorld );
+			btVector3 vtxInPlaneWorld; planeTransform.Apply( ref vtxInPlaneProjected, out vtxInPlaneWorld );
 
 			hasCollision = distance < m_manifoldPtr.getContactBreakingThreshold();
 			resultOut.setPersistentManifold( m_manifoldPtr );
 			if( hasCollision )
 			{
 				/// report a contact. internally this will be kept persistent, and contact reduction is done
-				btVector3 normalOnSurfaceB; planeObjWrap.m_worldTransform.m_basis.Apply( ref planeNormal, out normalOnSurfaceB );
+				btVector3 normalOnSurfaceB; planeTransform.m_basis.Apply( ref planeNormal, out normalOnSurfaceB );
 				btScalar.Dbg( "Convex plane adds point " + normalOnSurfaceB + " " + vtxInPlaneWorld + " " + distance.ToString( "g17" ) );
 				resultOut.addContactPoint( ref normalOnSurfaceB, ref vtxInPlaneWorld, distance );
 			}
 		}
 
 
-		internal override void processCollision( btCollisionObjectWrapper body0Wrap, btCollisionObjectWrapper body1Wrap, btDispatcherInfo dispatchInfo, btManifoldResult resultOut )
+		internal override void processCollision( btCollisionObjectWrapper body0Wrap
+			, ref btTransform body0Transform
+			, btCollisionObjectWrapper body1Wrap
+			, ref btTransform body1Transform
+			, btDispatcherInfo dispatchInfo, btManifoldResult resultOut )
 		{
 			//(void)dispatchInfo;
 			if( m_manifoldPtr == null )
@@ -167,7 +174,19 @@ namespace Bullet.Collision.Dispatch
 			//btVector3 planeNormal;
 			//planeShape.getPlaneNormal().Copy( out planeNormal );
 			double planeConstant = planeShape.getPlaneConstant();
-			collideSingleContact( false, ref btQuaternion.Identity, convexObjWrap, planeObjWrap, dispatchInfo, resultOut
+			if( m_swapped )
+				collideSingleContact( false, ref btQuaternion.Identity, convexObjWrap
+					, ref body1Transform
+					, planeObjWrap
+					, ref body0Transform
+					, dispatchInfo, resultOut
+							, ref planeShape.m_planeNormal, planeConstant );
+			else
+				collideSingleContact( false, ref btQuaternion.Identity, convexObjWrap
+					, ref body0Transform
+					, planeObjWrap
+					, ref body1Transform
+					, dispatchInfo, resultOut
 							, ref planeShape.m_planeNormal, planeConstant );
 			/*
 						btCollisionObjectWrapper convexObjWrap = m_swapped ? body1Wrap : body0Wrap;
@@ -232,7 +251,16 @@ namespace Bullet.Collision.Dispatch
 					btQuaternion tmpq, tmpq2;
 					rotqInv.Mult( ref perturbeRot, out tmpq );
 					tmpq.Mult( ref rotq, out tmpq2 );
-					collideSingleContact( true, ref tmpq2, convexObjWrap, planeObjWrap, dispatchInfo
+					if( m_swapped )
+						collideSingleContact( true, ref tmpq2
+							, convexObjWrap, ref body1Transform
+							, planeObjWrap, ref body0Transform
+							, dispatchInfo
+										, resultOut, ref planeShape.m_planeNormal, planeConstant );
+					else
+						collideSingleContact( true, ref tmpq2
+							, convexObjWrap, ref body0Transform
+							, planeObjWrap, ref body1Transform, dispatchInfo
 									, resultOut, ref planeShape.m_planeNormal, planeConstant );
 				}
 			}

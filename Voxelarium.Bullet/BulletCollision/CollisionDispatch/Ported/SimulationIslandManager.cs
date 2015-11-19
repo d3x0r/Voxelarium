@@ -368,7 +368,7 @@ public void void   btSimulationIslandManager::storeIslandActivationState(btColli
 						//filtering for response
 						if( dispatcher.needsResponse( colObj0, colObj1 ) )
 						{
-							btScalar.Dbg( "Add a manifold" );
+							btScalar.Dbg( DbgFlag.Manifolds, "Add a manifold" );
 							m_islandmanifold.Add( manifold );
 						}
 					}

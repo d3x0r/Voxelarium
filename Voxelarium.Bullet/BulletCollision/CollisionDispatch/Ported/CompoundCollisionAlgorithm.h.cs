@@ -25,10 +25,10 @@ using System;
 namespace Bullet.Collision.Dispatch
 {
 
-	delegate bool btShapePairCallback( btCollisionShape pShape0, btCollisionShape pShape1 );
+	public delegate bool btShapePairCallback( btCollisionShape pShape0, btCollisionShape pShape1 );
 
 	/// btCompoundCollisionAlgorithm  supports collision between CompoundCollisionShapes and other collision shapes
-	internal class btCompoundCollisionAlgorithm : btActivatingCollisionAlgorithm
+	public class btCompoundCollisionAlgorithm : btActivatingCollisionAlgorithm
 	{
 		public static btShapePairCallback gCompoundChildShapePairCallback = null;
 
@@ -115,7 +115,7 @@ namespace Bullet.Collision.Dispatch
 			int numChildren = compoundShape.getNumChildShapes();
 			int i;
 
-			m_childCollisionAlgorithms.Capacity = ( numChildren );
+			m_childCollisionAlgorithms.Count = m_childCollisionAlgorithms.Capacity = ( numChildren );
 			for( i = 0; i < numChildren; i++ )
 			{
 				if( compoundShape.getDynamicAabbTree() != null )
@@ -128,7 +128,7 @@ namespace Bullet.Collision.Dispatch
 					btCollisionShape childShape = compoundShape.getChildShape( i );
 
 					btCollisionObjectWrapper childWrap = BulletGlobals.CollisionObjectWrapperPool.Get();
-					childWrap.Initialize( colObjWrap, childShape, colObjWrap.m_collisionObject, ref colObjWrap.m_worldTransform, -1, i );//wrong child trans, but unused (hopefully)
+					childWrap.Initialize( colObjWrap, childShape, colObjWrap.m_collisionObject, -1, i );//wrong child trans, but unused (hopefully)
 					m_childCollisionAlgorithms[i] = m_dispatcher.findAlgorithm( childWrap, otherObjWrap, m_sharedManifold );
 				}
 			}
@@ -179,7 +179,6 @@ namespace Bullet.Collision.Dispatch
 				m_resultOut = ( resultOut );
 				m_childCollisionAlgorithms = ( childCollisionAlgorithms );
 				m_sharedManifold = ( sharedManifold );
-
 			}
 
 
@@ -194,13 +193,13 @@ namespace Bullet.Collision.Dispatch
 				//btTransform orgTrans = m_compoundColObjWrap.getWorldTransform();
 
 				//btTransform childTrans = compoundShape.getChildTransform( index );
-				btTransform newChildWorldTrans; m_compoundColObjWrap.m_worldTransform.Apply( ref compoundShape.m_children.InternalArray[index].m_transform
+				btTransform newChildWorldTrans; m_compoundColObjWrap.m_collisionObject.m_worldTransform.Apply( ref compoundShape.m_children.InternalArray[index].m_transform
 								, out newChildWorldTrans );
 
 				//perform an AABB check first
 				btVector3 aabbMin0, aabbMax0, aabbMin1, aabbMax1;
 				childShape.getAabb( ref newChildWorldTrans, out aabbMin0, out aabbMax0 );
-				m_otherObjWrap.getCollisionShape().getAabb( ref m_otherObjWrap.m_worldTransform
+				m_otherObjWrap.getCollisionShape().getAabb( ref m_otherObjWrap.m_collisionObject.m_worldTransform
 					, out aabbMin1, out aabbMax1 );
 
 				if( gCompoundChildShapePairCallback != null )
@@ -213,7 +212,7 @@ namespace Bullet.Collision.Dispatch
 				{
 
 					btCollisionObjectWrapper compoundWrap = BulletGlobals.CollisionObjectWrapperPool.Get();
-					compoundWrap.Initialize( this.m_compoundColObjWrap, childShape, m_compoundColObjWrap.m_collisionObject, ref newChildWorldTrans, -1, index);
+					compoundWrap.Initialize( this.m_compoundColObjWrap, childShape, m_compoundColObjWrap.m_collisionObject, -1, index);
 
 
 					//the contactpoint is still projected back using the original inverted worldtrans
@@ -238,7 +237,10 @@ namespace Bullet.Collision.Dispatch
 					}
 
 
-					m_childCollisionAlgorithms[index].processCollision( compoundWrap, m_otherObjWrap, m_dispatchInfo, m_resultOut );
+					m_childCollisionAlgorithms[index].processCollision( compoundWrap, ref newChildWorldTrans
+						, m_otherObjWrap
+						, ref m_otherObjWrap.m_collisionObject.m_worldTransform
+						, m_dispatchInfo, m_resultOut );
 
 #if false
 			if (m_dispatchInfo.m_debugDraw && (m_dispatchInfo.m_debugDraw.getDebugMode() & btIDebugDraw::DBG_DrawAabb))
@@ -287,7 +289,11 @@ namespace Bullet.Collision.Dispatch
 
 
 
-		internal override void processCollision( btCollisionObjectWrapper body0Wrap, btCollisionObjectWrapper body1Wrap, btDispatcherInfo dispatchInfo, btManifoldResult resultOut )
+		internal override void processCollision( btCollisionObjectWrapper body0Wrap
+			, ref btTransform body0Transform
+			, btCollisionObjectWrapper body1Wrap
+			, ref btTransform body1Transform
+			, btDispatcherInfo dispatchInfo, btManifoldResult resultOut )
 		{
 			btCollisionObjectWrapper colObjWrap = m_isSwapped ? body1Wrap : body0Wrap;
 			btCollisionObjectWrapper otherObjWrap = m_isSwapped ? body0Wrap : body1Wrap;
@@ -345,7 +351,10 @@ namespace Bullet.Collision.Dispatch
 				btVector3 localAabbMin, localAabbMax;
 				btTransform otherInCompoundSpace;
 
-				colObjWrap.m_worldTransform.inverseTimes(ref otherObjWrap.m_worldTransform, out otherInCompoundSpace);
+				if( m_isSwapped )
+					body1Transform.inverseTimes(ref body0Transform, out otherInCompoundSpace);
+				else
+					body0Transform.inverseTimes( ref body1Transform, out otherInCompoundSpace );
 				otherObjWrap.getCollisionShape().getAabb( ref otherInCompoundSpace, out localAabbMin, out localAabbMax );
 
 				 btDbvt.btDbvtVolume  bounds = btDbvt.btDbvtVolume.FromMM( ref localAabbMin, ref localAabbMax );
@@ -384,11 +393,14 @@ namespace Bullet.Collision.Dispatch
 						//orgTrans = colObjWrap.m_worldTransform;
 
 						//btTransform childTrans = compoundShape.getChildTransform( i );
-						colObjWrap.m_worldTransform.Apply( ref compoundShape.m_children.InternalArray[i].m_transform, out newChildWorldTrans );
+						( ( m_isSwapped ) ? body1Transform : body0Transform ).Apply( ref compoundShape.m_children.InternalArray[i].m_transform, out newChildWorldTrans );
 
 						//perform an AABB check first
 						childShape.getAabb( ref newChildWorldTrans, out aabbMin0, out aabbMax0 );
-						otherObjWrap.getCollisionShape().getAabb( ref otherObjWrap.m_worldTransform, out aabbMin1, out aabbMax1 );
+						if( m_isSwapped )
+							otherObjWrap.m_shape.getAabb( ref body0Transform, out aabbMin1, out aabbMax1 );
+						else
+							otherObjWrap.m_shape.getAabb( ref body1Transform, out aabbMin1, out aabbMax1 );
 
 						if( !btAabbUtil.TestAabbAgainstAabb2( ref aabbMin0, ref aabbMax0, ref aabbMin1, ref aabbMax1 ) )
 						{

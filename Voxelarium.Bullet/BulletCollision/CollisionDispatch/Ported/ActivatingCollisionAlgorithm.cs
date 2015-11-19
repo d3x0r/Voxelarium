@@ -19,7 +19,7 @@ namespace Bullet.Collision.Dispatch
 {
 
 	///This class is not enabled yet (work-in-progress) to more aggressively activate objects.
-	internal abstract class btActivatingCollisionAlgorithm : btCollisionAlgorithm
+	public abstract class btActivatingCollisionAlgorithm : btCollisionAlgorithm
 	{
 		//	btCollisionObject m_colObj0;
 		//	btCollisionObject m_colObj1;

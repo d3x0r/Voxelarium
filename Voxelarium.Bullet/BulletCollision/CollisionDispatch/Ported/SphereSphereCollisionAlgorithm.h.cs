@@ -42,10 +42,10 @@ namespace Bullet.Collision.Dispatch
 
 		internal class CreateFunc : btCollisionAlgorithmCreateFunc
 		{
-			internal override btCollisionAlgorithm CreateCollisionAlgorithm( btCollisionAlgorithmConstructionInfo ci, btCollisionObjectWrapper col0Wrap, btCollisionObjectWrapper col1Wrap )
+			internal override btCollisionAlgorithm CreateCollisionAlgorithm( btCollisionAlgorithmConstructionInfo ci, btCollisionObjectWrapper body0Wrap, btCollisionObjectWrapper body1Wrap )
 			{
 				btSphereSphereCollisionAlgorithm ca = BulletGlobals.SphereSphereCollisionAlgorithmPool.Get();
-				ca.Initialize( null, ci, col0Wrap, col1Wrap );
+				ca.Initialize( null, ci, body0Wrap, body1Wrap );
 				return ca;
 			}
 		};
@@ -77,7 +77,11 @@ namespace Bullet.Collision.Dispatch
 			}
 		}
 
-		internal override void processCollision( btCollisionObjectWrapper col0Wrap, btCollisionObjectWrapper col1Wrap, btDispatcherInfo dispatchInfo, btManifoldResult resultOut )
+		internal override void processCollision( btCollisionObjectWrapper body0Wrap
+			, ref btTransform body0Transform
+			, btCollisionObjectWrapper body1Wrap
+			, ref btTransform body1Transform
+			, btDispatcherInfo dispatchInfo, btManifoldResult resultOut )
 		{
 			//(void)dispatchInfo;
 
@@ -86,10 +90,10 @@ namespace Bullet.Collision.Dispatch
 
 			resultOut.setPersistentManifold( m_manifoldPtr );
 
-			btSphereShape sphere0 = (btSphereShape)col0Wrap.getCollisionShape();
-			btSphereShape sphere1 = (btSphereShape)col1Wrap.getCollisionShape();
+			btSphereShape sphere0 = (btSphereShape)body0Wrap.getCollisionShape();
+			btSphereShape sphere1 = (btSphereShape)body1Wrap.getCollisionShape();
 
-			btVector3 diff; col0Wrap.m_collisionObject.m_worldTransform.m_origin.Sub( ref col1Wrap.m_collisionObject.m_worldTransform.m_origin, out diff );
+			btVector3 diff; body0Wrap.m_collisionObject.m_worldTransform.m_origin.Sub( ref body1Wrap.m_collisionObject.m_worldTransform.m_origin, out diff );
 			double len = diff.length();
 			double radius0 = sphere0.getRadius();
 			double radius1 = sphere1.getRadius();
@@ -118,7 +122,7 @@ namespace Bullet.Collision.Dispatch
 			///point on A (worldspace)
 			///btVector3 pos0 = col0.getWorldTransform().getOrigin() - radius0 * normalOnSurfaceB;
 			///point on B (worldspace)
-			btVector3 pos1; col1Wrap.m_collisionObject.m_worldTransform.m_origin.AddScale( ref normalOnSurfaceB, radius1, out pos1 );
+			btVector3 pos1; body1Wrap.m_collisionObject.m_worldTransform.m_origin.AddScale( ref normalOnSurfaceB, radius1, out pos1 );
 
 			/// report a contact. internally this will be kept persistent, and contact reduction is done
 			resultOut.addContactPoint( ref normalOnSurfaceB, ref pos1, dist );

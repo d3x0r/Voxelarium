@@ -11,6 +11,7 @@ using Voxelarium.Core.Voxels;
 using Voxelarium.Core.Voxels.IO;
 using Voxelarium.Core.Voxels.Types;
 using Voxelarium.Core.Voxels.UI;
+using Voxelarium.LinearMath;
 
 namespace Voxelarium.Core
 {
@@ -22,6 +23,7 @@ namespace Voxelarium.Core
 
 		public VoxelGameEnvironment()
 		{
+			default_font = new FontRenderer( "msyh.ttf", 24, 24 );
 			percent_done = 1;
 			Initialized_SDL =
 			Initialized_GraphicMode =
@@ -113,6 +115,7 @@ namespace Voxelarium.Core
 		internal GraphicUserManager GuiManager;
 		internal EventManager EventManager = new EventManager();
 		internal TileSet.TileSetStyles TileSetStyles;
+		internal FontRenderer default_font;
 		internal RenderInterface Basic_Renderer;
 		internal Sound Sound;
 
@@ -769,7 +772,7 @@ namespace Voxelarium.Core
 			VoxelProcessor = new VoxelWorldProcessor();
 
 			VoxelProcessor.SetWorld( World );
-			VoxelProcessor.SetPlayerPosition( 0, 0, 0 );
+			VoxelProcessor.SetPlayerPosition( ref btVector3.Zero );
 			VoxelProcessor.SetSectorEjectDistance( EjectionDistance );
 			VoxelProcessor.SetGameEnv( this );
 			VoxelProcessor.Start();

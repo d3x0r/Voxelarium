@@ -104,7 +104,7 @@ namespace Bullet.Collision.BroadPhase
 			//btAlignedFree(m_free);
 			//m_free = 0;
 			m_lkhd = -1;
-			m_stkStack.Clear();
+			//m_stkStack.Clear();
 			m_opath = 0;
 		}
 
@@ -168,7 +168,10 @@ namespace Bullet.Collision.BroadPhase
 					int bit = 0;
 					while( node.IsInternal() )
 					{
-						node = Sort( node, m_root )._children[( m_opath >> bit ) & 1];
+						if( ( ( m_opath >> bit ) & 1 ) == 1 )
+							node = Sort( node, m_root )._children1;
+						else
+							node = Sort( node, m_root )._children0;
 						bit = ( bit + 1 ) & ( sizeof( UInt32 ) * 8 - 1 );
 					}
 					update( node );
@@ -302,12 +305,15 @@ namespace Bullet.Collision.BroadPhase
 			{
 				int i = IndexOf( n );
 				int j = 1 - i;
-				btDbvtNode s = p._children[j];
+				btDbvtNode s = (j==0)?p._children0:p._children1;
 				btDbvtNode q = p.parent;
-				Debug.Assert( n == p._children[i] );
+				Debug.Assert( n == ((i==0)?p._children0:p._children1) );
 				if( q != null )
 				{
-					q._children[IndexOf( p )] = n;
+					if( IndexOf( p ) == 1 )
+	                    q._children1 = n;
+					else
+						q._children0 = n;
 				}
 				else
 				{
@@ -316,12 +322,18 @@ namespace Bullet.Collision.BroadPhase
 				s.parent = n;
 				p.parent = n;
 				n.parent = q;
-				p._children[0] = n._children[0];
-				p._children[1] = n._children[1];
-				n._children[0].parent = p;
-				n._children[1].parent = p;
-				n._children[i] = p;
-				n._children[j] = s;
+				p._children0 = n._children0;
+				p._children1 = n._children1;
+				n._children0.parent = p;
+				n._children1.parent = p;
+				if( i == 0 )
+					n._children0 = p;
+				else
+					n._children1 = p;
+				if( j == 0 )
+					n._children0 = s;
+				else
+					n._children1 = s;
 
 				// swap id's? as well - probably not.
 
@@ -348,8 +360,8 @@ namespace Bullet.Collision.BroadPhase
 		{
 			if( root.IsInternal() && depth != 0 )
 			{
-				FetchLeafs( pdbvt, root._children[0], leafs, depth - 1 );
-				FetchLeafs( pdbvt, root._children[1], leafs, depth - 1 );
+				FetchLeafs( pdbvt, root._children0, leafs, depth - 1 );
+				FetchLeafs( pdbvt, root._children1, leafs, depth - 1 );
 				DeleteNode( pdbvt, root );
 			}
 			else
@@ -383,8 +395,8 @@ namespace Bullet.Collision.BroadPhase
 		{
 			if( node.IsInternal() )
 			{
-				GetMaxDepth( node._children[0], depth + 1, ref maxDepth );
-				GetMaxDepth( node._children[1], depth + 1, ref maxDepth );
+				GetMaxDepth( node._children0, depth + 1, ref maxDepth );
+				GetMaxDepth( node._children1, depth + 1, ref maxDepth );
 			}
 			else
 			{
@@ -399,8 +411,8 @@ namespace Bullet.Collision.BroadPhase
 			collideable.Process( root );
 			if( root.IsInternal() )
 			{
-				EnumNodes( root._children[0], collideable );
-				EnumNodes( root._children[1], collideable );
+				EnumNodes( root._children0, collideable );
+				EnumNodes( root._children1, collideable );
 			}
 		}
 
@@ -410,8 +422,8 @@ namespace Bullet.Collision.BroadPhase
 		{
 			if( root.IsInternal() )
 			{
-				EnumLeaves( root._children[0], collideable );
-				EnumLeaves( root._children[1], collideable );
+				EnumLeaves( root._children0, collideable );
+				EnumLeaves( root._children1, collideable );
 			}
 			else
 			{
@@ -432,7 +444,7 @@ namespace Bullet.Collision.BroadPhase
 			{
 				int depth = 1;
 				int treshold = DOUBLE_STACKSIZE - 4;
-				CollideTTStack[0] = new sStkNN( root0, root1 );
+				CollideTTStack[0].Initialize( root0, root1 );
 
 				do
 				{
@@ -448,9 +460,9 @@ namespace Bullet.Collision.BroadPhase
 					{
 						if( p.a.IsInternal() )
 						{
-							CollideTTStack[depth++] = new sStkNN( p.a._children[0], p.a._children[0] );
-							CollideTTStack[depth++] = new sStkNN( p.a._children[1], p.a._children[1] );
-							CollideTTStack[depth++] = new sStkNN( p.a._children[0], p.a._children[1] );
+							CollideTTStack[depth++].Initialize( p.a._children0, p.a._children0 );
+							CollideTTStack[depth++].Initialize( p.a._children1, p.a._children1 );
+							CollideTTStack[depth++].Initialize( p.a._children0, p.a._children1 );
 						}
 					}
 					else if( btDbvtVolume.Intersect( ref p.a.volume, ref p.b.volume ) )
@@ -459,23 +471,23 @@ namespace Bullet.Collision.BroadPhase
 						{
 							if( p.b.IsInternal() )
 							{
-								CollideTTStack[depth++] = new sStkNN( p.a._children[0], p.b._children[0] );
-								CollideTTStack[depth++] = new sStkNN( p.a._children[1], p.b._children[0] );
-								CollideTTStack[depth++] = new sStkNN( p.a._children[0], p.b._children[1] );
-								CollideTTStack[depth++] = new sStkNN( p.a._children[1], p.b._children[1] );
+								CollideTTStack[depth++].Initialize( p.a._children0, p.b._children0 );
+								CollideTTStack[depth++].Initialize( p.a._children1, p.b._children0 );
+								CollideTTStack[depth++].Initialize( p.a._children0, p.b._children1 );
+								CollideTTStack[depth++].Initialize( p.a._children1, p.b._children1 );
 							}
 							else
 							{
-								CollideTTStack[depth++] = new sStkNN( p.a._children[0], p.b );
-								CollideTTStack[depth++] = new sStkNN( p.a._children[1], p.b );
+								CollideTTStack[depth++].Initialize( p.a._children0, p.b );
+								CollideTTStack[depth++].Initialize( p.a._children1, p.b );
 							}
 						}
 						else
 						{
 							if( p.b.IsInternal() )
 							{
-								CollideTTStack[depth++] = new sStkNN( p.a, p.b._children[0] );
-								CollideTTStack[depth++] = new sStkNN( p.a, p.b._children[1] );
+								CollideTTStack[depth++].Initialize( p.a, p.b._children0 );
+								CollideTTStack[depth++].Initialize( p.a, p.b._children1 );
 							}
 							else
 							{
@@ -489,7 +501,7 @@ namespace Bullet.Collision.BroadPhase
 		}
 
 
-		static btList<sStkNN> m_stkStack = new btList<sStkNN>();
+		static sStkNN[] m_stkStack = new sStkNN[DOUBLE_STACKSIZE];
 
 		public static void CollideTTpersistentStack( btDbvtNode root0,
 								  btDbvtNode root1,
@@ -500,25 +512,28 @@ namespace Bullet.Collision.BroadPhase
 			if( root0 != null && root1 != null )
 			{
 				int depth = 1;
-				int treshold = DOUBLE_STACKSIZE - 4;
+				int treshold = m_stkStack.Length - 4;
 
-				m_stkStack.Capacity = DOUBLE_STACKSIZE;
-				m_stkStack[0] = new sStkNN( root0, root1 );
+				//m_stkStack.Capacity = DOUBLE_STACKSIZE;
+				m_stkStack[0].Initialize( root0, root1 );
 				do
 				{
 					sStkNN p = m_stkStack[--depth];
 					if( depth > treshold )
 					{
-						m_stkStack.Count = ( m_stkStack.Count * 2 );
-						treshold = m_stkStack.Count - 4;
+						sStkNN[] newArray = new sStkNN[m_stkStack.Length * 2];
+						for( int n = 0; n < depth; n++ )
+							newArray[n] = m_stkStack[n];
+						m_stkStack = newArray;
+						treshold = newArray.Length - 4;
 					}
 					if( p.a == p.b )
 					{
 						if( p.a.IsInternal() )
 						{
-							m_stkStack[depth++] = new sStkNN( p.a._children[0], p.a._children[0] );
-							m_stkStack[depth++] = new sStkNN( p.a._children[1], p.a._children[1] );
-							m_stkStack[depth++] = new sStkNN( p.a._children[0], p.a._children[1] );
+							m_stkStack[depth++].Initialize( p.a._children0, p.a._children0 );
+							m_stkStack[depth++].Initialize( p.a._children1, p.a._children1 );
+							m_stkStack[depth++].Initialize( p.a._children0, p.a._children1 );
 						}
 					}
 					else if( btDbvtVolume.Intersect( ref p.a.volume, ref p.b.volume ) )
@@ -527,23 +542,23 @@ namespace Bullet.Collision.BroadPhase
 						{
 							if( p.b.IsInternal() )
 							{
-								m_stkStack[depth++] = new sStkNN( p.a._children[0], p.b._children[0] );
-								m_stkStack[depth++] = new sStkNN( p.a._children[1], p.b._children[0] );
-								m_stkStack[depth++] = new sStkNN( p.a._children[0], p.b._children[1] );
-								m_stkStack[depth++] = new sStkNN( p.a._children[1], p.b._children[1] );
+								m_stkStack[depth++].Initialize( p.a._children0, p.b._children0 );
+								m_stkStack[depth++].Initialize( p.a._children1, p.b._children0 );
+								m_stkStack[depth++].Initialize( p.a._children0, p.b._children1 );
+								m_stkStack[depth++].Initialize( p.a._children1, p.b._children1 );
 							}
 							else
 							{
-								m_stkStack[depth++] = new sStkNN( p.a._children[0], p.b );
-								m_stkStack[depth++] = new sStkNN( p.a._children[1], p.b );
+								m_stkStack[depth++].Initialize( p.a._children0, p.b );
+								m_stkStack[depth++].Initialize( p.a._children1, p.b );
 							}
 						}
 						else
 						{
 							if( p.b.IsInternal() )
 							{
-								m_stkStack[depth++] = new sStkNN( p.a, p.b._children[0] );
-								m_stkStack[depth++] = new sStkNN( p.a, p.b._children[1] );
+								m_stkStack[depth++].Initialize( p.a, p.b._children0 );
+								m_stkStack[depth++].Initialize( p.a, p.b._children1 );
 							}
 							else
 							{
@@ -595,11 +610,14 @@ namespace Bullet.Collision.BroadPhase
 					{
 						btDbvtNode node = stackDataBlock.stack[--depth];
 
-						stackDataBlock.bounds[0] = node.volume._min;
-						stackDataBlock.bounds[1] = node.volume._max;
+						stackDataBlock.bounds0 = node.volume._min;
+						stackDataBlock.bounds1 = node.volume._max;
 
 						double tmin = 1.0f, lambda_min = 0.0f;
-						bool result1 = btAabbUtil.btRayAabb2( ref rayFrom, ref rayDirectionInverse, stackDataBlock.signs, stackDataBlock.bounds, out tmin, lambda_min, lambda_max );
+						bool result1 = btAabbUtil.btRayAabb2( ref rayFrom, ref rayDirectionInverse, stackDataBlock.signs
+							, ref stackDataBlock.bounds0
+							, ref stackDataBlock.bounds1
+							, out tmin, lambda_min, lambda_max );
 
 #if COMPARE_BTRAY_AABB2
 				double param=1.0f;
@@ -616,8 +634,8 @@ namespace Bullet.Collision.BroadPhase
 									stackDataBlock.stack.Count = ( stackDataBlock.stack.Count * 2 );
 									treshold = stackDataBlock.stack.Count - 2;
 								}
-								stackDataBlock.stack[depth++] = node._children[0];
-								stackDataBlock.stack[depth++] = node._children[1];
+								stackDataBlock.stack[depth++] = node._children0;
+								stackDataBlock.stack[depth++] = node._children1;
 							}
 							else
 							{
@@ -655,10 +673,13 @@ namespace Bullet.Collision.BroadPhase
 					do
 					{
 						btDbvtNode node = stackDataBlock.stack[--depth];
-						node.volume._min.Sub( ref aabbMax, out stackDataBlock.bounds[0] );
-						node.volume._max.Sub( ref aabbMin, out stackDataBlock.bounds[1] );
+						node.volume._min.Sub( ref aabbMax, out stackDataBlock.bounds0 );
+						node.volume._max.Sub( ref aabbMin, out stackDataBlock.bounds1 );
 						double tmin = 1.0f, lambda_min = 0.0f;
-						bool result1 = btAabbUtil.btRayAabb2( ref rayFrom, ref rayDirectionInverse, signs, stackDataBlock.bounds, out tmin, lambda_min, lambda_max );
+						bool result1 = btAabbUtil.btRayAabb2( ref rayFrom, ref rayDirectionInverse, signs
+							, ref stackDataBlock.bounds0
+							, ref stackDataBlock.bounds1
+							, out tmin, lambda_min, lambda_max );
 						if( result1 )
 						{
 							if( node.IsInternal() )
@@ -668,8 +689,8 @@ namespace Bullet.Collision.BroadPhase
 									stackDataBlock.stack.Count = ( stackDataBlock.stack.Count * 2 );
 									treshold = stackDataBlock.stack.Count - 2;
 								}
-								stackDataBlock.stack[depth++] = node._children[0];
-								stackDataBlock.stack[depth++] = node._children[1];
+								stackDataBlock.stack[depth++] = node._children0;
+								stackDataBlock.stack[depth++] = node._children1;
 							}
 							else
 							{
@@ -702,8 +723,8 @@ namespace Bullet.Collision.BroadPhase
 					{
 						if( n.IsInternal() )
 						{
-							CollideTVStack.Push( n._children[0] );
-							CollideTVStack.Push( n._children[1] );
+							CollideTVStack.Push( n._children0 );
+							CollideTVStack.Push( n._children1 );
 						}
 						else
 						{
@@ -732,7 +753,8 @@ namespace Bullet.Collision.BroadPhase
 			while( leaves.Count > 1 )
 			{
 				double minsize = double.MaxValue;
-				int[] minidx = { -1, -1 };
+				int minidx0 =  -1;
+				int minidx1 =  -1;
 				for( int i = 0; i < leaves.Count; ++i )
 				{
 					for( int j = i + 1; j < leaves.Count; ++j )
@@ -742,19 +764,20 @@ namespace Bullet.Collision.BroadPhase
 						if( sz < minsize )
 						{
 							minsize = sz;
-							minidx[0] = i;
-							minidx[1] = j;
+							minidx0 = i;
+							minidx1 = j;
 						}
 					}
 				}
-				btDbvtNode[] n = { leaves[minidx[0]], leaves[minidx[1]] };
-				btDbvtNode p = CreateNode( pdbvt, null, ref n[0].volume, ref n[1].volume, null );
-				p._children[0] = n[0];
-				p._children[1] = n[1];
-				n[0].parent = p;
-				n[1].parent = p;
-				leaves[minidx[0]] = p;
-				leaves.Swap( minidx[1], leaves.Count - 1 );
+				btDbvtNode n0 =  leaves[minidx0];
+				btDbvtNode n1 =  leaves[minidx1];
+				btDbvtNode p = CreateNode( pdbvt, null, ref n0.volume, ref n1.volume, null );
+				p._children0 = n0;
+				p._children1 = n1;
+				n0.parent = p;
+				n1.parent = p;
+				leaves[minidx0] = p;
+				leaves.Swap( minidx1, leaves.Count - 1 );
 				leaves.Count--;// PopBack();
 			}
 		}
@@ -772,7 +795,8 @@ namespace Bullet.Collision.BroadPhase
 				{
 					btDbvtVolume vol; Bounds( leaves, out vol );
 					btVector3 org = vol.Center();
-					btList<btDbvtNode>[] sets = { new btList<btDbvtNode>(), new btList<btDbvtNode>() };
+					btList<btDbvtNode> sets0 = new btList<btDbvtNode>();
+					btList<btDbvtNode> sets1 = new btList<btDbvtNode>();
 					int bestaxis = -1;
 					int bestmidp = leaves.Count;
 					int[] a1 = new int[] { 0, 0 };
@@ -803,24 +827,27 @@ namespace Bullet.Collision.BroadPhase
 					}
 					if( bestaxis >= 0 )
 					{
-						sets[0].Capacity = ( splitcount[bestaxis][0] );
-						sets[1].Capacity = ( splitcount[bestaxis][1] );
-						Split( leaves, sets[0], sets[1], ref org, ref axis[bestaxis] );
+						sets0.Capacity = ( splitcount[bestaxis][0] );
+						sets1.Capacity = ( splitcount[bestaxis][1] );
+						Split( leaves, sets0, sets1, ref org, ref axis[bestaxis] );
 					}
 					else
 					{
-						sets[0].Capacity = ( leaves.Count / 2 + 1 );
-						sets[1].Capacity = ( leaves.Count / 2 );
+						sets0.Capacity = ( leaves.Count / 2 + 1 );
+						sets1.Capacity = ( leaves.Count / 2 );
 						for( int i2 = 0, ni = leaves.Count; i2 < ni; ++i2 )
 						{
-							sets[i2 & 1].Add( leaves[i2] );
+							if( (i2 & 1)== 0 )
+								sets0.Add( leaves[i2] );
+							else
+								sets1.Add( leaves[i2] );
 						}
 					}
 					btDbvtNode node = CreateNode( pdbvt, null, ref vol, null );
-					node._children[0] = TopDown( pdbvt, sets[0], bu_treshold );
-					node._children[1] = TopDown( pdbvt, sets[1], bu_treshold );
-					node._children[0].parent = node;
-					node._children[1].parent = node;
+					node._children0 = TopDown( pdbvt, sets0, bu_treshold );
+					node._children1 = TopDown( pdbvt, sets1, bu_treshold );
+					node._children0.parent = node;
+					node._children1.parent = node;
 					return ( node );
 				}
 				else
@@ -838,8 +865,8 @@ namespace Bullet.Collision.BroadPhase
 			node.parent = parent;
 			node.data = null;
 			node.dataAsInt = data;
-			node._children[0] = null;
-			node._children[1] = null;
+			node._children0 = null;
+			node._children1 = null;
 			return ( node );
 		}
 
@@ -854,8 +881,8 @@ namespace Bullet.Collision.BroadPhase
 				//Debug.Assert(false);
 				node.dataAsInt = (int)node.data;
 			}
-			node._children[0] = null;
-			node._children[1] = null;
+			node._children0 = null;
+			node._children1 = null;
 			return ( node );
 		}
 
@@ -866,8 +893,8 @@ namespace Bullet.Collision.BroadPhase
 			node.volume = avolume;
 			node.parent = aparent;
 			node.data = adata;
-			node._children[0] = null;
-			node._children[1] = null;
+			node._children0 = null;
+			node._children1 = null;
 
 			if( node.data is int )
 			{
@@ -925,8 +952,8 @@ namespace Bullet.Collision.BroadPhase
 		{
 			if( !node.IsLeaf() )
 			{
-				RecurseDeleteNode( pdbvt, node._children[0] );
-				RecurseDeleteNode( pdbvt, node._children[1] );
+				RecurseDeleteNode( pdbvt, node._children0 );
+				RecurseDeleteNode( pdbvt, node._children1 );
 			}
 			if( node == pdbvt.m_root )
 			{
@@ -934,7 +961,6 @@ namespace Bullet.Collision.BroadPhase
 			}
 			DeleteNode( pdbvt, node );
 		}
-
 
 
 		public static void InsertLeaf( btDbvt pdbvt, btDbvtNode root, btDbvtNode leaf )
@@ -950,9 +976,12 @@ namespace Bullet.Collision.BroadPhase
 				{
 					do
 					{
-						root = root._children[btDbvtVolume.Select( ref leaf.volume,
-						ref root._children[0].volume,
-						ref root._children[1].volume )];
+						if( btDbvtVolume.Select( ref leaf.volume,
+												ref root._children0.volume,
+												ref root._children1.volume ) == 0 )
+							root = root._children0;
+						else
+							root = root._children1;
 
 					} while( !root.IsLeaf() );
 				}
@@ -962,16 +991,19 @@ namespace Bullet.Collision.BroadPhase
 				btDbvtNode node = CreateNode2( pdbvt, prev, ref mergeResults, null );
 				if( prev != null )
 				{
-					prev._children[IndexOf( root )] = node;
-					node._children[0] = root;
+					if( IndexOf( root ) == 0 )
+						prev._children0 = node;
+					else
+						prev._children1 = node;
+					node._children0 = root;
 					root.parent = node;
-					node._children[1] = leaf;
+					node._children1 = leaf;
 					leaf.parent = node;
 					do
 					{
 						if( !prev.volume.Contain( ref node.volume ) )
 						{
-							btDbvtVolume.Merge( ref prev._children[0].volume, ref prev._children[1].volume, out prev.volume );
+							btDbvtVolume.Merge( ref prev._children0.volume, ref prev._children1.volume, out prev.volume );
 						}
 						else
 						{
@@ -982,9 +1014,9 @@ namespace Bullet.Collision.BroadPhase
 				}
 				else
 				{
-					node._children[0] = root;
+					node._children0 = root;
 					root.parent = node;
-					node._children[1] = leaf;
+					node._children1 = leaf;
 					leaf.parent = node;
 					pdbvt.Root = node;
 				}
@@ -1004,16 +1036,19 @@ namespace Bullet.Collision.BroadPhase
 			{
 				btDbvtNode parent = leaf.parent;
 				btDbvtNode prev = parent.parent;
-				btDbvtNode sibling = parent._children[1 - IndexOf( leaf )];
+				btDbvtNode sibling = ((1-IndexOf(leaf))==0?parent._children0:parent._children1);
 				if( prev != null )
 				{
-					prev._children[IndexOf( parent )] = sibling;
+					if( IndexOf( parent ) == 0 )
+						prev._children0 = sibling;
+					else
+						prev._children1 = sibling;
 					sibling.parent = prev;
 					DeleteNode( pdbvt, parent );
 					while( prev != null )
 					{
 						btDbvtVolume pb = prev.volume;
-						btDbvtVolume.Merge( ref prev._children[0].volume, ref prev._children[1].volume, out prev.volume );
+						btDbvtVolume.Merge( ref prev._children0.volume, ref prev._children1.volume, out prev.volume );
 						if( btDbvtVolume.NotEqual( ref pb, ref prev.volume ) )
 						{
 							sibling = prev;
@@ -1039,13 +1074,10 @@ namespace Bullet.Collision.BroadPhase
 
 
 
-
-
 		public static int IndexOf( btDbvtNode node )
 		{
-			return ( node.parent._children[1] == node ) ? 1 : 0;
+			return ( node.parent._children1 == node ) ? 1 : 0;
 		}
-
 
 
 		// volume+edge lengths
@@ -1056,10 +1088,8 @@ namespace Bullet.Collision.BroadPhase
 				edges.x + edges.y + edges.z );
 		}
 
-
-
-		public static int SIMPLE_STACKSIZE = 64;
-		public static int DOUBLE_STACKSIZE = SIMPLE_STACKSIZE * 2;
+		public const int SIMPLE_STACKSIZE = 64;
+		public const int DOUBLE_STACKSIZE = SIMPLE_STACKSIZE * 2;
 
 		public btDbvtNode m_root;
 		//public btDbvtNode m_free;
@@ -1099,12 +1129,14 @@ namespace Bullet.Collision.BroadPhase
 
 			public btDbvtVolume volume;
 			public btDbvtNode parent;
-			public btDbvtNode[] _children = new btDbvtNode[2];
+			public btDbvtNode _children0;
+			public btDbvtNode _children1;
+			//= new btDbvtNode[2];
 			public Object data;
 			public int dataAsInt;
 			public int id;
 
-			public bool IsLeaf() { return ( _children[1] == null ); }
+			public bool IsLeaf() { return ( _children1 == null ); }
 			public bool IsInternal() { return ( !IsLeaf() ); }
 
 			public static int counter = 0;
@@ -1117,7 +1149,7 @@ namespace Bullet.Collision.BroadPhase
 			public btDbvtNode a;
 			public btDbvtNode b;
 
-			public sStkNN( btDbvtNode na, btDbvtNode nb ) { a = na; b = nb; }
+			public void Initialize( btDbvtNode na, btDbvtNode nb ) { a = na; b = nb; }
 		}
 
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1409,11 +1441,13 @@ namespace Bullet.Collision.BroadPhase
 		{
 			public btList<btDbvtNode> stack = new btList<btDbvtNode>();
 			public uint[] signs = new uint[3];
-			public btVector3[] bounds = new btVector3[2];
+			//public btVector3[] bounds = new btVector3[2];
+			public btVector3 bounds0 = new btVector3();
+			public btVector3 bounds1 = new btVector3();
 			//public btVector3 bounds0;
 			//public btVector3 bounds1;
 
-			public void Dispose()
+			public virtual void Dispose()
 			{
 				BulletGlobals.DbvtStackDataBlockPool.Free( this );
 			}

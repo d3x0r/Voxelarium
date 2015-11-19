@@ -26,10 +26,10 @@ namespace Bullet.Collision.Dispatch
 
 
 	/// btCompoundCompoundCollisionAlgorithm  supports collision between two btCompoundCollisionShape shapes
-	internal class btCompoundCompoundCollisionAlgorithm : btCompoundCollisionAlgorithm
+	public class btCompoundCompoundCollisionAlgorithm : btCompoundCollisionAlgorithm
 	{
-		internal delegate bool btShapePairCallback( btCollisionShape pShape0, btCollisionShape pShape1 );
-		internal static btShapePairCallback gCompoundCompoundChildShapePairCallback;
+		public delegate bool btShapePairCallback( btCollisionShape pShape0, btCollisionShape pShape1 );
+		public static btShapePairCallback gCompoundCompoundChildShapePairCallback;
 
 		btHashedSimplePairCache m_childCollisionAlgorithmCache;
 		btSimplePairArray m_removePairs = new btSimplePairArray();
@@ -198,11 +198,11 @@ namespace Bullet.Collision.Dispatch
 				btCollisionShape childShape1 = compoundShape1.getChildShape( childIndex1 );
 
 				//backup
-				btTransform orgTrans0 = m_compound0ColObjWrap.m_worldTransform;
+				btTransform orgTrans0 = m_compound0ColObjWrap.m_collisionObject.m_worldTransform;
 				btTransform childTrans0 = compoundShape0.getChildTransform( childIndex0 );
 				btTransform newChildWorldTrans0; orgTrans0.Apply( ref childTrans0, out newChildWorldTrans0 );
 
-				btTransform orgTrans1 = m_compound1ColObjWrap.m_worldTransform;
+				btTransform orgTrans1 = m_compound1ColObjWrap.m_collisionObject.m_worldTransform;
 				btTransform childTrans1 = compoundShape1.getChildTransform( childIndex1 );
 				btTransform newChildWorldTrans1; orgTrans1.Apply( ref childTrans1, out newChildWorldTrans1 );
 
@@ -223,8 +223,8 @@ namespace Bullet.Collision.Dispatch
 					using( btCollisionObjectWrapper compoundWrap0 = BulletGlobals.CollisionObjectWrapperPool.Get()
 											, compoundWrap1 = BulletGlobals.CollisionObjectWrapperPool.Get() )
 					{
-						compoundWrap0.Initialize( this.m_compound0ColObjWrap, childShape0, m_compound0ColObjWrap.m_collisionObject, ref newChildWorldTrans0, -1, childIndex0 );
-						compoundWrap1.Initialize( this.m_compound1ColObjWrap, childShape1, m_compound1ColObjWrap.m_collisionObject, ref newChildWorldTrans1, -1, childIndex1 );
+						compoundWrap0.Initialize( this.m_compound0ColObjWrap, childShape0, m_compound0ColObjWrap.m_collisionObject, -1, childIndex0 );
+						compoundWrap1.Initialize( this.m_compound1ColObjWrap, childShape1, m_compound1ColObjWrap.m_collisionObject, -1, childIndex1 );
 
 
 						btSimplePair pair = m_childCollisionAlgorithmCache.findPair( childIndex0, childIndex1 );
@@ -259,7 +259,7 @@ namespace Bullet.Collision.Dispatch
 						m_resultOut.setShapeIdentifiersB( -1, childIndex1 );
 
 
-						colAlgo.processCollision( compoundWrap0, compoundWrap1, m_dispatchInfo, m_resultOut );
+						colAlgo.processCollision( compoundWrap0, ref newChildWorldTrans0, compoundWrap1, ref newChildWorldTrans1, m_dispatchInfo, m_resultOut );
 
 						m_resultOut.m_body0Wrap=( tmpWrap0 );
 						m_resultOut.m_body1Wrap=( tmpWrap1 );
@@ -298,7 +298,7 @@ namespace Bullet.Collision.Dispatch
 				int depth = 1;
 				int treshold = btDbvt.DOUBLE_STACKSIZE - 4;
 				btList<btDbvt.sStkNN> stkStack = new btList<btDbvt.sStkNN>( btDbvt.DOUBLE_STACKSIZE );
-				stkStack[0] = new btDbvt.sStkNN( root0, root1 );
+				stkStack[0].Initialize( root0, root1 );
 				do
 				{
 					btDbvt.sStkNN p = stkStack[--depth];
@@ -313,23 +313,23 @@ namespace Bullet.Collision.Dispatch
 						{
 							if( p.b.IsInternal() )
 							{
-								stkStack[depth++] = new btDbvt.sStkNN( p.a._children[0], p.b._children[0] );
-								stkStack[depth++] = new btDbvt.sStkNN( p.a._children[1], p.b._children[0] );
-								stkStack[depth++] = new btDbvt.sStkNN( p.a._children[0], p.b._children[1] );
-								stkStack[depth++] = new btDbvt.sStkNN( p.a._children[1], p.b._children[1] );
+								stkStack[depth++].Initialize( p.a._children0, p.b._children0 );
+								stkStack[depth++].Initialize( p.a._children1, p.b._children0 );
+								stkStack[depth++].Initialize( p.a._children0, p.b._children1 );
+								stkStack[depth++].Initialize( p.a._children1, p.b._children1 );
 							}
 							else
 							{
-								stkStack[depth++] = new btDbvt.sStkNN( p.a._children[0], p.b );
-								stkStack[depth++] = new btDbvt.sStkNN( p.a._children[1], p.b );
+								stkStack[depth++].Initialize( p.a._children0, p.b );
+								stkStack[depth++].Initialize( p.a._children1, p.b );
 							}
 						}
 						else
 						{
 							if( p.b.IsInternal() )
 							{
-								stkStack[depth++] = new btDbvt.sStkNN( p.a, p.b._children[0] );
-								stkStack[depth++] = new btDbvt.sStkNN( p.a, p.b._children[1] );
+								stkStack[depth++].Initialize( p.a, p.b._children0 );
+								stkStack[depth++].Initialize( p.a, p.b._children1 );
 							}
 							else
 							{
@@ -341,7 +341,11 @@ namespace Bullet.Collision.Dispatch
 			}
 		}
 
-		internal override void processCollision( btCollisionObjectWrapper body0Wrap, btCollisionObjectWrapper body1Wrap, btDispatcherInfo dispatchInfo, btManifoldResult resultOut )
+		internal override void processCollision( btCollisionObjectWrapper body0Wrap
+			, ref btTransform body0Transform
+			, btCollisionObjectWrapper body1Wrap
+			, ref btTransform body1Transform
+			, btDispatcherInfo dispatchInfo, btManifoldResult resultOut )
 		{
 
 			btCollisionObjectWrapper col0ObjWrap = body0Wrap;
@@ -356,7 +360,7 @@ namespace Bullet.Collision.Dispatch
 			btDbvt tree1 = compoundShape1.getDynamicAabbTree();
 			if( tree0 == null || tree1 == null )
 			{
-				base.processCollision( body0Wrap, body1Wrap, dispatchInfo, resultOut );
+				base.processCollision( body0Wrap, ref body0Transform, body1Wrap, ref body1Transform, dispatchInfo, resultOut );
 				return;
 			}
 			///btCompoundShape might have changed:
@@ -405,7 +409,7 @@ namespace Bullet.Collision.Dispatch
 				( col0ObjWrap, col1ObjWrap,this.m_dispatcher, dispatchInfo, resultOut, this.m_childCollisionAlgorithmCache, m_sharedManifold);
 
 
-			btTransform xform; col0ObjWrap.m_worldTransform.inverseTimes( ref col1ObjWrap.m_worldTransform, out xform );
+			btTransform xform; body0Transform.inverseTimes( ref body1Transform, out xform );
 			MycollideTT( tree0.m_root, tree1.m_root, ref xform, callback );
 
 			//Console.WriteLine("#compound-compound child/leaf overlap =%d                      \r",callback.m_numOverlapPairs);
@@ -438,7 +442,7 @@ namespace Bullet.Collision.Dispatch
 							childShape0 = compoundShape0.getChildShape( pairs[i].m_indexA );
 							//orgInterpolationTrans0 = col0ObjWrap.m_worldTransform;
 							btTransform childTrans0 = compoundShape0.getChildTransform( pairs[i].m_indexA );
-							col0ObjWrap.m_worldTransform.Apply( ref childTrans0, out newChildWorldTrans0 );
+							body0Transform.Apply( ref childTrans0, out newChildWorldTrans0 );
 							childShape0.getAabb( ref newChildWorldTrans0, out aabbMin0, out aabbMax0 );
 						}
 
@@ -448,7 +452,7 @@ namespace Bullet.Collision.Dispatch
 
 							childShape1 = compoundShape1.getChildShape( pairs[i].m_indexB );
 							btTransform childTrans1 = compoundShape1.getChildTransform( pairs[i].m_indexB );
-							col1ObjWrap.m_worldTransform.Apply( ref childTrans1, out newChildWorldTrans1 );
+							body1Transform.Apply( ref childTrans1, out newChildWorldTrans1 );
 							childShape1.getAabb( ref newChildWorldTrans1, out aabbMin1, out aabbMax1 );
 						}
 

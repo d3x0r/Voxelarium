@@ -739,7 +739,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 			relA.cross( ref p, out tmpA );
 			relB.cross( ref p, out tmpB );
 			info.m_solverConstraints[0].m_relpos1CrossNormal = tmpA;
-			tmpB.Invert( out info.m_solverConstraints[0].m_relpos1CrossNormal ); // = -tmpB;
+			tmpB.Invert( out info.m_solverConstraints[0].m_relpos2CrossNormal ); // = -tmpB;
 			relA.cross( ref q, out tmpA );
 			relB.cross( ref q, out tmpB );
 			if( hasStaticBody && getSolveLimit() )
@@ -749,7 +749,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 				tmpA.Mult( factA, out tmpA );
 			}
 			info.m_solverConstraints[1].m_relpos1CrossNormal = tmpA;
-			tmpB.Invert( out info.m_solverConstraints[1].m_relpos1CrossNormal );
+			tmpB.Invert( out info.m_solverConstraints[1].m_relpos2CrossNormal );
 			relA.cross( ref ax1, out tmpA );
 			relB.cross( ref ax1, out tmpB );
 			if( hasStaticBody )
@@ -759,7 +759,7 @@ namespace Bullet.Dynamics.ConstraintSolver
 				tmpA.Mult( factA, out tmpA );
 			}
 			info.m_solverConstraints[2].m_relpos1CrossNormal = tmpA;
-			tmpB.Invert( out info.m_solverConstraints[2].m_relpos1CrossNormal );
+			tmpB.Invert( out info.m_solverConstraints[2].m_relpos2CrossNormal );
 
 			double normalErp = ( ( m_flags & btHingeFlags.BT_HINGE_FLAGS_ERP_NORM ) != 0 ) ? m_normalERP : info.erp;
 			double k = info.fps * normalErp;
@@ -793,10 +793,10 @@ namespace Bullet.Dynamics.ConstraintSolver
 			//int s3 = 3 * s;
 			//int s4 = 4 * s;
 			info.m_solverConstraints[3].m_relpos1CrossNormal = p;
-			info.m_solverConstraints[3].m_relpos1CrossNormal = q;
+			info.m_solverConstraints[4].m_relpos1CrossNormal = q;
 
 			p.Invert( out info.m_solverConstraints[3].m_relpos2CrossNormal );
-			q.Invert( out info.m_solverConstraints[3].m_relpos2CrossNormal );
+			q.Invert( out info.m_solverConstraints[4].m_relpos2CrossNormal );
 			// compute the right hand side of the constraint equation. set relative
 			// body velocities along p and q to bring the hinge back into alignment.
 			// if ax1A,ax1B are the unit length hinge axes as computed from bodyA and

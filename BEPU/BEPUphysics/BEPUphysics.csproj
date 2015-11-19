@@ -1,0 +1,593 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{C0D52C9F-14B8-4008-8DDC-109C27561A5C}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>BEPUphysics</RootNamespace>
+    <AssemblyName>BEPUphysics</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;WINDOWS;ALLOWUNSAFE;CHECKMATH</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DocumentationFile>bin\Debug\BEPUphysics.XML</DocumentationFile>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>full</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>WINDOWS;ALLOWUNSAFE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <NoStdLib>false</NoStdLib>
+    <DocumentationFile>bin\Release\BEPUphysics.xml</DocumentationFile>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugSymbols>true</DebugSymbols>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>Physics\strongNameKey.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;WINDOWS;ALLOWUNSAFE;CHECKMATH</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DocumentationFile>bin\Debug\BEPUphysics.XML</DocumentationFile>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>WINDOWS;ALLOWUNSAFE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DocumentationFile>bin\x64\Release\BEPUphysics.XML</DocumentationFile>
+    <Optimize>true</Optimize>
+    <NoStdLib>false</NoStdLib>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;WINDOWS;ALLOWUNSAFE;CHECKMATH;ALLOW_LAZY_VECTORS</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DocumentationFile>bin\Debug\BEPUphysics.XML</DocumentationFile>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
+    <Prefer32Bit>false</Prefer32Bit>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
+    <Optimize>false</Optimize>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>WINDOWS;ALLOWUNSAFE;ALLOW_LAZY_VECTORS</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DocumentationFile>bin\Release\BEPUphysics.XML</DocumentationFile>
+    <Optimize>true</Optimize>
+    <NoStdLib>false</NoStdLib>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="IK\ActiveSet.cs" />
+    <Compile Include="IK\AngularPlaneControl.cs" />
+    <Compile Include="IK\Bone.cs" />
+    <Compile Include="IK\Control.cs" />
+    <Compile Include="IK\DragControl.cs" />
+    <Compile Include="IK\IKAngularJoint.cs" />
+    <Compile Include="IK\IKBallSocketJoint.cs" />
+    <Compile Include="IK\IKConstraint.cs" />
+    <Compile Include="IK\IKDistanceJoint.cs" />
+    <Compile Include="IK\IKDistanceLimit.cs" />
+    <Compile Include="IK\IKJoint.cs" />
+    <Compile Include="IK\IKLimit.cs" />
+    <Compile Include="IK\IKLinearAxisLimit.cs" />
+    <Compile Include="IK\IKPointOnLineJoint.cs" />
+    <Compile Include="IK\IKPointOnPlaneJoint.cs" />
+    <Compile Include="IK\IKRevoluteJoint.cs" />
+    <Compile Include="IK\IKSolver.cs" />
+    <Compile Include="IK\IKSwingLimit.cs" />
+    <Compile Include="IK\IKSwivelHingeJoint.cs" />
+    <Compile Include="IK\IKTwistJoint.cs" />
+    <Compile Include="IK\IKTwistLimit.cs" />
+    <Compile Include="IK\RevoluteControl.cs" />
+    <Compile Include="IK\SingleBoneAngularMotor.cs" />
+    <Compile Include="IK\SingleBoneAngularPlaneConstraint.cs" />
+    <Compile Include="IK\SingleBoneConstraint.cs" />
+    <Compile Include="IK\SingleBoneLinearMotor.cs" />
+    <Compile Include="IK\SingleBoneRevoluteConstraint.cs" />
+    <Compile Include="IK\StateControl.cs" />
+    <Compile Include="Physics\BroadPhaseSystems\BroadPhase.cs" />
+    <Compile Include="Physics\BroadPhaseEntries\BroadPhaseEntry.cs" />
+    <Compile Include="Physics\BroadPhaseSystems\BroadPhaseOverlap.cs" />
+    <Compile Include="Physics\BroadPhaseSystems\BruteForce.cs" />
+    <Compile Include="Physics\BroadPhaseSystems\Hierarchies\DynamicHierarchy.cs" />
+    <Compile Include="Physics\BroadPhaseSystems\Hierarchies\DynamicHierarchyNode.cs" />
+    <Compile Include="Physics\BroadPhaseSystems\Hierarchies\DynamicHierarchyQueryAccelerator.cs" />
+    <Compile Include="Physics\BroadPhaseSystems\IBoundingBoxOwner.cs" />
+    <Compile Include="Physics\BroadPhaseSystems\IBroadPhaseEntryOwner.cs" />
+    <Compile Include="Physics\BroadPhaseSystems\IQueryAccelerator.cs" />
+    <Compile Include="Physics\BroadPhaseSystems\SortAndSweep\Grid2DEntry.cs" />
+    <Compile Include="Physics\BroadPhaseSystems\SortAndSweep\Grid2DSortAndSweep.cs" />
+    <Compile Include="Physics\BroadPhaseSystems\SortAndSweep\Grid2DSortAndSweepQueryAccelerator.cs" />
+    <Compile Include="Physics\BroadPhaseSystems\SortAndSweep\GridCell2D.cs" />
+    <Compile Include="Physics\BroadPhaseSystems\SortAndSweep\SortAndSweep1D.cs" />
+    <Compile Include="Physics\BroadPhaseSystems\SortAndSweep\SortedGrid2DSet.cs" />
+    <Compile Include="Physics\BroadPhaseEntries\StaticGroup.cs" />
+    <Compile Include="Physics\BroadPhaseEntries\StaticCollidable.cs" />
+    <Compile Include="Physics\BroadPhaseEntries\Events\CompoundEventManager.cs" />
+    <Compile Include="Physics\BroadPhaseEntries\Events\IContactEventTriggerer.cs" />
+    <Compile Include="Physics\BroadPhaseEntries\Events\IEntryEventTriggerer.cs" />
+    <Compile Include="Physics\BroadPhaseEntries\MobileCollidables\CompoundHelper.cs" />
+    <Compile Include="Physics\BroadPhaseEntries\MobileCollidables\MobileMeshCollidable.cs" />
+    <Compile Include="Physics\Character\CharacterContactPositionState.cs" />
+    <Compile Include="Physics\Character\CharacterController.cs" />
+    <Compile Include="Physics\Character\CharacterContactCategorizer.cs" />
+    <Compile Include="Physics\Character\CharacterPairLocker.cs" />
+    <Compile Include="Physics\Character\HorizontalMotionConstraint.cs" />
+    <Compile Include="Physics\Character\ICharacterTag.cs" />
+    <Compile Include="Physics\Character\MovementMode.cs" />
+    <Compile Include="Physics\Character\QueryManager.cs" />
+    <Compile Include="Physics\Character\StanceManager.cs" />
+    <Compile Include="Physics\Character\StepManager.cs" />
+    <Compile Include="Physics\Character\SupportFinder.cs" />
+    <Compile Include="Physics\Character\VerticalMotionConstraint.cs" />
+    <Compile Include="Physics\CollisionRuleManagement\ICollisionRulesOwner.cs" />
+    <Compile Include="Physics\CollisionShapes\ConvexShapes\ConvexShapeDescription.cs" />
+    <Compile Include="Physics\CollisionShapes\EntityShapeVolumeDescription.cs" />
+    <Compile Include="Physics\CollisionShapes\StaticGroupShape.cs" />
+    <Compile Include="Physics\BroadPhaseEntries\CollidableCollection.cs" />
+    <Compile Include="Physics\BroadPhaseEntries\CollidablePair.cs" />
+    <Compile Include="Physics\BroadPhaseEntries\EntityCollidableCollection.cs" />
+    <Compile Include="Physics\BroadPhaseEntries\InstancedMesh.cs" />
+    <Compile Include="Physics\BroadPhaseEntries\MobileCollidables\CompoundCollidable.cs" />
+    <Compile Include="Physics\BroadPhaseEntries\MobileCollidables\CompoundHierarchy.cs" />
+    <Compile Include="Physics\BroadPhaseEntries\MobileCollidables\ConvexCollidable.cs" />
+    <Compile Include="Physics\BroadPhaseEntries\MobileCollidables\EntityCollidable.cs" />
+    <Compile Include="Physics\BroadPhaseEntries\MobileCollidables\TriangleCollidable.cs" />
+    <Compile Include="Physics\CollisionRuleManagement\CollisionGroup.cs" />
+    <Compile Include="Physics\CollisionRuleManagement\CollisionGroupPair.cs" />
+    <Compile Include="Physics\CollisionRuleManagement\CollisionRule.cs" />
+    <Compile Include="Physics\CollisionRuleManagement\CollisionRules.cs" />
+    <Compile Include="Physics\CollisionShapes\CollisionShape.cs" />
+    <Compile Include="Physics\CollisionShapes\CompoundShape.cs" />
+    <Compile Include="Physics\CollisionShapes\ConvexShapes\BoxShape.cs" />
+    <Compile Include="Physics\CollisionShapes\ConvexShapes\CapsuleShape.cs" />
+    <Compile Include="Physics\CollisionShapes\ConvexShapes\ConeShape.cs" />
+    <Compile Include="Physics\CollisionShapes\ConvexShapes\ConvexHullShape.cs" />
+    <Compile Include="Physics\CollisionShapes\ConvexShapes\ConvexShape.cs" />
+    <Compile Include="Physics\CollisionShapes\ConvexShapes\CylinderShape.cs" />
+    <Compile Include="Physics\CollisionShapes\ConvexShapes\InertiaHelper.cs" />
+    <Compile Include="Physics\CollisionShapes\ConvexShapes\MinkowskiSumShape.cs" />
+    <Compile Include="Physics\CollisionShapes\ConvexShapes\SphereShape.cs" />
+    <Compile Include="Physics\CollisionShapes\ConvexShapes\TransformableShape.cs" />
+    <Compile Include="Physics\CollisionShapes\ConvexShapes\TriangleShape.cs" />
+    <Compile Include="Physics\CollisionShapes\ConvexShapes\WrappedShape.cs" />
+    <Compile Include="Physics\CollisionShapes\EntityShape.cs" />
+    <Compile Include="Physics\CollisionShapes\InstancedMeshShape.cs" />
+    <Compile Include="Physics\CollisionShapes\MobileMeshShape.cs" />
+    <Compile Include="Physics\CollisionShapes\ShapeDistributionInformation.cs" />
+    <Compile Include="Physics\CollisionShapes\StaticMeshShape.cs" />
+    <Compile Include="Physics\CollisionShapes\TerrainShape.cs" />
+    <Compile Include="Physics\CollisionTests\CollisionAlgorithms\BoxBoxCollider.cs" />
+    <Compile Include="Physics\CollisionTests\CollisionAlgorithms\BoxSphereTester.cs" />
+    <Compile Include="Physics\CollisionTests\CollisionAlgorithms\GeneralConvexPairTester.cs" />
+    <Compile Include="Physics\CollisionTests\CollisionAlgorithms\GJK\GJKToolbox.cs" />
+    <Compile Include="Physics\CollisionTests\CollisionAlgorithms\GJK\PairSimplex.cs" />
+    <Compile Include="Physics\CollisionTests\CollisionAlgorithms\GJK\RaySimplex.cs" />
+    <Compile Include="Physics\CollisionTests\CollisionAlgorithms\GJK\SimpleSimplex.cs" />
+    <Compile Include="Physics\CollisionTests\CollisionAlgorithms\MinkowskiToolbox.cs" />
+    <Compile Include="Physics\CollisionTests\CollisionAlgorithms\MPRToolbox.cs" />
+    <Compile Include="Physics\CollisionTests\CollisionAlgorithms\SphereTester.cs" />
+    <Compile Include="Physics\CollisionTests\CollisionAlgorithms\TriangleConvexPairTester.cs" />
+    <Compile Include="Physics\CollisionTests\CollisionAlgorithms\TrianglePairTester.cs" />
+    <Compile Include="Physics\CollisionTests\CollisionAlgorithms\TriangleSpherePairTester.cs" />
+    <Compile Include="Physics\CollisionTests\CollisionAlgorithms\TriangleTrianglePairTester.cs" />
+    <Compile Include="Physics\CollisionTests\Contact.cs" />
+    <Compile Include="Physics\CollisionTests\ContactData.cs" />
+    <Compile Include="Physics\CollisionTests\ContactReducer.cs" />
+    <Compile Include="Physics\CollisionTests\ContactRefresher.cs" />
+    <Compile Include="Physics\CollisionTests\ContactSupplementData.cs" />
+    <Compile Include="Physics\CollisionTests\Manifolds\BoxContactManifold.cs" />
+    <Compile Include="Physics\CollisionTests\Manifolds\BoxSphereContactManifold.cs" />
+    <Compile Include="Physics\CollisionTests\Manifolds\ContactManifold.cs" />
+    <Compile Include="Physics\CollisionTests\Manifolds\GeneralConvexContactManifold.cs" />
+    <Compile Include="Physics\CollisionTests\Manifolds\InstancedMeshContactManifold.cs" />
+    <Compile Include="Physics\CollisionTests\Manifolds\InstancedMeshConvexContactManifold.cs" />
+    <Compile Include="Physics\CollisionTests\Manifolds\InstancedMeshSphereContactManifold.cs" />
+    <Compile Include="Physics\CollisionTests\Manifolds\MobileMeshContactManifold.cs" />
+    <Compile Include="Physics\CollisionTests\Manifolds\MobileMeshConvexContactManifold.cs" />
+    <Compile Include="Physics\CollisionTests\Manifolds\MobileMeshSphereContactManifold.cs" />
+    <Compile Include="Physics\CollisionTests\Manifolds\MobileMeshTriangleContactManifold.cs" />
+    <Compile Include="Physics\CollisionTests\Manifolds\SphereContactManifold.cs" />
+    <Compile Include="Physics\CollisionTests\Manifolds\StaticMeshContactManifold.cs" />
+    <Compile Include="Physics\CollisionTests\Manifolds\StaticMeshConvexContactManifold.cs" />
+    <Compile Include="Physics\CollisionTests\Manifolds\StaticMeshSphereContactManifold.cs" />
+    <Compile Include="Physics\CollisionTests\Manifolds\TerrainContactManifold.cs" />
+    <Compile Include="Physics\CollisionTests\Manifolds\TerrainConvexContactManifold.cs" />
+    <Compile Include="Physics\CollisionTests\Manifolds\TerrainSphereContactManifold.cs" />
+    <Compile Include="Physics\CollisionTests\Manifolds\TriangleConvexContactManifold.cs" />
+    <Compile Include="Physics\CollisionTests\Manifolds\TriangleMeshConvexContactManifold.cs" />
+    <Compile Include="Physics\CollisionTests\Manifolds\TerrainVertexIndices.cs" />
+    <Compile Include="Physics\Constraints\Collision\ContactFrictionConstraint.cs" />
+    <Compile Include="Physics\Constraints\Collision\ContactManifoldConstraint.cs" />
+    <Compile Include="Physics\Constraints\Collision\ContactManifoldConstraintGroup.cs" />
+    <Compile Include="Physics\Constraints\Collision\ContactPenetrationConstraint.cs" />
+    <Compile Include="Physics\Constraints\Collision\ConvexContactManifoldConstraint.cs" />
+    <Compile Include="Physics\Constraints\Collision\NonConvexContactManifoldConstraint.cs" />
+    <Compile Include="Physics\Constraints\Collision\SlidingFrictionTwoAxis.cs" />
+    <Compile Include="Physics\Constraints\Collision\TwistFrictionConstraint.cs" />
+    <Compile Include="Physics\Constraints\SolverUpdateable.cs" />
+    <Compile Include="Physics\Constraints\IJacobians.cs" />
+    <Compile Include="Physics\Constraints\ISolverSettings.cs" />
+    <Compile Include="Physics\Constraints\ISpringConstraint.cs" />
+    <Compile Include="Physics\Constraints\IXDImpulseConstraint.cs" />
+    <Compile Include="Physics\Constraints\JointTransform.cs" />
+    <Compile Include="Physics\Constraints\SingleEntity\MaximumAngularVelocityConstraint.cs" />
+    <Compile Include="Physics\Constraints\SingleEntity\MaximumLinearVelocityConstraint.cs" />
+    <Compile Include="Physics\Constraints\SingleEntity\SingleEntityAngularMotor.cs" />
+    <Compile Include="Physics\Constraints\SingleEntity\SingleEntityConstraint.cs" />
+    <Compile Include="Physics\Constraints\SingleEntity\SingleEntityLinearMotor.cs" />
+    <Compile Include="Physics\Constraints\SolverGroups\CustomizableSolverGroup.cs" />
+    <Compile Include="Physics\Constraints\SolverGroups\LineSliderJoint.cs" />
+    <Compile Include="Physics\Constraints\SolverGroups\PlaneSliderJoint.cs" />
+    <Compile Include="Physics\Constraints\SolverGroups\PrismaticJoint.cs" />
+    <Compile Include="Physics\Constraints\SolverGroups\RevoluteJoint.cs" />
+    <Compile Include="Physics\Constraints\SolverGroups\SolverGroup.cs" />
+    <Compile Include="Physics\Constraints\SolverGroups\SwivelHingeJoint.cs" />
+    <Compile Include="Physics\Constraints\SolverGroups\UniversalJoint.cs" />
+    <Compile Include="Physics\Constraints\SolverGroups\WeldJoint.cs" />
+    <Compile Include="Physics\Constraints\SolverSettings.cs" />
+    <Compile Include="Physics\Constraints\SpringSettings.cs" />
+    <Compile Include="Physics\Constraints\TwoEntity\JointLimits\DistanceLimit.cs" />
+    <Compile Include="Physics\Constraints\TwoEntity\JointLimits\EllipseSwingLimit.cs" />
+    <Compile Include="Physics\Constraints\TwoEntity\JointLimits\JointLimit.cs" />
+    <Compile Include="Physics\Constraints\TwoEntity\JointLimits\LinearAxisLimit.cs" />
+    <Compile Include="Physics\Constraints\TwoEntity\JointLimits\RevoluteLimit.cs" />
+    <Compile Include="Physics\Constraints\TwoEntity\JointLimits\SwingLimit.cs" />
+    <Compile Include="Physics\Constraints\TwoEntity\JointLimits\TwistLimit.cs" />
+    <Compile Include="Physics\Constraints\TwoEntity\Joints\BallSocketJoint.cs" />
+    <Compile Include="Physics\Constraints\TwoEntity\Joints\DistanceJoint.cs" />
+    <Compile Include="Physics\Constraints\TwoEntity\Joints\Joint.cs" />
+    <Compile Include="Physics\Constraints\TwoEntity\Joints\NoRotationJoint.cs" />
+    <Compile Include="Physics\Constraints\TwoEntity\Joints\PointOnLineJoint.cs" />
+    <Compile Include="Physics\Constraints\TwoEntity\Joints\PointOnPlaneJoint.cs" />
+    <Compile Include="Physics\Constraints\TwoEntity\Joints\RevoluteAngularJoint.cs" />
+    <Compile Include="Physics\Constraints\TwoEntity\Joints\SwivelHingeAngularJoint.cs" />
+    <Compile Include="Physics\Constraints\TwoEntity\Joints\TwistJoint.cs" />
+    <Compile Include="Physics\Constraints\TwoEntity\Motors\AngularMotor.cs" />
+    <Compile Include="Physics\Constraints\TwoEntity\Motors\LinearAxisMotor.cs" />
+    <Compile Include="Physics\Constraints\TwoEntity\Motors\Motor.cs" />
+    <Compile Include="Physics\Constraints\TwoEntity\Motors\MotorSettings.cs" />
+    <Compile Include="Physics\Constraints\TwoEntity\Motors\RevoluteMotor.cs" />
+    <Compile Include="Physics\Constraints\TwoEntity\Motors\TwistMotor.cs" />
+    <Compile Include="Physics\Constraints\TwoEntity\TwoEntityConstraint.cs" />
+    <Compile Include="Physics\PhysicsThreadResources.cs" />
+    <Compile Include="Physics\DataStructures\BoundingBoxTree.cs" />
+    <Compile Include="Physics\DataStructures\MeshBoundingBoxTree.cs" />
+    <Compile Include="Physics\DataStructures\MeshBoundingBoxTreeData.cs" />
+    <Compile Include="Physics\DataStructures\StaticMeshData.cs" />
+    <Compile Include="Physics\DataStructures\TransformableMeshData.cs" />
+    <Compile Include="Physics\DataStructures\TreeOverlapPair.cs" />
+    <Compile Include="Physics\DataStructures\TriangleMesh.cs" />
+    <Compile Include="Physics\DeactivationManagement\DeactivationManager.cs" />
+    <Compile Include="Physics\DeactivationManagement\ISimulationIslandConnection.cs" />
+    <Compile Include="Physics\DeactivationManagement\ISimulationIslandConnectionOwner.cs" />
+    <Compile Include="Physics\DeactivationManagement\ISimulationIslandMemberOwner.cs" />
+    <Compile Include="Physics\DeactivationManagement\SimulationIsland.cs" />
+    <Compile Include="Physics\DeactivationManagement\SimulationIslandConnection.cs" />
+    <Compile Include="Physics\DeactivationManagement\SimulationIslandMember.cs" />
+    <Compile Include="Physics\DeactivationManagement\SimulationIslandMemberList.cs" />
+    <Compile Include="Physics\Entities\Entity.cs" />
+    <Compile Include="Physics\Entities\EntityBase.cs" />
+    <Compile Include="Physics\Entities\EntityConstraintCollection.cs" />
+    <Compile Include="Physics\Entities\EntitySolverUpdateableCollection.cs" />
+    <Compile Include="Physics\Entities\MorphableEntity.cs" />
+    <Compile Include="Physics\Entities\Prefabs\Box.cs" />
+    <Compile Include="Physics\Entities\Prefabs\Capsule.cs" />
+    <Compile Include="Physics\Entities\Prefabs\CompoundBody.cs" />
+    <Compile Include="Physics\Entities\Prefabs\Cone.cs" />
+    <Compile Include="Physics\Entities\Prefabs\ConvexHull.cs" />
+    <Compile Include="Physics\Entities\Prefabs\Cylinder.cs" />
+    <Compile Include="Physics\Entities\Prefabs\MinkowskiSum.cs" />
+    <Compile Include="Physics\Entities\Prefabs\MobileMesh.cs" />
+    <Compile Include="Physics\Entities\Prefabs\Sphere.cs" />
+    <Compile Include="Physics\Entities\Prefabs\TransformableEntity.cs" />
+    <Compile Include="Physics\Entities\Prefabs\Triangle.cs" />
+    <Compile Include="Physics\Entities\Prefabs\WrappedBody.cs" />
+    <Compile Include="Physics\EntityStateManagement\BufferedStatesAccessor.cs" />
+    <Compile Include="Physics\EntityStateManagement\BufferedStatesManager.cs" />
+    <Compile Include="Physics\EntityStateManagement\EntityBufferedStates.cs" />
+    <Compile Include="Physics\EntityStateManagement\EntityStateReadBuffers.cs" />
+    <Compile Include="Physics\EntityStateManagement\EntityStateWriteBuffer.cs" />
+    <Compile Include="Physics\EntityStateManagement\InterpolatedStatesAccessor.cs" />
+    <Compile Include="Physics\EntityStateManagement\InterpolatedStatesManager.cs" />
+    <Compile Include="Physics\EntityStateManagement\MotionState.cs" />
+    <Compile Include="Physics\ISpaceObject.cs" />
+    <Compile Include="Physics\Materials\IMaterialOwner.cs" />
+    <Compile Include="Physics\Materials\InteractionProperties.cs" />
+    <Compile Include="Physics\Materials\Material.cs" />
+    <Compile Include="Physics\Materials\MaterialManager.cs" />
+    <Compile Include="Physics\Materials\MaterialPair.cs" />
+    <Compile Include="Physics\MultithreadedProcessingStage.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\NarrowPhase.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\NarrowPhaseHelper.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\NarrowPhasePairFactory.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\BoxPairHandler.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\BoxSpherePairHandler.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\CollidablePairHandler.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\CompoundConvexPairHandler.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\CompoundGroupPairHandler.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\CompoundInstancedMeshPairHandler.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\CompoundMobileMeshPairHandler.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\CompoundPairHandler.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\CompoundStaticMeshPairHandler.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\CompoundTerrainPairHandler.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\ContactCollection.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\ContactInformation.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\ConvexConstraintPairHandler.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\ConvexPairHandler.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\GeneralConvexPairHandler.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\GroupPairHandler.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\InstancedMeshConvexPairHandler.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\InstancedMeshPairHandler.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\InstancedMeshSpherePairHandler.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\IPairHandlerParent.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\DetectorVolumeMobileMeshPairHandler.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\DetectorVolumeCompoundPairHandler.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\DetectorVolumeGroupPairHandler.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\DetectorVolumeConvexPairHandler.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\DetectorVolumePairHandler.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\IDetectorVolumePairHandlerParent.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\StaticGroupCompoundPairHandler.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\StaticGroupMobileMeshPairHandler.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\StaticGroupConvexPairHandler.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\StaticGroupPairHandler.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\MeshGroupPairHandler.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\MobileMeshConvexPairHandler.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\MobileMeshInstancedMeshPairHandler.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\MobileMeshMeshPairHandler.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\MobileMeshMobileMeshPairHandler.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\MobileMeshPairHandler.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\MobileMeshSpherePairHandler.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\MobileMeshStaticMeshPairHandler.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\MobileMeshTerrainPairHandler.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\MobileMeshTrianglePairHandler.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\NarrowPhasePair.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\SpherePairHandler.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\StandardPairHandler.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\StaticMeshConvexPairHandler.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\StaticMeshPairHandler.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\StaticMeshSpherePairHandler.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\TerrainConvexPairHandler.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\TerrainPairHandler.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\TerrainSpherePairHandler.cs" />
+    <Compile Include="Physics\BroadPhaseEntries\Events\ContactEventManager.cs" />
+    <Compile Include="Physics\BroadPhaseEntries\Events\EntryEventManager.cs" />
+    <Compile Include="Physics\BroadPhaseEntries\Terrain.cs" />
+    <Compile Include="Physics\NarrowPhaseSystems\Pairs\TriangleConvexPairHandler.cs" />
+    <Compile Include="Physics\OtherSpaceStages\BoundingBoxUpdater.cs" />
+    <Compile Include="Physics\OtherSpaceStages\DeferredEventDispatcher.cs" />
+    <Compile Include="Physics\OtherSpaceStages\ForceUpdater.cs" />
+    <Compile Include="Physics\OtherSpaceStages\IDeferredEventCreator.cs" />
+    <Compile Include="Physics\OtherSpaceStages\IDeferredEventCreatorOwner.cs" />
+    <Compile Include="Physics\BroadPhaseEntries\MobileCollidables\MobileCollidable.cs" />
+    <Compile Include="Physics\BroadPhaseEntries\Events\CollisionEventTypes.cs" />
+    <Compile Include="Physics\BroadPhaseEntries\DetectorVolume.cs" />
+    <Compile Include="Physics\PhysicsChecker.cs" />
+    <Compile Include="Physics\Character\SphereCharacterController.cs" />
+    <Compile Include="Physics\UpdateableSystems\CombinedUpdateable.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Physics\UpdateableSystems\ForceFields\BoundingSphereForceFieldShape.cs" />
+    <Compile Include="Physics\Vehicle\CylinderCastWheelShape.cs" />
+    <Compile Include="Physics\Vehicle\WheelFrictionBlender.cs" />
+    <Compile Include="Physics\OtherSpaceStages\IForceUpdateable.cs" />
+    <Compile Include="Physics\OtherSpaceStages\SpaceObjectBuffer.cs" />
+    <Compile Include="Physics\BroadPhaseEntries\Collidable.cs" />
+    <Compile Include="Physics\Paths\CardinalSpline3D.cs" />
+    <Compile Include="Physics\Paths\ConstantAngularSpeedCurve.cs" />
+    <Compile Include="Physics\Paths\ConstantLinearSpeedCurve.cs" />
+    <Compile Include="Physics\Paths\ConstantSpeedCurve.cs" />
+    <Compile Include="Physics\Paths\Curve.cs" />
+    <Compile Include="Physics\Paths\CurveControlPoint.cs" />
+    <Compile Include="Physics\Paths\CurveControlPointList.cs" />
+    <Compile Include="Physics\Paths\CurveEndpointBehavior.cs" />
+    <Compile Include="Physics\Paths\FiniteDifferenceSpline3D.cs" />
+    <Compile Include="Physics\Paths\HermiteCurve3D.cs" />
+    <Compile Include="Physics\Paths\LinearInterpolationCurve3D.cs" />
+    <Compile Include="Physics\Paths\Path following\EntityMover.cs" />
+    <Compile Include="Physics\Paths\Path following\EntityRotator.cs" />
+    <Compile Include="Physics\Paths\Path.cs" />
+    <Compile Include="Physics\Paths\QuaternionSlerpCurve.cs" />
+    <Compile Include="Physics\Paths\SpeedControlledCurve.cs" />
+    <Compile Include="Physics\Paths\StepCurve1D.cs" />
+    <Compile Include="Physics\Paths\VariableAngularSpeedCurve.cs" />
+    <Compile Include="Physics\Paths\VariableLinearSpeedCurve.cs" />
+    <Compile Include="Physics\Paths\VariableSpeedCurve.cs" />
+    <Compile Include="Physics\PositionUpdating\ContinuousPositionUpdater.cs" />
+    <Compile Include="Physics\PositionUpdating\ICCDPositionUpdateable.cs" />
+    <Compile Include="Physics\PositionUpdating\IPositionUpdateable.cs" />
+    <Compile Include="Physics\PositionUpdating\PositionUpdater.cs" />
+    <Compile Include="Physics\ProcessingStage.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Physics\RayCastResult.cs" />
+    <Compile Include="Physics\PhysicsResources.cs" />
+    <Compile Include="Physics\Settings\CollisionDetectionSettings.cs" />
+    <Compile Include="Physics\Settings\CollisionResponseSettings.cs" />
+    <Compile Include="Physics\Settings\MotionSettings.cs" />
+    <Compile Include="Physics\Constraints\Solver.cs" />
+    <Compile Include="Physics\Constraints\SolverUpdateableChange.cs" />
+    <Compile Include="Physics\Space.cs" />
+    <Compile Include="Physics\BroadPhaseEntries\StaticMesh.cs" />
+    <Compile Include="Physics\TimeStepSettings.cs" />
+    <Compile Include="Physics\UpdateableSystems\FluidVolume.cs" />
+    <Compile Include="Physics\UpdateableSystems\ForceFields\BoundingBoxForceFieldShape.cs" />
+    <Compile Include="Physics\UpdateableSystems\ForceFields\ForceField.cs" />
+    <Compile Include="Physics\UpdateableSystems\ForceFields\ForceFieldShape.cs" />
+    <Compile Include="Physics\UpdateableSystems\ForceFields\InfiniteForceFieldShape.cs" />
+    <Compile Include="Physics\UpdateableSystems\ForceFields\VolumeForceFieldShape.cs" />
+    <Compile Include="Physics\UpdateableSystems\IBeforeNarrowPhaseUpdateable.cs" />
+    <Compile Include="Physics\UpdateableSystems\IBeforePositionUpdateUpdateable.cs" />
+    <Compile Include="Physics\UpdateableSystems\IBeforeSolverUpdateable.cs" />
+    <Compile Include="Physics\UpdateableSystems\IDuringForcesUpdateable.cs" />
+    <Compile Include="Physics\UpdateableSystems\IEndOfFrameUpdateable.cs" />
+    <Compile Include="Physics\UpdateableSystems\IEndOfTimeStepUpdateable.cs" />
+    <Compile Include="Physics\UpdateableSystems\ISpaceUpdateable.cs" />
+    <Compile Include="Physics\UpdateableSystems\Updateable.cs" />
+    <Compile Include="Physics\UpdateableSystems\UpdateableManager.cs" />
+    <Compile Include="Physics\UpdateableSystems\UpdateableManagers.cs" />
+    <Compile Include="Physics\Vehicle\RaycastWheelShape.cs" />
+    <Compile Include="Physics\Vehicle\Vehicle.cs" />
+    <Compile Include="Physics\Vehicle\Wheel.cs" />
+    <Compile Include="Physics\Vehicle\WheelBrake.cs" />
+    <Compile Include="Physics\Vehicle\WheelDrivingMotor.cs" />
+    <Compile Include="Physics\Vehicle\WheelShape.cs" />
+    <Compile Include="Physics\Vehicle\WheelSlidingFriction.cs" />
+    <Compile Include="Physics\Vehicle\WheelSuspension.cs" />
+    <Compile Include="Utilities\AffineTransform.cs" />
+    <Compile Include="Utilities\BoundingBox.cs" />
+    <Compile Include="Utilities\BoundingSphere.cs" />
+    <Compile Include="Utilities\ContainmentType.cs" />
+    <Compile Include="Utilities\ConvexHullHelper.cs" />
+    <Compile Include="Utilities\ConvexHullHelper.Pruning.cs" />
+    <Compile Include="Utilities\DataStructures\ConcurrentDeque.cs" />
+    <Compile Include="Utilities\DataStructures\ObservableDictionary.cs" />
+    <Compile Include="Utilities\DataStructures\ObservableList.cs" />
+    <Compile Include="Utilities\DataStructures\QuickDictionary.cs" />
+    <Compile Include="Utilities\DataStructures\QuickList.cs" />
+    <Compile Include="Utilities\DataStructures\QuickQueue.cs" />
+    <Compile Include="Utilities\DataStructures\QuickSet.cs" />
+    <Compile Include="Utilities\DataStructures\RawList.cs" />
+    <Compile Include="Utilities\DataStructures\RawValueList.cs" />
+    <Compile Include="Utilities\DataStructures\ReadOnlyDictionary.cs" />
+    <Compile Include="Utilities\DataStructures\ReadOnlyEnumerable.cs" />
+    <Compile Include="Utilities\DataStructures\ReadOnlyList.cs" />
+    <Compile Include="Utilities\DataStructures\TinyList.cs" />
+    <Compile Include="Utilities\DataStructures\TinyStructList.cs" />
+    <Compile Include="Utilities\Int2.cs" />
+    <Compile Include="Utilities\MathChecker.cs" />
+    <Compile Include="Utilities\MathHelper.cs" />
+    <Compile Include="Utilities\Matrix.cs" />
+    <Compile Include="Utilities\Matrix2x2.cs" />
+    <Compile Include="Utilities\Matrix2x3.cs" />
+    <Compile Include="Utilities\Matrix3x2.cs" />
+    <Compile Include="Utilities\Matrix3x3.cs" />
+    <Compile Include="Utilities\PermutationMapper.cs" />
+    <Compile Include="Utilities\Plane.cs" />
+    <Compile Include="Utilities\Quaternion.cs" />
+    <Compile Include="Utilities\Ray.cs" />
+    <Compile Include="Utilities\RayHit.cs" />
+    <Compile Include="Utilities\ResourceManagement\BufferPool.cs" />
+    <Compile Include="Utilities\ResourceManagement\BufferPools.cs" />
+    <Compile Include="Utilities\ResourceManagement\CommonResources.cs" />
+    <Compile Include="Utilities\ResourceManagement\LockingBufferPool.cs" />
+    <Compile Include="Utilities\ResourceManagement\LockingResourcePool.cs" />
+    <Compile Include="Utilities\ResourceManagement\ResourcePool.cs" />
+    <Compile Include="Utilities\ResourceManagement\UnsafeResourcePool.cs" />
+    <Compile Include="Utilities\RigidTransform.cs" />
+    <Compile Include="Utilities\SpinLock.cs" />
+    <Compile Include="Utilities\Threading\IParallelLooper.cs" />
+    <Compile Include="Utilities\Threading\ParallelLooper.cs" />
+    <Compile Include="Utilities\Threading\ParallelLoopWorker.cs" />
+    <Compile Include="Utilities\Toolbox.cs" />
+    <Compile Include="Utilities\TriangleSidedness.cs" />
+    <Compile Include="Utilities\Vector2.cs" />
+    <Compile Include="Utilities\Vector3.cs" />
+    <Compile Include="Utilities\Vector4.cs" />
+    <Compile Include="Utilities\VoronoiRegion.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Physics\strongNameKey.snk" />
+    <None Include="Utilities\strongNameKey.snk" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.0,Profile=Client">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4 Client Profile %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

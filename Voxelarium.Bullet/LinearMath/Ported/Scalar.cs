@@ -417,11 +417,28 @@ namespace Bullet.LinearMath
 			}
 		}
 
-		[Conditional( "DEBUG" )]
+		[Conditional( "NEVER_DEBUG" )]
 		public static void Dbg( string s )
 		{
-			Console.WriteLine( s );
+			if( ( LoggingFlags & DbgFlag.None ) == 0 )
+				Console.WriteLine( s );
 		}
 
+		public static DbgFlag LoggingFlags;
+		[Conditional( "NEVER_DEBUG" )]
+		public static void Dbg( DbgFlag flag, string s )
+		{
+			if( ( LoggingFlags & DbgFlag.None ) == 0 )
+				if( ( flag & LoggingFlags ) != 0 )
+					Dbg( s );
+        }
+	}
+
+	[Flags]
+	public enum DbgFlag
+	{
+		Manifolds = 1,
+		PredictedTransform = 2,
+		None = 4,
 	}
 }

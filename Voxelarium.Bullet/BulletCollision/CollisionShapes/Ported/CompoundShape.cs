@@ -47,12 +47,13 @@ namespace Bullet.Collision.Shapes
 	/// It has an (optional) dynamic aabb tree to accelerate early rejection tests. 
 	/// @todo: This aabb tree can also be use to speed up ray tests on btCompoundShape, see http://code.google.com/p/bullet/issues/detail?id=25
 	/// Currently, removal of child shapes is only supported when disabling the aabb tree (pass 'false' in the constructor of btCompoundShape)
-	internal class btCompoundShape : btCollisionShape
+	public class btCompoundShape : btCollisionShape
 	{
 
 		internal btList<btCompoundShapeChild> m_children = new btList<btCompoundShapeChild>();
 		protected btVector3 m_localAabbMin;
 		protected btVector3 m_localAabbMax;
+		protected btVector3 m_centerOfMass;
 
 		protected btDbvt m_dynamicAabbTree;
 
@@ -112,13 +113,16 @@ namespace Bullet.Collision.Shapes
 			return m_updateRevision;
 		}
 
-#if SERIALIZE_DONE
-virtual int calculateSerializeBufferSize();
-
-///fills the dataBuffer and returns the struct name (and 0 on failure)
-virtual string serialize( object dataBuffer, btSerializer* serializer );
-#endif
-
+		public void SetCenterOfMass( btVector3 position )
+		{
+			btVector3 delta; position.Sub( ref m_centerOfMass, out delta );
+			m_centerOfMass = position;
+			delta.Invert( out delta );
+			foreach( btCompoundShapeChild shape in m_children )
+			{
+				shape.m_transform.Move( ref delta );
+			}
+		}
 
 		public btCompoundShape( bool enableDynamicAabbTree = true, int initialChildCapacity = 0 )
 		{
@@ -219,7 +223,6 @@ virtual string serialize( object dataBuffer, btSerializer* serializer );
 			if( m_dynamicAabbTree != null )
 				m_children[childShapeIndex].m_node.dataAsInt = childShapeIndex;
 			m_children.Count--;
-
 		}
 
 

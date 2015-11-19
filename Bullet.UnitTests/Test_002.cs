@@ -13,6 +13,7 @@ namespace Bullet.UnitTests
 	{
 		int step;
 		bool sloped;
+		bool timing_only;
 
 		btDiscreteDynamicsWorld world;
 		btRigidBody fallingRigidBody;
@@ -66,26 +67,30 @@ namespace Bullet.UnitTests
 			}
 			{
 				world.stepSimulation( 1 / 60.0f, 10 );
-				if( Program.Display != null )
-					world.debugDrawWorld();
+				if( !timing_only )
+				{
+					if( Program.Display != null )
+						world.debugDrawWorld();
 
-				btTransform trans;
-				fallingRigidBody.getMotionState().getWorldTransform( out trans );
+					btTransform trans;
+					fallingRigidBody.getMotionState().getWorldTransform( out trans );
 
-				Console.WriteLine( "Iteration {0}", step );
-				Console.WriteLine( "{0}", trans.ToString( "ball orient\t", "\t\t", "ball origin\t" ) );
-				btVector3 v = fallingRigidBody.getAngularVelocity();
-				Console.WriteLine( "ball Ang Vel : {0}", v );
-				v = fallingRigidBody.getLinearVelocity();
-				Console.WriteLine( "ball Lin Vel : {0}", v );
+					Console.WriteLine( "Iteration {0}", step );
+					Console.WriteLine( "{0}", trans.ToString( "ball orient\t", "\t\t", "ball origin\t" ) );
+					btVector3 v = fallingRigidBody.getAngularVelocity();
+					Console.WriteLine( "ball Ang Vel : {0}", v );
+					v = fallingRigidBody.getLinearVelocity();
+					Console.WriteLine( "ball Lin Vel : {0}", v );
+				}
 			}
 			step++;
 			//  world = new DiscreteDynamicsWorld( null, null, null, null );
 		}
 
-		static public void Run( bool sloped )
+		static public void Run( bool timing_only, bool sloped )
 		{
 			Test_002 test = new Test_002();
+			test.timing_only = timing_only;
 			test.sloped = sloped;
 			test.Setup();
 			if( Program.Display != null )

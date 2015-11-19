@@ -13,6 +13,8 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+using Bullet.Collision.Dispatch;
+using Bullet.Dynamics;
 using Bullet.LinearMath;
 using Bullet.Types;
 using System.Diagnostics;
@@ -324,14 +326,34 @@ namespace Bullet.Collision.BroadPhase
 		}
 
 
+		void PairOrder( ref btBroadphaseProxy proxy0, ref btBroadphaseProxy proxy1 )
+		{
+			
+			bool swapped = false;
+			btRigidBody body0 = ( proxy0.m_clientObject.getInternalType() == btCollisionObject.CollisionObjectTypes.CO_RIGID_BODY ) ? proxy0.m_clientObject as btRigidBody : null;
+			btRigidBody body1 = ( proxy1.m_clientObject.getInternalType() == btCollisionObject.CollisionObjectTypes.CO_RIGID_BODY ) ? proxy1.m_clientObject as btRigidBody : null;
+			if( body0 != null && body1 != null )
+				if( body0.getInvMass() < body1.getInvMass() )
+				{
+					btScalar.btSwap( ref proxy0, ref proxy1 );
+					swapped = true;
+				}
 
+			if( !swapped && ( body0.getCollisionShape().getShapeType() < body1.getCollisionShape().getShapeType() ) )
+			{
+				btScalar.btSwap( ref proxy0, ref proxy1 );
+				swapped = true;
+			}
 
+			//if( !swapped && 
+			//	proxy0.GetHashCode() < proxy1.GetHashCode() )
+			//	btScalar.btSwap( ref proxy0, ref proxy1 );
+		}
 
 		internal override btBroadphasePair findPair( btBroadphaseProxy proxy0, btBroadphaseProxy proxy1 )
 		{
 			btHashedOverlappingPairCache.gFindPairs++;
-			if( proxy0.GetHashCode() > proxy1.GetHashCode() )
-				btScalar.btSwap( ref proxy0, ref proxy1 );
+			PairOrder( ref proxy0, ref proxy1 );
 			//int proxyId1 = proxy0.getUid();
 			//int proxyId2 = proxy1.getUid();
 
@@ -401,8 +423,7 @@ namespace Bullet.Collision.BroadPhase
 
 		btBroadphasePair internalAddPair( btBroadphaseProxy proxy0, btBroadphaseProxy proxy1 )
 		{
-			if( proxy0.GetHashCode() > proxy1.GetHashCode() )
-				btScalar.btSwap( ref proxy0, ref proxy1 );
+			PairOrder( ref proxy0, ref proxy1 );
 			int proxyId1 = proxy0.GetHashCode();
 			int proxyId2 = proxy1.GetHashCode();
 
@@ -463,8 +484,7 @@ namespace Bullet.Collision.BroadPhase
 		internal override object removeOverlappingPair( btBroadphaseProxy proxy0, btBroadphaseProxy proxy1, btDispatcher dispatcher )
 		{
 			btHashedOverlappingPairCache.gRemovePairs++;
-			if( proxy0.GetHashCode() > proxy1.GetHashCode() )
-				btScalar.btSwap( ref proxy0, ref proxy1 );
+			PairOrder( ref proxy0, ref proxy1 );
 			int proxyId1 = proxy0.GetHashCode();
 			int proxyId2 = proxy1.GetHashCode();
 
@@ -576,7 +596,8 @@ namespace Bullet.Collision.BroadPhase
 			{
 
 				btBroadphasePair pair = m_overlappingPairArray[i];
-				btScalar.Dbg( "Process pair " + i );
+				btScalar.Dbg( "Process pair " + i + "  " + ( (Bullet.Collision.Dispatch.btCollisionObject)pair.m_pProxy1.m_clientObject ).getCollisionShape()
+					 + " and " + ( (Bullet.Collision.Dispatch.btCollisionObject)pair.m_pProxy0.m_clientObject ).getCollisionShape() );
 				if( callback.processOverlap( pair ) )
 				{
 					removeOverlappingPair( pair.m_pProxy0, pair.m_pProxy1, dispatcher );

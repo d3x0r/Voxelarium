@@ -867,11 +867,12 @@ void print()
 				array = new T[size];
 			}
 
+			/*
 			~PoolArray()
 			{
 				array = null;
-				//btAlignedFree( array );
 			}
+			*/
 
 			public T init()
 			{

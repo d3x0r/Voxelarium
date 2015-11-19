@@ -56,7 +56,11 @@ namespace Bullet.Collision.Dispatch
         }
 		*/
 
-		internal override void processCollision( btCollisionObjectWrapper a, btCollisionObjectWrapper b, btDispatcherInfo c, btManifoldResult d)
+		internal override void processCollision( btCollisionObjectWrapper a
+			, ref btTransform body0Transform
+			, btCollisionObjectWrapper body1Wrap
+			, ref btTransform body1Transform
+			, btDispatcherInfo c, btManifoldResult d)
 		{
 		}
 

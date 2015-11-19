@@ -7,22 +7,26 @@ namespace Voxelarium.Core.UI
 	class FontFrame : Frame
 	{
 		string TextToDisplay;
-		TileSet.TileStyle TileStyle;
-
+		//TileSet.TileStyle TileStyle;
+		FontRenderer font;
+		float line_height;
 		internal FontFrame()
 		{
 			FrameType = VoxelGlobalSettings.MulticharConst( 'T', 'E', 'X', 'T' );
-			TileStyle = null;
 			TextToDisplay = "";
 		}
 		internal virtual void SetDisplayText( string TextToDisplay ) { this.TextToDisplay = TextToDisplay; }
-		internal virtual void SetStyle( TileSet.TileStyle TileStyle ) { this.TileStyle = TileStyle; }
-
+		//internal virtual void Style( TileSet.TileStyle TileStyle ) { this.TileStyle = TileStyle; }
+		internal virtual FontRenderer Font { set { font = value; } }
+		internal virtual float FontSize { set { line_height = value; } get { return line_height; } }
 		internal virtual void GetTextDisplaySize( out Vector2 OutSize )
 		{
-			if( TileStyle!=null )
+			if( font != null )
 			{
-				TileStyle.TileSet.GetFontRenderSize( TileStyle, TextToDisplay, out OutSize );
+				Vector2 target_size;
+				font.GetFontRenderSize( TextToDisplay, out target_size );
+				OutSize.X = ( target_size.X * line_height ) / target_size.Y;
+				OutSize.Y = ( line_height );
 			}
 			else
 				OutSize = new Vector2( 0 );
@@ -37,9 +41,9 @@ namespace Voxelarium.Core.UI
                 EffectivePosition.Size = Dimensions.Size;
 				if( Flag_Show_Frame )
 				{
-					if( TileStyle != null )
-						if( TileStyle.TileSet != null )
-							TileStyle.TileSet.RenderFont( render, TileStyle, ref EffectivePosition, this.TextToDisplay, ref DrawColor );
+					if( font != null )
+						font.RenderFont( render, ref EffectivePosition, line_height
+                            , this.TextToDisplay, ref DrawColor );
 				}
 
 				// Render child frames

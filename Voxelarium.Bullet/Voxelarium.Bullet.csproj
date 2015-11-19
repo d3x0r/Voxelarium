@@ -21,6 +21,8 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -66,7 +68,6 @@
     <Compile Include="BulletCollision\CollisionDispatch\Ported\CollisionCreateFunc.h.cs" />
     <Compile Include="BulletCollision\CollisionDispatch\Ported\CollisionDispatcher.cs" />
     <Compile Include="BulletCollision\CollisionDispatch\Ported\CollisionObject.cs" />
-    <Compile Include="BulletCollision\CollisionDispatch\Ported\CollisionObject.h.cs" />
     <Compile Include="BulletCollision\CollisionDispatch\Ported\CollisionObjectWrapper.h.cs" />
     <Compile Include="BulletCollision\CollisionDispatch\Ported\CollisionWorld.cs" />
     <Compile Include="BulletCollision\CollisionDispatch\Ported\CollisionWorld.h.cs" />

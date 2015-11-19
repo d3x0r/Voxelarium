@@ -208,12 +208,11 @@ namespace Bullet.Collision.Dispatch
 
 			btManifoldPoint newPt = BulletGlobals.ManifoldPointPool.Get();
 			newPt.Initialize( ref localA, ref localB, ref normalOnBInWorld, depth );
-
+			btScalar.Dbg( "add contact point " + pointA + " and " + pointInWorld );
 			newPt.m_positionWorldOnA = pointA;
 			newPt.m_positionWorldOnB = pointInWorld;
 
 			int insertIndex = m_manifoldPtr.getCacheEntry( ref newPt );
-			btScalar.Dbg( "new point goes into cache at " + insertIndex );
 			newPt.m_combinedFriction = calculateCombinedFriction( m_body0Wrap.m_collisionObject, m_body1Wrap.m_collisionObject );
 			newPt.m_combinedRestitution = calculateCombinedRestitution( m_body0Wrap.m_collisionObject, m_body1Wrap.m_collisionObject );
 			newPt.m_combinedRollingFriction = calculateCombinedRollingFriction( m_body0Wrap.m_collisionObject, m_body1Wrap.m_collisionObject );

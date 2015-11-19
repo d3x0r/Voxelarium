@@ -34,15 +34,6 @@ namespace Bullet.Collision.Dispatch
 			base.Initialize( ci );
 		}
 
-		/*
-	virtual void processCollision (btCollisionObjectWrapper* body0Wrap,btCollisionObjectWrapper* body1Wrap,btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut);
-
-	virtual double calculateTimeOfImpact(btCollisionObject body0,btCollisionObject body1,btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut);
-
-	btBoxBoxCollisionAlgorithm(btPersistentManifold* mf,btCollisionAlgorithmConstructionInfo& ci,btCollisionObjectWrapper* body0Wrap,btCollisionObjectWrapper* body1Wrap);
-
-	virtual ~btBoxBoxCollisionAlgorithm();
-	*/
 		internal override void getAllContactManifolds( btManifoldArray manifoldArray )
 		{
 			if( m_manifoldPtr != null && m_ownManifold )
@@ -52,7 +43,8 @@ namespace Bullet.Collision.Dispatch
 		}
 
 
-		void Initialize( btPersistentManifold mf, btCollisionAlgorithmConstructionInfo ci, btCollisionObjectWrapper body0Wrap, btCollisionObjectWrapper body1Wrap )
+		void Initialize( btPersistentManifold mf, btCollisionAlgorithmConstructionInfo ci
+						, btCollisionObjectWrapper body0Wrap, btCollisionObjectWrapper body1Wrap )
 		{
 			base.Initialize( ci, body0Wrap, body1Wrap );
 			m_ownManifold = ( false );
@@ -73,7 +65,8 @@ namespace Bullet.Collision.Dispatch
 			}
 		}
 
-		internal override void processCollision( btCollisionObjectWrapper body0Wrap, btCollisionObjectWrapper body1Wrap, btDispatcherInfo dispatchInfo, btManifoldResult resultOut )
+		internal override void processCollision( btCollisionObjectWrapper body0Wrap, ref btTransform body0Transform
+			, btCollisionObjectWrapper body1Wrap, ref btTransform body1Transform, btDispatcherInfo dispatchInfo, btManifoldResult resultOut )
 		{
 			if( m_manifoldPtr == null )
 				return;
@@ -92,8 +85,8 @@ namespace Bullet.Collision.Dispatch
 
 			btDiscreteCollisionDetectorInterface.ClosestPointInput input = new btDiscreteCollisionDetectorInterface.ClosestPointInput();
 			input.m_maximumDistanceSquared = btScalar.BT_LARGE_FLOAT;
-			input.m_transformA = body0Wrap.m_worldTransform;
-			input.m_transformB = body1Wrap.m_worldTransform;
+			input.m_transformA = body0Transform;
+			input.m_transformB = body1Transform;
 
 			//btBoxBoxDetector detector = BulletGlobals.
 			//	new btBoxBoxDetectors( box0, box1 );
