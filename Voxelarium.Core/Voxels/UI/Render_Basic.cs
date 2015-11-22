@@ -1,4 +1,27 @@
-﻿using Voxelarium.LinearMath;
+﻿/*
+ * Before porting, this header appeared inmost sources.  Of course
+ * the change from C++ to C# required significant changes an no part
+ * is entirely original.
+ * 
+ * This file is part of Blackvoxel. (Now Voxelarium)
+ *
+ * Copyright 2010-2014 Laurent Thiebaut & Olivia Merle
+ * Copyright 2015-2016 James Buckeyne  *** Added 11/22/2015
+ *
+ * Voxelarium is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Voxelarium is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+using Voxelarium.LinearMath;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using System;
@@ -48,11 +71,11 @@ namespace Voxelarium.Core.Voxels.UI
 					return;// false;
 				if( internal_faces )
 				{
-					Render_Basic.SectorUpdateFaceCulling( world, Sector, false );
+					Render_Basic.SectorUpdateFaceCulling( world, Sector, true );
 				}
 				else
 				{
-					Render_Basic.SectorUpdateFaceCulling_Partial( world, Sector, interesting_faces, false );
+					Render_Basic.SectorUpdateFaceCulling_Partial( world, Sector, interesting_faces, true );
 				}
 			}
 			void CullSingleVoxel( VoxelSector _Sector, uint offset )
@@ -145,12 +168,12 @@ namespace Voxelarium.Core.Voxels.UI
 				{
 					//Voxel_Address[i] = Sector[i].Data.Data[Offset[i]];
 					Voxel = ( Sector[i].Data.Data[Offset[i]] ); VoxelType = VoxelTypeTable[Voxel];
-					VoxelState[i] = (ushort)(( ( Voxel == 0 ) ? 1 : 0 )
-						   | ( VoxelType.properties. Draw_FullVoxelOpacity ? 2 : 0 )
-						   | ( VoxelType.properties.Draw_TransparentRendering ? 4 : 0 ));
+					VoxelState[i] = (ushort)( ( ( Voxel == 0 ) ? 1 : 0 )
+						   | ( VoxelType.properties.Draw_FullVoxelOpacity ? 2 : 0 )
+						   | ( VoxelType.properties.Draw_TransparentRendering ? 4 : 0 ) );
 				}
 
-				Voxel = Sector[(int)VoxelSector.RelativeVoxelOrds.INCENTER].Data.Data[Offset[(int)VoxelSector.RelativeVoxelOrds.INCENTER]] ;
+				Voxel = Sector[(int)VoxelSector.RelativeVoxelOrds.INCENTER].Data.Data[Offset[(int)VoxelSector.RelativeVoxelOrds.INCENTER]];
 
 				// Storing Extension
 
@@ -211,89 +234,6 @@ namespace Voxelarium.Core.Voxels.UI
 								+ ( ( z & VoxelSector.ZVOXELBLOCMASK_Z ) << ( VoxelSector.ZVOXELBLOCSHIFT_Y + VoxelSector.ZVOXELBLOCSHIFT_X ) ) );
 				CullSingleVoxel( sector,(uint)offset );
 			}
-#if asdfasdf
-			bool ZVoxelCuller_Basic::Decompress_RLE( VoxelSector Sector, void* Stream )
-			{
-				byte* Data = (byte*)Sector.Culling;
-				ZStream_SpecialRamStream* Rs = (ZStream_SpecialRamStream*)Stream;
-				byte MagicToken = 0xFF;
-				byte Actual;
-				uint Pointer;
-				ushort nRepeat;
-
-				Pointer = 0;
-				while( Pointer < Sector.DataSize )
-				{
-					if( !Rs.Get( Actual ) ) return ( false );
-					if( Actual == MagicToken )
-					{
-						if( !Rs.Get( Actual ) ) return ( false );
-						if( !Rs.Get( nRepeat ) ) return ( false );
-						if( ( (uint)nRepeat ) > ( Sector.DataSize - Pointer ) )
-						{
-							return ( false );
-						}
-
-						while( nRepeat-- ) { Data[Pointer++] = Actual; }
-					}
-					else
-					{
-						Data[Pointer++] = Actual;
-					}
-				}
-
-				return ( true );
-			}
-
-			void ZVoxelCuller_Basic::Compress_RLE( VoxelSector Sector, void* Stream )
-			{
-				ZStream_SpecialRamStream* Rs = (ZStream_SpecialRamStream*)Stream;
-				byte MagicToken = 0xFF;
-				byte* Data = (byte*)Sector.Culling;
-				byte Last, Actual;
-				uint Point = 0;
-				uint SameCount = 0;
-				uint i;
-				bool Continue;
-
-				Last = Data[Point++];
-
-				Continue = true;
-				while( Continue )
-				{
-					if( Point != Sector.DataSize ) { Actual = Data[Point++]; }
-					else { Actual = Last - 1; Continue = false; }
-					if( Last == Actual )
-					{
-						SameCount++;
-					}
-					else
-					{
-						if( SameCount )
-						{
-							if( SameCount < 3 )
-							{
-								if( Last == MagicToken ) { Rs.Put( MagicToken ); Rs.Put( MagicToken ); Rs.Put( (ushort)( SameCount + 1 ) ); }
-								else { for( i = 0; i <= SameCount; i++ ) Rs.Put( Last ); }
-							}
-							else
-							{
-								Rs.Put( MagicToken );
-								Rs.Put( Last );
-								Rs.Put( (ushort)( SameCount + 1 ) );
-							}
-							SameCount = 0;
-						}
-						else
-						{
-							if( Last == MagicToken ) { Rs.Put( MagicToken ); Rs.Put( Last ); Rs.Put( (ushort)1 ); }
-							else { Rs.Put( Last ); }
-						}
-					}
-					Last = Actual;
-				}
-			}
-#endif
 		}
 
 
@@ -331,13 +271,13 @@ namespace Voxelarium.Core.Voxels.UI
 
 			// (VoxelSector.FACEDRAW_Operations.ABOVE | VoxelSector.FACEDRAW_Operations.BELOW | VoxelSector.FACEDRAW_Operations.LEFT | VoxelSector.FACEDRAW_Operations.RIGHT | VoxelSector.FACEDRAW_Operations.AHEAD | VoxelSector.FACEDRAW_Operations.BEHIND);
 			for( i = 0; i < 27; i++ ) SectorTable[i] = MissingSector;
-			SectorTable[0] = world.FindSector( Sector.Pos_x, Sector.Pos_y, Sector.Pos_z ); if( SectorTable[0] == null ) { return; }
-			SectorTable[1] = world.FindSector( Sector.Pos_x - 1, Sector.Pos_y, Sector.Pos_z ); if( SectorTable[1] == null ) { SectorTable[1] = MissingSector; SectorTable[0].PartialCulling |= VoxelSector.FACEDRAW_Operations.LEFT; }
-			SectorTable[2] = world.FindSector( Sector.Pos_x + 1, Sector.Pos_y, Sector.Pos_z ); if( SectorTable[2] == null ) { SectorTable[2] = MissingSector; SectorTable[0].PartialCulling |= VoxelSector.FACEDRAW_Operations.RIGHT; }
-			SectorTable[3] = world.FindSector( Sector.Pos_x, Sector.Pos_y, Sector.Pos_z - 1 ); if( SectorTable[3] == null ) { SectorTable[3] = MissingSector; SectorTable[0].PartialCulling |= VoxelSector.FACEDRAW_Operations.AHEAD; }
-			SectorTable[6] = world.FindSector( Sector.Pos_x, Sector.Pos_y, Sector.Pos_z + 1 ); if( SectorTable[6] == null ) { SectorTable[6] = MissingSector; SectorTable[0].PartialCulling |= VoxelSector.FACEDRAW_Operations.BEHIND; }
-			SectorTable[9] = world.FindSector( Sector.Pos_x, Sector.Pos_y - 1, Sector.Pos_z ); if( SectorTable[9] == null ) { SectorTable[9] = MissingSector; SectorTable[0].PartialCulling |= VoxelSector.FACEDRAW_Operations.BELOW; }
-			SectorTable[18] = world.FindSector( Sector.Pos_x, Sector.Pos_y + 1, Sector.Pos_z ); if( SectorTable[18] == null ) { SectorTable[18] = MissingSector; SectorTable[0].PartialCulling |= VoxelSector.FACEDRAW_Operations.ABOVE; }
+			SectorTable[0] = Sector; if( SectorTable[0] == null ) { return; }
+			SectorTable[1] = Sector.near_sectors[(int)VoxelSector.RelativeVoxelOrds.LEFT - 1]; if( SectorTable[1] == null ) { SectorTable[1] = MissingSector; SectorTable[0].PartialCulling |= VoxelSector.FACEDRAW_Operations.LEFT; }
+			SectorTable[2] = Sector.near_sectors[(int)VoxelSector.RelativeVoxelOrds.RIGHT - 1]; if( SectorTable[2] == null ) { SectorTable[2] = MissingSector; SectorTable[0].PartialCulling |= VoxelSector.FACEDRAW_Operations.RIGHT; }
+			SectorTable[3] = Sector.near_sectors[(int)VoxelSector.RelativeVoxelOrds.BEHIND - 1]; if( SectorTable[3] == null ) { SectorTable[3] = MissingSector; SectorTable[0].PartialCulling |= VoxelSector.FACEDRAW_Operations.BEHIND; }
+			SectorTable[6] = Sector.near_sectors[(int)VoxelSector.RelativeVoxelOrds.AHEAD - 1]; if( SectorTable[6] == null ) { SectorTable[6] = MissingSector; SectorTable[0].PartialCulling |= VoxelSector.FACEDRAW_Operations.AHEAD; }
+			SectorTable[9] = Sector.near_sectors[(int)VoxelSector.RelativeVoxelOrds.BELOW - 1]; if( SectorTable[9] == null ) { SectorTable[9] = MissingSector; SectorTable[0].PartialCulling |= VoxelSector.FACEDRAW_Operations.BELOW; }
+			SectorTable[18] = Sector.near_sectors[(int)VoxelSector.RelativeVoxelOrds.ABOVE - 1]; if( SectorTable[18] == null ) { SectorTable[18] = MissingSector; SectorTable[0].PartialCulling |= VoxelSector.FACEDRAW_Operations.ABOVE; }
 			for( i = 0; i < 27; i++ ) SectorDataTable[i] = SectorTable[i].Data.Data;
 
 
@@ -365,25 +305,25 @@ namespace Voxelarium.Core.Voxels.UI
 					zp = zc + 1; zpp = zc + 2;
 
 					// Prefetching the bloc matrix (only 2 rows)
-					//    BlocMatrix[1][0] = SectorTable[(VoxelSector.STableX[xc ]+STableY[0]+STableZ[zc ])].Data[OfTableX[xc]+OfTableY[0]+OfTableZ[zc]];
+					//    BlocMatrix[1][0] = SectorDataTable[(VoxelSector.STableX[xc ]+STableY[0]+STableZ[zc ])][OfTableX[xc]+OfTableY[0]+OfTableZ[zc]];
 					BlocMatrix[1][1] = SectorDataTable[( STableX[xp] + STableY[0] + STableZ[zc] )][OfTableX[xp] + OfTableY[0] + OfTableZ[zc]];
-					//    BlocMatrix[1][2] = SectorDataTable[(STableX[xpp]+STableY[0]+STableZ[zc ])].Data;	   [OfTableX[xpp]+OfTableY[0]+OfTableZ[zc ]]
+					//    BlocMatrix[1][2] = SectorDataTable[(STableX[xpp]+STableY[0]+STableZ[zc ])][OfTableX[xpp]+OfTableY[0]+OfTableZ[zc ]]
 					BlocMatrix[1][3] = SectorDataTable[( STableX[xc] + STableY[0] + STableZ[zp] )][OfTableX[xc] + OfTableY[0] + OfTableZ[zp]];
 					BlocMatrix[1][4] = SectorDataTable[( STableX[xp] + STableY[0] + STableZ[zp] )][OfTableX[xp] + OfTableY[0] + OfTableZ[zp]];
 					BlocMatrix[1][5] = SectorDataTable[( STableX[xpp] + STableY[0] + STableZ[zp] )][OfTableX[xpp] + OfTableY[0] + OfTableZ[zp]];
-					//    BlocMatrix[1][6] = SectorDataTable[(STableX[xc ]+STableY[0]+STableZ[zpp])].Data;	   [OfTableX[xc ]+OfTableY[0]+OfTableZ[zpp]]
+					//    BlocMatrix[1][6] = SectorDataTable[(STableX[xc ]+STableY[0]+STableZ[zpp])][OfTableX[xc ]+OfTableY[0]+OfTableZ[zpp]]
 					BlocMatrix[1][7] = SectorDataTable[( STableX[xp] + STableY[0] + STableZ[zpp] )][OfTableX[xp] + OfTableY[0] + OfTableZ[zpp]];
-					//    BlocMatrix[1][8] = SectorDataTable[(STableX[xpp]+STableY[0]+STableZ[zpp])].Data;	   [OfTableX[xpp]+OfTableY[0]+OfTableZ[zpp]]
+					//    BlocMatrix[1][8] = SectorDataTable[(STableX[xpp]+STableY[0]+STableZ[zpp])][OfTableX[xpp]+OfTableY[0]+OfTableZ[zpp]]
 
-					//    BlocMatrix[2][0] = SectorDataTable[(STableX[xc ]+STableY[1]+STableZ[zc ])].Data;	   [OfTableX[xc ]+OfTableY[1]+OfTableZ[zc ]]
+					//    BlocMatrix[2][0] = SectorDataTable[(STableX[xc ]+STableY[1]+STableZ[zc ])][OfTableX[xc ]+OfTableY[1]+OfTableZ[zc ]]
 					BlocMatrix[2][1] = SectorDataTable[( STableX[xp] + STableY[1] + STableZ[zc] )][OfTableX[xp] + OfTableY[1] + OfTableZ[zc]];
-					//    BlocMatrix[2][2] = SectorDataTable[(STableX[xpp]+STableY[1]+STableZ[zc ])].Data;	   [OfTableX[xpp]+OfTableY[1]+OfTableZ[zc ]]
+					//    BlocMatrix[2][2] = SectorDataTable[(STableX[xpp]+STableY[1]+STableZ[zc ])][OfTableX[xpp]+OfTableY[1]+OfTableZ[zc ]]
 					BlocMatrix[2][3] = SectorDataTable[( STableX[xc] + STableY[1] + STableZ[zp] )][OfTableX[xc] + OfTableY[1] + OfTableZ[zp]];
 					BlocMatrix[2][4] = SectorDataTable[( STableX[xp] + STableY[1] + STableZ[zp] )][OfTableX[xp] + OfTableY[1] + OfTableZ[zp]];
 					BlocMatrix[2][5] = SectorDataTable[( STableX[xpp] + STableY[1] + STableZ[zp] )][OfTableX[xpp] + OfTableY[1] + OfTableZ[zp]];
-					//    BlocMatrix[2][6] = SectorDataTable[(STableX[xc ]+STableY[1]+STableZ[zpp])].Data;	   [OfTableX[xc ]+OfTableY[1]+OfTableZ[zpp]]
+					//    BlocMatrix[2][6] = SectorDataTable[(STableX[xc ]+STableY[1]+STableZ[zpp])][OfTableX[xc ]+OfTableY[1]+OfTableZ[zpp]]
 					BlocMatrix[2][7] = SectorDataTable[( STableX[xp] + STableY[1] + STableZ[zpp] )][OfTableX[xp] + OfTableY[1] + OfTableZ[zpp]];
-					//    BlocMatrix[2][8] = SectorDataTable[(STableX[xpp]+STableY[1]+STableZ[zpp])].Data;	   [OfTableX[xpp]+OfTableY[1]+OfTableZ[zpp]]
+					//    BlocMatrix[2][8] = SectorDataTable[(STableX[xpp]+STableY[1]+STableZ[zpp])][OfTableX[xpp]+OfTableY[1]+OfTableZ[zpp]]
 
 					for( yc = 0; yc < VoxelSector.ZVOXELBLOCSIZE_Y; yc++ )
 					{
@@ -836,9 +776,9 @@ namespace Voxelarium.Core.Voxels.UI
 			// Transforming Camera coords to sector coords. One Voxel is 256 observer units. One sector is 16x16x32.
 			btVector3 origin;
 			Camera.location.getOrigin( out origin );
-			Sector_x = (int)( (long)origin.x >> ( world.VoxelBlockSizeBits + VoxelSector.ZVOXELBLOCSHIFT_X ));
-			Sector_y = (int)( (long)origin.y >> ( world.VoxelBlockSizeBits + VoxelSector.ZVOXELBLOCSHIFT_Y ));
-			Sector_z = (int)( (long)origin.z >> ( world.VoxelBlockSizeBits + VoxelSector.ZVOXELBLOCSHIFT_Z ));
+			Sector_x = (int)( (long)origin.x >> ( world.VoxelBlockSizeBits + VoxelSector.ZVOXELBLOCSHIFT_X ) );
+			Sector_y = (int)( (long)origin.y >> ( world.VoxelBlockSizeBits + VoxelSector.ZVOXELBLOCSHIFT_Y ) );
+			Sector_z = (int)( (long)origin.z >> ( world.VoxelBlockSizeBits + VoxelSector.ZVOXELBLOCSHIFT_Z ) );
 
 			// Rendering loop
 
@@ -851,7 +791,7 @@ namespace Voxelarium.Core.Voxels.UI
 			int voxelSizeBits = world.VoxelBlockSizeBits;
 			int voxelSize = world.VoxelBlockSize;
 			SectorSphere.SphereEntry SectorSphereEntry;
-			uint SectorsToProcess = SectorSphere.GetEntryCount();
+			uint SectorsToProcess = 2;// SectorSphere.GetEntryCount();
 
 			btVector3 Cv;
 			btVector3 Cv2;
@@ -861,10 +801,24 @@ namespace Voxelarium.Core.Voxels.UI
 			for( int Entry = 0; Entry < SectorsToProcess; Entry++ )
 			{
 				SectorSphere.GetEntry( Entry, out SectorSphereEntry );
+				switch( Entry )
+				{
+					default:
+					case 0:
+						x = 0;// SectorSphereEntry.x + Sector_x;
+						y = -1;//SectorSphereEntry.y + Sector_y;
+						z = 0;//SectorSphereEntry.z + Sector_z;
+						break;
+					case 1:
+						x = 0;// SectorSphereEntry.x + Sector_x;
+						y = -1;//SectorSphereEntry.y + Sector_y;
+						z = 1;//SectorSphereEntry.z + Sector_z;
+						break;
+				}
 
-				x = SectorSphereEntry.x + Sector_x;
-				y = SectorSphereEntry.y + Sector_y;
-				z = SectorSphereEntry.z + Sector_z;
+				//x = SectorSphereEntry.x + Sector_x;
+				//y = SectorSphereEntry.y + Sector_y;
+				//z = SectorSphereEntry.z + Sector_z;
 
 				// for (x = Start_x ; x <= End_x ; x++)
 				// for (y = Start_y; y <= End_y ; y++)
@@ -874,26 +828,26 @@ namespace Voxelarium.Core.Voxels.UI
 
 				bool SectorVisible;
 
-				Cv.x = (float)( (x ) << ( voxelSizeBits + VoxelSector.ZVOXELBLOCSHIFT_X ) );
-				Cv.y = (float)( (y ) << ( voxelSizeBits + VoxelSector.ZVOXELBLOCSHIFT_Y ) );
-				Cv.z = (float)( (z ) << ( voxelSizeBits + VoxelSector.ZVOXELBLOCSHIFT_Z ) );
+				Cv.x = (float)( ( x ) << ( voxelSizeBits + VoxelSector.ZVOXELBLOCSHIFT_X ) );
+				Cv.y = (float)( ( y ) << ( voxelSizeBits + VoxelSector.ZVOXELBLOCSHIFT_Y ) );
+				Cv.z = (float)( ( z ) << ( voxelSizeBits + VoxelSector.ZVOXELBLOCSHIFT_Z ) );
 
 				SectorVisible = false;
 				Cv2.x = ( 0 * VoxelSector.ZVOXELBLOCSIZE_X * voxelSize ); Cv2.y = ( 0 * VoxelSector.ZVOXELBLOCSIZE_Y * voxelSize ); Cv2.z = ( 0 * VoxelSector.ZVOXELBLOCSIZE_Z * voxelSize );
 				Cv2.Add( ref Cv, out Cv2 ); SectorVisible |= Is_PointVisible( ref Camera.location, ref Cv2 );
-				Cv2.x = ( 1 * VoxelSector.ZVOXELBLOCSIZE_X * voxelSize ); Cv2.y = ( 0 * VoxelSector.ZVOXELBLOCSIZE_Y * voxelSize ); Cv2.z = ( 0 * VoxelSector.ZVOXELBLOCSIZE_Z * voxelSize ); 
+				Cv2.x = ( 1 * VoxelSector.ZVOXELBLOCSIZE_X * voxelSize ); Cv2.y = ( 0 * VoxelSector.ZVOXELBLOCSIZE_Y * voxelSize ); Cv2.z = ( 0 * VoxelSector.ZVOXELBLOCSIZE_Z * voxelSize );
 				Cv2.Add( ref Cv, out Cv2 ); SectorVisible |= Is_PointVisible( ref Camera.location, ref Cv2 );
-				Cv2.x = ( 1 * VoxelSector.ZVOXELBLOCSIZE_X * voxelSize ); Cv2.y = ( 0 * VoxelSector.ZVOXELBLOCSIZE_Y * voxelSize ); Cv2.z = ( 1 * VoxelSector.ZVOXELBLOCSIZE_Z * voxelSize ); 
+				Cv2.x = ( 1 * VoxelSector.ZVOXELBLOCSIZE_X * voxelSize ); Cv2.y = ( 0 * VoxelSector.ZVOXELBLOCSIZE_Y * voxelSize ); Cv2.z = ( 1 * VoxelSector.ZVOXELBLOCSIZE_Z * voxelSize );
 				Cv2.Add( ref Cv, out Cv2 ); SectorVisible |= Is_PointVisible( ref Camera.location, ref Cv2 );
-				Cv2.x = ( 0 * VoxelSector.ZVOXELBLOCSIZE_X * voxelSize ); Cv2.y = ( 0 * VoxelSector.ZVOXELBLOCSIZE_Y * voxelSize ); Cv2.z = ( 1 * VoxelSector.ZVOXELBLOCSIZE_Z * voxelSize ); 
+				Cv2.x = ( 0 * VoxelSector.ZVOXELBLOCSIZE_X * voxelSize ); Cv2.y = ( 0 * VoxelSector.ZVOXELBLOCSIZE_Y * voxelSize ); Cv2.z = ( 1 * VoxelSector.ZVOXELBLOCSIZE_Z * voxelSize );
 				Cv2.Add( ref Cv, out Cv2 ); SectorVisible |= Is_PointVisible( ref Camera.location, ref Cv2 );
-				Cv2.x = ( 0 * VoxelSector.ZVOXELBLOCSIZE_X * voxelSize ); Cv2.y = ( 1 * VoxelSector.ZVOXELBLOCSIZE_Y * voxelSize ); Cv2.z = ( 0 * VoxelSector.ZVOXELBLOCSIZE_Z * voxelSize ); 
+				Cv2.x = ( 0 * VoxelSector.ZVOXELBLOCSIZE_X * voxelSize ); Cv2.y = ( 1 * VoxelSector.ZVOXELBLOCSIZE_Y * voxelSize ); Cv2.z = ( 0 * VoxelSector.ZVOXELBLOCSIZE_Z * voxelSize );
 				Cv2.Add( ref Cv, out Cv2 ); SectorVisible |= Is_PointVisible( ref Camera.location, ref Cv2 );
-				Cv2.x = ( 1 * VoxelSector.ZVOXELBLOCSIZE_X * voxelSize ); Cv2.y = ( 1 * VoxelSector.ZVOXELBLOCSIZE_Y * voxelSize ); Cv2.z = ( 0 * VoxelSector.ZVOXELBLOCSIZE_Z * voxelSize ); 
+				Cv2.x = ( 1 * VoxelSector.ZVOXELBLOCSIZE_X * voxelSize ); Cv2.y = ( 1 * VoxelSector.ZVOXELBLOCSIZE_Y * voxelSize ); Cv2.z = ( 0 * VoxelSector.ZVOXELBLOCSIZE_Z * voxelSize );
 				Cv2.Add( ref Cv, out Cv2 ); SectorVisible |= Is_PointVisible( ref Camera.location, ref Cv2 );
-				Cv2.x = ( 1 * VoxelSector.ZVOXELBLOCSIZE_X * voxelSize ); Cv2.y = ( 1 * VoxelSector.ZVOXELBLOCSIZE_Y * voxelSize ); Cv2.z = ( 1 * VoxelSector.ZVOXELBLOCSIZE_Z * voxelSize ); 
+				Cv2.x = ( 1 * VoxelSector.ZVOXELBLOCSIZE_X * voxelSize ); Cv2.y = ( 1 * VoxelSector.ZVOXELBLOCSIZE_Y * voxelSize ); Cv2.z = ( 1 * VoxelSector.ZVOXELBLOCSIZE_Z * voxelSize );
 				Cv2.Add( ref Cv, out Cv2 ); SectorVisible |= Is_PointVisible( ref Camera.location, ref Cv2 );
-				Cv2.x = ( 0 * VoxelSector.ZVOXELBLOCSIZE_X * voxelSize ); Cv2.y = ( 1 * VoxelSector.ZVOXELBLOCSIZE_Y * voxelSize ); Cv2.z = ( 1 * VoxelSector.ZVOXELBLOCSIZE_Z * voxelSize ); 
+				Cv2.x = ( 0 * VoxelSector.ZVOXELBLOCSIZE_X * voxelSize ); Cv2.y = ( 1 * VoxelSector.ZVOXELBLOCSIZE_Y * voxelSize ); Cv2.z = ( 1 * VoxelSector.ZVOXELBLOCSIZE_Z * voxelSize );
 				Cv2.Add( ref Cv, out Cv2 ); SectorVisible |= Is_PointVisible( ref Camera.location, ref Cv2 );
 
 				Sector = world.FindSector( x, y, z );
@@ -959,7 +913,7 @@ namespace Voxelarium.Core.Voxels.UI
 						if( VoxelGlobalSettings.COMPILEOPTION_FINETIMINGTRACKING )
 							Timer_SectorRefresh.Start();
 
-						Sector.geometry.DrawBuffer( false, world.TextureAtlas.OpenGl_TextureRef );
+						Sector.geometry.DrawBuffer( false, false, world.TextureAtlas.OpenGl_TextureRef );
 						//glCallList( ( (ZRender_Interface_displaydata*)Sector.DisplayData ).DisplayList_Regular[current_gl_camera] );
 
 						Stat.SectorRender_Count++; RenderedSectors++;
@@ -1012,7 +966,7 @@ namespace Voxelarium.Core.Voxels.UI
 						if( VoxelGlobalSettings.COMPILEOPTION_FINETIMINGTRACKING )
 							Timer_SectorRefresh.Start();
 
-						Sector.geometry.DrawBuffer( true, world.TextureAtlas.OpenGl_TextureRef );
+						Sector.geometry.DrawBuffer( true, false, world.TextureAtlas.OpenGl_TextureRef );
 						//glCallList( ( (ZRender_Interface_displaydata*)Sector.DisplayData ).DisplayList_Transparent[current_gl_camera] );
 						Stat.SectorRender_Count++;
 
@@ -1027,85 +981,7 @@ namespace Voxelarium.Core.Voxels.UI
 			}
 			GL.Enable( EnableCap.DepthTest );
 			GL.Disable( EnableCap.Blend );
-			//GL.DepthMask( true );
-			//glDepthMask( GL_TRUE );
 
-#if asdfasdf
-			// ***************************
-			// Cube designation
-			// ***************************
-
-			ZRayCast_in In;
-
-			In.Camera = Camera;
-			In.MaxCubeIterations = 150;
-			In.PlaneCubeDiff = 100;
-			In.MaxDetectionDistance = 30000.0;
-
-			//   if (World.RayCast( &In, PointedVoxel ))
-			//   {
-			// Render_VoxelSelector( &PointedVoxel.PointedVoxel, 1.0,1.0,1.0 );
-			//Render_VoxelSelector( &PointedVoxel.PredPointedVoxel, 1.0, 0.0, 0.0);
-			//    }
-
-			// Debug ****************************************************
-
-			ZVector3d Norm, Tmp;
-			Norm.x = 0; Norm.y = 0; Norm.z = 1;
-			Camera.orientation.ApplyRotation( Tmp, Norm );
-			// X axis rotation
-			//Tmp.y = Norm.y * cos(-Camera.Pitch/57.295779513) - Norm.z * sin(-Camera.Pitch/57.295779513);
-			//Tmp.z = Norm.y * sin(-Camera.Pitch/57.295779513) + Norm.z * cos(-Camera.Pitch/57.295779513);
-			//Norm.y = Tmp.y; Norm.z = Tmp.z;
-			// Y axis rotation
-			//Tmp.x = Norm.z*sin(Camera.Yaw/57.295779513) + Norm.x * cos(Camera.Yaw/57.295779513);
-			//Tmp.z = Norm.z*cos(Camera.Yaw/57.295779513) - Norm.x * sin(Camera.Yaw/57.295779513);
-			//Norm.x = Tmp.x; Norm.z = Tmp.z;
-			//Norm.y = Tmp.y;
-			// printf("Norm(%lf %lf %lf)\n",Norm.x,Norm.y,Norm.z);
-
-			In.MaxCubeIterations = 150;
-			In.MaxDetectionDistance = 1536;//1000000.0;
-
-			//ZVector3d CamPoint(Camera.x(),Camera.y(),Camera.z());
-			ZVector3d Zp;
-			Zp = PointedVoxel.CollisionPoint; Zp.y = PointedVoxel.CollisionPoint.y + 100.0;
-
-			if( World.RayCast_Vector( Camera.orientation, Tmp, &In, PointedVoxel ) )
-			{
-				if( PointedVoxel.CollisionDistance < In.MaxDetectionDistance )
-				{
-					PointedVoxel.Collided = true;
-					if( BvProp_DisplayVoxelSelector )
-						Render_VoxelSelector( &PointedVoxel.PointedVoxel, 1.0, 1.0, 1.0 );
-				}
-				else
-				{
-					ZVector3d a = Camera.orientation.origin() +
-						Camera.orientation.z_axis() * ( VoxelGlobalSettings.WorldVoxelBlockSize * ( Actor.VoxelSelectDistance ) );
-
-					ZVoxelRef v;
-					if( World.GetVoxelRefPlayerCoord( v, a.x, a.y, a.z ) )
-					{
-						//World.RayCast_Vector(Camera.orientation, Tmp, &In, PointedVoxel);
-						PointedVoxel.PredPointedVoxel.x = v.x + ( v.Sector.Pos_x << VoxelSector.ZVOXELBLOCSHIFT_X );
-						PointedVoxel.PredPointedVoxel.y = v.y + ( v.Sector.Pos_y << VoxelSector.ZVOXELBLOCSHIFT_Y );
-						PointedVoxel.PredPointedVoxel.z = v.z + ( v.Sector.Pos_z << VoxelSector.ZVOXELBLOCSHIFT_Z );
-						PointedVoxel.Collided = true;
-					}
-					if( BvProp_DisplayVoxelSelector )
-						Render_VoxelSelector( &PointedVoxel.PredPointedVoxel, 0.2, 1.0, 0.1 );
-				}
-			}
-
-
-			// ***************************
-			// RÃ©ticule
-			// ***************************
-			DrawReticule();
-			// Voile colorÃ©
-			DrawColorOverlay();
-#endif
 			Timer.End();
 
 			/*printf("Frame Time : %lu Rend Sects: %lu Draw Faces :%lu Top:%lu Bot:%lu Le:%lu Ri:%lu Front:%lu Back:%lu\n",Timer.GetResult(), RenderedSectors, Stat_RenderDrawFaces, Stat_FaceTop, Stat_FaceBottom,
@@ -1118,7 +994,7 @@ namespace Voxelarium.Core.Voxels.UI
 
 		void MakeSectorRenderingData( VoxelSector Sector )
 		{
-			Color face = Color.Black, edge = Color.Red;
+			Color face = Color.Red, edge = Color.Black;
 			short power = 400;
 			int x, y, z;
 			VoxelSector.FACEDRAW_Operations info;
@@ -1142,14 +1018,15 @@ namespace Voxelarium.Core.Voxels.UI
 				VoxelGeometry geometry = Sector.geometry;
 				float voxelSize = Sector.world.VoxelBlockSize;
 				byte[] FaceCulling = ( Sector.Culler as BasicVoxelCuller ).FaceCulling;
-				Sector_Display_x = (int)(Sector.Pos_x * Sector.Size_x * voxelSize );
+				Sector_Display_x = (int)( Sector.Pos_x * Sector.Size_x * voxelSize );
 				Sector_Display_y = (int)( Sector.Pos_y * Sector.Size_y * voxelSize );
 				Sector_Display_z = (int)( Sector.Pos_z * Sector.Size_z * voxelSize );
 
 				Sector.Flag_Void_Regular = true;
 				Sector.Flag_Void_Transparent = true;
 
-				for( Pass = 0; Pass < 2; Pass++ )
+				//for( Pass = 0; Pass < 2; Pass++ )
+				Pass = 0;
 				{
 					switch( Pass )
 					{
@@ -1163,7 +1040,7 @@ namespace Voxelarium.Core.Voxels.UI
 						{
 							for( y = 0; y < Sector.Size_y; y++ )
 							{
-								Offset = (uint)(y + ( x * Sector.Size_y ) + ( z * ( Sector.Size_y * Sector.Size_x ) ));
+								Offset = (uint)( y + ( x * Sector.Size_y ) + ( z * ( Sector.Size_y * Sector.Size_x ) ) );
 								cube = Sector.Data.Data[Offset];
 								info = (VoxelSector.FACEDRAW_Operations)FaceCulling[Offset];
 
@@ -1196,10 +1073,16 @@ namespace Voxelarium.Core.Voxels.UI
 									else
 										face_is_shaded = false;
 									prevcube = cube;
+									if( Pass == 0 && Draw && info != 0 )
+									{
+										Sector.physics.SetVoxel( x, y, z );
+									}
+									else
+										Sector.physics.ClearVoxel( x, y, z );
 
-									cubx = (float)( x * Sector.world.VoxelBlockSize + Sector_Display_x );
-									cuby = (float)( y * Sector.world.VoxelBlockSize + Sector_Display_y );
-									cubz = (float)( z * Sector.world.VoxelBlockSize + Sector_Display_z );
+									cubx = (float)( x * voxelSize + Sector_Display_x );
+									cuby = (float)( y * voxelSize + Sector_Display_y );
+									cubz = (float)( z * voxelSize + Sector_Display_z );
 
 									if( 0 != ( VoxelTypeTable[cube].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_SPECIALRENDERING ))
 									{ VoxelTypeTable[cube].SpecialRender( cubx, cuby, cubz ); continue; }
@@ -1220,9 +1103,9 @@ namespace Voxelarium.Core.Voxels.UI
 										Stat_FaceLeft++;
 										//Log.log( "Add {0} {1} {2} {3}", P4 , P0, P3, P7 );
 										if( face_is_shaded )
-											geometry.AddQuad( ref P0, ref P3, ref P4, ref P7, face, edge, power  );
+											geometry.AddQuad( ref P3, ref P7, ref P0, ref P4, face, edge, power );
 										else
-											geometry.AddQuad( ref P0, ref P3, ref P4, ref P7, ref VoxelTypeTable[cube].TextureCoords );
+											geometry.AddQuad( ref P3, ref P7, ref P0, ref P4, ref VoxelTypeTable[cube].TextureCoords );
 									}
 
 									// Right
@@ -1232,9 +1115,9 @@ namespace Voxelarium.Core.Voxels.UI
 										Stat_FaceRight++;
 										//Log.log( "Add {0} {1} {2} {3}", P5, P6, P2, P1 );
 										if( face_is_shaded )
-											geometry.AddQuad( ref P1, ref P2, ref P5, ref P6, face, edge, power );
+											geometry.AddQuad( ref P1, ref P5, ref P2, ref P6, face, edge, power );
 										else
-											geometry.AddQuad( ref P1, ref P2, ref P5, ref P6, ref VoxelTypeTable[cube].TextureCoords );
+											geometry.AddQuad( ref P1, ref P5, ref P2, ref P6, ref VoxelTypeTable[cube].TextureCoords );
 									}
 									//Front
 									if( ( info & VoxelSector.FACEDRAW_Operations.AHEAD ) != 0 )
@@ -1243,9 +1126,9 @@ namespace Voxelarium.Core.Voxels.UI
 										Stat_FaceFront++;
 										//Log.log( "Add {0} {1} {2} {3}", P0, P4, P5, P1 );
 										if( face_is_shaded )
-											geometry.AddQuad( ref P0, ref P1, ref P4, ref P5, face, edge, power );
+											geometry.AddQuad( ref P0, ref P4, ref P1, ref P5, face, edge, power );
 										else
-											geometry.AddQuad( ref P0, ref P1, ref P4, ref P5, ref VoxelTypeTable[cube].TextureCoords );
+											geometry.AddQuad( ref P0, ref P4, ref P1, ref P5, ref VoxelTypeTable[cube].TextureCoords );
 									}
 
 									//Back
@@ -1255,9 +1138,9 @@ namespace Voxelarium.Core.Voxels.UI
 										Stat_FaceBack++;
 										//Log.log( "Add {0} {1} {2} {3}", P2, P6, P3, P7 );
 										if( face_is_shaded )
-											geometry.AddQuad( ref P2, ref P3, ref P6, ref P7, face, edge, power );
+											geometry.AddQuad( ref P2, ref P6, ref P3, ref P7, face, edge, power );
 										else
-											geometry.AddQuad( ref P2, ref P3, ref P6, ref P7, ref VoxelTypeTable[cube].TextureCoords );
+											geometry.AddQuad( ref P2, ref P6, ref P3, ref P7, ref VoxelTypeTable[cube].TextureCoords );
 									}
 
 									// Top
@@ -1279,22 +1162,210 @@ namespace Voxelarium.Core.Voxels.UI
 										Stat_FaceBottom++;
 										//Log.log( "Add {0} {1} {2} {3}", P0, P1, P3, P2 );
 										if( face_is_shaded )
-											geometry.AddQuad( ref P0, ref P2, ref P1, ref P3, face, edge, power );
+											geometry.AddQuad( ref P3, ref P0, ref P2, ref P1, face, edge, power );
 										else
-											geometry.AddQuad( ref P0, ref P2, ref P1, ref P3, ref VoxelTypeTable[cube].TextureCoords );
+											geometry.AddQuad( ref P3, ref P0, ref P2, ref P1, ref VoxelTypeTable[cube].TextureCoords );
 									}
 								}
 							}
 						}
 					}
 					// if in the first pass, the sector has no transparent block, the second pass is cancelled.
-					if( Sector.Flag_Void_Transparent ) break;
+					//if( Sector.Flag_Void_Transparent ) break;
 				}
 				geometry.SetSolid();
 				Sector.Flag_Render_Dirty = false;
 			}
 		}
 
+
+		void MakeSectorRenderingData_Sorted( VoxelSector Sector, VoxelSector.RelativeVoxelOrds viewed_as, int centerx, int centery, int centerz )
+		{
+			Color face = Color.Red, edge = Color.Black;
+			short power = 400;
+			int x, y, z;
+			VoxelSector.FACEDRAW_Operations info;
+			ushort cube, prevcube;
+			/* build sector geometry */
+
+			uint Offset;
+			float cubx, cuby, cubz;
+			int Sector_Display_x, Sector_Display_y, Sector_Display_z;
+			uint Pass;
+			bool Draw;
+			VoxelTypeManager VoxelTypeManager = Sector.VoxelTypeManager;
+			VoxelType[] VoxelTypeTable = VoxelTypeManager.VoxelTable;
+			Vector3 P0, P1, P2, P3, P4, P5, P6, P7;
+
+			//Log.log( "Building sector {0} {1} {2}", Sector.Pos_x, Sector.Pos_y, Sector.Pos_z );
+			// Display list creation or reuse.
+
+			//if( Sector.Flag_Render_Dirty )
+			{
+				VoxelGeometry geometry = Sector.geometry;
+				float voxelSize = Sector.world.VoxelBlockSize;
+				byte[] FaceCulling = ( Sector.Culler as BasicVoxelCuller ).FaceCulling;
+				Sector_Display_x = (int)( Sector.Pos_x * Sector.Size_x * voxelSize );
+				Sector_Display_y = (int)( Sector.Pos_y * Sector.Size_y * voxelSize );
+				Sector_Display_z = (int)( Sector.Pos_z * Sector.Size_z * voxelSize );
+
+				Sector.Flag_Void_Regular = true;
+				Sector.Flag_Void_Transparent = true;
+				BuildSortListInSector( centerx, centery, centerz );
+				ushort[] SectorIndexes = SortedSectorIndexes[(int)viewed_as];
+				//for( Pass = 0; Pass < 2; Pass++ )
+				Pass = 1;
+				{
+					switch( Pass )
+					{
+						case 0: geometry.SetSolid(); break;// glNewList( DisplayData.DisplayList_Regular[current_gl_camera], GL_COMPILE ); break;
+						case 1: geometry.SetTransparent(); break;//glNewList( DisplayData.DisplayList_Transparent[current_gl_camera], GL_COMPILE ); break;
+					}
+					geometry.Clear();
+
+					prevcube = 0;
+					for( int OffsetIndex = 0; OffsetIndex < VoxelSector.ZVOXELBLOCKCOUNT; OffsetIndex++ )
+					{
+						{
+							{
+								Offset = SectorIndexes[OffsetIndex];
+
+								cube = Sector.Data.Data[Offset];
+								info = (VoxelSector.FACEDRAW_Operations)FaceCulling[Offset];
+
+
+								if( cube > 0 && info != VoxelSector.FACEDRAW_Operations.NONE )
+								{
+									switch( Pass )
+									{
+										default:
+										case 0:
+											if( VoxelTypeTable[cube].properties.Draw_TransparentRendering ) { Draw = false; Sector.Flag_Void_Transparent = false; }
+											else { Draw = true; Sector.Flag_Void_Regular = false; }
+											break;
+										case 1: Draw = ( VoxelTypeTable[cube].properties.Draw_TransparentRendering ) ? true : false; break;
+									}
+								}
+								else Draw = false;
+
+								if( Draw )
+								{
+									Box2D box = VoxelTypeTable[cube].TextureCoords;
+									bool face_is_shaded;
+									if( ( VoxelTypeTable[cube].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_SHADER ) != 0 )
+									{
+										face = VoxelTypeTable[cube].properties.FaceColor;
+										edge = VoxelTypeTable[cube].properties.EdgeColor;
+										power = VoxelTypeTable[cube].properties.EdgePower;
+										face_is_shaded = true;
+									}
+									else
+										face_is_shaded = false;
+									prevcube = cube;
+									if( Pass == 0 && Draw && info != 0 )
+									{
+										Sector.physics.SetVoxel( (int)Offset );
+									}
+									else
+										Sector.physics.ClearVoxel( (int)Offset );
+
+									cubx = (float)( ( ( Offset >> VoxelSector.ZVOXELBLOCSHIFT_Y ) & VoxelSector.ZVOXELBLOCMASK_X) * voxelSize + Sector_Display_x );
+									cuby = (float)( ( ( Offset ) & VoxelSector.ZVOXELBLOCMASK_Y ) * voxelSize + Sector_Display_y );
+									cubz = (float)( ( ( Offset >> (VoxelSector.ZVOXELBLOCSHIFT_Y+VoxelSector.ZVOXELBLOCSHIFT_X) ) & VoxelSector.ZVOXELBLOCMASK_Z ) * voxelSize + Sector_Display_z );
+
+									if( 0 != ( VoxelTypeTable[cube].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_SPECIALRENDERING ) )
+									{ VoxelTypeTable[cube].SpecialRender( cubx, cuby, cubz ); continue; }
+
+									P0.X = cubx; P0.Y = cuby; P0.Z = cubz;
+									P1.X = cubx + voxelSize; P1.Y = cuby; P1.Z = cubz;
+									P2.X = cubx + voxelSize; P2.Y = cuby; P2.Z = cubz + voxelSize;
+									P3.X = cubx; P3.Y = cuby; P3.Z = cubz + voxelSize;
+									P4.X = cubx; P4.Y = cuby + voxelSize; P4.Z = cubz;
+									P5.X = cubx + voxelSize; P5.Y = cuby + voxelSize; P5.Z = cubz;
+									P6.X = cubx + voxelSize; P6.Y = cuby + voxelSize; P6.Z = cubz + voxelSize;
+									P7.X = cubx; P7.Y = cuby + voxelSize; P7.Z = cubz + voxelSize;
+
+									//Left
+									if( ( info & VoxelSector.FACEDRAW_Operations.LEFT ) != 0 )
+									{
+										Stat_RenderDrawFaces++;
+										Stat_FaceLeft++;
+										//Log.log( "Add {0} {1} {2} {3}", P4 , P0, P3, P7 );
+										if( face_is_shaded )
+											geometry.AddQuad( ref P3, ref P7, ref P0, ref P4, face, edge, power );
+										else
+											geometry.AddQuad( ref P3, ref P7, ref P0, ref P4, ref VoxelTypeTable[cube].TextureCoords );
+									}
+
+									// Right
+									if( ( info & VoxelSector.FACEDRAW_Operations.RIGHT ) != 0 )
+									{
+										Stat_RenderDrawFaces++;
+										Stat_FaceRight++;
+										//Log.log( "Add {0} {1} {2} {3}", P5, P6, P2, P1 );
+										if( face_is_shaded )
+											geometry.AddQuad( ref P1, ref P5, ref P2, ref P6, face, edge, power );
+										else
+											geometry.AddQuad( ref P1, ref P5, ref P2, ref P6, ref VoxelTypeTable[cube].TextureCoords );
+									}
+									//Front
+									if( ( info & VoxelSector.FACEDRAW_Operations.AHEAD ) != 0 )
+									{
+										Stat_RenderDrawFaces++;
+										Stat_FaceFront++;
+										//Log.log( "Add {0} {1} {2} {3}", P0, P4, P5, P1 );
+										if( face_is_shaded )
+											geometry.AddQuad( ref P0, ref P4, ref P1, ref P5, face, edge, power );
+										else
+											geometry.AddQuad( ref P0, ref P4, ref P1, ref P5, ref VoxelTypeTable[cube].TextureCoords );
+									}
+
+									//Back
+									if( ( info & VoxelSector.FACEDRAW_Operations.BEHIND ) != 0 )
+									{
+										Stat_RenderDrawFaces++;
+										Stat_FaceBack++;
+										//Log.log( "Add {0} {1} {2} {3}", P2, P6, P3, P7 );
+										if( face_is_shaded )
+											geometry.AddQuad( ref P2, ref P6, ref P3, ref P7, face, edge, power );
+										else
+											geometry.AddQuad( ref P2, ref P6, ref P3, ref P7, ref VoxelTypeTable[cube].TextureCoords );
+									}
+
+									// Top
+									if( ( info & VoxelSector.FACEDRAW_Operations.ABOVE ) != 0 )
+									{
+										Stat_RenderDrawFaces++;
+										Stat_FaceTop++;
+										//Log.log( "Add {0} {1} {2} {3}", P4, P7, P5, P6 );
+										if( face_is_shaded )
+											geometry.AddQuad( ref P4, ref P7, ref P5, ref P6, face, edge, power );
+										else
+											geometry.AddQuad( ref P4, ref P7, ref P5, ref P6, ref VoxelTypeTable[cube].TextureCoords );
+									}
+
+									// Bottom
+									if( ( info & VoxelSector.FACEDRAW_Operations.BELOW ) != 0 )
+									{
+										Stat_RenderDrawFaces++;
+										Stat_FaceBottom++;
+										//Log.log( "Add {0} {1} {2} {3}", P0, P1, P3, P2 );
+										if( face_is_shaded )
+											geometry.AddQuad( ref P3, ref P0, ref P2, ref P1, face, edge, power );
+										else
+											geometry.AddQuad( ref P3, ref P0, ref P2, ref P1, ref VoxelTypeTable[cube].TextureCoords );
+									}
+								}
+							}
+						}
+					}
+					// if in the first pass, the sector has no transparent block, the second pass is cancelled.
+					//if( Sector.Flag_Void_Transparent ) break;
+				}
+				geometry.SetSolid();
+				Sector.Flag_Render_Dirty = false;
+			}
+		}
 
 
 
@@ -1537,6 +1608,616 @@ namespace Voxelarium.Core.Voxels.UI
 			}
 #endif
 		}
+
+
+		static ushort[][] SortedSectorIndexes = new ushort[27][];
+		static SortingTree sorter = new SortingTree( VoxelSector.ZVOXELBLOCKCOUNT );
+		static int center_sorted_x, center_sorted_y, center_sorted_z;
+
+		/// <summary>
+		/// Build the INCENTER order list.
+		/// </summary>
+		/// <param name="x">voxel position of viewpoint</param>
+		/// <param name="y">voxel position of viewpoint</param>
+		/// <param name="z">voxel position of viewpoint</param>
+		static void BuildSortListInSector( int eye_x, int eye_y, int eye_z )
+		{
+			int x, y, z;
+			int tmpx, tmpy, tmpz;
+			int d;
+			ushort val;
+			if( center_sorted_x != eye_x || center_sorted_y != eye_y || center_sorted_z != eye_z )
+			{
+				int n;
+				// x, y, z po
+				for( x = 0; x < VoxelSector.ZVOXELBLOCSIZE_X; x++ )
+					for( y = 0; y < VoxelSector.ZVOXELBLOCSIZE_Y; y++ )
+						for( z = 0; z < VoxelSector.ZVOXELBLOCSIZE_Z; z++ )
+						{
+							val = (ushort)( x * VoxelSector.ZVOXELBLOCSIZE_Y + y + z * VoxelSector.ZVOXELBLOCSIZE_X * VoxelSector.ZVOXELBLOCSIZE_Y );
+							tmpx = x - eye_x;
+							tmpy = y - eye_y;
+							tmpz = z - eye_z;
+							d = ( tmpx * tmpx ) + ( tmpy * tmpy ) + ( tmpz * tmpz );
+							sorter.Add( d, val );
+						}
+
+				ushort[] Indexes;
+				Indexes = SortedSectorIndexes[0];
+				n = VoxelSector.ZVOXELBLOCKCOUNT;
+				foreach( ushort index in sorter )
+				{
+					// retrieved closest to furthest so... reverse storing it.
+					Indexes[--n] = index;
+				}
+			}
+		}
+
+		internal static void BuildSortList( ref int start_percent, ref int start_step, ref int start_steps )
+		{
+			int x, y, z;
+			int tmpx, tmpy, tmpz;
+			int d;
+			ushort val;
+			start_steps += 27;
+			VoxelSector.RelativeVoxelOrds i;
+			for( i = VoxelSector.RelativeVoxelOrds.INCENTER;
+						i <= VoxelSector.RelativeVoxelOrds.BEHIND_RIGHT_BELOW; i++ )
+			{
+				ushort[] Indexes;
+				int n, m;
+				int xval, zval;
+				Indexes = SortedSectorIndexes[(int)i] = new ushort[VoxelSector.ZVOXELBLOCKCOUNT];
+				n = 0;
+				m = VoxelSector.ZVOXELBLOCKCOUNT - 1;
+				sorter.Clear();
+				switch( i )
+				{
+					case VoxelSector.RelativeVoxelOrds.INCENTER:
+						// no information; this one has to be done custom.
+						break;
+					case VoxelSector.RelativeVoxelOrds.LEFT:
+						for( x = 0; x < VoxelSector.ZVOXELBLOCSIZE_X; x++ )
+						{
+							xval = x * VoxelSector.ZVOXELBLOCSIZE_X;
+							for( z = 0; z < VoxelSector.ZVOXELBLOCSIZE_Z; z++ )
+							{
+								zval = xval + z * VoxelSector.ZVOXELBLOCSIZE_X * VoxelSector.ZVOXELBLOCSIZE_Y;
+								for( y = 0; y < VoxelSector.ZVOXELBLOCSIZE_Y; y++ )
+								{
+									val = (ushort)( zval + y );
+									tmpx = VoxelSector.ZVOXELBLOCSIZE_X - x;
+									tmpy = y - ( VoxelSector.ZVOXELBLOCMASK_Y / 2 );
+									tmpz = z - ( VoxelSector.ZVOXELBLOCMASK_Z / 2 );
+									d = ( tmpx * tmpx ) + ( tmpy * tmpy ) + ( tmpz * tmpz );
+									sorter.Add( d, val );
+								}
+							}
+						}
+						break;
+					case VoxelSector.RelativeVoxelOrds.RIGHT:
+						for( x = 0; x < VoxelSector.ZVOXELBLOCSIZE_X; x++ )
+						{
+							xval = x * VoxelSector.ZVOXELBLOCSIZE_X;
+							for( z = 0; z < VoxelSector.ZVOXELBLOCSIZE_Z; z++ )
+							{
+								zval = xval + z * VoxelSector.ZVOXELBLOCSIZE_X * VoxelSector.ZVOXELBLOCSIZE_Y;
+								for( y = 0; y < VoxelSector.ZVOXELBLOCSIZE_Y; y++ )
+								{
+									val = (ushort)( zval + y );
+									tmpx = x;
+									tmpy = y - ( VoxelSector.ZVOXELBLOCMASK_Y / 2 );
+									tmpz = z - ( VoxelSector.ZVOXELBLOCMASK_Z / 2 );
+									d = ( tmpx * tmpx ) + ( tmpy * tmpy ) + ( tmpz * tmpz );
+									sorter.Add( d, val );
+								}
+							}
+						}
+						break;
+					case VoxelSector.RelativeVoxelOrds.ABOVE:
+						for( x = 0; x < VoxelSector.ZVOXELBLOCSIZE_X; x++ )
+						{
+							xval = x * VoxelSector.ZVOXELBLOCSIZE_X;
+							for( z = 0; z < VoxelSector.ZVOXELBLOCSIZE_Z; z++ )
+							{
+								zval = xval + z * VoxelSector.ZVOXELBLOCSIZE_X * VoxelSector.ZVOXELBLOCSIZE_Y;
+								for( y = 0; y < VoxelSector.ZVOXELBLOCSIZE_Y; y++ )
+								{
+									val = (ushort)( zval + y );
+									tmpx = x - ( VoxelSector.ZVOXELBLOCSIZE_X / 2 );
+									tmpy = y;
+									tmpz = z - ( VoxelSector.ZVOXELBLOCMASK_Z / 2 );
+									d = ( tmpx * tmpx ) + ( tmpy * tmpy ) + ( tmpz * tmpz );
+									sorter.Add( d, val );
+								}
+							}
+						}
+						break;
+					case VoxelSector.RelativeVoxelOrds.BELOW:
+						for( x = 0; x < VoxelSector.ZVOXELBLOCSIZE_X; x++ )
+						{
+							xval = x * VoxelSector.ZVOXELBLOCSIZE_X;
+							for( z = 0; z < VoxelSector.ZVOXELBLOCSIZE_Z; z++ )
+							{
+								zval = xval + z * VoxelSector.ZVOXELBLOCSIZE_X * VoxelSector.ZVOXELBLOCSIZE_Y;
+								for( y = 0; y < VoxelSector.ZVOXELBLOCSIZE_Y; y++ )
+								{
+									val = (ushort)( zval + y );
+									tmpx = x - ( VoxelSector.ZVOXELBLOCSIZE_X / 2 );
+									tmpy = VoxelSector.ZVOXELBLOCSIZE_Y - y;
+									tmpz = z - ( VoxelSector.ZVOXELBLOCMASK_Z / 2 );
+									d = ( tmpx * tmpx ) + ( tmpy * tmpy ) + ( tmpz * tmpz );
+									sorter.Add( d, val );
+								}
+							}
+						}
+						break;
+					case VoxelSector.RelativeVoxelOrds.AHEAD:
+						for( x = 0; x < VoxelSector.ZVOXELBLOCSIZE_X; x++ )
+						{
+							xval = x * VoxelSector.ZVOXELBLOCSIZE_X;
+							for( z = 0; z < VoxelSector.ZVOXELBLOCSIZE_Z; z++ )
+							{
+								zval = xval + z * VoxelSector.ZVOXELBLOCSIZE_X * VoxelSector.ZVOXELBLOCSIZE_Y;
+								for( y = 0; y < VoxelSector.ZVOXELBLOCSIZE_Y; y++ )
+								{
+									val = (ushort)( zval + y );
+									tmpx = x - ( VoxelSector.ZVOXELBLOCSIZE_X / 2 );
+									tmpy = y - ( VoxelSector.ZVOXELBLOCMASK_Y / 2 );
+									tmpz = z;
+									d = ( tmpx * tmpx ) + ( tmpy * tmpy ) + ( tmpz * tmpz );
+									sorter.Add( d, val );
+								}
+							}
+						}
+						break;
+					case VoxelSector.RelativeVoxelOrds.BEHIND:
+						for( x = 0; x < VoxelSector.ZVOXELBLOCSIZE_X; x++ )
+						{
+							xval = x * VoxelSector.ZVOXELBLOCSIZE_X;
+							for( z = 0; z < VoxelSector.ZVOXELBLOCSIZE_Z; z++ )
+							{
+								zval = xval + z * VoxelSector.ZVOXELBLOCSIZE_X * VoxelSector.ZVOXELBLOCSIZE_Y;
+								for( y = 0; y < VoxelSector.ZVOXELBLOCSIZE_Y; y++ )
+								{
+									val = (ushort)( zval + y );
+									tmpx = x - ( VoxelSector.ZVOXELBLOCSIZE_X / 2 );
+									tmpy = y - ( VoxelSector.ZVOXELBLOCMASK_Y / 2 );
+									tmpz = VoxelSector.ZVOXELBLOCSIZE_Z - z;
+									d = ( tmpx * tmpx ) + ( tmpy * tmpy ) + ( tmpz * tmpz );
+									sorter.Add( d, val );
+								}
+							}
+						}
+						break;
+
+					case VoxelSector.RelativeVoxelOrds.LEFT_AHEAD:
+						for( x = 0; x < VoxelSector.ZVOXELBLOCSIZE_X; x++ )
+						{
+							xval = x * VoxelSector.ZVOXELBLOCSIZE_X;
+							for( z = 0; z < VoxelSector.ZVOXELBLOCSIZE_Z; z++ )
+							{
+								zval = xval + z * VoxelSector.ZVOXELBLOCSIZE_X * VoxelSector.ZVOXELBLOCSIZE_Y;
+								for( y = 0; y < VoxelSector.ZVOXELBLOCSIZE_Y; y++ )
+								{
+									val = (ushort)( zval + y );
+									tmpx = VoxelSector.ZVOXELBLOCSIZE_X - x;
+									tmpy = y - ( VoxelSector.ZVOXELBLOCMASK_Y / 2 );
+									tmpz = z;
+									d = ( tmpx * tmpx ) + ( tmpy * tmpy ) + ( tmpz * tmpz );
+									sorter.Add( d, val );
+								}
+							}
+						}
+						break;
+					case VoxelSector.RelativeVoxelOrds.RIGHT_AHEAD:
+						for( x = 0; x < VoxelSector.ZVOXELBLOCSIZE_X; x++ )
+						{
+							xval = x * VoxelSector.ZVOXELBLOCSIZE_X;
+							for( z = 0; z < VoxelSector.ZVOXELBLOCSIZE_Z; z++ )
+							{
+								zval = xval + z * VoxelSector.ZVOXELBLOCSIZE_X * VoxelSector.ZVOXELBLOCSIZE_Y;
+								for( y = 0; y < VoxelSector.ZVOXELBLOCSIZE_Y; y++ )
+								{
+									val = (ushort)( zval + y );
+									tmpx = x;
+									tmpy = y - ( VoxelSector.ZVOXELBLOCMASK_Y / 2 );
+									tmpz = z;
+									d = ( tmpx * tmpx ) + ( tmpy * tmpy ) + ( tmpz * tmpz );
+									sorter.Add( d, val );
+								}
+							}
+						}
+						break;
+					case VoxelSector.RelativeVoxelOrds.LEFT_BEHIND:
+						for( x = 0; x < VoxelSector.ZVOXELBLOCSIZE_X; x++ )
+						{
+							xval = x * VoxelSector.ZVOXELBLOCSIZE_X;
+							for( z = 0; z < VoxelSector.ZVOXELBLOCSIZE_Z; z++ )
+							{
+								zval = xval + z * VoxelSector.ZVOXELBLOCSIZE_X * VoxelSector.ZVOXELBLOCSIZE_Y;
+								for( y = 0; y < VoxelSector.ZVOXELBLOCSIZE_Y; y++ )
+								{
+									val = (ushort)( zval + y );
+									tmpx = VoxelSector.ZVOXELBLOCSIZE_X - x;
+									tmpy = y - ( VoxelSector.ZVOXELBLOCMASK_Y / 2 );
+									tmpz = VoxelSector.ZVOXELBLOCSIZE_Z - z;
+									d = ( tmpx * tmpx ) + ( tmpy * tmpy ) + ( tmpz * tmpz );
+									sorter.Add( d, val );
+								}
+							}
+						}
+						break;
+					case VoxelSector.RelativeVoxelOrds.RIGHT_BEHIND:
+						for( x = 0; x < VoxelSector.ZVOXELBLOCSIZE_X; x++ )
+						{
+							xval = x * VoxelSector.ZVOXELBLOCSIZE_X;
+							for( z = 0; z < VoxelSector.ZVOXELBLOCSIZE_Z; z++ )
+							{
+								zval = xval + z * VoxelSector.ZVOXELBLOCSIZE_X * VoxelSector.ZVOXELBLOCSIZE_Y;
+								for( y = 0; y < VoxelSector.ZVOXELBLOCSIZE_Y; y++ )
+								{
+									val = (ushort)( zval + y );
+									tmpx = x;
+									tmpy = y - ( VoxelSector.ZVOXELBLOCMASK_Y / 2 );
+									tmpz = VoxelSector.ZVOXELBLOCSIZE_Z - z;
+									d = ( tmpx * tmpx ) + ( tmpy * tmpy ) + ( tmpz * tmpz );
+									sorter.Add( d, val );
+								}
+							}
+						}
+						break;
+
+					case VoxelSector.RelativeVoxelOrds.ABOVE_LEFT:
+						for( x = 0; x < VoxelSector.ZVOXELBLOCSIZE_X; x++ )
+						{
+							xval = x * VoxelSector.ZVOXELBLOCSIZE_X;
+							for( z = 0; z < VoxelSector.ZVOXELBLOCSIZE_Z; z++ )
+							{
+								zval = xval + z * VoxelSector.ZVOXELBLOCSIZE_X * VoxelSector.ZVOXELBLOCSIZE_Y;
+								for( y = 0; y < VoxelSector.ZVOXELBLOCSIZE_Y; y++ )
+								{
+									val = (ushort)( zval + y );
+									tmpx = VoxelSector.ZVOXELBLOCSIZE_X - x;
+									tmpy = y;
+									tmpz = z - ( VoxelSector.ZVOXELBLOCMASK_Z / 2 );
+									d = ( tmpx * tmpx ) + ( tmpy * tmpy ) + ( tmpz * tmpz );
+									sorter.Add( d, val );
+								}
+							}
+						}
+						break;
+					case VoxelSector.RelativeVoxelOrds.ABOVE_RIGHT:
+						for( x = 0; x < VoxelSector.ZVOXELBLOCSIZE_X; x++ )
+						{
+							xval = x * VoxelSector.ZVOXELBLOCSIZE_X;
+							for( z = 0; z < VoxelSector.ZVOXELBLOCSIZE_Z; z++ )
+							{
+								zval = xval + z * VoxelSector.ZVOXELBLOCSIZE_X * VoxelSector.ZVOXELBLOCSIZE_Y;
+								for( y = 0; y < VoxelSector.ZVOXELBLOCSIZE_Y; y++ )
+								{
+									val = (ushort)( zval + y );
+									tmpx = x;
+									tmpy = y;
+									tmpz = z - ( VoxelSector.ZVOXELBLOCMASK_Z / 2 );
+									d = ( tmpx * tmpx ) + ( tmpy * tmpy ) + ( tmpz * tmpz );
+									sorter.Add( d, val );
+								}
+							}
+						}
+						break;
+					case VoxelSector.RelativeVoxelOrds.ABOVE_BEHIND:
+						for( x = 0; x < VoxelSector.ZVOXELBLOCSIZE_X; x++ )
+						{
+							xval = x * VoxelSector.ZVOXELBLOCSIZE_X;
+							for( z = 0; z < VoxelSector.ZVOXELBLOCSIZE_Z; z++ )
+							{
+								zval = xval + z * VoxelSector.ZVOXELBLOCSIZE_X * VoxelSector.ZVOXELBLOCSIZE_Y;
+								for( y = 0; y < VoxelSector.ZVOXELBLOCSIZE_Y; y++ )
+								{
+									val = (ushort)( zval + y );
+									tmpx = x - ( VoxelSector.ZVOXELBLOCMASK_X / 2 );
+									tmpy = y;
+									tmpz = VoxelSector.ZVOXELBLOCSIZE_Z - z;
+									d = ( tmpx * tmpx ) + ( tmpy * tmpy ) + ( tmpz * tmpz );
+									sorter.Add( d, val );
+								}
+							}
+						}
+						break;
+					case VoxelSector.RelativeVoxelOrds.ABOVE_AHEAD:
+						for( x = 0; x < VoxelSector.ZVOXELBLOCSIZE_X; x++ )
+						{
+							xval = x * VoxelSector.ZVOXELBLOCSIZE_X;
+							for( z = 0; z < VoxelSector.ZVOXELBLOCSIZE_Z; z++ )
+							{
+								zval = xval + z * VoxelSector.ZVOXELBLOCSIZE_X * VoxelSector.ZVOXELBLOCSIZE_Y;
+								for( y = 0; y < VoxelSector.ZVOXELBLOCSIZE_Y; y++ )
+								{
+									val = (ushort)( zval + y );
+									val = (ushort)( x * VoxelSector.ZVOXELBLOCSIZE_Y + y + z * VoxelSector.ZVOXELBLOCSIZE_X * VoxelSector.ZVOXELBLOCSIZE_Y );
+									tmpx = x - ( VoxelSector.ZVOXELBLOCMASK_X / 2 );
+									tmpy = y;
+									tmpz = z;
+									d = ( tmpx * tmpx ) + ( tmpy * tmpy ) + ( tmpz * tmpz );
+									sorter.Add( d, val );
+								}
+							}
+						}
+						break;
+
+					case VoxelSector.RelativeVoxelOrds.ABOVE_LEFT_AHEAD:
+						for( x = 0; x < VoxelSector.ZVOXELBLOCSIZE_X; x++ )
+						{
+							xval = x * VoxelSector.ZVOXELBLOCSIZE_X;
+							for( z = 0; z < VoxelSector.ZVOXELBLOCSIZE_Z; z++ )
+							{
+								zval = xval + z * VoxelSector.ZVOXELBLOCSIZE_X * VoxelSector.ZVOXELBLOCSIZE_Y;
+								for( y = 0; y < VoxelSector.ZVOXELBLOCSIZE_Y; y++ )
+								{
+									val = (ushort)( zval + y );
+									tmpx = VoxelSector.ZVOXELBLOCSIZE_X - x;
+									tmpy = y;
+									tmpz = z;
+									d = ( tmpx * tmpx ) + ( tmpy * tmpy ) + ( tmpz * tmpz );
+									sorter.Add( d, val );
+								}
+							}
+						}
+						break;
+					case VoxelSector.RelativeVoxelOrds.ABOVE_RIGHT_AHEAD:
+						for( x = 0; x < VoxelSector.ZVOXELBLOCSIZE_X; x++ )
+						{
+							xval = x * VoxelSector.ZVOXELBLOCSIZE_X;
+							for( z = 0; z < VoxelSector.ZVOXELBLOCSIZE_Z; z++ )
+							{
+								zval = xval + z * VoxelSector.ZVOXELBLOCSIZE_X * VoxelSector.ZVOXELBLOCSIZE_Y;
+								for( y = 0; y < VoxelSector.ZVOXELBLOCSIZE_Y; y++ )
+								{
+									val = (ushort)( zval + y );
+									tmpx = x;
+									tmpy = y;
+									tmpz = z;
+									d = ( tmpx * tmpx ) + ( tmpy * tmpy ) + ( tmpz * tmpz );
+									sorter.Add( d, val );
+								}
+							}
+						}
+						break;
+					case VoxelSector.RelativeVoxelOrds.ABOVE_LEFT_BEHIND:
+						for( x = 0; x < VoxelSector.ZVOXELBLOCSIZE_X; x++ )
+						{
+							xval = x * VoxelSector.ZVOXELBLOCSIZE_X;
+							for( z = 0; z < VoxelSector.ZVOXELBLOCSIZE_Z; z++ )
+							{
+								zval = xval + z * VoxelSector.ZVOXELBLOCSIZE_X * VoxelSector.ZVOXELBLOCSIZE_Y;
+								for( y = 0; y < VoxelSector.ZVOXELBLOCSIZE_Y; y++ )
+								{
+									val = (ushort)( zval + y );
+									val = (ushort)( x * VoxelSector.ZVOXELBLOCSIZE_Y + y + z * VoxelSector.ZVOXELBLOCSIZE_X * VoxelSector.ZVOXELBLOCSIZE_Y );
+									tmpx = VoxelSector.ZVOXELBLOCSIZE_X - x;
+									tmpy = y;
+									tmpz = VoxelSector.ZVOXELBLOCSIZE_Z - z;
+									d = ( tmpx * tmpx ) + ( tmpy * tmpy ) + ( tmpz * tmpz );
+									sorter.Add( d, val );
+								}
+							}
+						}
+						break;
+					case VoxelSector.RelativeVoxelOrds.ABOVE_RIGHT_BEHIND:
+						for( x = 0; x < VoxelSector.ZVOXELBLOCSIZE_X; x++ )
+						{
+							xval = x * VoxelSector.ZVOXELBLOCSIZE_X;
+							for( z = 0; z < VoxelSector.ZVOXELBLOCSIZE_Z; z++ )
+							{
+								zval = xval + z * VoxelSector.ZVOXELBLOCSIZE_X * VoxelSector.ZVOXELBLOCSIZE_Y;
+								for( y = 0; y < VoxelSector.ZVOXELBLOCSIZE_Y; y++ )
+								{
+									val = (ushort)( zval + y );
+									tmpx = x;
+									tmpy = y;
+									tmpz = VoxelSector.ZVOXELBLOCSIZE_Z - z;
+									d = ( tmpx * tmpx ) + ( tmpy * tmpy ) + ( tmpz * tmpz );
+									sorter.Add( d, val );
+								}
+							}
+						}
+						break;
+
+					case VoxelSector.RelativeVoxelOrds.BELOW_LEFT:
+						for( x = 0; x < VoxelSector.ZVOXELBLOCSIZE_X; x++ )
+						{
+							xval = x * VoxelSector.ZVOXELBLOCSIZE_X;
+							for( z = 0; z < VoxelSector.ZVOXELBLOCSIZE_Z; z++ )
+							{
+								zval = xval + z * VoxelSector.ZVOXELBLOCSIZE_X * VoxelSector.ZVOXELBLOCSIZE_Y;
+								for( y = 0; y < VoxelSector.ZVOXELBLOCSIZE_Y; y++ )
+								{
+									val = (ushort)( zval + y );
+									tmpx = VoxelSector.ZVOXELBLOCSIZE_X - x;
+									tmpy = VoxelSector.ZVOXELBLOCSIZE_Y - y;
+									tmpz = z - ( VoxelSector.ZVOXELBLOCMASK_Z / 2 );
+									d = ( tmpx * tmpx ) + ( tmpy * tmpy ) + ( tmpz * tmpz );
+									sorter.Add( d, val );
+								}
+							}
+						}
+						break;
+					case VoxelSector.RelativeVoxelOrds.BELOW_RIGHT:
+						for( x = 0; x < VoxelSector.ZVOXELBLOCSIZE_X; x++ )
+						{
+							xval = x * VoxelSector.ZVOXELBLOCSIZE_X;
+							for( z = 0; z < VoxelSector.ZVOXELBLOCSIZE_Z; z++ )
+							{
+								zval = xval + z * VoxelSector.ZVOXELBLOCSIZE_X * VoxelSector.ZVOXELBLOCSIZE_Y;
+								for( y = 0; y < VoxelSector.ZVOXELBLOCSIZE_Y; y++ )
+								{
+									val = (ushort)( zval + y );
+									tmpx = x;
+									tmpy = VoxelSector.ZVOXELBLOCSIZE_Y - y;
+									tmpz = z - ( VoxelSector.ZVOXELBLOCMASK_Z / 2 );
+									d = ( tmpx * tmpx ) + ( tmpy * tmpy ) + ( tmpz * tmpz );
+									sorter.Add( d, val );
+								}
+							}
+						}
+						break;
+					case VoxelSector.RelativeVoxelOrds.BELOW_BEHIND:
+						for( x = 0; x < VoxelSector.ZVOXELBLOCSIZE_X; x++ )
+						{
+							xval = x * VoxelSector.ZVOXELBLOCSIZE_X;
+							for( z = 0; z < VoxelSector.ZVOXELBLOCSIZE_Z; z++ )
+							{
+								zval = xval + z * VoxelSector.ZVOXELBLOCSIZE_X * VoxelSector.ZVOXELBLOCSIZE_Y;
+								for( y = 0; y < VoxelSector.ZVOXELBLOCSIZE_Y; y++ )
+								{
+									val = (ushort)( zval + y );
+									tmpx = x - ( VoxelSector.ZVOXELBLOCMASK_X / 2 );
+									tmpy = VoxelSector.ZVOXELBLOCSIZE_Y - y;
+									tmpz = VoxelSector.ZVOXELBLOCSIZE_Z - z;
+									d = ( tmpx * tmpx ) + ( tmpy * tmpy ) + ( tmpz * tmpz );
+									sorter.Add( d, val );
+								}
+							}
+						}
+						break;
+					case VoxelSector.RelativeVoxelOrds.BELOW_AHEAD:
+						for( x = 0; x < VoxelSector.ZVOXELBLOCSIZE_X; x++ )
+						{
+							xval = x * VoxelSector.ZVOXELBLOCSIZE_X;
+							for( z = 0; z < VoxelSector.ZVOXELBLOCSIZE_Z; z++ )
+							{
+								zval = xval + z * VoxelSector.ZVOXELBLOCSIZE_X * VoxelSector.ZVOXELBLOCSIZE_Y;
+								for( y = 0; y < VoxelSector.ZVOXELBLOCSIZE_Y; y++ )
+								{
+									val = (ushort)( zval + y );
+									tmpx = x - ( VoxelSector.ZVOXELBLOCMASK_X / 2 );
+									tmpy = VoxelSector.ZVOXELBLOCSIZE_Y - y;
+									tmpz = z;
+									d = ( tmpx * tmpx ) + ( tmpy * tmpy ) + ( tmpz * tmpz );
+									sorter.Add( d, val );
+								}
+							}
+						}
+						break;
+
+					case VoxelSector.RelativeVoxelOrds.BELOW_LEFT_AHEAD:
+						for( x = 0; x < VoxelSector.ZVOXELBLOCSIZE_X; x++ )
+						{
+							xval = x * VoxelSector.ZVOXELBLOCSIZE_X;
+							for( z = 0; z < VoxelSector.ZVOXELBLOCSIZE_Z; z++ )
+							{
+								zval = xval + z * VoxelSector.ZVOXELBLOCSIZE_X * VoxelSector.ZVOXELBLOCSIZE_Y;
+								for( y = 0; y < VoxelSector.ZVOXELBLOCSIZE_Y; y++ )
+								{
+									val = (ushort)( zval + y );
+									tmpx = VoxelSector.ZVOXELBLOCSIZE_X - x;
+									tmpy = VoxelSector.ZVOXELBLOCSIZE_Y - y;
+									tmpz = z;
+									d = ( tmpx * tmpx ) + ( tmpy * tmpy ) + ( tmpz * tmpz );
+									sorter.Add( d, val );
+								}
+							}
+						}
+						break;
+					case VoxelSector.RelativeVoxelOrds.BELOW_RIGHT_AHEAD:
+						for( x = 0; x < VoxelSector.ZVOXELBLOCSIZE_X; x++ )
+						{
+							xval = x * VoxelSector.ZVOXELBLOCSIZE_X;
+							for( z = 0; z < VoxelSector.ZVOXELBLOCSIZE_Z; z++ )
+							{
+								zval = xval + z * VoxelSector.ZVOXELBLOCSIZE_X * VoxelSector.ZVOXELBLOCSIZE_Y;
+								for( y = 0; y < VoxelSector.ZVOXELBLOCSIZE_Y; y++ )
+								{
+									val = (ushort)( zval + y );
+									tmpx = x;
+									tmpy = VoxelSector.ZVOXELBLOCSIZE_Y - y;
+									tmpz = z;
+									d = ( tmpx * tmpx ) + ( tmpy * tmpy ) + ( tmpz * tmpz );
+									sorter.Add( d, val );
+								}
+							}
+						}
+						break;
+					case VoxelSector.RelativeVoxelOrds.BELOW_LEFT_BEHIND:
+						for( x = 0; x < VoxelSector.ZVOXELBLOCSIZE_X; x++ )
+						{
+							xval = x * VoxelSector.ZVOXELBLOCSIZE_X;
+							for( z = 0; z < VoxelSector.ZVOXELBLOCSIZE_Z; z++ )
+							{
+								zval = xval + z * VoxelSector.ZVOXELBLOCSIZE_X * VoxelSector.ZVOXELBLOCSIZE_Y;
+								for( y = 0; y < VoxelSector.ZVOXELBLOCSIZE_Y; y++ )
+								{
+									val = (ushort)( zval + y );
+									tmpx = VoxelSector.ZVOXELBLOCSIZE_X - x;
+									tmpy = VoxelSector.ZVOXELBLOCSIZE_Y - y;
+									tmpz = VoxelSector.ZVOXELBLOCSIZE_Z - z;
+									d = ( tmpx * tmpx ) + ( tmpy * tmpy ) + ( tmpz * tmpz );
+									sorter.Add( d, val );
+								}
+							}
+						}
+						break;
+					case VoxelSector.RelativeVoxelOrds.BELOW_RIGHT_BEHIND:
+						for( x = 0; x < VoxelSector.ZVOXELBLOCSIZE_X; x++ )
+						{
+							xval = x * VoxelSector.ZVOXELBLOCSIZE_X;
+							for( z = 0; z < VoxelSector.ZVOXELBLOCSIZE_Z; z++ )
+							{
+								zval = xval + z * VoxelSector.ZVOXELBLOCSIZE_X * VoxelSector.ZVOXELBLOCSIZE_Y;
+								for( y = 0; y < VoxelSector.ZVOXELBLOCSIZE_Y; y++ )
+								{
+									val = (ushort)( zval + y );
+									tmpx = x;
+									tmpy = VoxelSector.ZVOXELBLOCSIZE_Y - y;
+									tmpz = VoxelSector.ZVOXELBLOCSIZE_Z - z;
+									d = ( tmpx * tmpx ) + ( tmpy * tmpy ) + ( tmpz * tmpz );
+									sorter.Add( d, val );
+								}
+							}
+						}
+						break;
+				}
+				n = VoxelSector.ZVOXELBLOCKCOUNT;
+				foreach( ushort index in sorter )
+				{
+					// retrieved closest to furthest so... reverse storing it.
+					Indexes[--n] = index;
+				}
+				start_percent = ( ++start_step * 100 ) / start_steps;
+
+				/*
+				// strong test to make sure every offset is represented once.
+				// paranoid debugging.
+				if( i != VoxelSector.RelativeVoxelOrds.INCENTER )
+				{
+					int ofs, check;
+					for( ofs = 0; ofs < VoxelSector.ZVOXELBLOCKCOUNT; ofs++ )
+					{
+						for( check = 0; check < VoxelSector.ZVOXELBLOCKCOUNT; check++ )
+						{
+							if( Indexes[check] == ofs )
+								break;
+						}
+						if( check == VoxelSector.ZVOXELBLOCKCOUNT )
+							Debugger.Break();
+					}
+				}
+				*/
+			}
+		}
+
+		void DetermineStaticGridBoundaries( Camera camera
+										  , VoxelSector.RelativeVoxelOrds relpos
+										  , VoxelSector sector )
+		{
+			switch( relpos )
+			{
+
+			}
+		}
+
+
 
 	}
 }

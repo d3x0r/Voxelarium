@@ -104,16 +104,18 @@
     <Compile Include="UI\Controls\Frame.cs" />
     <Compile Include="UI\FontRenderer.cs" />
     <Compile Include="UI\GraphicUserManager.cs" />
-    <Compile Include="UI\IVoxelCuller.cs" />
+    <Compile Include="UI\Shaders\FXAAShader.cs" />
     <Compile Include="UI\Shaders\SimpleInstanceShader.cs" />
     <Compile Include="Voxels\IO\FileSectorLoader.cs" />
     <Compile Include="Voxels\IO\SectorLoader.cs" />
     <Compile Include="Voxels\IO\SectorRequestRingList.cs" />
     <Compile Include="Voxels\IO\SectorTagHash.cs" />
+    <Compile Include="Voxels\Physics\BEPU.VoxelGrid.cs" />
     <Compile Include="Voxels\Types\GenericCanvas.cs" />
     <Compile Include="Voxels\Types\GenericCharCanvas.cs" />
     <Compile Include="Voxels\Types\InclusionProbabilizer.cs" />
     <Compile Include="Voxels\Types\LinearInterpolator.cs" />
+    <Compile Include="Voxels\Types\SortingTree.cs" />
     <Compile Include="Voxels\UI\Camera.cs" />
     <Compile Include="Voxels\UI\Radius_Zoning.cs" />
     <Compile Include="Voxels\UI\RenderInterface.cs" />
@@ -126,7 +128,7 @@
     <Compile Include="Math\Quaternion.cs" />
     <Compile Include="Math\Scalar.cs" />
     <Compile Include="Math\Vector3.cs" />
-    <Compile Include="Physics.cs" />
+    <Compile Include="Voxels\Physics\Physics.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Support\Compiler.cs" />
     <Compile Include="Support\Log.cs" />
@@ -146,7 +148,6 @@
     <Compile Include="Voxels\SectorSphere.cs" />
     <Compile Include="Voxels\Types\FastBit_Array_64k.cs" />
     <Compile Include="Voxels\Types\PooledType.cs" />
-    <Compile Include="Voxels\Types\VObject.cs" />
     <Compile Include="Voxels\Types\VSimpleTypes.cs" />
     <Compile Include="Voxels\Types\VStream.cs" />
     <Compile Include="Voxels\Types\VStreamFile.cs" />

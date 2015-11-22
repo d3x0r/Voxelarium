@@ -53,26 +53,39 @@ namespace Voxelarium.Core.Voxels.UI
 			// 5 total
 		}
 
-		static VoxelGeometryShader Shader = new VoxelGeometryShader();
-		Vertex[] solid_buffer;
-		Vertex[] transparent_buffer;
-		bool prior_transparent;
-		bool prior_solid;
+		static VoxelGeometryShader GeometryShader = new VoxelGeometryShader();
 		Vertex[] buffer;
 		int vbo_solid;
 		int vao_solid;
 		int vbo_transparent;
 		int vao_transparent;
+		int vbo_custom;
+		int vao_custom;
 
 		bool dirty;
+
+		bool prior_solid;
+		Vertex[] solid_buffer;
 		bool solid_dirty;
+		int solid_available;
+		int solid_used;
+		int available;
+
+		bool prior_transparent;
+		Vertex[] transparent_buffer;
 		bool transparent_dirty;
 		int transparent_available;
-		int solid_available;
-		int available;
-		int solid_used;
 		int transparent_used;
+
+		bool prior_custom;
+		Vertex[] custom_buffer;
+		bool custom_dirty;
+		int custom_available;
+		int custom_used;
 		int used;
+
+		// this is the last direction that the transparent render was sorted.
+		internal VoxelSector.RelativeVoxelOrds transparent_render_sorting;
 
 		internal VoxelGeometry()
 		{
@@ -86,7 +99,7 @@ namespace Voxelarium.Core.Voxels.UI
 			transparent_buffer = new Vertex[transparent_available];
 		}
 
-		public void SetSolid()
+		void UpdateInternals()
 		{
 			if( prior_transparent )
 			{
@@ -102,6 +115,31 @@ namespace Voxelarium.Core.Voxels.UI
 				solid_buffer = buffer;
 				solid_available = available;
 			}
+			else if( prior_custom )
+			{
+				custom_dirty = dirty;
+				custom_used = used;
+				custom_buffer = buffer;
+				custom_available = available;
+			}
+		}
+
+		public void SetCustom()
+		{
+			UpdateInternals();
+			prior_custom = true;
+			prior_transparent = false;
+			prior_solid = false;
+			available = custom_available;
+			buffer = custom_buffer;
+			used = custom_used;
+			dirty = custom_dirty;
+		}
+
+		public void SetSolid()
+		{
+			UpdateInternals();
+			prior_custom = false;
 			prior_transparent = false;
 			prior_solid = true;
 			available = solid_available;
@@ -111,20 +149,8 @@ namespace Voxelarium.Core.Voxels.UI
 		}
 		public void SetTransparent()
 		{
-			if( !prior_transparent )
-			{
-				transparent_dirty = dirty;
-				transparent_used = used;
-				transparent_buffer = buffer;
-				transparent_available = available;
-			}
-			else if( prior_solid )
-			{
-				solid_dirty = dirty;
-				solid_used = used;
-				solid_buffer = buffer;
-				solid_available = available;
-			}
+			UpdateInternals();
+			prior_custom = false;
 			prior_transparent = true;
 			prior_solid = false;
 			available = transparent_available;
@@ -145,11 +171,11 @@ namespace Voxelarium.Core.Voxels.UI
 			used = 0;
 		}
 
-		void LoadBuffer( bool transparent )
+		void LoadBuffer( bool transparent, bool custom )
 		{
 			bool setup_array = false;
 
-			if( !transparent )
+			if( !transparent && !custom )
 			{
 				if( solid_used == 0 )
 					return;
@@ -161,7 +187,7 @@ namespace Voxelarium.Core.Voxels.UI
 					vao_solid = GL.GenVertexArray();
 
 #if USE_GLES2
-				GL.Oes.BindVertexArray( vao_solid );
+					GL.Oes.BindVertexArray( vao_solid );
 #else
 					GL.BindVertexArray( vao_solid );
 #endif
@@ -181,7 +207,7 @@ namespace Voxelarium.Core.Voxels.UI
 					}
 				}
 			}
-			else
+			else if( transparent && !custom )
 			{
 				if( transparent_used == 0 )
 					return;
@@ -213,67 +239,99 @@ namespace Voxelarium.Core.Voxels.UI
 					}
 				}
 			}
+			else if( !transparent && custom )
+			{
+				if( custom_used == 0 )
+					return;
+				if( vbo_custom == -1 )
+					vbo_custom = GL.GenBuffer();
+
+				if( vao_custom == -1 )
+				{
+					vao_custom = GL.GenVertexArray();
+
+#if USE_GLES2
+					GL.Oes.BindVertexArray( vao_solid );
+#else
+					GL.BindVertexArray( vao_custom );
+#endif
+					Display.CheckErr();
+					GL.BindBuffer( BufferTarget.ArrayBuffer, vbo_custom );
+					Display.CheckErr();
+					setup_array = true;
+
+					custom_dirty = false;
+					unsafe
+					{
+						fixed ( float* data = &custom_buffer[0].p1 )
+						{
+							GL.BufferData( BufferTarget.ArrayBuffer, (IntPtr)( VertexSize * custom_used ), (IntPtr)data, BufferUsageHint.StaticDraw );
+							Display.CheckErr();
+						}
+					}
+				}
+			}
 
 			if( setup_array )
 			{
-				GL.VertexAttribPointer( Shader.vertex_attrib_id, 3, VertexAttribPointerType.Float, false, VertexSize, 0 );
+				GL.VertexAttribPointer( GeometryShader.vertex_attrib_id, 3, VertexAttribPointerType.Float, false, VertexSize, 0 );
 				Display.CheckErr();
-				GL.EnableVertexAttribArray( Shader.vertex_attrib_id );
+				GL.EnableVertexAttribArray( GeometryShader.vertex_attrib_id );
 				Display.CheckErr();
-				if( Shader.texture_attrib_id >= 0 )
+				if( GeometryShader.texture_attrib_id >= 0 )
 				{
-					GL.EnableVertexAttribArray( Shader.texture_attrib_id );
+					GL.EnableVertexAttribArray( GeometryShader.texture_attrib_id );
 					Display.CheckErr();
-					GL.VertexAttribPointer( Shader.texture_attrib_id, 2, VertexAttribPointerType.UnsignedShort, false, VertexSize, 16 );
+					GL.VertexAttribPointer( GeometryShader.texture_attrib_id, 2, VertexAttribPointerType.UnsignedShort, false, VertexSize, 16 );
 					Display.CheckErr();
 				}
-				if( Shader.use_texture_id >= 0 )
+				if( GeometryShader.use_texture_id >= 0 )
 				{
-					GL.EnableVertexAttribArray( Shader.use_texture_id );
+					GL.EnableVertexAttribArray( GeometryShader.use_texture_id );
 					Display.CheckErr();
-					GL.VertexAttribPointer( Shader.use_texture_id, 1, VertexAttribPointerType.Byte, false, VertexSize, 20 );
+					GL.VertexAttribPointer( GeometryShader.use_texture_id, 1, VertexAttribPointerType.Byte, false, VertexSize, 20 );
 					Display.CheckErr();
 				}
-				if( Shader.flat_color_id >= 0 )
+				if( GeometryShader.flat_color_id >= 0 )
 				{
-					GL.EnableVertexAttribArray( Shader.flat_color_id );
+					GL.EnableVertexAttribArray( GeometryShader.flat_color_id );
 					Display.CheckErr();
-					GL.VertexAttribPointer( Shader.flat_color_id, 1, VertexAttribPointerType.Byte, false, VertexSize, 21 );
+					GL.VertexAttribPointer( GeometryShader.flat_color_id, 1, VertexAttribPointerType.Byte, false, VertexSize, 21 );
 					Display.CheckErr();
 				}
-				if( Shader.decal_texture_id >= 0 )
+				if( GeometryShader.decal_texture_id >= 0 )
 				{
-					GL.EnableVertexAttribArray( Shader.flat_color_id );
+					GL.EnableVertexAttribArray( GeometryShader.flat_color_id );
 					Display.CheckErr();
-					GL.VertexAttribPointer( Shader.flat_color_id, 1, VertexAttribPointerType.Byte, false, VertexSize, 22 );
+					GL.VertexAttribPointer( GeometryShader.flat_color_id, 1, VertexAttribPointerType.Byte, false, VertexSize, 22 );
 					Display.CheckErr();
 				}
-				if( Shader.power_id >= 0 )
+				if( GeometryShader.power_id >= 0 )
 				{
-					GL.EnableVertexAttribArray( Shader.power_id );
+					GL.EnableVertexAttribArray( GeometryShader.power_id );
 					Display.CheckErr();
-					GL.VertexAttribPointer( Shader.power_id, 1, VertexAttribPointerType.Short, false, VertexSize, 24 );
+					GL.VertexAttribPointer( GeometryShader.power_id, 1, VertexAttribPointerType.Short, false, VertexSize, 24 );
 					Display.CheckErr();
 				}
-				if( Shader.mod_attrib_id >= 0 )
+				if( GeometryShader.mod_attrib_id >= 0 )
 				{
-					GL.EnableVertexAttribArray( Shader.mod_attrib_id );
+					GL.EnableVertexAttribArray( GeometryShader.mod_attrib_id );
 					Display.CheckErr();
-					GL.VertexAttribPointer( Shader.mod_attrib_id, 2, VertexAttribPointerType.UnsignedByte, false, VertexSize, 26 );
+					GL.VertexAttribPointer( GeometryShader.mod_attrib_id, 2, VertexAttribPointerType.UnsignedByte, false, VertexSize, 26 );
 					Display.CheckErr();
 				}
-				if( Shader.color_id >= 0 )
+				if( GeometryShader.color_id >= 0 )
 				{
-					GL.EnableVertexAttribArray( Shader.color_id );
+					GL.EnableVertexAttribArray( GeometryShader.color_id );
 					Display.CheckErr();
-					GL.VertexAttribPointer( Shader.color_id, 4, VertexAttribPointerType.UnsignedByte, false, VertexSize, 28 );
+					GL.VertexAttribPointer( GeometryShader.color_id, 4, VertexAttribPointerType.UnsignedByte, false, VertexSize, 28 );
 					Display.CheckErr();
 				}
-				if( Shader.face_color_id >= 0 )
+				if( GeometryShader.face_color_id >= 0 )
 				{
-					GL.EnableVertexAttribArray( Shader.face_color_id );
+					GL.EnableVertexAttribArray( GeometryShader.face_color_id );
 					Display.CheckErr();
-					GL.VertexAttribPointer( Shader.face_color_id, 4, VertexAttribPointerType.UnsignedByte, false, VertexSize, 32 );
+					GL.VertexAttribPointer( GeometryShader.face_color_id, 4, VertexAttribPointerType.UnsignedByte, false, VertexSize, 32 );
 					Display.CheckErr();
 				}
 #if USE_GLES2
@@ -285,7 +343,7 @@ namespace Voxelarium.Core.Voxels.UI
 				Display.CheckErr();
 			}
 
-			if( !transparent )
+			if( !transparent && !custom )
 			{
 				if( solid_dirty )
 				{
@@ -301,7 +359,7 @@ namespace Voxelarium.Core.Voxels.UI
 					}
 				}
 			}
-			else
+			else if( transparent && !custom )
 			{
 				if( transparent_dirty )
 				{
@@ -317,21 +375,43 @@ namespace Voxelarium.Core.Voxels.UI
 					}
 				}
 			}
+			else if( !transparent && custom )
+			{
+				if( custom_dirty )
+				{
+					GL.BindBuffer( BufferTarget.ArrayBuffer, vbo_custom );
+					Display.CheckErr();
+					unsafe
+					{
+						fixed ( float* data = &custom_buffer[0].p1 )
+						{
+							GL.BufferData( BufferTarget.ArrayBuffer, (IntPtr)( VertexSize * custom_used ), (IntPtr)data, BufferUsageHint.StaticDraw );
+							Display.CheckErr();
+						}
+					}
+				}
+			}
+			GL.BindBuffer( BufferTarget.ArrayBuffer, 0 );
+
 			//GL.
 			//void glBindBuffer​(enum target, uint bufferName)
 		}
 
-		internal void DrawBuffer( bool transparent, int atlas_id )
+		internal void DrawBuffer( bool transparent
+				, bool custom
+				, int atlas_id )
 		{
-			if( transparent && transparent_used == 0 )
+			if( ( !transparent && custom ) && custom_used == 0 )
 				return;
-			if( !transparent && solid_used == 0 )
+			if( ( transparent && !custom ) && transparent_used == 0 )
 				return;
-			Shader.Activate();
-			LoadBuffer( transparent );
-			GL.BindTexture( TextureTarget.Texture2D, atlas_id );
-			Display.CheckErr();
-			GL.Uniform1( Shader.texture_id, 0 );
+			if( ( !custom && !transparent ) && solid_used == 0 )
+				return;
+
+			GeometryShader.Activate();
+			LoadBuffer( transparent, custom );
+			Shader.BindTexture( 1, atlas_id );
+			GL.Uniform1( GeometryShader.texture_id, 1 );
 			Display.CheckErr();
 
 			if( transparent )
@@ -341,18 +421,34 @@ namespace Voxelarium.Core.Voxels.UI
 #else
 				GL.BindVertexArray( vao_transparent );
 #endif
+				Display.CheckErr();
 				GL.DrawArrays( PrimitiveType.Triangles, 0, transparent_used * 3 );
+				Display.CheckErr();
 			}
-			else
+			else if( custom )
+			{
+#if USE_GLES2
+				GL.Oes.BindVertexArray( vao_solid );
+#else
+				GL.BindVertexArray( vao_custom );
+#endif
+				Display.CheckErr();
+				GL.DrawArrays( PrimitiveType.Triangles, 0, custom_used * 3 );
+				Display.CheckErr();
+			}
+			else 
 			{
 #if USE_GLES2
 				GL.Oes.BindVertexArray( vao_solid );
 #else
 				GL.BindVertexArray( vao_solid );
 #endif
+				Display.CheckErr();
 				GL.DrawArrays( PrimitiveType.Triangles, 0, solid_used * 3 );
+				Display.CheckErr();
 			}
 			GL.BindVertexArray( 0 );
+			Display.CheckErr();
 		}
 
 		void expand()

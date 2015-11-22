@@ -1,4 +1,22 @@
-﻿#if !USE_GLES2
+﻿/*
+ * This file is part of Voxelarium.
+ *
+ * Copyright 2015-2016 James Buckeyne  *** Added 11/22/2015
+ *
+ * Voxelarium is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Voxelarium is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+#if !USE_GLES2
 using OpenTK.Graphics.OpenGL;
 #else
 using OpenTK.Graphics.ES20;
@@ -64,7 +82,8 @@ namespace Voxelarium.Core.UI
 		internal static Camera active_camera;
 		static btTransform debug_cube_transform;
 
-		public Display( VoxelGameEnvironment game ) : base()
+		public Display( VoxelGameEnvironment game ) : base( 640, 480
+				,	 new OpenTK.Graphics.GraphicsMode( 32, 24, 24, 4 ), "Voxelarium", GameWindowFlags.Default )
 		{
 			this.game = game;
 
@@ -80,13 +99,14 @@ namespace Voxelarium.Core.UI
 			UpdateFrame += Display_UpdateFrame;
 			RenderFrame += Display_RenderFrame;
 			GL.Viewport( 0, 0, Width, Height );
+			GL.Enable( EnableCap.Multisample );
 			Matrix4.CreatePerspectiveFieldOfView( (float)( System.Math.PI / 2 ), (float)Width / (float)Height, 0.01f, 10000, out projection );
 			//projection = Matrix4.Identity;
 
 			// generic fly camera not attached to any object
 			free_camera = new Camera();
 			active_camera = free_camera; // default to freecam;
-			free_camera.MoveTo( 0, 32, 0 );
+			free_camera.MoveTo( 0, 4, 0 );
 			debug_cube_transform = btTransform.Identity;
 
 			shaders.Add( new SimpleShader() );

@@ -1,4 +1,27 @@
-﻿using System;
+﻿/*
+ * Before porting, this header appeared inmost sources.  Of course
+ * the change from C++ to C# required significant changes an no part
+ * is entirely original.
+ * 
+ * This file is part of Blackvoxel. (Now Voxelarium)
+ *
+ * Copyright 2010-2014 Laurent Thiebaut & Olivia Merle
+ * Copyright 2015-2016 James Buckeyne  *** Added 11/22/2015
+ *
+ * Voxelarium is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Voxelarium is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+using System;
 using System.Drawing;
 using Voxelarium.Core.Types;
 using Voxelarium.Core.Voxels.Types;
@@ -764,9 +787,9 @@ namespace Voxelarium.Core.Voxels
 			byte Stencil, Stencil2;
 			bool CStencil;
 
-			SectorStart.x = ( VoxelSector.Pos_x << VoxelSector.ZVOXELBLOCSHIFT_X ) & 255;
-			SectorStart.z = ( VoxelSector.Pos_z << VoxelSector.ZVOXELBLOCSHIFT_Z ) & 255;
-			SectorStart.y = ( VoxelSector.Pos_y << VoxelSector.ZVOXELBLOCSHIFT_Y );
+			SectorStart.x = ( VoxelSector.Pos_x  ) ;
+			SectorStart.z = ( VoxelSector.Pos_z  ) ;
+			SectorStart.y = ( VoxelSector.Pos_y );
 
 			VoxelSector.Flag_IsActiveVoxels = true;
 
@@ -823,9 +846,9 @@ namespace Voxelarium.Core.Voxels
 			byte Stencil;
 			//ZLineCoords LineCoords;
 
-			SectorStart.x = ( VoxelSector.Pos_x << VoxelSector.ZVOXELBLOCSHIFT_X ) & 255;
-			SectorStart.z = ( VoxelSector.Pos_z << VoxelSector.ZVOXELBLOCSHIFT_Z ) & 255;
-			SectorStart.y = ( VoxelSector.Pos_y << VoxelSector.ZVOXELBLOCSHIFT_Y );
+			SectorStart.x = ( VoxelSector.Pos_x ) & 0xFF;
+			SectorStart.z = ( VoxelSector.Pos_z ) & 0xFF;
+			SectorStart.y = ( VoxelSector.Pos_y );
 
 			VoxelSector.Flag_IsActiveVoxels = true;
 
@@ -887,9 +910,9 @@ namespace Voxelarium.Core.Voxels
 			//  ZLineCoords LineCoords;
 
 
-			SectorStart.x = ( VoxelSector.Pos_x << VoxelSector.ZVOXELBLOCSHIFT_X ) & 255;
-			SectorStart.z = ( VoxelSector.Pos_z << VoxelSector.ZVOXELBLOCSHIFT_Z ) & 255;
-			SectorStart.y = ( VoxelSector.Pos_y << VoxelSector.ZVOXELBLOCSHIFT_Y );
+			SectorStart.x = ( VoxelSector.Pos_x );
+			SectorStart.z = ( VoxelSector.Pos_z );
+			SectorStart.y = ( VoxelSector.Pos_y );
 
 			VoxelSector.Flag_IsActiveVoxels = true;
 
@@ -955,9 +978,9 @@ namespace Voxelarium.Core.Voxels
 			Zone.x = ( VoxelSector.Pos_x >> ( 8 - VoxelSector.ZVOXELBLOCSHIFT_X ) ) + ( Z_GENESISMAP_SIZE >> 1 );
 			Zone.z = ( VoxelSector.Pos_z >> ( 8 - VoxelSector.ZVOXELBLOCSHIFT_Z ) ) + ( Z_GENESISMAP_SIZE >> 1 );
 
-			SectorStart.x = ( VoxelSector.Pos_x << VoxelSector.ZVOXELBLOCSHIFT_X ) & 255;
-			SectorStart.z = ( VoxelSector.Pos_z << VoxelSector.ZVOXELBLOCSHIFT_Z ) & 255;
-			SectorStart.y = ( VoxelSector.Pos_y << VoxelSector.ZVOXELBLOCSHIFT_Y );
+			SectorStart.x = ( VoxelSector.Pos_x);
+			SectorStart.z = ( VoxelSector.Pos_z);
+			SectorStart.y = ( VoxelSector.Pos_y);
 
 			RiverCanva.Clear();
 
@@ -2024,9 +2047,9 @@ namespace Voxelarium.Core.Voxels
 			int ZoneMaxIndex = ZoneSize - 1;
 
 			Sector_y = VoxelSector.Pos_y;
-			ZonePos.x = ( ( VoxelSector.Pos_x << VoxelSector.ZVOXELBLOCSHIFT_X ) + Offset ) & ZoneMaxIndex;
-			ZonePos.z = ( ( VoxelSector.Pos_z << VoxelSector.ZVOXELBLOCSHIFT_Z ) + Offset ) & ZoneMaxIndex;
-			ZonePos.y = ( VoxelSector.Pos_y << VoxelSector.ZVOXELBLOCSHIFT_Y );
+			ZonePos.x = ( ( VoxelSector.Pos_x ) + Offset ) & ZoneMaxIndex;
+			ZonePos.z = ( ( VoxelSector.Pos_z ) + Offset ) & ZoneMaxIndex;
+			ZonePos.y = (   VoxelSector.Pos_y );
 
 			for( z = 0; z < VoxelSector.ZVOXELBLOCSIZE_Z; z++ )
 				for( x = 0; x < VoxelSector.ZVOXELBLOCSIZE_X; x++ )
@@ -2057,9 +2080,9 @@ namespace Voxelarium.Core.Voxels
 			// uint RandNum;
 
 
-			xs = Sector.Pos_x << VoxelSector.ZVOXELBLOCSHIFT_X;
-			ys = Sector.Pos_y << VoxelSector.ZVOXELBLOCSHIFT_Y;
-			zs = Sector.Pos_z << VoxelSector.ZVOXELBLOCSHIFT_Z;
+			xs = Sector.Pos_x;
+			ys = Sector.Pos_y;
+			zs = Sector.Pos_z;
 			//Seed = xs + 3524*ys + 234 * zs;
 
 			/*
@@ -2116,9 +2139,9 @@ namespace Voxelarium.Core.Voxels
 			// uint RandNum, Ratio;
 
 
-			xs = Sector.Pos_x << VoxelSector.ZVOXELBLOCSHIFT_X;
-			ys = Sector.Pos_y << VoxelSector.ZVOXELBLOCSHIFT_Y;
-			zs = Sector.Pos_z << VoxelSector.ZVOXELBLOCSHIFT_Z;
+			xs = Sector.Pos_x;
+			ys = Sector.Pos_y;
+			zs = Sector.Pos_z;
 			//Seed = xs + 3524*ys + 234 * zs;
 
 			uint SizeMask;
@@ -2160,9 +2183,9 @@ namespace Voxelarium.Core.Voxels
 			uint RandNum, Ratio;
 
 
-			xs = Sector.Pos_x << VoxelSector.ZVOXELBLOCSHIFT_X;
-			ys = Sector.Pos_y << VoxelSector.ZVOXELBLOCSHIFT_Y;
-			zs = Sector.Pos_z << VoxelSector.ZVOXELBLOCSHIFT_Z;
+			xs = Sector.Pos_x;
+			ys = Sector.Pos_y;
+			zs = Sector.Pos_z;
 			//Seed = xs + 3524*ys + 234 * zs;
 
 			Ratio = (uint)( 1024 * Probability );
@@ -2224,46 +2247,54 @@ namespace Voxelarium.Core.Voxels
 			*/
 		}
 
-		public bool LoadTemplateImages( VoxelTypeManager voxelTypeManager )
+		public bool LoadTemplateImages( VoxelTypeManager voxelTypeManager, ref int start_percent, ref int start_step, ref int start_steps )
 		{
 			this.voxelTypeManager = voxelTypeManager;
 			string MiscDirectory, FileName;
+			start_steps += 10;
 			MiscDirectory = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH + "/Misc";
 
 			FileName = MiscDirectory + "/tmplt_1.dat";
 			if( ( Template_1 = new Bitmap( FileName ) ) == null ) return false;
 			Canva_1.SetSize( 256, 256 );
 			Canva_1.GetFromBitmap( Template_1 );
+			start_percent = ( ++start_step * 100 ) / start_steps;
 
 			FileName = MiscDirectory + "/tmplt_2.dat";
 			if( ( Template_2 = new Bitmap( FileName ) ) == null ) return false;
 			Canva_2.SetSize( 256, 256 );
 			Canva_2.GetFromBitmap( Template_2 );
+			start_percent = ( ++start_step * 100 ) / start_steps;
 
 			FileName = MiscDirectory + "/tmplt_3_1.dat";
 			if( ( Template_3_1 = new Bitmap( FileName ) ) == null ) return false;
 			Canva_3_1.SetSize( 1024, 1024 );
 			Canva_3_1.GetFromBitmap( Template_3_1 );
 
+			start_percent = ( ++start_step * 100 ) / start_steps;
 			FileName = MiscDirectory + "/tmplt_3_2.dat";
 			if( ( Template_3_2 = new Bitmap( FileName ) ) == null ) return false;
 			Canva_3_2.SetSize( 1024, 1024 );
 			Canva_3_2.GetFromBitmap( Template_3_2, true, 1 ); // r=2 b=0 g=1
+			start_percent = ( ++start_step * 100 ) / start_steps;
 
 			FileName = MiscDirectory + "/tmplt_3_3.dat";
 			if( ( Template_3_3 = new Bitmap( FileName ) ) == null ) return false;
 			Canva_3_3.SetSize( 1024, 1024 );
 			Canva_3_3.GetFromBitmap( Template_3_3, true, 0 );
+			start_percent = ( ++start_step * 100 ) / start_steps;
 
 			FileName = MiscDirectory + "/sect_1.dat";
 			T3dTemplate_1.SetNotStandardSize();
 			T3dTemplate_1.SetVoxelTypeManager( voxelTypeManager );
 			T3dTemplate_1.Load( 0, FileName );
+			start_percent = ( ++start_step * 100 ) / start_steps;
 
 			FileName = MiscDirectory + "/sect_2.dat";
 			T3dTemplate_2.SetNotStandardSize();
 			T3dTemplate_2.SetVoxelTypeManager( voxelTypeManager );
 			T3dTemplate_2.Load( 0, FileName );
+			start_percent = ( ++start_step * 100 ) / start_steps;
 
 			FileName = MiscDirectory + "/Vegetation_1.dat";
 			Template_Vegetation_1.SetNotStandardSize();
@@ -2271,6 +2302,7 @@ namespace Voxelarium.Core.Voxels
 			Template_Vegetation_1.Load( 0, FileName );
 			Template_Vegetation_1.Subst( 32767 + 2, 234 );
 			//Template_Vegetation_1.Subst(71, 32767+21);
+			start_percent = ( ++start_step * 100 ) / start_steps;
 
 			FileName = MiscDirectory + "/Vegetation_2.dat";
 			Template_Vegetation_2.SetNotStandardSize();
@@ -2278,6 +2310,7 @@ namespace Voxelarium.Core.Voxels
 			Template_Vegetation_2.Load( 0, FileName );
 			Template_Vegetation_2.Subst( 1, 234 );
 			Template_Vegetation_2.Subst( 2, 71 );
+			start_percent = ( ++start_step * 100 ) / start_steps;
 
 			FileName = MiscDirectory + "/Vegetation_3.dat";
 			Template_Vegetation_3.SetNotStandardSize();
@@ -2285,6 +2318,7 @@ namespace Voxelarium.Core.Voxels
 			Template_Vegetation_3.Load( 0, FileName );
 			Template_Vegetation_3.Subst( 1, 234 );
 			Template_Vegetation_3.Subst( 2, 71 );
+			start_percent = ( ++start_step * 100 ) / start_steps;
 
 
 			TreeTable[0] = Template_Vegetation_1;

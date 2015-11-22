@@ -26,12 +26,16 @@ namespace BEPUutilities
 			this.Position = position;
 			this.Direction = direction;
 		}
-#if ALLOW_LAZY_VECTORS
+
+		/// <summary>
+		/// Constructs a new ray.
+		/// </summary>
+		/// <param name="position">Starting position of the ray.</param>
+		/// <param name="direction">Direction in which the ray points.</param>
 		public Ray( Vector3 position,  Vector3 direction )
-		: this( ref position, ref direction )
+				: this( ref position, ref direction )
 		{
 		}
-#endif
 
 		/// <summary>
 		/// Determines if and when the ray intersects the bounding box.

@@ -1,4 +1,27 @@
-﻿using Voxelarium.LinearMath;
+﻿/*
+ * Before porting, this header appeared inmost sources.  Of course
+ * the change from C++ to C# required significant changes an no part
+ * is entirely original.
+ * 
+ * This file is part of Blackvoxel. (Now Voxelarium)
+ *
+ * Copyright 2010-2014 Laurent Thiebaut & Olivia Merle
+ * Copyright 2015-2016 James Buckeyne  *** Added 11/22/2015
+ *
+ * Voxelarium is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Voxelarium is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+using Voxelarium.LinearMath;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -6,6 +29,7 @@ using Voxelarium.Core.Support;
 using Voxelarium.Core.UI;
 using Voxelarium.Core.Voxels.IO;
 using Voxelarium.Core.Voxels.UI;
+using System.Threading;
 
 namespace Voxelarium.Core.Voxels
 {
@@ -28,10 +52,10 @@ namespace Voxelarium.Core.Voxels
 		public int VoxelBlockSizeBits = 0;
 		public int VoxelBlockSize = 1 ;
 
-		int TableSize;
-		public int Size_x;
-		public int Size_y;
-		public int Size_z;
+		const int TableSize = SectorHashSize_x * SectorHashSize_y * SectorHashSize_z;
+		public const int SectorHashSize_x = 32;
+		public const int SectorHashSize_y = 32;
+		public const int SectorHashSize_z = 32;
 		public btMatrix3x3 orientation;
 		public int UniverseNum;
 
@@ -55,11 +79,7 @@ namespace Voxelarium.Core.Voxels
 			this.GameEnv = GameEnv;
 			SectorEjectList = new SectorRingList( 256 * 256 * 32/*65536*/);
 			TextureAtlas = new TextureAtlas( 32, 64 );
-			Size_x = 0x20;
-			Size_y = 0x20;
-			Size_z = 0x20;
-
-			TableSize = Size_x * Size_y * Size_z;
+			
 			SectorTable = new VoxelSector[TableSize];
 
 			for( i = 0; i < TableSize; i++ ) SectorTable[i] = null;
@@ -95,8 +115,7 @@ namespace Voxelarium.Core.Voxels
 				Sector = NewSector;
 			}
 
-			if( SectorTable != null ) { SectorTable = null; TableSize = 0; }
-
+			if( SectorTable != null ) { SectorTable = null; }
 
 			if( WorkingFullSector != null ) { WorkingFullSector.Dispose(); WorkingFullSector = null; }
 			if( WorkingEmptySector != null ) { WorkingEmptySector.Dispose(); WorkingEmptySector = null; }
@@ -112,15 +131,15 @@ namespace Voxelarium.Core.Voxels
 			int xs, ys, zs, Offset;
 			VoxelSector SectorPointer;
 
-			xs = x % Size_x;
-			ys = y % Size_y;
-			zs = z % Size_z;
+			xs = x % SectorHashSize_x;
+			ys = y % SectorHashSize_y;
+			zs = z % SectorHashSize_z;
 
 			xs &= 0x1f;
 			ys &= 0x1f;
 			zs &= 0x1f;
 
-			Offset = xs + ys * Size_x + ( zs * Size_x * Size_y );
+			Offset = xs + ys * SectorHashSize_x + ( zs * SectorHashSize_x * SectorHashSize_y );
 
 			SectorPointer = SectorTable[Offset];
 			while( SectorPointer != null )
@@ -136,28 +155,36 @@ namespace Voxelarium.Core.Voxels
 			int xs, ys, zs, Offset;
 			VoxelSector SectorPointer;
 
-			xs = x % Size_x;
-			ys = y % Size_y;
-			zs = z % Size_z;
+			xs = x % SectorHashSize_x;
+			ys = y % SectorHashSize_y;
+			zs = z % SectorHashSize_z;
 
 			xs &= 0x1f;
 			ys &= 0x1f;
 			zs &= 0x1f;
 
-			Offset = xs + ys * Size_x + ( zs * Size_x * Size_y );
+			Offset = xs + ys * SectorHashSize_x + ( zs * SectorHashSize_x * SectorHashSize_y );
+			bool requested = false;
 
 			while( true )
 			{
+				AutoResetEvent wait_event = new AutoResetEvent( false );
 				SectorPointer = SectorTable[Offset];
 				while( SectorPointer != null )
 				{
 					if( ( SectorPointer.Pos_x == x ) && ( SectorPointer.Pos_y == y ) && ( SectorPointer.Pos_z == z ) ) return ( SectorPointer );
 					SectorPointer = SectorPointer.Next;
 				}
-				RequestSector( x, y, z, 5 );
-				System.Threading.Thread.Sleep( 2 );
+				if( !requested )
+				{
+					RequestSector( x, y, z, 5, wait_event );
+					requested = true;
+				}
+				// need a while to load a sector...
+				wait_event.WaitOne( -1 );
+				//System.Threading.Thread.Sleep( 30 );
 				ProcessNewLoadedSectors();
-			}
+            }
 		}
 
 		internal void ProcessNewLoadedSectors()
@@ -182,19 +209,31 @@ namespace Voxelarium.Core.Voxels
 					//printf("AddSector: %ld,%ld,%ld\n",Sector.Pos_x, Sector.Pos_y, Sector.Pos_z);
 
 					// Partial face culing for adjacent sectors
-					AdjSector = FindSector( Sector.Pos_x - 1, Sector.Pos_y, Sector.Pos_z ); // find to the left... update its right
-					if( AdjSector != null ) { AdjSector.Culler.CullSector( AdjSector, false, VoxelSector.FACEDRAW_Operations.RIGHT ); }
-					AdjSector = FindSector( Sector.Pos_x + 1, Sector.Pos_y, Sector.Pos_z ); // find to the right... update its left
-					if( AdjSector != null ) { AdjSector.Culler.CullSector( AdjSector, false, VoxelSector.FACEDRAW_Operations.LEFT ); }
-					AdjSector = FindSector( Sector.Pos_x, Sector.Pos_y, Sector.Pos_z - 1 ); // behind 'behind' update its ahead...
-					if( AdjSector != null ) { AdjSector.Culler.CullSector( AdjSector, false, VoxelSector.FACEDRAW_Operations.AHEAD ); }
-					AdjSector = FindSector( Sector.Pos_x, Sector.Pos_y, Sector.Pos_z + 1 ); // found to the front, update its behind
-					if( AdjSector != null ) { AdjSector.Culler.CullSector( AdjSector, false, VoxelSector.FACEDRAW_Operations.BEHIND ); }
-					AdjSector = FindSector( Sector.Pos_x, Sector.Pos_y - 1, Sector.Pos_z ); // found below update its above
-					if( AdjSector != null ) { AdjSector.Culler.CullSector( AdjSector, false, VoxelSector.FACEDRAW_Operations.ABOVE ); }
-					AdjSector = FindSector( Sector.Pos_x, Sector.Pos_y + 1, Sector.Pos_z ); // found above, udpate its below
-					if( AdjSector != null ) { AdjSector.Culler.CullSector( AdjSector, false, VoxelSector.FACEDRAW_Operations.BELOW ); }
-                }
+					AdjSector = Sector.near_sectors[(int)VoxelSector.RelativeVoxelOrds.LEFT]; // find to the left... update its right
+					if( AdjSector != null ) {
+						AdjSector.Culler.CullSector( AdjSector, false, VoxelSector.FACEDRAW_Operations.RIGHT );
+					}
+					AdjSector = Sector.near_sectors[(int)VoxelSector.RelativeVoxelOrds.RIGHT]; // find to the right... update its left
+					if( AdjSector != null ) {
+						AdjSector.Culler.CullSector( AdjSector, false, VoxelSector.FACEDRAW_Operations.LEFT );
+					}
+					AdjSector = Sector.near_sectors[(int)VoxelSector.RelativeVoxelOrds.BEHIND]; // behind 'behind' update its ahead...
+					if( AdjSector != null ) {
+						AdjSector.Culler.CullSector( AdjSector, false, VoxelSector.FACEDRAW_Operations.AHEAD );
+					}
+					AdjSector = Sector.near_sectors[(int)VoxelSector.RelativeVoxelOrds.AHEAD]; // found to the front, update its behind
+					if( AdjSector != null ) {
+						AdjSector.Culler.CullSector( AdjSector, false, VoxelSector.FACEDRAW_Operations.BEHIND );
+					}
+					AdjSector = Sector.near_sectors[(int)VoxelSector.RelativeVoxelOrds.BELOW]; // found below update its above
+					if( AdjSector != null ) {
+						AdjSector.Culler.CullSector( AdjSector, false, VoxelSector.FACEDRAW_Operations.ABOVE );
+					}
+					AdjSector = Sector.near_sectors[(int)VoxelSector.RelativeVoxelOrds.ABOVE]; // found above, udpate its below
+					if( AdjSector != null ) {
+						AdjSector.Culler.CullSector( AdjSector, false, VoxelSector.FACEDRAW_Operations.BELOW );
+					}
+				}
 				else { Sector.Dispose(); Log.log( "Loading already used sector***\n" ); }
 			}
 		}
@@ -208,9 +247,9 @@ namespace Voxelarium.Core.Voxels
 				int n;
 				for( n = 0; n < 6; n++ )
 				{
-					VoxelSector near_sec = FindSector( Sector.Pos_x + VoxelReactor.nbp6[n].x
-													  , Sector.Pos_y + VoxelReactor.nbp6[n].y
-													  , Sector.Pos_z + VoxelReactor.nbp6[n].z );
+					VoxelSector near_sec = FindSector( Sector.Pos_x + VoxelSector.NormalBasePosition[n].x
+													  , Sector.Pos_y + VoxelSector.NormalBasePosition[n].y
+													  , Sector.Pos_z + VoxelSector.NormalBasePosition[n].z );
 					if( near_sec != null )
 					{
 						Sector.near_sectors[n] = near_sec;
@@ -221,11 +260,11 @@ namespace Voxelarium.Core.Voxels
 
 			// Adding to fast access hash
 
-			x = ( Sector.Pos_x % Size_x ) & 0x1f;
-			y = ( Sector.Pos_y % Size_y ) & 0x1f;
-			z = ( Sector.Pos_z % Size_z ) & 0x1f;
+			x = Sector.Pos_x & (SectorHashSize_x - 1);
+			y = Sector.Pos_y & (SectorHashSize_y - 1);
+			z = Sector.Pos_z & (SectorHashSize_z - 1);
 
-			Offset = x + y * Size_x + ( z * Size_x * Size_y );
+			Offset = x + y * SectorHashSize_x + ( z * SectorHashSize_x * SectorHashSize_y );
 
 			if( SectorTable[Offset] == null )
 			{
@@ -285,25 +324,29 @@ namespace Voxelarium.Core.Voxels
 		}
 
 		internal void SetUniverseNum( int UniverseNum ) { this.UniverseNum = UniverseNum; }
-		internal void SetVoxelTypeManager( VoxelTypeManager Manager )
+		internal void SetVoxelTypeManager( VoxelTypeManager Manager, ref int percent, ref int step, ref int steps )
 		{
 			VoxelTypeManager = Manager;
 
-			Manager.LoadTexturesToAtlas( TextureAtlas );
+			Manager.LoadTexturesToAtlas( TextureAtlas, ref percent, ref step, ref steps );
         }
 		internal void CreateDemoWorld()
 		{
 			int x, y, z;
-			for( x = -1; x < 1; x++ )
+			/*
+			for( x = -2; x <= 1; x++ )
 			{
-				for( y = -1; y < 1; y++ )
+				for( y = -1; y <= 1; y++ )
 				{
-					for( z = -1; z < 1; z++ )
+					for( z = -2; z <= 1; z++ )
 					{
 						FindSector_Secure( x, y, z );
 					}
 				}
 			}
+			*/
+			FindSector_Secure( 0, -1, 0 );
+			FindSector_Secure( 0, -1, 1 );
 		}
 
 		internal void SetVoxel( int x, int y, int z, int VoxelValue )
@@ -314,11 +357,11 @@ namespace Voxelarium.Core.Voxels
 			Sector.SetCube( x, y, z, VoxelValue );
 		}
 
-		internal void RequestSector( int x, int y, int z, int Priority )
+		internal void RequestSector( int x, int y, int z, int Priority, EventWaitHandle wait_event = null )
 		{
 			if( SectorLoader == null ) return;
 
-			SectorLoader.Request_Sector( x, y, z, Priority );
+			SectorLoader.Request_Sector( x, y, z, Priority, wait_event );
 		}
 
 		internal void SetSectorLoader( SectorLoader SectorLoader )
@@ -352,10 +395,10 @@ namespace Voxelarium.Core.Voxels
 
 			// Finding sector in hash
 
-			x = ( Sector.Pos_x % Size_x ) & 0xff;
-			y = ( Sector.Pos_y % Size_y ) & 0xf;
-			z = ( Sector.Pos_z % Size_z ) & 0xff;
-			Offset = x + y * Size_x + ( z * Size_x * Size_y );
+			x = ( Sector.Pos_x % SectorHashSize_x ) & 0xff;
+			y = ( Sector.Pos_y % SectorHashSize_y ) & 0xFF;
+			z = ( Sector.Pos_z % SectorHashSize_z ) & 0xff;
+			Offset = x + y * SectorHashSize_x + ( z * SectorHashSize_x * SectorHashSize_y );
 			SectorPointer = SectorTable[Offset];
 			while( SectorPointer != Sector )
 			{

@@ -1,4 +1,22 @@
-﻿using System;
+﻿/*
+ * This file is part of Voxelarium.
+ *
+ * Copyright 2015-2016 James Buckeyne  *** Added 11/22/2015
+ *
+ * Voxelarium is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Voxelarium is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Voxelarium.Core.Support;
@@ -16,6 +34,7 @@ namespace Voxelarium.Core.UI.Shaders
 	/// </summary>
 	public abstract class Shader : IDisposable
 	{
+		static int[] loaded_texture = new int[16];
 		internal int Program;
 		internal int modelview_id;
 		internal int projection_id;
@@ -187,11 +206,18 @@ namespace Voxelarium.Core.UI.Shaders
 			projection_id = GL.GetUniformLocation( Program, "Projection" );
 			worldview_id = GL.GetUniformLocation( Program, "worldView" );
 			modelview_id = GL.GetUniformLocation( Program, "modelView" );
-
-
 			return true;
 		}
 
+		internal static void BindTexture( int texture_unit, int ID )
+		{
+			if( loaded_texture[texture_unit] != ID )
+			{
+				GL.ActiveTexture( TextureUnit.Texture0 + texture_unit );
+				GL.BindTexture( TextureTarget.Texture2D, ID );
+				loaded_texture[texture_unit] = ID;
+			}
+		}
 		public void Dispose()
 		{
 			throw new NotImplementedException();

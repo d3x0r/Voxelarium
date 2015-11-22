@@ -10,8 +10,7 @@ namespace Voxelarium
     {
         public static void Main( string [] args )
         {
-            Physics p = new Physics();
-			Voxelarium.Core.VoxelGameEnvironment game = new Voxelarium.Core.VoxelGameEnvironment();
+            Voxelarium.Core.VoxelGameEnvironment game = new Voxelarium.Core.VoxelGameEnvironment();
 
             Display d = new Display( game );
             d.Run( 60.0 );

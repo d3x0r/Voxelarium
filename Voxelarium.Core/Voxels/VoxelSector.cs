@@ -8,21 +8,23 @@ using System.Text;
 using Voxelarium.Core.Support;
 using Voxelarium.Core.Voxels.Types;
 using Voxelarium.Core.Voxels.UI;
+using Voxelarium.Core.Voxels.Physics;
 
 namespace Voxelarium.Core.Voxels
 {
 
-	public class VoxelSector : VObject, IDisposable
+	public class VoxelSector : IDisposable
 	{
 		public const int ZVOXELBLOCSHIFT_X = 5;
 		public const int ZVOXELBLOCSHIFT_Y = 5;
 		public const int ZVOXELBLOCSHIFT_Z = 5;
-		public const uint ZVOXELBLOCSIZE_X = 1 << ZVOXELBLOCSHIFT_X;
-		public const uint ZVOXELBLOCSIZE_Y = 1 << ZVOXELBLOCSHIFT_Y;
-		public const uint ZVOXELBLOCSIZE_Z = 1 << ZVOXELBLOCSHIFT_Z;
-		public const uint ZVOXELBLOCMASK_X = ZVOXELBLOCSIZE_X - 1;
-		public const uint ZVOXELBLOCMASK_Y = ZVOXELBLOCSIZE_Y - 1;
-		public const uint ZVOXELBLOCMASK_Z = ZVOXELBLOCSIZE_Z - 1;
+		public const int ZVOXELBLOCSIZE_X = 1 << ZVOXELBLOCSHIFT_X;
+		public const int ZVOXELBLOCSIZE_Y = 1 << ZVOXELBLOCSHIFT_Y;
+		public const int ZVOXELBLOCSIZE_Z = 1 << ZVOXELBLOCSHIFT_Z;
+		public const int ZVOXELBLOCMASK_X = ZVOXELBLOCSIZE_X - 1;
+		public const int ZVOXELBLOCMASK_Y = ZVOXELBLOCSIZE_Y - 1;
+		public const int ZVOXELBLOCMASK_Z = ZVOXELBLOCSIZE_Z - 1;
+		public const int ZVOXELBLOCKCOUNT = ZVOXELBLOCSIZE_X * ZVOXELBLOCSIZE_Y * ZVOXELBLOCSIZE_Z;
 
 		static bool Initialized;
 		public static byte[] STableX = new byte[ZVOXELBLOCSIZE_X + 2];//= { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2 };
@@ -44,12 +46,13 @@ namespace Voxelarium.Core.Voxels
 																		   //   12*ZVOXELBLOCSIZE_Y, 13*ZVOXELBLOCSIZE_Y, 14*ZVOXELBLOCSIZE_Y,15*ZVOXELBLOCSIZE_Y,
 																		   //	0*ZVOXELBLOCSIZE_Y };
 		public static ushort[] OfTableZ = new ushort[ZVOXELBLOCSIZE_Z + 2]; //{  15*ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X,
-					   //0 *ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X, 1 *ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X, 2*ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X, 3*ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X,
-					   //4 *ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X, 5 *ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X, 6*ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X, 7*ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X,
-					   //8 *ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X, 9 *ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X,10*ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X,11*ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X,
-					   //12*ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X, 13*ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X,14*ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X,15*ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X,
-					   //0 *ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X};
+																			//0 *ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X, 1 *ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X, 2*ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X, 3*ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X,
+																			//4 *ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X, 5 *ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X, 6*ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X, 7*ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X,
+																			//8 *ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X, 9 *ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X,10*ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X,11*ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X,
+																			//12*ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X, 13*ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X,14*ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X,15*ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X,
+																			//0 *ZVOXELBLOCSIZE_Y*ZVOXELBLOCSIZE_X};
 
+		internal PhysicsEngine.Sector physics;
 
 		// 14 bits requires for position
 		// 18 bits left
@@ -96,7 +99,17 @@ namespace Voxelarium.Core.Voxels
 		, ALL_BITS = 0x3FFFFF
 		};
 
-		public enum RelativeVoxelOrds
+		public struct ZBlocPosN { public sbyte x; public sbyte y; public sbyte z; public ZBlocPosN( sbyte x, sbyte y, sbyte z ) { this.x = x; this.y = y; this.z = z; } };
+		//ZVoxelReaction** ReactionTable;
+		public static ZBlocPosN[] NormalBasePosition = new ZBlocPosN[]{
+			new ZBlocPosN ( -1, 0, 0 )
+			, new ZBlocPosN ( 1, 0, 0 )
+			, new ZBlocPosN( 0, 0, 1 )
+			, new ZBlocPosN( 0, 0, -1 )
+			, new ZBlocPosN( 0, 1, 0 )
+			, new ZBlocPosN( 0, -1, 0 ) };
+
+		public enum RelativeVoxelOrds : byte
 		{
 			INCENTER //0
 		   , LEFT     //1
@@ -299,7 +312,7 @@ namespace Voxelarium.Core.Voxels
 			 RelativeVoxelOrds.BELOW_RIGHT_BEHIND } ,
 		};
 
-		public int SectorsInMemory;
+		public static int SectorsInMemory;
 
 		internal VoxelTypeManager VoxelTypeManager;
 
@@ -325,7 +338,7 @@ namespace Voxelarium.Core.Voxels
 
 		// Is_Modified field Values.
 		[Flags]
-		public enum ModifiedFieldFlags
+		public enum ModifiedFieldFlags : byte
 		{
 			NONE = 0,         // No changes. Assigned at sector creation.
 			SAVEMASK = 28,    // If one of theses bits are set, sector must be saved.
@@ -370,8 +383,8 @@ namespace Voxelarium.Core.Voxels
 			public ushort[] Data = new ushort[ZVOXELBLOCSIZE_X * ZVOXELBLOCSIZE_Y * ZVOXELBLOCSIZE_Z];  // voxel type index
 			public ushort[] TempInfos = new ushort[ZVOXELBLOCSIZE_X * ZVOXELBLOCSIZE_Y * ZVOXELBLOCSIZE_Z];// TempÃ©rature des voxels
 			public VoxelExtension[] OtherInfos = new VoxelExtension[ZVOXELBLOCSIZE_X * ZVOXELBLOCSIZE_Y * ZVOXELBLOCSIZE_Z];// Informations autres
-			//public byte[] FaceCulling = new byte[ZVOXELBLOCSIZE_X * ZVOXELBLOCSIZE_Y * ZVOXELBLOCSIZE_Z];
-        }
+																															//public byte[] FaceCulling = new byte[ZVOXELBLOCSIZE_X * ZVOXELBLOCSIZE_Y * ZVOXELBLOCSIZE_Z];
+		}
 		public VoxelData Data;
 
 		internal VoxelCuller Culler;
@@ -442,7 +455,7 @@ namespace Voxelarium.Core.Voxels
 			Data.Data = null;
 			Data.OtherInfos = null;
 			Data.TempInfos = null;
-			
+
 			//if (OtherInfos)  {delete [] OtherInfos;  OtherInfos  = 0; }
 			//if (TempInfos)   {delete [] TempInfos;   TempInfos   = 0; }
 
@@ -469,7 +482,7 @@ namespace Voxelarium.Core.Voxels
 			Handle_y = y;
 			Handle_z = z;
 		}
-		public void SetNotStandardSize(  )
+		public void SetNotStandardSize()
 		{
 			SetNotStandardSize( true );
 		}
@@ -485,7 +498,7 @@ namespace Voxelarium.Core.Voxels
 		{
 			int Offset;
 			Offset = ( y & (int)ZVOXELBLOCMASK_Y )
-				+( ( x & (int)ZVOXELBLOCMASK_X ) * (int)ZVOXELBLOCSIZE_Y )
+				+ ( ( x & (int)ZVOXELBLOCMASK_X ) * (int)ZVOXELBLOCSIZE_Y )
 				+ ( ( z & (int)ZVOXELBLOCMASK_Z ) * ( (int)ZVOXELBLOCSIZE_Y * (int)ZVOXELBLOCSIZE_X ) );
 			Data.Data[Offset] = (ushort)CubeValue;
 			Data.OtherInfos[Offset] = null;
@@ -622,11 +635,12 @@ namespace Voxelarium.Core.Voxels
 		static uint OffsetDeltaWrapped( int x, int y, int z )
 		{
 			return (uint)( ( ( ( ( x ) > 0 ? ( -( ZVOXELBLOCSIZE_X ) ) : ( x ) < 0 ? ( ZVOXELBLOCSIZE_X ) : 0 ) ) * ZVOXELBLOCSIZE_Y )
-                   + ( ( ( ( y ) > 0 ? ( -( ZVOXELBLOCSIZE_Y ) ) : ( y ) < 0 ? ( ZVOXELBLOCSIZE_Y ) : 0 ) ) )
+				   + ( ( ( ( y ) > 0 ? ( -( ZVOXELBLOCSIZE_Y ) ) : ( y ) < 0 ? ( ZVOXELBLOCSIZE_Y ) : 0 ) ) )
 					+ ( ( ( ( ( z ) > 0 ? ( -( ZVOXELBLOCSIZE_Z ) ) : ( z ) < 0 ? ( ZVOXELBLOCSIZE_Z ) : 0 ) ) ) * ZVOXELBLOCSIZE_Y * ZVOXELBLOCSIZE_X ) );
 		}
 		void DefaultInit()
 		{
+
 			if( RelativeVoxelOffsets_Unwrapped[1] == 0 )
 			{
 				// these should have been done in-line... but forgot; and it became long serial code 
@@ -724,14 +738,22 @@ namespace Voxelarium.Core.Voxels
 
 			SectorsInMemory++;
 		}
-
+		
 		static VoxelSector()
 		{
 			InitStatics();
 		}
-		public VoxelSector( VoxelWorld world )
+
+		public VoxelSector( VoxelWorld world, int x = 0, int y = 0, int z = 0 )
 		{
-            this.world = world;
+			//Console.WriteLine( "Sectors in memory : " + SectorsInMemory + " at " + x + ","+y+","+z );
+			Pos_x = x;
+			Pos_y = y;
+			Pos_z = z;
+			this.world = world;
+			if( world != null )
+				physics = new PhysicsEngine.Sector( world, x, y, z );
+
 			ModifTracker.Init( ZVOXELBLOCSIZE_X * ZVOXELBLOCSIZE_Y * ZVOXELBLOCSIZE_Z );
 			DefaultInit();
 		}
@@ -798,8 +820,11 @@ namespace Voxelarium.Core.Voxels
 		void InitSector()
 		{
 			int i;
+
+
 			geometry = new VoxelGeometry();
-			Pos_x = 0; Pos_y = 0; Pos_z = 0;
+
+			//Pos_x = 0; Pos_y = 0; Pos_z = 0;
 			Handle_x = Handle_y = Handle_z = 0;
 			ZoneType = 0;
 			ZoneVersion = 0;
@@ -808,6 +833,7 @@ namespace Voxelarium.Core.Voxels
 #if VOXEL_CULLER
 			Culling = 0;
 #endif
+
 			Data = new VoxelData();
 			Data.Data = new ushort[DataSize];
 			Data.TempInfos = new ushort[DataSize];
@@ -880,10 +906,6 @@ namespace Voxelarium.Core.Voxels
 			world = null;
 
 			SectorsInMemory--;
-		}
-
-		~VoxelSector()
-		{
 		}
 
 		bool GetSectorBaseDirectory( out string OutDirectory )
@@ -1156,10 +1178,10 @@ OutStream.Close();
 			byte[] data = br.ReadBytes( 8 );
 			String = System.Text.Encoding.UTF8.GetString( data );
 
-			if( String != "BLACKSEC" ) { Log.log( "Sector Loading Error (%ld,%ld,%ld): Header Missing, File is not a Sector regular format.\n", (uint)Pos_x, (uint)Pos_y, (uint)Pos_z ); br.Close();  return ( false ); }
+			if( String != "BLACKSEC" ) { Log.log( "Sector Loading Error (%ld,%ld,%ld): Header Missing, File is not a Sector regular format.\n", (uint)Pos_x, (uint)Pos_y, (uint)Pos_z ); br.Close(); return ( false ); }
 			Version = br.ReadUInt16();
 			Compatibility_Class = br.ReadUInt16();
-			
+
 			if( Compatibility_Class > 4 ) { Log.log( "Sector Loading Error (%ld,%ld,%ld): Incompatible format version.\n", (uint)Pos_x, (uint)Pos_y, (uint)Pos_z ); br.Close(); return ( false ); }
 
 			// Sector Informations
@@ -1200,17 +1222,23 @@ OutStream.Close();
 						Temp_Byte = br.ReadByte();
 						Flag_NeedFullCulling = ( Temp_Byte != 0 ) ? true : false;
 						Temp_Byte = br.ReadByte();
-						PartialCulling = (FACEDRAW_Operations) Temp_Byte;
+						PartialCulling = (FACEDRAW_Operations)Temp_Byte;
 					}
 					if( Section_Version >= 2 )
 					{
 						Temp_Byte = br.ReadByte();
-						if( Section_Version >= 6 ) { Flag_IsModified = (ModifiedFieldFlags)Temp_Byte;
-							Flag_IsModified &= ( ModifiedFieldFlags)( 0xFF ^ (byte)ModifiedFieldFlags.BITSECTORMODIFIED ); }
-						else { Flag_IsModified =  ((ModifiedFieldFlags)Temp_Byte != 0 )
-								? ModifiedFieldFlags.IMPORTANT : ModifiedFieldFlags.NONE; }
+						if( Section_Version >= 6 )
+						{
+							Flag_IsModified = (ModifiedFieldFlags)Temp_Byte;
+							Flag_IsModified &= (ModifiedFieldFlags)( 0xFF ^ (byte)ModifiedFieldFlags.BITSECTORMODIFIED );
+						}
+						else
+						{
+							Flag_IsModified = ( (ModifiedFieldFlags)Temp_Byte != 0 )
+							 ? ModifiedFieldFlags.IMPORTANT : ModifiedFieldFlags.NONE;
+						}
 						Temp_Byte = br.ReadByte();
-						Flag_IsSlowGeneration = (Temp_Byte!= 0 )?true:false ;
+						Flag_IsSlowGeneration = ( Temp_Byte != 0 ) ? true : false;
 					}
 					if( Section_Version >= 3 )
 					{
@@ -1233,15 +1261,15 @@ OutStream.Close();
 						RingNum = br.ReadUInt16();
 
 						Temp_Byte = br.ReadByte();
-						Flag_NeedSortedRendering = ( Temp_Byte!= 0 ) ? true : false;
+						Flag_NeedSortedRendering = ( Temp_Byte != 0 ) ? true : false;
 						Temp_Byte = br.ReadByte();
 						Flag_NotStandardSize = ( Temp_Byte != 0 ) ? true : false;
 					}
 					//
 
 					if( !Flag_NotStandardSize )
-						if( ( Size_x != ZVOXELBLOCSIZE_X ) 
-							|| ( Size_y != ZVOXELBLOCSIZE_Y ) 
+						if( ( Size_x != ZVOXELBLOCSIZE_X )
+							|| ( Size_y != ZVOXELBLOCSIZE_Y )
 							|| ( Size_z != ZVOXELBLOCSIZE_Z ) )
 						{ Log.log( "Sector Loading Error (%ld,%ld,%ld): Incompatible sector dimension.\n", (uint)Pos_x, (uint)Pos_y, (uint)Pos_z ); br.Close(); return ( false ); }
 					if( Section_Version > 6 ) { Log.log( "Sector Loading Error (%ld,%ld,%ld): Incompatible format in SECTOR INFO section.\n", (uint)Pos_x, (uint)Pos_y, (uint)Pos_z ); br.Close(); return ( false ); }
@@ -1399,25 +1427,7 @@ OutStream.Close();
 
 		}
 
-		/*
-		Bool Load(char const * FileName)
-		{
-		  FILE * fh;
-		  int DataSize;
 
-		  fh = fopen(FileName, "rb");
-
-		  if (!fh) return(false);
-
-		  DataSize = ZVOXELBLOCSIZE_X * ZVOXELBLOCSIZE_Y * ZVOXELBLOCSIZE_Z;
-
-		  if (DataSize != fread(Data, sizeof(ushort),DataSize,fh)) {fclose (fh);return(false);}
-		  if (DataSize != fread(Data, sizeof(byte) ,DataSize,fh)) {fclose (fh);return(false);}
-		  fclose (fh);
-
-		  return(true);
-		}
-		*/
 		bool Decompress_Short_RLE( ushort[] Data, BinaryReader Stream, ushort MagicToken = 0xFFFF )
 		{
 			//ushort MagicToken = 0xFFFF;
@@ -2022,7 +2032,7 @@ bool Decompress_FaceCulling_RLE(byte * Data, void * Stream)
 				for( x = 0; x < Sz.x; x++ )
 					for( y = 0; y < Sz.y; y++ )
 					{
-						Voxel = SourceSector.GetCube( (uint)(Sp.x + x), (uint)(Sp.y + y ), (uint)( Sp.z + z ));
+						Voxel = SourceSector.GetCube( (uint)( Sp.x + x ), (uint)( Sp.y + y ), (uint)( Sp.z + z ) );
 						if( Voxel != 0 ) Draw_safe_SetVoxel( (uint)( Dp.x + x ), (uint)( Dp.y + y ), (uint)( Dp.z + z ), Voxel );
 					}
 		}

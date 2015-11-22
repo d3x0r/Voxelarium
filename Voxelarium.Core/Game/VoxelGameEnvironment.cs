@@ -1,5 +1,29 @@
-﻿using System;
+﻿/*
+ * Before porting, this header appeared inmost sources.  Of course
+ * the change from C++ to C# required significant changes an no part
+ * is entirely original.
+ * 
+ * This file is part of Blackvoxel. (Now Voxelarium)
+ *
+ * Copyright 2010-2014 Laurent Thiebaut & Olivia Merle
+ * Copyright 2015-2016 James Buckeyne  *** Added 11/22/2015
+ *
+ * Voxelarium is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Voxelarium is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using Voxelarium.Core.Game;
@@ -284,10 +308,10 @@ namespace Voxelarium.Core
 			active_screen = Screen_Main;
 			Basic_Renderer = new Render_Basic();
 			Basic_Renderer.GameEnv = this;
-        }
+		}
 
 		internal int start_percent;
-		const int start_steps = 7;
+		int start_steps = 10;
 		int start_step = 0;
 		internal bool Start_Game()
 		{
@@ -295,18 +319,14 @@ namespace Voxelarium.Core
 			start_step = 0;
 			start_percent = 0;
 			result = Start_PersistGameEnv(); if( !result ) return ( false );
-			start_percent = ( ++start_step * 100 ) / start_steps;
 			result = Start_GameEventSequencer(); if( !result ) return ( false );
-			start_percent = ( ++start_step * 100 ) / start_steps;
 			//    result = Start_WorldInfo();          if(!result) return(false);
 			result = Start_Game_Stats(); if( !result ) return ( false );
-			start_percent = ( ++start_step * 100 ) / start_steps;
 			result = Start_Game_Events(); if( !result ) return ( false );
-			start_percent = ( ++start_step * 100 ) / start_steps;
 
-			result = Start_World(); if( !result ) return ( false );
+			result = Start_World( ); if( !result ) return ( false );
 			start_percent = ( ++start_step * 100 ) / start_steps;
-			result = Start_SectorLoader(); if( !result ) return ( false );
+			result = Start_SectorLoader( ); if( !result ) return ( false );
 			start_percent = ( ++start_step * 100 ) / start_steps;
 			result = Start_WorldSectors(); if( !result ) return ( false );
 
@@ -709,14 +729,18 @@ namespace Voxelarium.Core
 			Initialized_GameWindows = false;
 			return ( true );
 		}
-		bool Start_World()
+		bool Start_World( )
 		{
 			World = new VoxelWorld( this );
+			Render_Basic.BuildSortList( ref start_percent, ref start_step, ref start_steps );
 
 			World.renderer = Basic_Renderer;
 
 			World.SetUniverseNum( UniverseNum );
-			World.SetVoxelTypeManager( VoxelTypeManager );
+			start_step++;
+			int tmp1 = 0, tmp2 = 0, tmp3 = 1;
+			World.SetVoxelTypeManager( VoxelTypeManager, ref tmp1, ref tmp2, ref tmp3 );
+
 
 			Initialized_World = true;
 			return ( true );
@@ -730,7 +754,7 @@ namespace Voxelarium.Core
 			return ( true );
 		}
 
-		bool Start_SectorLoader()
+		bool Start_SectorLoader( )
 		{
 			IWorldGenesis genesis = new Genesis();
 			//IWorldGenesis genesis = Compiler.LoadGenesisCode();
@@ -739,7 +763,7 @@ namespace Voxelarium.Core
 				SectorLoader = new FileSectorLoader( this, genesis );
 				SectorLoader.SetVoxelTypeManager( VoxelTypeManager );
 				SectorLoader.SetUniverseNum( UniverseNum );
-				if( !SectorLoader.Init() ) return ( false );
+				if( !SectorLoader.Init( ref start_percent, ref start_step, ref start_steps ) ) return ( false );
 				World.SetSectorLoader( SectorLoader );
 				Initialized_SectorLoader = true;
 				return ( true );
