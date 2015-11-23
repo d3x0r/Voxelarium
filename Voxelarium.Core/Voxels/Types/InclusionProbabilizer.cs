@@ -67,7 +67,7 @@ namespace Voxelarium.Core.Voxels.Types
 			if( EntryCount >= MaxEntryCount ) while( true ) { }
 
 			Infos[EntryCount].VoxelType = VoxelType;
-			Infos[EntryCount].RepeatChance = MaxValue * RepeatChance;
+			Infos[EntryCount].RepeatChance = MaxValue * RepeatChance / 100;
 			Infos[EntryCount].Percent = Percent;
 			CombinedPercent += Percent;
 			EntryCount++;

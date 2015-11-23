@@ -846,8 +846,8 @@ namespace Voxelarium.Core.Voxels
 			byte Stencil;
 			//ZLineCoords LineCoords;
 
-			SectorStart.x = ( VoxelSector.Pos_x ) & 0xFF;
-			SectorStart.z = ( VoxelSector.Pos_z ) & 0xFF;
+			SectorStart.x = ( VoxelSector.Pos_x << VoxelSector.ZVOXELBLOCSHIFT_X ) & 0xFF;
+			SectorStart.z = ( VoxelSector.Pos_z << VoxelSector.ZVOXELBLOCSHIFT_Z ) & 0xFF;
 			SectorStart.y = ( VoxelSector.Pos_y );
 
 			VoxelSector.Flag_IsActiveVoxels = true;
@@ -1890,8 +1890,10 @@ namespace Voxelarium.Core.Voxels
 					}
 					else if( LastMineral != 0 )
 					{
-						if( Probabilizer.AllowRepeat( Num, SaltyRandomGen ) ) Data[i] = LastMineral;
-						else LastMineral = 0;
+						if( Probabilizer.AllowRepeat( Num, SaltyRandomGen ) )
+							Data[i] = LastMineral;
+						else
+							LastMineral = 0;
 					}
 					// LastMineral = 0;
 				}

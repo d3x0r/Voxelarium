@@ -399,6 +399,7 @@ namespace Voxelarium.Core.Voxels.UI
 			VoxelTypeTable = world.VoxelTypeManager.VoxelTable;
 
 			Sector_In = Sector; if( Sector_In == null ) return ( 0 );
+			Sector_Out = null;  // again a redundant assignment
 			CuledFaces = 0;
 
 			// Top Side
@@ -570,7 +571,8 @@ namespace Voxelarium.Core.Voxels.UI
 			if( CuledFaces != 0 )
 			{
 				//Log.log( "Sector {0} {1} {2} is dirty", Sector.Pos_x, Sector.Pos_y, Sector.Pos_z );
-				Sector.Flag_Render_Dirty = true;
+				Sector_Out.Flag_Render_Dirty = true;
+                Sector_In.Flag_Render_Dirty = true;
 			}
 
 			return ( CuledFaces );
@@ -791,7 +793,7 @@ namespace Voxelarium.Core.Voxels.UI
 			int voxelSizeBits = world.VoxelBlockSizeBits;
 			int voxelSize = world.VoxelBlockSize;
 			SectorSphere.SphereEntry SectorSphereEntry;
-			uint SectorsToProcess = 2;// SectorSphere.GetEntryCount();
+			uint SectorsToProcess = SectorSphere.GetEntryCount();
 
 			btVector3 Cv;
 			btVector3 Cv2;
@@ -801,24 +803,10 @@ namespace Voxelarium.Core.Voxels.UI
 			for( int Entry = 0; Entry < SectorsToProcess; Entry++ )
 			{
 				SectorSphere.GetEntry( Entry, out SectorSphereEntry );
-				switch( Entry )
-				{
-					default:
-					case 0:
-						x = 0;// SectorSphereEntry.x + Sector_x;
-						y = -1;//SectorSphereEntry.y + Sector_y;
-						z = 0;//SectorSphereEntry.z + Sector_z;
-						break;
-					case 1:
-						x = 0;// SectorSphereEntry.x + Sector_x;
-						y = -1;//SectorSphereEntry.y + Sector_y;
-						z = 1;//SectorSphereEntry.z + Sector_z;
-						break;
-				}
 
-				//x = SectorSphereEntry.x + Sector_x;
-				//y = SectorSphereEntry.y + Sector_y;
-				//z = SectorSphereEntry.z + Sector_z;
+				x = SectorSphereEntry.x + Sector_x;
+				y = SectorSphereEntry.y + Sector_y;
+				z = SectorSphereEntry.z + Sector_z;
 
 				// for (x = Start_x ; x <= End_x ; x++)
 				// for (y = Start_y; y <= End_y ; y++)
@@ -880,6 +868,7 @@ namespace Voxelarium.Core.Voxels.UI
 							//Log.log( "Draw sector geometry {0} {1} {2}", Sector.Pos_x, Sector.Pos_y, Sector.Pos_z );
 							if( Sector.Flag_NeedSortedRendering ) MakeSectorRenderingData_Sorted( Sector );
 							else MakeSectorRenderingData( Sector );
+							//Log.log( "Drew sector geometry {0} {1} {2}", Sector.Pos_x, Sector.Pos_y, Sector.Pos_z );
 
 							Sector_Refresh_Count++;
 							Sector.RefreshWaitCount = 0;
@@ -1018,13 +1007,13 @@ namespace Voxelarium.Core.Voxels.UI
 				VoxelGeometry geometry = Sector.geometry;
 				float voxelSize = Sector.world.VoxelBlockSize;
 				byte[] FaceCulling = ( Sector.Culler as BasicVoxelCuller ).FaceCulling;
+				//Log.log( "Is Dirty Building sector {0} {1} {2}", Sector.Pos_x, Sector.Pos_y, Sector.Pos_z );
 				Sector_Display_x = (int)( Sector.Pos_x * Sector.Size_x * voxelSize );
 				Sector_Display_y = (int)( Sector.Pos_y * Sector.Size_y * voxelSize );
 				Sector_Display_z = (int)( Sector.Pos_z * Sector.Size_z * voxelSize );
 
 				Sector.Flag_Void_Regular = true;
 				Sector.Flag_Void_Transparent = true;
-
 				//for( Pass = 0; Pass < 2; Pass++ )
 				Pass = 0;
 				{
@@ -1033,6 +1022,7 @@ namespace Voxelarium.Core.Voxels.UI
 						case 0: geometry.SetSolid(); break;// glNewList( DisplayData.DisplayList_Regular[current_gl_camera], GL_COMPILE ); break;
 						case 1: geometry.SetTransparent(); break;//glNewList( DisplayData.DisplayList_Transparent[current_gl_camera], GL_COMPILE ); break;
 					}
+					geometry.Clear();
 					prevcube = 0;
 					for( z = 0; z < Sector.Size_z; z++ )
 					{

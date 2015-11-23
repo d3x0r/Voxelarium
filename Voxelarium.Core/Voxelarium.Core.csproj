@@ -129,7 +129,7 @@
     <Compile Include="Math\Scalar.cs" />
     <Compile Include="Math\Vector3.cs" />
     <Compile Include="Voxels\Physics\Physics.cs" />
-    <Compile Include="Settings.cs" />
+    <Compile Include="Support\Settings.cs" />
     <Compile Include="Support\Compiler.cs" />
     <Compile Include="Support\Log.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

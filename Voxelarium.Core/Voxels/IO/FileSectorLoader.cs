@@ -183,7 +183,7 @@ namespace Voxelarium.Core.Voxels.IO
 				// Add it in the tag
 				RequestTag.Add( x, y, z );
 
-				Console.WriteLine( "Push ReadySector..." + x + " " + y + " " + z );
+				//Log.log( "Push ReadySector..." + x + " " + y + " " + z );
 				// Push it to the list for integration in the world on the main thread.
 				ReadySectorList.PushToList( NewSector );
 				if( wait_event != null )
@@ -255,7 +255,6 @@ namespace Voxelarium.Core.Voxels.IO
 
 		public VoxelSector GetRequested()
 		{
-			Console.WriteLine( "GetReadySector..." );
 			return ( ReadySectorList.PullFromList() );
 		}
 

@@ -209,27 +209,27 @@ namespace Voxelarium.Core.Voxels
 					//printf("AddSector: %ld,%ld,%ld\n",Sector.Pos_x, Sector.Pos_y, Sector.Pos_z);
 
 					// Partial face culing for adjacent sectors
-					AdjSector = Sector.near_sectors[(int)VoxelSector.RelativeVoxelOrds.LEFT]; // find to the left... update its right
+					AdjSector = Sector.near_sectors[(int)VoxelSector.RelativeVoxelOrds.LEFT - 1]; // find to the left... update its right
 					if( AdjSector != null ) {
 						AdjSector.Culler.CullSector( AdjSector, false, VoxelSector.FACEDRAW_Operations.RIGHT );
 					}
-					AdjSector = Sector.near_sectors[(int)VoxelSector.RelativeVoxelOrds.RIGHT]; // find to the right... update its left
+					AdjSector = Sector.near_sectors[(int)VoxelSector.RelativeVoxelOrds.RIGHT - 1]; // find to the right... update its left
 					if( AdjSector != null ) {
 						AdjSector.Culler.CullSector( AdjSector, false, VoxelSector.FACEDRAW_Operations.LEFT );
 					}
-					AdjSector = Sector.near_sectors[(int)VoxelSector.RelativeVoxelOrds.BEHIND]; // behind 'behind' update its ahead...
+					AdjSector = Sector.near_sectors[(int)VoxelSector.RelativeVoxelOrds.BEHIND - 1]; // behind 'behind' update its ahead...
 					if( AdjSector != null ) {
 						AdjSector.Culler.CullSector( AdjSector, false, VoxelSector.FACEDRAW_Operations.AHEAD );
 					}
-					AdjSector = Sector.near_sectors[(int)VoxelSector.RelativeVoxelOrds.AHEAD]; // found to the front, update its behind
+					AdjSector = Sector.near_sectors[(int)VoxelSector.RelativeVoxelOrds.AHEAD - 1]; // found to the front, update its behind
 					if( AdjSector != null ) {
 						AdjSector.Culler.CullSector( AdjSector, false, VoxelSector.FACEDRAW_Operations.BEHIND );
 					}
-					AdjSector = Sector.near_sectors[(int)VoxelSector.RelativeVoxelOrds.BELOW]; // found below update its above
+					AdjSector = Sector.near_sectors[(int)VoxelSector.RelativeVoxelOrds.BELOW - 1]; // found below update its above
 					if( AdjSector != null ) {
 						AdjSector.Culler.CullSector( AdjSector, false, VoxelSector.FACEDRAW_Operations.ABOVE );
 					}
-					AdjSector = Sector.near_sectors[(int)VoxelSector.RelativeVoxelOrds.ABOVE]; // found above, udpate its below
+					AdjSector = Sector.near_sectors[(int)VoxelSector.RelativeVoxelOrds.ABOVE - 1]; // found above, udpate its below
 					if( AdjSector != null ) {
 						AdjSector.Culler.CullSector( AdjSector, false, VoxelSector.FACEDRAW_Operations.BELOW );
 					}
@@ -327,16 +327,15 @@ namespace Voxelarium.Core.Voxels
 		internal void SetVoxelTypeManager( VoxelTypeManager Manager, ref int percent, ref int step, ref int steps )
 		{
 			VoxelTypeManager = Manager;
-
 			Manager.LoadTexturesToAtlas( TextureAtlas, ref percent, ref step, ref steps );
         }
+
 		internal void CreateDemoWorld()
 		{
 			int x, y, z;
-			/*
 			for( x = -2; x <= 1; x++ )
 			{
-				for( y = -1; y <= 1; y++ )
+				for( y = -2; y <= 1; y++ )
 				{
 					for( z = -2; z <= 1; z++ )
 					{
@@ -344,9 +343,6 @@ namespace Voxelarium.Core.Voxels
 					}
 				}
 			}
-			*/
-			FindSector_Secure( 0, -1, 0 );
-			FindSector_Secure( 0, -1, 1 );
 		}
 
 		internal void SetVoxel( int x, int y, int z, int VoxelValue )
