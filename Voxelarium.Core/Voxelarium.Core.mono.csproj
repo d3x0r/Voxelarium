@@ -172,6 +172,8 @@
     <Compile Include="Voxels\VoxelWorldProcessor.cs" />
     <Compile Include="Voxels\WorldGenesis.cs" />
     <Compile Include="Voxels\Types\Fastbit_Array_64k.cs" />
+    <Compile Include="Voxels\Physics\BEPU.VoxelBlob.cs" />
+    <Compile Include="Voxels\Physics\BEPUDebugDrawer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -553,7 +553,7 @@ namespace Voxelarium.Core.UI
 			BulletDebugDrawer.DrawSpace( game.Engine );
 
 			//GL.BindTexture( TextureTarget.Texture2D, frame %100 );
-			GL.Begin( BeginMode.Triangles );
+			GL.Begin( PrimitiveType.Triangles );
 			GL.TexCoord2( 0, 1 );
 			GL.Color3( 1.0f, 1.0f, 0.0f ); GL.Vertex3( -1.0f, -1.0f, 4.0f );
 			GL.TexCoord2( 1, 1 );
