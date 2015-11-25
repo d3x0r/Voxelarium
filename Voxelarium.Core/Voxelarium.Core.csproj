@@ -148,7 +148,7 @@
     <Compile Include="Voxels\SectorModifiedTracker.cs" />
     <Compile Include="Voxels\SectorRingList.cs" />
     <Compile Include="Voxels\SectorSphere.cs" />
-    <Compile Include="Voxels\Types\FastBit_Array_64k.cs" />
+    <Compile Include="Voxels\Types\Fastbit_Array_64k.cs" />
     <Compile Include="Voxels\Types\PooledType.cs" />
     <Compile Include="Voxels\Types\VSimpleTypes.cs" />
     <Compile Include="Voxels\Types\VStream.cs" />
