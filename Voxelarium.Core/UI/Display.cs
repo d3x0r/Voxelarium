@@ -38,7 +38,6 @@ using System.Drawing.Imaging;
 using Voxelarium.Core.Support;
 using Voxelarium.Core.Voxels.UI;
 using Voxelarium.Core.Voxels.Types;
-using Voxelarium.Core.Voxels.Physics;
 
 namespace Voxelarium.Core.UI
 {
@@ -174,7 +173,7 @@ namespace Voxelarium.Core.UI
 				consumer.MouseMove( del_mouse_x, del_mouse_y, mouse_x, mouse_y );
 			if( HiddenMouse )
 			{
-				System.Windows.Forms.Cursor.Position = new Point( display_x + ( display_width ) / 2, display_y + display_height / 2 );
+				System.Windows.Forms.Cursor.Position = new Point( ( X + Width ) / 2, ( Y + Height ) / 2 );
 				_mouse_x = 0;
 				_mouse_y = 0;
 			}
@@ -284,10 +283,7 @@ namespace Voxelarium.Core.UI
 					VoxelGlobalSettings.Exiting = true;
 					Shutdown();
 				}
-				if( game.Game_Run )
-					game.Engine.Step( (float)e.Time );
 			}
-
 			ProcessMouseFreeCam( (float)e.Time );
 			if( Keyboard[Key.AltLeft] && Keyboard[Key.F4] )
 			{
@@ -541,7 +537,7 @@ namespace Voxelarium.Core.UI
 			unsafe
 			{
 				btMatrix3x3 tmp;
-				free_camera.location.GetGLCameraMatrix( out tmp );
+				free_camera.location.GetGLMatrix( out tmp );
 				//Log.log( tmp.ToString() );
 	                //Console.WriteLine( worldview.ToString() );
 					//Console.WriteLine( tmp.ToString() );
@@ -550,11 +546,8 @@ namespace Voxelarium.Core.UI
 					GL.LoadMatrix( matrix_ptr );
 				}
 			}
-			Shader.Deactivate();
-			BulletDebugDrawer.DrawSpace( game.Engine );
-
 			//GL.BindTexture( TextureTarget.Texture2D, frame %100 );
-			GL.Begin( PrimitiveType.Triangles );
+			GL.Begin( BeginMode.Triangles );
 			GL.TexCoord2( 0, 1 );
 			GL.Color3( 1.0f, 1.0f, 0.0f ); GL.Vertex3( -1.0f, -1.0f, 4.0f );
 			GL.TexCoord2( 1, 1 );
