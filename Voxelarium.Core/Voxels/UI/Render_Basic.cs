@@ -362,8 +362,8 @@ namespace Voxelarium.Core.Voxels.UI
 							info |= ( ( SubTable[VoxelTypeTable[BlocMatrix[1][7]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS] ) & VoxelSector.FACEDRAW_Operations.BEHIND );
 							info |= ( ( SubTable[VoxelTypeTable[BlocMatrix[1][3]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS] ) & VoxelSector.FACEDRAW_Operations.LEFT );
 							info |= ( ( SubTable[VoxelTypeTable[BlocMatrix[1][5]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS] ) & VoxelSector.FACEDRAW_Operations.RIGHT );
-							info |= ( ( SubTable[VoxelTypeTable[BlocMatrix[0][4]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS] ) & VoxelSector.FACEDRAW_Operations.ABOVE );
-							info |= ( ( SubTable[VoxelTypeTable[BlocMatrix[2][4]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS] ) & VoxelSector.FACEDRAW_Operations.BELOW );
+							info |= ( ( SubTable[VoxelTypeTable[BlocMatrix[0][4]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS] ) & VoxelSector.FACEDRAW_Operations.BELOW );
+							info |= ( ( SubTable[VoxelTypeTable[BlocMatrix[2][4]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS] ) & VoxelSector.FACEDRAW_Operations.ABOVE );
 						}
 
 						// Write face culling info to face culling table
