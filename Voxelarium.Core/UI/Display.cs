@@ -82,15 +82,18 @@ namespace Voxelarium.Core.UI
 		internal static Camera active_camera;
 		static btTransform debug_cube_transform;
 
-		public Display( VoxelGameEnvironment game ) : base( 640, 480
+		public Display( VoxelGameEnvironment game ) : base( 
+					Settings.Read( "GL.Width", System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Width )
+					, Settings.Read( "GL.Height", System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Height )
 				,	 new OpenTK.Graphics.GraphicsMode( 32, 24, 24, 4 ), "Voxelarium", GameWindowFlags.Default )
 		{
 			this.game = game;
-
+			string versionOpenGL = GL.GetString(StringName.Version);
+			//GL.Get
 			mouse = Mouse;
 			this.WindowBorder = OpenTK.WindowBorder.Hidden;
-			display_width = Width = Settings.Read( "GL.Width", System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Width );
-			display_height = Height = Settings.Read( "GL.Height", System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Height );
+			display_width = Width;// = Settings.Read( "GL.Width", System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Width );
+			display_height = Height;// = Settings.Read( "GL.Height", System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Height );
 			mouse_x = display_width / 2;
 			mouse_y = display_height / 2;
 			display_x = X = Settings.Read( "GL.Display.X", System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.X );
@@ -183,7 +186,6 @@ namespace Voxelarium.Core.UI
 
 		private void Display_MouseWheel( object sender, MouseWheelEventArgs e )
 		{
-			int abs = e.Delta < 0 ? -e.Delta : e.Delta;
 			MouseButton button = e.Delta < 0 ? MouseButton.Button7 : MouseButton.Button6;
 			foreach( EventConsumer consumer in game.EventManager.ConsumerList )
 				consumer.MouseButtonClick( button, mouse_x, mouse_y );

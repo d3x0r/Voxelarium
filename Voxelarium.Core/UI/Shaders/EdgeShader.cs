@@ -37,9 +37,7 @@ namespace Voxelarium.Core.UI.Shaders
 		int power_id;
 
 		const string Vertex_Simple =
-				"precision mediump float;\n"
-			 + "precision mediump int;\n"
-			+ "uniform mat4 modelView;\n"
+				"uniform mat4 modelView;\n"
 			+ "uniform mat4 worldView;\n"
 			+ "uniform mat4 Projection;\n"
 			+ "attribute vec4 vPosition;\n"
@@ -57,8 +55,6 @@ namespace Voxelarium.Core.UI.Shaders
 
 		const string Fragment_Simple =
 			"#version 130\n" 
-			+"precision mediump float;\n"
-			+ "precision mediump int;\n"
 			+ "uniform  vec4 in_Color;\n"
 			+ "uniform  vec4 in_FaceColor;\n"
 			+ "uniform  float in_Pow;\n"
@@ -133,9 +129,7 @@ namespace Voxelarium.Core.UI.Shaders
 		int power_id;
 
 		const string Vertex_Simple =
-				"precision mediump float;\n"
-			 + "precision mediump int;\n"
-			+ "uniform mat4 modelView;\n"
+				"uniform mat4 modelView;\n"
 			+ "uniform mat4 worldView;\n"
 			+ "uniform mat4 Projection;\n"
 			+ "attribute vec4 vPosition;\n"
@@ -153,8 +147,6 @@ namespace Voxelarium.Core.UI.Shaders
 
 		const string Fragment_Simple =
 			"#version 130\n"
-			+ "precision mediump float;\n"
-			+ "precision mediump int;\n"
 			+ "uniform  float in_Pow;\n"
 			+ "varying vec2 ex_Texture;"
 			+ "varying vec4 ex_Color;"

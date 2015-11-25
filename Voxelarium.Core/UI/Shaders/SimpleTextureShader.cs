@@ -36,9 +36,7 @@ namespace Voxelarium.Core.UI.Shaders
 		int texture_id;
 
 		const string Vertex =
-				  "precision mediump float;\n"
-				+ "precision mediump int;\n"
-				+ "attribute vec4 vPosition;\n"
+				  "attribute vec4 vPosition;\n"
 				+ "attribute vec2 in_texCoord;\n"
 				+ "uniform mat4 modelView;\n"
 				+ "uniform mat4 worldView;\n"
@@ -50,9 +48,7 @@ namespace Voxelarium.Core.UI.Shaders
 				+ "  out_texCoord = in_texCoord;\n"
 				+ "}\n";
 
-		const string Fragment = "precision mediump float;\n"
-			+ "precision mediump int;\n"
-			+ " varying vec2 out_texCoord;\n"
+		const string Fragment = " varying vec2 out_texCoord;\n"
 			+ "uniform  vec4 in_Color;\n"
 			+ " uniform sampler2D tex;\n"
 			//+ "varying vec4 ex_Color;"
