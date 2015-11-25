@@ -121,12 +121,12 @@ namespace Voxelarium.Core.Game
 			Setting_Key_Jump = (Key)Settings.Read( "Setting_Key_Jump", (int)Setting_Key_Jump );
 			Setting_Key_Inventory = (Key)Settings.Read( "Setting_Key_Inventory", (int)Setting_Key_Inventory );
 
-			RenderingDistance_Horizontal = (uint)Settings.Read( "RenderingDistance_Horizontal", 20 );
+			RenderingDistance_Horizontal = (uint)Settings.Read( "RenderingDistance_Horizontal", 4 );
 			{
 				if( RenderingDistance_Horizontal < 1 ) RenderingDistance_Horizontal = 1;
 				if( RenderingDistance_Horizontal > 65535 ) RenderingDistance_Horizontal = 65535;
 			}
-			RenderingDistance_Vertical = (uint)Settings.Read( "RenderingDistance_Vertical", 20 );
+			RenderingDistance_Vertical = (uint)Settings.Read( "RenderingDistance_Vertical", 3 );
 			{
 				if( RenderingDistance_Vertical < 1 ) RenderingDistance_Vertical = 1;
 				if( RenderingDistance_Vertical > 65535 ) RenderingDistance_Vertical = 65535;
