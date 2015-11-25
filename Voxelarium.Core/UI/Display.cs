@@ -39,6 +39,7 @@ using Voxelarium.Core.Support;
 using Voxelarium.Core.Voxels.UI;
 using Voxelarium.Core.Voxels.Types;
 using Voxelarium.Core.Voxels.Physics;
+using OpenTK.Graphics;
 
 namespace Voxelarium.Core.UI
 {
@@ -83,10 +84,11 @@ namespace Voxelarium.Core.UI
 		internal static Camera active_camera;
 		static btTransform debug_cube_transform;
 
-		public Display( VoxelGameEnvironment game ) : base( 
-					Settings.Read( "GL.Width", System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Width )
-					, Settings.Read( "GL.Height", System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Height )
-				,	 new OpenTK.Graphics.GraphicsMode( 32, 24, 24, 4 ), "Voxelarium", GameWindowFlags.Default )
+		public Display( VoxelGameEnvironment game ) : base(
+				  Settings.Read( "GL.Width", System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Width )
+				, Settings.Read( "GL.Height", System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Height )
+				, new OpenTK.Graphics.GraphicsMode( 32, 24, 24, 4, ColorFormat.Empty, 2, true )
+				, "Voxelarium", GameWindowFlags.Default )
 		{
 			this.game = game;
 			string versionOpenGL = GL.GetString(StringName.Version);
