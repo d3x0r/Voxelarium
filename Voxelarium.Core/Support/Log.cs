@@ -24,7 +24,8 @@ namespace Voxelarium.Core.Support
 {
 	public static class Log
 	{
-		public static string LoggingRoot = Environment.GetFolderPath( Environment.SpecialFolder.CommonApplicationData );
+		//public static string LoggingRoot = Environment.GetFolderPath( Environment.SpecialFolder.CommonApplicationData );
+		public static string LoggingRoot = Environment.GetFolderPath( Environment.SpecialFolder.UserProfile );
 		public static string ApplicationProducer = "Freedom Collective";
 		public static string ApplicationName;
 		static FileStream fs;

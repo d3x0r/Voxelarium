@@ -34,7 +34,7 @@ namespace Voxelarium.Core
 			settings = new DataSet( "settings" );
 			settings.Tables.Add( setting_table = new DataTable( "settings" ) );
 			setting_table.Columns.Add( "name", typeof( string ) );
-			setting_table.Columns.Add( "value", typeof( object ) );
+			setting_table.Columns.Add( "value", typeof( string ) );
 			try
 			{
 				settings.ReadXml( SettingFilename );
@@ -49,7 +49,7 @@ namespace Voxelarium.Core
 		{
 			DataRow[] setting = settings.Tables["settings"].Select( "name='" + name + "'" );
 			if( setting.Length > 0 )
-				return (bool)setting[0]["value"];
+				return Convert.ToBoolean(setting[0]["value"]);
 			else
 				Write( name, default_val );
 			return default_val;
@@ -59,7 +59,7 @@ namespace Voxelarium.Core
 		{
 			DataRow[] setting = settings.Tables["settings"].Select( "name='" + name + "'" );
 			if( setting.Length > 0 )
-				return (float)setting[0]["value"];
+				return (float)Convert.ToDouble(setting[0]["value"]);
 			else
 				Write( name, default_val );
 			return default_val;
@@ -85,7 +85,7 @@ namespace Voxelarium.Core
 		{
 			DataRow[] setting = settings.Tables["settings"].Select( "name='" + name + "'" );
 			if( setting.Length > 0 )
-				return (int)setting[0]["value"];
+				return (Convert.ToInt32(setting[0]["value"]));
 			else
 				Write( name, default_val );
 			return default_val;

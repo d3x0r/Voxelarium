@@ -156,7 +156,7 @@ namespace Voxelarium.Core.UI.Shaders
 
 				if( status_code != 1 )
 				{
-					Console.WriteLine( "Failed to Compile Vertex Shader Source." +
+					Log.log( "Failed to Compile Vertex Shader Source." +
 						Environment.NewLine + info + Environment.NewLine + "Status Code: " + status_code.ToString() );
 
 					GL.DeleteShader( vertexShader );

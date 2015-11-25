@@ -44,8 +44,6 @@ namespace Voxelarium.Core.UI.Shaders
 
 		const string Vertex_Simple =
 				@"#version 130
-			precision mediump float;
-			precision mediump int;
 			uniform mat4 modelView;
 			uniform mat4 worldView;
 			uniform mat4 Projection;
@@ -81,8 +79,6 @@ namespace Voxelarium.Core.UI.Shaders
 
 		const string Fragment_Simple =
 			@"#version 130
-			precision mediump float;
-			precision mediump int;
 			varying vec2 ex_texCoord;
 			varying vec4 ex_Color;
 			in float ex_Pow;

@@ -34,9 +34,7 @@ namespace Voxelarium.Core.UI.Shaders
 		int color_id;
 
 		const string Vertex =
-				"precision mediump float;\n"
-			 + "precision mediump int;\n"
-			+ "uniform mat4 modelView;\n"
+				"uniform mat4 modelView;\n"
 			+ "uniform mat4 worldView;\n"
 			+ "uniform mat4 Projection;\n"
 			+ "attribute vec4 vPosition;"
@@ -50,14 +48,12 @@ namespace Voxelarium.Core.UI.Shaders
 			+ "}"
 			;
 
-		const string Fragment = "precision mediump float;\n"
-			+ "precision mediump int;\n"
-			+ "uniform  vec4 in_Color;\n"
+		const string Fragment = "uniform  vec4 in_Color;\n"
 			//+ "varying vec4 ex_Color;"
 			+ "void main(void) {"
 			+ "  gl_FragColor = in_Color;"
 			+ "}";
-
+		
 
 		internal override void Compile()
 		{

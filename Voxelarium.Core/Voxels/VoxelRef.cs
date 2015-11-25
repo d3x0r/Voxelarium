@@ -1117,7 +1117,7 @@ namespace Voxelarium.Core.Voxels
 
 				switch( faceOnly )
 				{
-					case (int)VoxelSector.RelativeVoxelOrds.LEFT - 1:
+					case VoxelSector.RelativeVoxelOrds.LEFT:
 						if( this.x == 0 )
 						{
 							for( n = 0; n < 9; n++ )
@@ -1134,7 +1134,7 @@ namespace Voxelarium.Core.Voxels
 					case VoxelSector.RelativeVoxelOrds.RIGHT:
 						if( this.x == ( VoxelSector.ZVOXELBLOCSIZE_X - 1 ) )
 						{
-							ResultSectors[(int)VoxelSector.RelativeVoxelOrds.LEFT] = this.Sector; ResultSectors[(int)VoxelSector.RelativeVoxelOrds.RIGHT] = this.Sector.near_sectors[(int)VoxelSector.RelativeVoxelOrds.RIGHT - 1];
+							ResultSectors[(int)VoxelSector.RelativeVoxelOrds.RIGHT] = this.Sector; ResultSectors[(int)VoxelSector.RelativeVoxelOrds.RIGHT] = this.Sector.near_sectors[(int)VoxelSector.RelativeVoxelOrds.RIGHT - 1];
 							for( n = 0; n < 9; n++ ) ResultOffsets[(int)VoxelSector.VoxelFaceGroups[(int)VoxelSector.RelativeVoxelOrds.RIGHT - 1, n]] -= ( VoxelSector.ZVOXELBLOCSIZE_X ) * VoxelSector.ZVOXELBLOCSIZE_Y;
 						}
 						else
