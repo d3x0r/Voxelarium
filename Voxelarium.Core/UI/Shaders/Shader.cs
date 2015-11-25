@@ -74,6 +74,12 @@ namespace Voxelarium.Core.UI.Shaders
 
 		static int prior_thread;
 
+		internal static void Deactivate()
+		{
+			prior_activated = 0;
+			GL.UseProgram( 0 );
+		}
+
 		internal  bool Activate(  )
 		{
 			if( prior_thread == 0 )

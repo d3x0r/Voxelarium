@@ -356,10 +356,13 @@ namespace Voxelarium.Core.Voxels
 			CRITICAL = BITCRITICAL | BITSECTORMODIFIED    // Critical changes : work done directly by the player. Must be preserved at all cost.
 		};
 
-		public bool Flag_Void_Regular;
-		public bool Flag_Void_Transparent;
+		public bool Flag_Void_Regular;  // nothing in regular lists.
+		public bool Flag_Void_Transparent; // nothing in transparent lists
+		public bool Flag_Void_Custom; // nothing in custom lists
 		public bool Flag_Render_Dirty;
-		public bool Flag_HighPriorityRefresh;
+		public bool Flag_Render_Dirty_Transparent;
+
+        public bool Flag_HighPriorityRefresh;
 		public bool Flag_IsVisibleAtLastRendering;
 		public bool Flag_DeletePending;
 		public bool Flag_NeedFullCulling;
@@ -383,7 +386,7 @@ namespace Voxelarium.Core.Voxels
 			public ushort[] Data = new ushort[ZVOXELBLOCSIZE_X * ZVOXELBLOCSIZE_Y * ZVOXELBLOCSIZE_Z];  // voxel type index
 			public ushort[] TempInfos = new ushort[ZVOXELBLOCSIZE_X * ZVOXELBLOCSIZE_Y * ZVOXELBLOCSIZE_Z];// TempÃ©rature des voxels
 			public VoxelExtension[] OtherInfos = new VoxelExtension[ZVOXELBLOCSIZE_X * ZVOXELBLOCSIZE_Y * ZVOXELBLOCSIZE_Z];// Informations autres
-																															//public byte[] FaceCulling = new byte[ZVOXELBLOCSIZE_X * ZVOXELBLOCSIZE_Y * ZVOXELBLOCSIZE_Z];
+			//public byte[] FaceCulling = new byte[ZVOXELBLOCSIZE_X * ZVOXELBLOCSIZE_Y * ZVOXELBLOCSIZE_Z];
 		}
 		public VoxelData Data;
 
@@ -447,6 +450,7 @@ namespace Voxelarium.Core.Voxels
 			this.Pos_x = x;
 			this.Pos_y = y;
 			this.Pos_z = z;
+			physics.SetPos( (int)(x * Size_x), (int)(y * Size_y), (int)(z * Size_z) );
 		}
 
 		void ChangeSize( uint Size_x, uint Size_y, uint Size_z )
@@ -744,27 +748,23 @@ namespace Voxelarium.Core.Voxels
 			InitStatics();
 		}
 
-		public VoxelSector( VoxelWorld world, int x = 0, int y = 0, int z = 0 )
+		public VoxelSector( VoxelGameEnvironment GameEnv, VoxelWorld world, int x = 0, int y = 0, int z = 0 )
 		{
 			//Console.WriteLine( "Sectors in memory : " + SectorsInMemory + " at " + x + ","+y+","+z );
 			Pos_x = x;
 			Pos_y = y;
 			Pos_z = z;
 			this.world = world;
-			if( world != null )
-				physics = new PhysicsEngine.Sector( world, x, y, z );
 
 			ModifTracker.Init( ZVOXELBLOCSIZE_X * ZVOXELBLOCSIZE_Y * ZVOXELBLOCSIZE_Z );
 			DefaultInit();
+
+			if( world != null )
+			{
+				physics = new PhysicsEngine.Sector( GameEnv.Engine, world, this );
+			}
 		}
-#if VOXEL_CULLER
-		public ZVoxelSector( ZVoxelCuller culler )
-		{
-			ModifTracker.Init( ZVOXELBLOCSIZE_X * ZVOXELBLOCSIZE_Y * ZVOXELBLOCSIZE_Z );
-			DefaultInit();
-			culler.InitFaceCullData( this );
-		}
-#endif
+
 		public VoxelSector( VoxelSector Sector )
 		{
 			uint DataSize;

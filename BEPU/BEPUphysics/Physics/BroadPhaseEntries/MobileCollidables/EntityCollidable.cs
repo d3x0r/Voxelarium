@@ -24,10 +24,6 @@ namespace BEPUphysics.BroadPhaseEntries.MobileCollidables
             base.Shape = shape;
         }
 
-
-
-
-
         /// <summary>
         /// Gets the shape of the collidable.
         /// </summary>

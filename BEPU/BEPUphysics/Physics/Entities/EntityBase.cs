@@ -35,7 +35,7 @@ namespace BEPUphysics.Entities
         public Vector3 position;
         internal Quaternion orientation = Quaternion.Identity;
 		internal Quaternion conjOrientation = Quaternion.Identity;
-		internal Matrix3x3 orientationMatrix = Matrix3x3.Identity;
+		public Matrix3x3 orientationMatrix = Matrix3x3.Identity;
         public Vector3 linearVelocity;
 		public Vector3 angularVelocity;
 #if CONSERVE

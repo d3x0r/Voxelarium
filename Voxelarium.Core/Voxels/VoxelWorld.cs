@@ -48,9 +48,9 @@ namespace Voxelarium.Core.Voxels
 		internal VoxelTypeManager VoxelTypeManager;
 		internal SectorLoader SectorLoader;
 
-			// world has voxel size... all blocks in a 'world' are constant
+		// world has voxel size... all blocks in a 'world' are constant
 		public int VoxelBlockSizeBits = 0;
-		public int VoxelBlockSize = 1 ;
+		public float VoxelBlockSize = 1;
 
 		const int TableSize = SectorHashSize_x * SectorHashSize_y * SectorHashSize_z;
 		public const int SectorHashSize_x = 32;
@@ -63,13 +63,13 @@ namespace Voxelarium.Core.Voxels
 
 		static VoxelWorld()
 		{
-			WorkingFullSector = new VoxelSector( (VoxelWorld)null );
+			WorkingFullSector = new VoxelSector( null, (VoxelWorld)null );
 			//GameEnv.Basic_Renderer.GetCuller().InitFaceCullData( WorkingFullSector );
 			WorkingFullSector.Fill( 0x0001 );
-			WorkingEmptySector = new VoxelSector( (VoxelWorld)null );
+			WorkingEmptySector = new VoxelSector( null, (VoxelWorld)null );
 			//GameEnv.Basic_Renderer.GetCuller().InitFaceCullData( WorkingEmptySector );
 			WorkingEmptySector.Fill( 0 );
-			WorkingScratchSector = new VoxelSector( (VoxelWorld)null );
+			WorkingScratchSector = new VoxelSector( null, (VoxelWorld)null );
 			//GameEnv.Basic_Renderer.GetCuller().InitFaceCullData( WorkingScratchSector );
 		}
 
@@ -194,9 +194,11 @@ namespace Voxelarium.Core.Voxels
 
 			while( ( Sector = SectorLoader.GetRequested() ) != null )
 			{
-				if( FindSector( Sector.Pos_x, Sector.Pos_y, Sector.Pos_z ) == null )
+
+                if( FindSector( Sector.Pos_x, Sector.Pos_y, Sector.Pos_z ) == null )
 				{
 					AddSector( Sector );
+					GameEnv.Engine.Add( Sector.physics );
 					Sector.Culler = renderer.GetCuller( );
 					Sector.Culler.InitFaceCullData( Sector );
 
@@ -339,6 +341,7 @@ namespace Voxelarium.Core.Voxels
 				{
 					for( z = -2; z <= 1; z++ )
 					{
+						Log.log( "Load guarantee {0} {1} {2}", x, y, z );
 						FindSector_Secure( x, y, z );
 					}
 				}

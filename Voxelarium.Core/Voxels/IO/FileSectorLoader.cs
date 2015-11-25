@@ -82,10 +82,10 @@ namespace Voxelarium.Core.Voxels.IO
 			SectorRecycling = new Stack<VoxelSector>( 100 );
 			VoxelTypeManager = null;
 			UniverseNum = 1;
-			WorkingEmptySector = new VoxelSector( GameEnv.World );
+			WorkingEmptySector = new VoxelSector( null, (VoxelWorld)null );
 			GameEnv.Basic_Renderer.GetCuller().InitFaceCullData( WorkingEmptySector );
 			WorkingEmptySector.Fill( 0 );
-			WorkingFullSector = new VoxelSector( GameEnv.World );
+			WorkingFullSector = new VoxelSector( null, (VoxelWorld)null );
 			GameEnv.Basic_Renderer.GetCuller().InitFaceCullData( WorkingFullSector );
 			WorkingFullSector.Fill( 1 );
 			Thread = null;
@@ -147,7 +147,7 @@ namespace Voxelarium.Core.Voxels.IO
 					NewSector.SetPos( x, y, z );
 				}
 				else
-					NewSector = new VoxelSector( GameEnv.World, x, y, z );//, GameEnv.Basic_Renderer.GetCuller() );
+					NewSector = new VoxelSector( GameEnv, GameEnv.World, x, y, z );//, GameEnv.Basic_Renderer.GetCuller() );
 
 				TryLoad = true;
 				do

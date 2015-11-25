@@ -33,6 +33,7 @@ using Voxelarium.Core.Support;
 using Voxelarium.Core.UI;
 using Voxelarium.Core.Voxels;
 using Voxelarium.Core.Voxels.IO;
+using Voxelarium.Core.Voxels.Physics;
 using Voxelarium.Core.Voxels.Types;
 using Voxelarium.Core.Voxels.UI;
 using Voxelarium.LinearMath;
@@ -129,7 +130,7 @@ namespace Voxelarium.Core
 		}
 		internal Pages prior_page_up;
 
-		bool Game_Run;
+		internal bool Game_Run;
 
 		internal VoxelWorldProcessor VoxelProcessor;
 		internal VoxelTypeManager VoxelTypeManager;
@@ -142,6 +143,7 @@ namespace Voxelarium.Core
 		internal FontRenderer default_font;
 		internal RenderInterface Basic_Renderer;
 		internal Sound Sound;
+		internal PhysicsEngine Engine;
 
 
 		Actor ActiveActor;
@@ -216,45 +218,6 @@ namespace Voxelarium.Core
 		uint Previous_GameVersion; // Game version of the loaded world file.
 
 		// General Inits
-#if FINISHED_PORTING
-
-			bool Cleanup_UserDataStorage( ZLog InitLog );
-			bool Cleanup_TextureManager( ZLog InitLog );
-			bool Cleanup_VoxelTypeManager( ZLog InitLog );
-			bool Cleanup_GuiManager( ZLog InitLog );
-			bool Cleanup_EventManager( ZLog InitLog );
-			bool Cleanup_OpenGLGameSettings( ZLog InitLog );
-			bool Cleanup_TileSetsAndFonts( ZLog InitLog );
-			bool Cleanup_Renderer( ZLog InitLog );
-			bool Cleanup_Sound( ZLog InitLog );
-
-			// Specific game Settings.
-
-			bool Start_Game_Events();
-			bool Start_World();
-			bool Start_PhysicEngine();
-			bool Start_SectorLoader();
-			bool Start_VoxelProcessor();
-			bool Start_RendererSettings();
-			bool Start_GameWindows();
-			bool Start_ToolManager();
-			bool Start_PersistGameEnv();
-
-			bool End_WorldInfo();
-			bool End_Game_Events();
-			bool End_World();
-			bool End_PhysicEngine();
-			void SaveWorld();
-
-			bool End_SectorLoader();
-			bool End_VoxelProcessor();
-			bool End_RendererSettings();
-			bool End_GameWindows();
-			bool End_ToolManager();
-			bool End_Game_Stats();
-			bool End_GameEventSequencer();
-			bool End_PersistGameEnv();
-#endif
 		int steps = 8;
 		int step = 0;
 		internal bool Init()
@@ -328,13 +291,15 @@ namespace Voxelarium.Core
 			start_percent = ( ++start_step * 100 ) / start_steps;
 			result = Start_SectorLoader( ); if( !result ) return ( false );
 			start_percent = ( ++start_step * 100 ) / start_steps;
+			result = Start_PhysicEngine(); if( !result ) return ( false );
+
+			// preload sectors immeidately around the player
 			result = Start_WorldSectors(); if( !result ) return ( false );
 
 			start_percent = ( ++start_step * 100 ) / start_steps;
 			result = Start_VoxelProcessor(); if( !result ) return ( false );
 #if FINISHED_PORTING
 				result = Start_ToolManager(); if( !result ) return ( false );
-				result = Start_PhysicEngine(); if( !result ) return ( false );
 #endif
 			result = Start_RendererSettings(); if( !result ) return ( false );
 			result = Start_GameWindows(); if( !result ) return ( false );
@@ -347,10 +312,10 @@ namespace Voxelarium.Core
 			if( Initialized_GameWindows ) End_GameWindows();
 
 			if( Initialized_SectorLoader ) End_SectorLoader();
+			if( Initialized_VoxelProcessor ) End_VoxelProcessor();
+			if( Initialized_PhysicEngine ) End_PhysicsEngine();
 #if FINISHED_PORTING
-				if( Initialized_VoxelProcessor ) End_VoxelProcessor();
 				if( Initialized_RendererSettings ) End_RendererSettings();
-				if( Initialized_PhysicEngine ) End_PhysicEngine();
 				if( Initialized_ToolManager ) End_ToolManager();
 				if( Initialized_World ) End_World();
 				if( Initialized_Game_Events ) End_Game_Events();
@@ -815,6 +780,21 @@ namespace Voxelarium.Core
 			}
 			return ( true );
 		}
+
+		bool Start_PhysicEngine()
+		{
+			Engine = new PhysicsEngine();
+			Initialized_PhysicEngine = true;
+			return true;
+		}
+
+		bool End_PhysicsEngine()
+		{
+			Engine.Dispose();
+			Engine = null;
+			return true;
+		}
+
 		bool Init_Settings(  )
 		{
 			bool Res;

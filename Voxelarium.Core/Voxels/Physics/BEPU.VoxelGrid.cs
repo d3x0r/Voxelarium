@@ -41,6 +41,7 @@ using BEPUutilities.DataStructures;
 using BEPUutilities.ResourceManagement;
 using System;
 using System.Diagnostics;
+using Voxelarium.Core.Support;
 
 namespace Voxelarium.Core.Voxels.Physics
 {
@@ -69,10 +70,12 @@ namespace Voxelarium.Core.Voxels.Physics
 		/// <summary>
 		/// Three dimensional grid of cells. A true value means the cell is filled, and false means it's empty.
 		/// </summary>
-		internal VoxelShape[] Cells { get; private set; }
+		internal VoxelShape[] Cells;// { get; set; }
 		//Note: This representation is very inefficient. Each bool occupies a full byte, and there is no space skipping.
 		//Large blocks of empty space take just as much space as high frequency data.
 		//If memory is a concern, it would be a good idea to optimize this. It would be pretty easy to get an order of magnitude (or three) improvement.
+
+		internal bool Empty;
 
 		/// <summary>
 		/// Width of a single voxel cell.
@@ -90,35 +93,46 @@ namespace Voxelarium.Core.Voxels.Physics
 
 		internal VoxelGridShape( VoxelShape[] cells, float cellWidth )
 		{
+			Empty = true;
 			Cells = cells;
 			CellWidth = cellWidth;
 		}
 
 		public void GetOverlaps( Vector3 gridPosition, BoundingBox boundingBox, ref QuickList<Int3> overlaps )
 		{
+			if( Empty )
+				return;
+
 			Vector3.Subtract( ref boundingBox.Min, ref gridPosition, out boundingBox.Min );
 			Vector3.Subtract( ref boundingBox.Max, ref gridPosition, out boundingBox.Max );
 			var inverseWidth = 1f / CellWidth;
 			var min = new Int3
 			{
-				X = Math.Max( 0, (uint)( boundingBox.Min.X * inverseWidth ) ),
-				Y = Math.Max( 0, (uint)( boundingBox.Min.Y * inverseWidth ) ),
-				Z = Math.Max( 0, (uint)( boundingBox.Min.Z * inverseWidth ) )
+				X = (uint)Math.Max( 0, ( boundingBox.Min.X * inverseWidth ) ),
+				Y = (uint)Math.Max( 0, ( boundingBox.Min.Y * inverseWidth ) ),
+				Z = (uint)Math.Max( 0, ( boundingBox.Min.Z * inverseWidth ) )
 			};
 			var max = new Int3
 			{
-				X = Math.Min( VoxelSector.ZVOXELBLOCSIZE_X - 1, (uint)( boundingBox.Max.X * inverseWidth ) ),
-				Y = Math.Min( VoxelSector.ZVOXELBLOCSIZE_Y - 1, (uint)( boundingBox.Max.Y * inverseWidth ) ),
-				Z = Math.Min( VoxelSector.ZVOXELBLOCSIZE_Z - 1, (uint)( boundingBox.Max.Z * inverseWidth ) )
+				X = (uint)Math.Min( VoxelSector.ZVOXELBLOCSIZE_X - 1, ( boundingBox.Max.X * inverseWidth ) ),
+				Y = (uint)Math.Min( VoxelSector.ZVOXELBLOCSIZE_Y - 1, ( boundingBox.Max.Y * inverseWidth ) ),
+				Z = (uint)Math.Min( VoxelSector.ZVOXELBLOCSIZE_Z - 1, ( boundingBox.Max.Z * inverseWidth ) )
 			};
-
+			/*
+			Log.log( "Check for overlap in {0} {1} {2} to {3} {4} {5} in {6} {7} {8}"
+				, min.X, min.Y, min.Z
+				, max.X, max.Y, max.Z
+				, gridPosition.X, gridPosition.Y, gridPosition.Z 
+				);
+			*/
 			for( uint i = min.X; i <= max.X; ++i )
 			{
 				for( uint j = min.Y; j <= max.Y; ++j )
 				{
 					for( uint k = min.Z; k <= max.Z; ++k )
 					{
-						uint offset = i * VoxelSector.ZVOXELBLOCSIZE_Y + j + k * VoxelSector.ZVOXELBLOCSIZE_X * VoxelSector.ZVOXELBLOCSIZE_Y;
+						uint offset = i * VoxelSector.ZVOXELBLOCSIZE_Y + j 
+							+ k * VoxelSector.ZVOXELBLOCSIZE_X * VoxelSector.ZVOXELBLOCSIZE_Y;
 						if( Cells[offset] != VoxelShape.Empty )
 						{
 							overlaps.Add( new Int3 { X = i, Y = j, Z = k } );
@@ -143,7 +157,7 @@ namespace Voxelarium.Core.Voxels.Physics
 		/// Position of the minimum corner of the voxel grid.
 		/// </summary>
 		public Vector3 Position;
-
+		
 		public VoxelGrid( VoxelGridShape shape, Vector3 position )
 		{
 			Position = position;
@@ -190,80 +204,6 @@ namespace Voxelarium.Core.Voxels.Physics
 		protected override IDeferredEventCreator EventCreator
 		{
 			get { return events; }
-		}
-	}
-
-	/// <summary>
-	/// Simple voxel grid collidable. Uses the VoxelGridShape as a data source and provides the 
-	/// </summary>
-	public class VoxelBlob : Collidable
-	{
-		public new VoxelGridShape Shape
-		{
-			get { return (VoxelGridShape)base.Shape; }
-		}
-
-		/// <summary>
-		/// Position of the minimum corner of the voxel grid.
-		/// </summary>
-		public Vector3 Position;
-
-		public VoxelBlob( VoxelGridShape shape, Vector3 position )
-		{
-			Position = position;
-			base.Shape = shape;
-			events = new ContactEventManager<VoxelBlob>( this );
-		}
-
-		public override bool RayCast( Ray ray, float maximumLength, out RayHit rayHit )
-		{
-			//This example is primarily to show custom collidable pair management with a minimum of other complexity, and this isn't vital.
-			//Note: the character controller makes significant use of ray casts. While its basic features work without ray casts, 
-			//implementing them will unlock more features and improve behavior.
-			rayHit = new RayHit();
-			return false;
-		}
-
-		public override bool ConvexCast( ConvexShape castShape, ref RigidTransform startingTransform, ref Vector3 sweep, out RayHit hit )
-		{
-			//This example is primarily to show custom collidable pair management with a minimum of other complexity, and this isn't vital.
-			hit = new RayHit();
-			return false;
-		}
-
-		public override void UpdateBoundingBox()
-		{
-			Shape.GetBoundingBox( ref Position, out boundingBox );
-		}
-
-		//For simplicity, the event manager is read only. The other collidables like StaticMesh and InstancedMesh have a setter, but it complicates things
-		//and doesn't add a lot. For example implementations of setters, check those classes out.
-		protected internal ContactEventManager<VoxelBlob> events;
-		///<summary>
-		/// Gets the event manager of the mesh.
-		///</summary>
-		public ContactEventManager<VoxelBlob> Events
-		{
-			get { return events; }
-		}
-		protected override IContactEventTriggerer EventTriggerer
-		{
-			get { return events; }
-		}
-
-		/*
-		protected override IDeferredEventCreator EventCreator
-		{
-			get { return events; }
-		}
-		*/
-
-		public override bool IsActive
-		{
-			get
-			{
-				return true;
-			}
 		}
 	}
 

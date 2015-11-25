@@ -424,7 +424,7 @@ namespace Voxelarium.Core.Voxels.UI
 			return false;
 		}
 
-		internal abstract void Render( Display display, VoxelWorld world );
+		internal abstract void Render( Display display, VoxelGameEnvironment game, VoxelWorld world );
 
 		float[] sector_verts = new float[2 * 12 * 3];
 
@@ -432,9 +432,9 @@ namespace Voxelarium.Core.Voxels.UI
 		{
 			Vector4 c;
 			int p = 0;
-			int sx = (int)VoxelSector.ZVOXELBLOCSIZE_X * world.VoxelBlockSize;
-			int sy = (int)VoxelSector.ZVOXELBLOCSIZE_Y * world.VoxelBlockSize;
-			int sz = (int)VoxelSector.ZVOXELBLOCSIZE_Z * world.VoxelBlockSize;
+			int sx = (int)(VoxelSector.ZVOXELBLOCSIZE_X * world.VoxelBlockSize );
+			int sy = (int)(VoxelSector.ZVOXELBLOCSIZE_Y * world.VoxelBlockSize );
+			int sz = (int)(VoxelSector.ZVOXELBLOCSIZE_Z * world.VoxelBlockSize );
 
 			c.X = r;
 			c.Y = g;

@@ -56,11 +56,11 @@ namespace Voxelarium.Core.Voxels
 		GenericCharCanvas Canva_3_2 = new GenericCharCanvas();
 		GenericCharCanvas Canva_3_3 = new GenericCharCanvas();
 
-		VoxelSector T3dTemplate_1 = new VoxelSector( (VoxelWorld)null ); // Tree
-		VoxelSector T3dTemplate_2 = new VoxelSector( (VoxelWorld)null ); // Boulder 1
-		VoxelSector Template_Vegetation_1 = new VoxelSector( (VoxelWorld)null );
-		VoxelSector Template_Vegetation_2 = new VoxelSector( (VoxelWorld)null );
-		VoxelSector Template_Vegetation_3 = new VoxelSector( (VoxelWorld)null );
+		VoxelSector T3dTemplate_1 = new VoxelSector( null, (VoxelWorld)null ); // Tree
+		VoxelSector T3dTemplate_2 = new VoxelSector( null, (VoxelWorld)null ); // Boulder 1
+		VoxelSector Template_Vegetation_1 = new VoxelSector( null, (VoxelWorld)null );
+		VoxelSector Template_Vegetation_2 = new VoxelSector( null, (VoxelWorld)null );
+		VoxelSector Template_Vegetation_3 = new VoxelSector( null, (VoxelWorld)null );
 		VoxelSector[] TreeTable = new VoxelSector[16];
 
 		string[] ZoneMap_New =

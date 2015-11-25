@@ -43,11 +43,6 @@ namespace Voxelarium.Core.Voxels.UI
 			ZoneSize = 0;
 		}
 
-		~Radius_Zoning()
-		{
-			ZoneData = null;
-		}
-
 		internal void SetSize( int Size_x, int Size_y, int Size_z )
 		{
 			int i;
@@ -84,7 +79,6 @@ namespace Voxelarium.Core.Voxels.UI
 						Distance = Math.Sqrt( Vector.x * Vector.x + Vector.y * Vector.y + Vector.z * Vector.z );
 						if( Distance < ZoneRadius ) ZoneData[x + Off_y + Off_z] = ZoneMark;
 					}
-
 		}
 
 		/*

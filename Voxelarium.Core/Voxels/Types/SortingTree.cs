@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using Voxelarium.Core.Support;
 
 namespace Voxelarium.Core.Voxels.Types
 {
@@ -80,10 +81,10 @@ namespace Voxelarium.Core.Voxels.Types
 				{
 					DumpTree( storage[current].lesser, level + 1 );
 				}
-				Console.WriteLine( "Cur: " + current + " Par: " + storage[current].parent 
+				Console.WriteLine( "Cur: " + current + " Par: " + storage[current].parent
 					+ " Les: " + storage[current].lesser
 					+ " Grt: " + storage[current].greater
-					+  " Lev: " + level + " cld: " + storage[current].children + "  Key: " + storage[current].key + " val: " + storage[current].value );
+					+ " Lev: " + level + " cld: " + storage[current].children + "  Key: " + storage[current].key + " val: " + storage[current].value );
 				if( storage[current].greater != -1 )
 				{
 					DumpTree( storage[current].greater, level + 1 );
@@ -219,11 +220,13 @@ namespace Voxelarium.Core.Voxels.Types
 			storage[node.parent].children += ( node.children + 1 );
 		}
 #endif
+		internal bool AutoBalance;
 
 		void Balance( ref SortingTreeNode node, int node_id )
 		{
-			int left_children = node.lesser == -1 ? 0 : (storage[node.lesser].children+1);
-			int right_children = node.greater == -1 ? 0 : (storage[node.greater].children+1);
+			if( !AutoBalance ) return;
+            int left_children = node.lesser == -1 ? 0 : ( storage[node.lesser].children + 1 );
+			int right_children = node.greater == -1 ? 0 : ( storage[node.greater].children + 1 );
 			int parent = node.parent;
 			if( left_children == 0 )
 			{
@@ -341,6 +344,33 @@ namespace Voxelarium.Core.Voxels.Types
 			//DumpTree( -1, -1 );
 		}
 
+		struct LateralBinaryNode { internal int current; }
+
+		internal void FillBinaryLiteral( ushort[] output, ref int index, int current )
+		{
+			Queue<LateralBinaryNode> values = new Queue<LateralBinaryNode>( VoxelSector.ZVOXELBLOCKCOUNT );
+			LateralBinaryNode lbn;
+			if( current == -1 )
+			{
+				current = root;
+				lbn.current = root;
+				values.Enqueue( lbn );
+			}
+			while( values.Count > 0 )
+			{
+				int c;
+				lbn = values.Dequeue();
+				c = lbn.current;
+				output[index++] = storage[lbn.current].value;
+				lbn.current = storage[lbn.current].lesser;
+				if( lbn.current != -1 )
+					values.Enqueue( lbn );
+				lbn.current = storage[c].greater;
+				if( lbn.current != -1 )
+					values.Enqueue( lbn );
+			}
+		}
+
 		internal class SortingTreeEnumerator : IEnumerator
 		{
 			int current;
@@ -407,13 +437,13 @@ namespace Voxelarium.Core.Voxels.Types
 		{
 			if( level > depth )
 				depth = level;
-            if( node_id == -1 )
-				{
-					depth = 0;
+			if( node_id == -1 )
+			{
+				depth = 0;
 				if( root == -1 )
 					return;
-					node_id = root;
-				}
+				node_id = root;
+			}
 			if( storage[node_id].lesser != -1 )
 				GetDepth( storage[node_id].lesser, level + 1 );
 			if( storage[node_id].greater != -1 )
@@ -425,7 +455,7 @@ namespace Voxelarium.Core.Voxels.Types
 		{
 #if DEBUG_BALANCING
 			GetDepth( -1, 0 );
-			Console.WriteLine( "depth is " + depth  + " left shallow " + left_shallow_swaps + " left " + left_swaps + " right shallow " + right_shallow_swaps + " right " + right_swaps + " total " + ( left_swaps+left_shallow_swaps+right_swaps+right_shallow_swaps) );
+			Console.WriteLine( "depth is " + depth + " left shallow " + left_shallow_swaps + " left " + left_swaps + " right shallow " + right_shallow_swaps + " right " + right_swaps + " total " + ( left_swaps + left_shallow_swaps + right_swaps + right_shallow_swaps ) );
 #endif
 			//DumpTree( -1, -1 );
 			return new SortingTreeEnumerator( this );

@@ -87,7 +87,7 @@ namespace Voxelarium.Core
 			else
 			{
 				game.Game_Run = true;
-                game.active_screen = null;
+				game.active_screen = null;
 			}
 		}
 
@@ -105,7 +105,7 @@ namespace Voxelarium.Core
 					Thread thread = new Thread( LoadGame );
 					thread.Start( this );
 				}
-                else switch( Result )
+				else switch( Result )
 				{
 					case Screen.ScreenChoices.CHOICE_RETURN:
 						_active_screen = prior_active_screen;
@@ -238,7 +238,7 @@ namespace Voxelarium.Core
 					// Advertising messages
 					GameWindow_Advertising.Advertising_Actions( game_time );
 					//ToolManager.ProcessAndDisplay();
-					Basic_Renderer.Render( display, World );
+					Basic_Renderer.Render( display, this, World );
 					//if( Ge && Ge->Gui )
 				}
 			}

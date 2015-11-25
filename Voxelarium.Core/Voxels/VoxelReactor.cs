@@ -103,7 +103,7 @@ namespace Voxelarium.Core.Voxels
 				//Random.Init( 0 );
 				// Dummy Sector
 
-				DummySector = new VoxelSector( (VoxelWorld)null );
+				DummySector = new VoxelSector( null, (VoxelWorld)null );
 				DummySector.Fill( 0xFFFF );
 
 				// Multiplexing Sector Tables for fast access to voxels
@@ -129,18 +129,11 @@ namespace Voxelarium.Core.Voxels
 			// Reaction table
 			ReactionTable = new VoxelReaction[65536];
 			for( i = 0; i < 65536; i++ ) ReactionTable[i] = 0;
-
 			// Green acid reaction
 			ReactionTable[86] = new ZVoxelReaction( 89, 0 );
 			// ReactionTable[86].SetReaction(1,10,10);
 #endif
-
 			//ReactionTable[86].Set(1,10);
-		}
-		~VoxelReactor()
-		{
-			//ActiveTable = null;
-			if( DummySector != null ) { DummySector.Dispose(); DummySector = null; }
 		}
 
 

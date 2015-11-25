@@ -786,8 +786,7 @@ namespace BEPUphysics
             return outputCastResults.Count > 0;
         }
 
-
-    }
+	}
 
 
 }

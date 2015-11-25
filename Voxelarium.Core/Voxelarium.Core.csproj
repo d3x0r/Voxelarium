@@ -110,7 +110,9 @@
     <Compile Include="Voxels\IO\SectorLoader.cs" />
     <Compile Include="Voxels\IO\SectorRequestRingList.cs" />
     <Compile Include="Voxels\IO\SectorTagHash.cs" />
+    <Compile Include="Voxels\Physics\BEPU.VoxelBlob.cs" />
     <Compile Include="Voxels\Physics\BEPU.VoxelGrid.cs" />
+    <Compile Include="Voxels\Physics\BEPUDebugDrawer.cs" />
     <Compile Include="Voxels\Types\GenericCanvas.cs" />
     <Compile Include="Voxels\Types\GenericCharCanvas.cs" />
     <Compile Include="Voxels\Types\InclusionProbabilizer.cs" />

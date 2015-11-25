@@ -86,6 +86,7 @@ namespace Voxelarium.Core.Voxels.UI
 
 		// this is the last direction that the transparent render was sorted.
 		internal VoxelSector.RelativeVoxelOrds transparent_render_sorting;
+		internal int sortedX, sortedY, sortedZ;
 
 		internal VoxelGeometry()
 		{
