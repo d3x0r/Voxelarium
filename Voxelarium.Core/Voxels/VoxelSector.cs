@@ -9,6 +9,7 @@ using Voxelarium.Core.Support;
 using Voxelarium.Core.Voxels.Types;
 using Voxelarium.Core.Voxels.UI;
 using Voxelarium.Core.Voxels.Physics;
+using Voxelarium.Common;
 
 namespace Voxelarium.Core.Voxels
 {

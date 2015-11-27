@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using Voxelarium.Common;
 using Voxelarium.Core.Game;
 using Voxelarium.Core.Game.GameWindows;
 using Voxelarium.Core.Game.Screens;

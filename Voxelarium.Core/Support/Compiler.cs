@@ -24,6 +24,7 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Windows.Forms;
+using Voxelarium.Common;
 using Voxelarium.Core.Voxels;
 using Voxelarium.Core.Voxels.Types;
 

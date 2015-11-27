@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Text;
+using Voxelarium.Common;
 using Voxelarium.Core.Support;
 using Voxelarium.Core.UI;
 using Voxelarium.Core.Voxels.Types;

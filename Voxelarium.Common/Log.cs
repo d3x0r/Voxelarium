@@ -20,7 +20,7 @@ using System;
 using System.IO;
 using System.Windows.Forms;
 
-namespace Voxelarium.MasterServer
+namespace Voxelarium.Common
 {
 	public static class Log
 	{

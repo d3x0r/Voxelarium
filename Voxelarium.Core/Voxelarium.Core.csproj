@@ -133,7 +133,6 @@
     <Compile Include="Voxels\Physics\Physics.cs" />
     <Compile Include="Support\Settings.cs" />
     <Compile Include="Support\Compiler.cs" />
-    <Compile Include="Support\Log.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UI\Shaders\SimpleGuiTextureShader.cs" />
     <Compile Include="UI\Shaders\SimpleTextureShader.cs" />
@@ -184,6 +183,10 @@
     <ProjectReference Include="..\TrueTypeSharp\TrueTypeSharp\TrueTypeSharp.csproj">
       <Project>{b722113f-1252-4be1-9d43-6bc82b3e37d1}</Project>
       <Name>TrueTypeSharp</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Voxelarium.Common\Voxelarium.Common.csproj">
+      <Project>{b7386855-1a65-4b04-b79b-95f49cf7f61a}</Project>
+      <Name>Voxelarium.Common</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

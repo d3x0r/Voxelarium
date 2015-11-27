@@ -29,6 +29,7 @@ using System.Text;
 using Voxelarium.Core.Support;
 using Voxelarium.Core.Voxels;
 using Voxelarium.Core.Voxels.Types;
+using Voxelarium.Common;
 
 namespace Voxelarium.Core.Game
 {

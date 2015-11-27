@@ -20,6 +20,7 @@ namespace Voxelarium.MasterServer
 		static void Main( string[] args )
 		{
 			server = new RegistryServer();
+			sleep_event = new AutoResetEvent( false );
 			while( !done )
 				sleep_event.WaitOne();
 		}

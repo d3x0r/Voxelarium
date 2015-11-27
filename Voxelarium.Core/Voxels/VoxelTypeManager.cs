@@ -29,6 +29,7 @@ using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
+using Voxelarium.Common;
 using Voxelarium.Core.Support;
 using Voxelarium.Core.UI;
 using Voxelarium.Core.Voxels.Types;

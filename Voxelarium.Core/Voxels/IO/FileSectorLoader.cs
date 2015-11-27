@@ -25,6 +25,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
+using Voxelarium.Common;
 using Voxelarium.Core.Support;
 
 namespace Voxelarium.Core.Voxels.IO

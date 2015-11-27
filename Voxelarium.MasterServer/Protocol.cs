@@ -12,6 +12,9 @@ namespace Voxelarium.Protocol
 			Hello, // register a new server
 			ListServers,  // list all registered servers 
 			ConnectionUpdate, // server reports new client count
+			Servers, // some servers  from the list 
+			Ping,
+			PingReply,
 		}
 
 		[ProtoContract]
@@ -32,13 +35,21 @@ namespace Voxelarium.Protocol
 	public class ListServers
 	{
 		[ProtoMember( 1 )]
-		int start_offset { get; set; }
+		internal int start_offset { get; set; }
 		public ListServers()
 		{
 		}
 	}
 
-		[ProtoContract]
+	[ProtoContract]
+	public class ConnectionUpdate
+	{
+		[ProtoMember( 1 )]
+		internal int Connections { get; set; }
+		public ConnectionUpdate() { }
+	}
+
+	[ProtoContract]
 		public class Server
 		{
 			[ProtoMember( 1 )]

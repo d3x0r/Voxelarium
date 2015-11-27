@@ -19,6 +19,7 @@
 */
 using System;
 using System.Drawing;
+using Voxelarium.Common;
 using Voxelarium.Core.Support;
 
 namespace Voxelarium.Core.Types

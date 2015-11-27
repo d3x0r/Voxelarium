@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Voxelarium.Server", "Voxela
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Voxelarium.Protocol", "Voxelarium.Protocol\Voxelarium.Protocol.csproj", "{CADA7443-EF7E-4D9A-9877-99C51631CDD8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Voxelarium.Common", "Voxelarium.Common\Voxelarium.Common.csproj", "{B7386855-1A65-4B04-B79B-95F49CF7F61A}"
+EndProject
 Global
 	GlobalSection(Performance) = preSolution
 		HasPerformanceSessions = true
@@ -114,6 +116,18 @@ Global
 		{CADA7443-EF7E-4D9A-9877-99C51631CDD8}.Release|x64.Build.0 = Release|Any CPU
 		{CADA7443-EF7E-4D9A-9877-99C51631CDD8}.Release|x86.ActiveCfg = Release|Any CPU
 		{CADA7443-EF7E-4D9A-9877-99C51631CDD8}.Release|x86.Build.0 = Release|Any CPU
+		{B7386855-1A65-4B04-B79B-95F49CF7F61A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B7386855-1A65-4B04-B79B-95F49CF7F61A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B7386855-1A65-4B04-B79B-95F49CF7F61A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B7386855-1A65-4B04-B79B-95F49CF7F61A}.Debug|x64.Build.0 = Debug|Any CPU
+		{B7386855-1A65-4B04-B79B-95F49CF7F61A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B7386855-1A65-4B04-B79B-95F49CF7F61A}.Debug|x86.Build.0 = Debug|Any CPU
+		{B7386855-1A65-4B04-B79B-95F49CF7F61A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B7386855-1A65-4B04-B79B-95F49CF7F61A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B7386855-1A65-4B04-B79B-95F49CF7F61A}.Release|x64.ActiveCfg = Release|Any CPU
+		{B7386855-1A65-4B04-B79B-95F49CF7F61A}.Release|x64.Build.0 = Release|Any CPU
+		{B7386855-1A65-4B04-B79B-95F49CF7F61A}.Release|x86.ActiveCfg = Release|Any CPU
+		{B7386855-1A65-4B04-B79B-95F49CF7F61A}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

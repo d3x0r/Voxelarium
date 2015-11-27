@@ -34,6 +34,7 @@ using Voxelarium.Core.Voxels.Types;
 using Voxelarium.Core.Voxels.Physics;
 using System.Diagnostics;
 using Voxelarium.Core.UI.Shaders;
+using Voxelarium.Common;
 
 namespace Voxelarium.Core.Voxels.UI
 {
