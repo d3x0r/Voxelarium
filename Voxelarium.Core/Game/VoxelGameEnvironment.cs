@@ -48,7 +48,34 @@ namespace Voxelarium.Core
 
 		public VoxelGameEnvironment()
 		{
-			default_font = new FontRenderer( "msyh.ttf", 24, 24 );
+			try
+			{
+				default_font = new FontRenderer( "msyh.ttf", 24, 24 );
+			}
+			catch( Exception e )
+			{
+				try
+				{
+					default_font = new FontRenderer( "DroidSans.ttf", 24, 24 );
+				}
+				catch( Exception e2 )
+				{
+				}
+			}
+			try
+			{
+				menu_font = new FontRenderer( "msyh.ttf", 48, 48 );
+			}
+			catch( Exception e )
+			{
+				try
+				{
+					menu_font = new FontRenderer( "DroidSans.ttf", 32, 32 );
+				}
+				catch( Exception e2 )
+				{
+				}
+			}
 			percent_done = 1;
 			Initialized_SDL =
 			Initialized_GraphicMode =
@@ -141,6 +168,7 @@ namespace Voxelarium.Core
 		internal EventManager EventManager = new EventManager();
 		internal TileSet.TileSetStyles TileSetStyles;
 		internal FontRenderer default_font;
+		internal FontRenderer menu_font;
 		internal RenderInterface Basic_Renderer;
 		internal Sound Sound;
 		internal PhysicsEngine Engine;

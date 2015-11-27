@@ -111,15 +111,15 @@ namespace Voxelarium.Core.Game
 			if( Setting_SoundVolume < 0.0 || Setting_SoundVolume > 100.0 ) Setting_SoundVolume = 100.0f;
 			Setting_MouseFactor = Settings.Read( "Setting_Mouse_Factor", Setting_MouseFactor );
 
-			Setting_Key_MoveForward = (Key)Settings.Read( "Setting_Key_MoveForward", (int)Setting_Key_MoveForward );
-			Setting_Key_MoveBackward = (Key)Settings.Read( "Setting_Key_MoveBackward", (int)Setting_Key_MoveBackward );
-			Setting_Key_MoveLeft = (Key)Settings.Read( "Setting_Key_MoveLeft", (int)Setting_Key_MoveLeft );
-			Setting_Key_MoveRight = (Key)Settings.Read( "Setting_Key_MoveRight", (int)Setting_Key_MoveRight );
-			Setting_Key_MoveUp = (Key)Settings.Read( "Setting_Key_MoveUp", (int)Setting_Key_MoveUp );
-			Setting_Key_MoveDown = (Key)Settings.Read( "Setting_Key_MoveDown", (int)Setting_Key_MoveDown );
+			Setting_Key_MoveForward = Settings.Read( "Setting_Key_MoveForward", Setting_Key_MoveForward );
+			Setting_Key_MoveBackward = Settings.Read( "Setting_Key_MoveBackward", Setting_Key_MoveBackward );
+			Setting_Key_MoveLeft = Settings.Read( "Setting_Key_MoveLeft", Setting_Key_MoveLeft );
+			Setting_Key_MoveRight = Settings.Read( "Setting_Key_MoveRight", Setting_Key_MoveRight );
+			Setting_Key_MoveUp = Settings.Read( "Setting_Key_MoveUp", Setting_Key_MoveUp );
+			Setting_Key_MoveDown = Settings.Read( "Setting_Key_MoveDown", Setting_Key_MoveDown );
 
-			Setting_Key_Jump = (Key)Settings.Read( "Setting_Key_Jump", (int)Setting_Key_Jump );
-			Setting_Key_Inventory = (Key)Settings.Read( "Setting_Key_Inventory", (int)Setting_Key_Inventory );
+			Setting_Key_Jump = Settings.Read( "Setting_Key_Jump", Setting_Key_Jump );
+			Setting_Key_Inventory = Settings.Read( "Setting_Key_Inventory", Setting_Key_Inventory );
 
 			RenderingDistance_Horizontal = (uint)Settings.Read( "RenderingDistance_Horizontal", 4 );
 			{
@@ -159,16 +159,16 @@ namespace Voxelarium.Core.Game
 			Settings.Write( "Setting_Sound_Enabled", Setting_SoundEnabled );
 			Settings.Write( "Setting_Sound_Volume", Setting_SoundVolume );
 			Settings.Write( "Setting_Mouse_Factor", Setting_MouseFactor );
-			Settings.Write( "Setting_Key_MoveForward", (int)Setting_Key_MoveForward );
-			Settings.Write( "Setting_Key_MoveBackward", (int)Setting_Key_MoveBackward );
-			Settings.Write( "Setting_Key_MoveLeft", (int)Setting_Key_MoveLeft );
-			Settings.Write( "Setting_Key_MoveRight", (int)Setting_Key_MoveRight );
-			Settings.Write( "Setting_Key_MoveUp", (int)Setting_Key_MoveUp );
-			Settings.Write( "Setting_Key_MoveDown", (int)Setting_Key_MoveDown );
-			Settings.Write( "Setting_Key_Jump", (int)Setting_Key_Jump );
-			Settings.Write( "Setting_Key_Inventory", (int)Setting_Key_Inventory );
-			Settings.Write( "RenderingDistance_Horizontal", (int)RenderingDistance_Horizontal );
-			Settings.Write( "RenderingDistance_Vertical", (int)RenderingDistance_Vertical );
+			Settings.Write( "Setting_Key_MoveForward", Setting_Key_MoveForward );
+			Settings.Write( "Setting_Key_MoveBackward", Setting_Key_MoveBackward );
+			Settings.Write( "Setting_Key_MoveLeft", Setting_Key_MoveLeft );
+			Settings.Write( "Setting_Key_MoveRight", Setting_Key_MoveRight );
+			Settings.Write( "Setting_Key_MoveUp", Setting_Key_MoveUp );
+			Settings.Write( "Setting_Key_MoveDown", Setting_Key_MoveDown );
+			Settings.Write( "Setting_Key_Jump", Setting_Key_Jump );
+			Settings.Write( "Setting_Key_Inventory", Setting_Key_Inventory );
+			Settings.Write( "RenderingDistance_Horizontal", RenderingDistance_Horizontal );
+			Settings.Write( "RenderingDistance_Vertical", RenderingDistance_Vertical );
 			Settings.Write( "Opt_SectCFactor", Opt_SectCFactor );
 			Settings.Write( "PixelAspectRatio", PixelAspectRatio );
 			Settings.Write( "Experimental_LearningMode", Experimental_LearningMode );

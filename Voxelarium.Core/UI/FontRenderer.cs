@@ -199,7 +199,7 @@ namespace Voxelarium.Core.UI
 				ttf = new TrueTypeFont( tmp );
 			else if( File.Exists( tmp = ("Content/fonts/" + font) ) )
 				ttf = new TrueTypeFont( tmp );
-			else if( File.Exists( tmp = ( "/usr/share/fonts/TTF/DroidSans.ttf" ) ) )
+			else if( File.Exists( tmp = ( "/usr/share/fonts/TTF/" + font ) ) )
 				ttf = new TrueTypeFont( tmp );
 			else
 				throw new Exception( "Font not found:" + font );

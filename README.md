@@ -10,7 +10,10 @@ https://github.com/Blackvoxel/Blackvoxel
 
 ---
 Uses OpenTK for graphics
-OpenGL based
+	OpenGL based
+BEPU Physics for physics
+TrueTypeSharp library for rendering fonts
+Protobuf-net for network serialization
 
 Target to Android Eventually so attempting to stick to pure C#
 

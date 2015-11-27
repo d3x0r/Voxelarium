@@ -16,14 +16,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-using OpenTK.Input;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Text;
-using Voxelarium.Core.Support;
 
-namespace Voxelarium.Core
+namespace Voxelarium.MasterServer
 {
 	internal class Settings
 	{
@@ -91,17 +89,6 @@ namespace Voxelarium.Core
 				Write( name, default_val );
 			return default_val;
 		}
-		public static Key Read( string name, Key default_val = 0 )
-		{
-			DataRow[] setting = settings.Tables["settings"].Select( "name='" + name + "'" );
-			if( setting.Length > 0 )
-			{
-				return (Key)Enum.Parse( typeof( Key ), (string)setting[0]["value"] );
-			}
-			else
-				Write( name, default_val.ToString() );
-			return default_val;
-		}
 
 		public static void Write( string name, int val )
 		{
@@ -115,23 +102,6 @@ namespace Voxelarium.Core
 				DataRow row = setting_table.NewRow();
 				row["name"] = name;
 				row["value"] = val;
-				setting_table.Rows.Add( row );
-				settings.WriteXml( SettingFilename );
-			}
-		}
-
-		public static void Write( string name, Key val )
-		{
-			DataRow[] setting = settings.Tables["settings"].Select( "name='" + name + "'" );
-			if( setting.Length > 0 )
-			{
-				setting[0]["value"] = val.ToString();
-			}
-			else
-			{
-				DataRow row = setting_table.NewRow();
-				row["name"] = name;
-				row["value"] = val.ToString();
 				setting_table.Rows.Add( row );
 				settings.WriteXml( SettingFilename );
 			}
