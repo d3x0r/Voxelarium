@@ -24,6 +24,10 @@ namespace Voxelarium.MasterServer
 		{
 			Addresses.Remove( host_address );
 		}
+		internal RegisteredServer()
+		{
+			Addresses = new List<IPAddress>();
+		}
 	}
 	internal class RegisteredServers : List<RegisteredServer>
 	{

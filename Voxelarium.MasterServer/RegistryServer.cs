@@ -24,6 +24,7 @@ namespace Voxelarium.MasterServer
 				getLength, getData
 			}
 			ReadState readstate;
+			DateTime protocol_timeout;
 			internal Socket socket;
 			EndPoint _connected_from;
 			internal EndPoint connected_from
@@ -44,7 +45,10 @@ namespace Voxelarium.MasterServer
 			void CheckIdle( object state )
 			{
 				DateTime now = DateTime.Now;
-				if( ( now - last_receive ) > new TimeSpan( 0, 1, 0 ) ) // one minute
+				if( ( protocol_timeout.Ticks > 0 ) 
+					&& ( now - protocol_timeout > new TimeSpan( 0, 0, 5 ) ) )
+					socket.Close();
+				else if( ( now - last_receive ) > new TimeSpan( 0, 1, 0 ) ) // one minute
 				{
 					socket.Send( ping_message, 8, SocketFlags.None );
 				}
@@ -61,20 +65,22 @@ namespace Voxelarium.MasterServer
 
 			internal void Received( IAsyncResult result )
 			{
-				Socket socket = result.AsyncState as Socket;
-				int bytes = 0;
+				//Socket socket = result.AsyncState as Socket;
 				try
 				{
-					bytes = socket.EndReceive( result );
+					socket.EndReceive( result );
 				}
 				catch( Exception e )
 				{
 					Log.log( "Socket Closed? {0}", e.Message );
+					idle_tick.Dispose();
+					socket.Close();
 					// disconnected.
-					registered_server.RemoveAddress( host_address );
-					if( registered_server.Addresses.Count == 0 )
-					{
-						servers.Remove( registered_server );
+					if( registered_server != null ) {
+						registered_server.RemoveAddress( host_address );
+						if( registered_server.Addresses.Count == 0 ) {
+							servers.Remove( registered_server );
+						}
 					}
 					return;
 				}
@@ -82,13 +88,18 @@ namespace Voxelarium.MasterServer
 				{
 				case ReadState.getLength:
 					toread = BitConverter.ToInt32( buffer.GetBuffer(), 0 );
+					readstate = ReadState.getData;
+					protocol_timeout = DateTime.Now;
+					idle_tick.Change( 500, 500 );
 					break;
 				case ReadState.getData:
 					readstate = ReadState.getLength;
 					toread = 4;
+					protocol_timeout = DateTime.MinValue;
 					byte[] msg_id = new byte[4];
 					buffer.Read( msg_id, 0, 4 );  // use 4 bytes before deserializing content.
 					last_receive = DateTime.Now;
+					idle_tick.Change( 30000, 30000 );
 
 					Protocol.Message message = (Protocol.Message)BitConverter.ToInt32( msg_id, 0 );
 					switch( message )
@@ -123,7 +134,7 @@ namespace Voxelarium.MasterServer
 					break;
 				}
 				buffer.Capacity = toread; // make sure it's big enough
-				socket.BeginReceive( buffer.GetBuffer(), 0, toread, SocketFlags.None, Received, this );
+				socket.BeginReceive( buffer.GetBuffer(), 0, toread, SocketFlags.None, Received, null );
 			}
 
 		}
@@ -139,27 +150,24 @@ namespace Voxelarium.MasterServer
 			commState.connected_from = commState.socket.RemoteEndPoint;
 
             commState.socket.BeginReceive( commState.buffer.GetBuffer(), 0, 4, SocketFlags.None
-						, commState.Received, commState );
+						, commState.Received, null );
 
 			listener.BeginAcceptTcpClient( Accept, listener );
 		}
 
 		internal RegistryServer()
 		{
-			byte[] raw_ipv4 = { 0, 0, 0, 0 };
-			IPAddress addr = new IPAddress( raw_ipv4 );
-			listener = new TcpListener( addr, Settings.Read( "Server Port", 31732 ) );
-			listener.Start();
-			byte[] raw_ipv6 = { 0,0,0,0
-					,0, 0, 0, 0
-					,0, 0, 0, 0
-					,0, 0, 0, 0 };
-			IPAddress addr_v6 = new IPAddress( raw_ipv6 );
-			listener_v6 = new TcpListener( addr_v6, Settings.Read( "Server Port", 31732 ) );
+			listener_v6 = new TcpListener( IPAddress.IPv6Any, Settings.Read( "Server Port", 31732 ) );
 			listener_v6.Start();
-
-			listener.BeginAcceptSocket( Accept, listener );
 			listener_v6.BeginAcceptSocket( Accept, listener_v6 );
+
+			OperatingSystem version = Environment.OSVersion;
+			if( version.Platform != PlatformID.Unix )
+			{
+				listener = new TcpListener( IPAddress.Any, Settings.Read( "Server Port", 31732 ) );
+				listener.Start();
+				listener.BeginAcceptSocket( Accept, listener );
+			}
 		}
 	}
 }
