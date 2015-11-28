@@ -63,7 +63,7 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="OpenTK">
-      <HintPath>..\..\opentk\Binaries\OpenTK\Release\OpenTK.dll</HintPath>
+      <HintPath>..\packages\OpenTK.1.1.1589.5942\lib\NET40\OpenTK.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -1608,6 +1608,12 @@
     <None Include="packages.config" />
     <None Include="Resources\Icon1.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Voxelarium.Core\Voxelarium.Core.mono.csproj">
+      <Project>{D8E76CD6-817D-4B50-B1C8-ABA10886FB68}</Project>
+      <Name>Voxelarium.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
@@ -1616,10 +1622,4 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <ItemGroup>
-    <ProjectReference Include="..\Voxelarium.Core\Voxelarium.Core.mono.csproj">
-      <Project>{D8E76CD6-817D-4B50-B1C8-ABA10886FB68}</Project>
-      <Name>Voxelarium.Core.mono</Name>
-    </ProjectReference>
-  </ItemGroup>
 </Project>

@@ -1,0 +1,28 @@
+cp ./Voxelarium.Protocol/Voxelarium.Protocol.csproj              ./Voxelarium.Protocol/Voxelarium.Protocol.mono.csproj
+cp ./Bullet.UnitTests/Bullet.UnitTests.csproj                    ./Bullet.UnitTests/Bullet.UnitTests.mono.csproj
+cp ./Voxelarium.Common/Voxelarium.Common.csproj                  ./Voxelarium.Common/Voxelarium.Common.mono.csproj
+cp ./Bullet.OpenTK.OpenGL2/Bullet.OpenTK.OpenGL2.csproj          ./Bullet.OpenTK.OpenGL2/Bullet.OpenTK.OpenGL2.mono.csproj
+cp ./Voxelarium.Server/Voxelarium.Server.csproj                  ./Voxelarium.Server/Voxelarium.Server.mono.csproj
+cp ./TrueTypeSharp/TrueTypeSharp/TrueTypeSharp.csproj            ./TrueTypeSharp/TrueTypeSharp/TrueTypeSharp.mono.csproj
+cp ./Voxelarium/Voxelarium.csproj                                ./Voxelarium/Voxelarium.mono.csproj
+cp ./TestTexture/TestTexture.csproj                              ./TestTexture/TestTexture.mono.csproj
+cp ./Voxelarium.MasterServer/Voxelarium.MasterServer.csproj      ./Voxelarium.MasterServer/Voxelarium.MasterServer.mono.csproj
+cp ./Voxelarium.Bullet/Voxelarium.Bullet.csproj                  ./Voxelarium.Bullet/Voxelarium.Bullet.mono.csproj
+cp ./Voxelarium.sln                                              ./Voxelarium.mono.sln
+cp ./Voxelarium.Core/Voxelarium.Core.csproj                      ./Voxelarium.Core/Voxelarium.Core.mono.csproj
+cp ./BEPU/BEPUphysics/BEPUphysics.csproj                         ./BEPU/BEPUphysics/BEPUphysics.mono.csproj
+
+
+sed -i 's/\.csproj/.mono.csproj/g' ./Voxelarium.Protocol/Voxelarium.Protocol.mono.csproj
+sed -i 's/\.csproj/.mono.csproj/g' ./Bullet.UnitTests/Bullet.UnitTests.mono.csproj
+sed -i 's/\.csproj/.mono.csproj/g' ./Voxelarium.Common/Voxelarium.Common.mono.csproj
+sed -i 's/\.csproj/.mono.csproj/g' ./Bullet.OpenTK.OpenGL2/Bullet.OpenTK.OpenGL2.mono.csproj
+sed -i 's/\.csproj/.mono.csproj/g' ./Voxelarium.Server/Voxelarium.Server.mono.csproj
+sed -i 's/\.csproj/.mono.csproj/g' ./TrueTypeSharp/TrueTypeSharp/TrueTypeSharp.mono.csproj
+sed -i 's/\.csproj/.mono.csproj/g' ./Voxelarium/Voxelarium.mono.csproj
+sed -i 's/\.csproj/.mono.csproj/g' ./TestTexture/TestTexture.mono.csproj
+sed -i 's/\.csproj/.mono.csproj/g' ./Voxelarium.MasterServer/Voxelarium.MasterServer.mono.csproj
+sed -i 's/\.csproj/.mono.csproj/g' ./Voxelarium.Bullet/Voxelarium.Bullet.mono.csproj
+sed -i 's/\.csproj/.mono.csproj/g' ./Voxelarium.mono.sln
+sed -i 's/\.csproj/.mono.csproj/g' ./Voxelarium.Core/Voxelarium.Core.mono.csproj
+sed -i 's/\.csproj/.mono.csproj/g' ./BEPU/BEPUphysics/BEPUphysics.mono.csproj

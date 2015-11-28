@@ -64,11 +64,18 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="OpenTK">
-      <HintPath>..\..\opentk\Binaries\OpenTK\Release\OpenTK.dll</HintPath>
+    <Reference Include="OpenTK, Version=1.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4">
+      <HintPath>..\packages\OpenTK.1.1.1589.5942\lib\NET40\OpenTK.dll</HintPath>
+    </Reference>
+    <Reference Include="protobuf-net, Version=2.0.0.668, Culture=neutral, PublicKeyToken=257b51d87d2e4d67">
+      <HintPath>..\packages\protobuf-net.2.0.0.668\lib\net40\protobuf-net.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Game\GameWindows\GameWindow_Inventory.cs" />
+    <Compile Include="Game\GameWindows\Controls\InventoryBox.cs" />
+    <Compile Include="Game\Inventory.cs" />
+    <Compile Include="Networking\ClientConnection.cs" />
     <Compile Include="NeuralNetwork\Brain.cs" />
     <Compile Include="NeuralNetwork\NeuronLogics\FlipFlop.cs" />
     <Compile Include="NeuralNetwork\NeuronLogics\LevelLock.cs" />
@@ -109,10 +116,13 @@
     <Compile Include="UI\Shaders\FXAAShader.cs" />
     <Compile Include="UI\Shaders\SimpleInstanceShader.cs" />
     <Compile Include="Voxels\IO\FileSectorLoader.cs" />
+    <Compile Include="Voxels\IO\NetworkSectorLoader.cs" />
     <Compile Include="Voxels\IO\SectorLoader.cs" />
     <Compile Include="Voxels\IO\SectorRequestRingList.cs" />
     <Compile Include="Voxels\IO\SectorTagHash.cs" />
+    <Compile Include="Voxels\Physics\BEPU.VoxelBlob.cs" />
     <Compile Include="Voxels\Physics\BEPU.VoxelGrid.cs" />
+    <Compile Include="Voxels\Physics\BEPUDebugDrawer.cs" />
     <Compile Include="Voxels\Types\GenericCanvas.cs" />
     <Compile Include="Voxels\Types\GenericCharCanvas.cs" />
     <Compile Include="Voxels\Types\InclusionProbabilizer.cs" />
@@ -133,7 +143,6 @@
     <Compile Include="Voxels\Physics\Physics.cs" />
     <Compile Include="Support\Settings.cs" />
     <Compile Include="Support\Compiler.cs" />
-    <Compile Include="Support\Log.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UI\Shaders\SimpleGuiTextureShader.cs" />
     <Compile Include="UI\Shaders\SimpleTextureShader.cs" />
@@ -148,6 +157,7 @@
     <Compile Include="Voxels\SectorModifiedTracker.cs" />
     <Compile Include="Voxels\SectorRingList.cs" />
     <Compile Include="Voxels\SectorSphere.cs" />
+    <Compile Include="Voxels\Types\Fastbit_Array_64k.cs" />
     <Compile Include="Voxels\Types\PooledType.cs" />
     <Compile Include="Voxels\Types\VSimpleTypes.cs" />
     <Compile Include="Voxels\Types\VStream.cs" />
@@ -171,21 +181,22 @@
     <Compile Include="Voxels\VoxelWorld.cs" />
     <Compile Include="Voxels\VoxelWorldProcessor.cs" />
     <Compile Include="Voxels\WorldGenesis.cs" />
-    <Compile Include="Voxels\Types\Fastbit_Array_64k.cs" />
-    <Compile Include="Voxels\Physics\BEPU.VoxelBlob.cs" />
-    <Compile Include="Voxels\Physics\BEPUDebugDrawer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BEPU\BEPUphysics\BEPUphysics.csproj">
+    <ProjectReference Include="..\BEPU\BEPUphysics\BEPUphysics.mono.csproj">
       <Project>{C0D52C9F-14B8-4008-8DDC-109C27561A5C}</Project>
       <Name>BEPUphysics</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TrueTypeSharp\TrueTypeSharp\TrueTypeSharp.csproj">
+    <ProjectReference Include="..\TrueTypeSharp\TrueTypeSharp\TrueTypeSharp.mono.csproj">
       <Project>{B722113F-1252-4BE1-9D43-6BC82B3E37D1}</Project>
       <Name>TrueTypeSharp</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Voxelarium.Common\Voxelarium.Common.mono.csproj">
+      <Project>{B7386855-1A65-4B04-B79B-95F49CF7F61A}</Project>
+      <Name>Voxelarium.Common</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
