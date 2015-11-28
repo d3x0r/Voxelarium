@@ -83,10 +83,10 @@ namespace Voxelarium.Core.Voxels.IO
 			VoxelTypeManager = null;
 			UniverseNum = 1;
 			WorkingEmptySector = new VoxelSector( null, (VoxelWorld)null );
-			GameEnv.Basic_Renderer.GetCuller().InitFaceCullData( WorkingEmptySector );
+			//GameEnv.Basic_Renderer.GetCuller().InitFaceCullData( WorkingEmptySector );
 			WorkingEmptySector.Fill( 0 );
 			WorkingFullSector = new VoxelSector( null, (VoxelWorld)null );
-			GameEnv.Basic_Renderer.GetCuller().InitFaceCullData( WorkingFullSector );
+			//GameEnv.Basic_Renderer.GetCuller().InitFaceCullData( WorkingFullSector );
 			WorkingFullSector.Fill( 1 );
 			Thread = null;
 			ThreadContinue = false;

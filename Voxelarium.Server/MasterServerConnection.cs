@@ -81,7 +81,11 @@ namespace Voxelarium.Server
 					switch( msgId )
 					{
 					case Message.Ping:
+						Log.log( "Received Ping." );
 						socket.Send( ping_reply_message, 8, SocketFlags.None );
+						break;
+					default:
+						Log.log( "Received unhandled message: {0}", msgId );
 						break;
 					}
 					break;
@@ -106,7 +110,8 @@ namespace Voxelarium.Server
 		{
 			if( v6Address_attempt < v6Addresses.Count )
 			{
-				TcpClient client = new TcpClient();
+				TcpClient client = new TcpClient( AddressFamily.InterNetworkV6 );
+				//client.Client.SetSocketOption( SocketOptionLevel.Socket, SocketOptionName.
 				client.BeginConnect( v6Addresses[v6Address_attempt++], host_port, ConnectionComplete, client );
 			}
 		}

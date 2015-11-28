@@ -114,7 +114,7 @@ namespace Voxelarium.Core.Voxels
 			}
 		}
 
-		internal bool LoadVoxelTypes( )
+		internal bool LoadVoxelTypes( bool nogui )
 		{
 			Log.log( "Here we start to do magic to get voxel types..." );
 			int i;
@@ -146,7 +146,7 @@ namespace Voxelarium.Core.Voxels
 					else
 						success = true;
 				}
-				else
+				else if( !nogui )
 					success = VoxelType.LoadTexture();
                 if( success )
 				{

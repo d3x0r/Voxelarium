@@ -1327,7 +1327,8 @@ OutStream.Close();
 					{
 						Voxel = Data.Data[i];
 						VoxelType = VoxelTypeManager.VoxelTable[Voxel];
-						if( VoxelType.properties.Is_HasAllocatedMemoryExtension )
+						if( VoxelType != null 
+							&& VoxelType.properties.Is_HasAllocatedMemoryExtension )
 						{
 							VoxelExtension = VoxelType.CreateVoxelExtension( true );
 							if( VoxelExtension == null ) { Log.log( "Sector Loading Error (%ld,%ld,%ld): Can't read VOXEL EXTENSION section / Can't create voxel extension.\n", (uint)Pos_x, (uint)Pos_y, (uint)Pos_z ); br.Close(); return ( false ); }

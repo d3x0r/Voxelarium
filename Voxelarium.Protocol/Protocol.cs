@@ -35,8 +35,6 @@ namespace Voxelarium.Protocol
 		public string ServerName { get; set; }
 		[ProtoMember( 2 )]
 		public int Connections { get; set; }
-		[ProtoMember( 3 )]
-		IPAddress[] addresses { get; set; }
 		[ProtoMember( 4 )]
 		public Guid ServerID { get; set; }
 		public ServerHello()

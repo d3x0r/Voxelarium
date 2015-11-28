@@ -61,6 +61,7 @@ namespace Voxelarium.Core.Voxels
 		public int UniverseNum;
 
 		internal TextureAtlas TextureAtlas;
+		bool nogui;
 
 		static VoxelWorld()
 		{
@@ -74,12 +75,14 @@ namespace Voxelarium.Core.Voxels
 			//GameEnv.Basic_Renderer.GetCuller().InitFaceCullData( WorkingScratchSector );
 		}
 
-		public VoxelWorld( VoxelGameEnvironment GameEnv )
+		public VoxelWorld( bool nogui, VoxelGameEnvironment GameEnv )
 		{
 			uint i;
+			this.nogui = nogui;
 			this.GameEnv = GameEnv;
 			SectorEjectList = new SectorRingList( 256 * 256 * 32/*65536*/);
-			TextureAtlas = new TextureAtlas( 32, 64 );
+			if( !nogui )
+				TextureAtlas = new TextureAtlas( 32, 64 );
 			
 			SectorTable = new VoxelSector[TableSize];
 
@@ -330,7 +333,8 @@ namespace Voxelarium.Core.Voxels
 		internal void SetVoxelTypeManager( VoxelTypeManager Manager, ref int percent, ref int step, ref int steps )
 		{
 			VoxelTypeManager = Manager;
-			Manager.LoadTexturesToAtlas( TextureAtlas, ref percent, ref step, ref steps );
+			if( !nogui )
+				Manager.LoadTexturesToAtlas( TextureAtlas, ref percent, ref step, ref steps );
         }
 
 		internal void CreateDemoWorld()

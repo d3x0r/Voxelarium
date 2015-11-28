@@ -255,7 +255,7 @@ namespace Voxelarium.Core
 			result = Init_UserDataStorage(); if( !result ) return ( false );
 			result = Init_Settings(); if( !result ) return ( false );
 			percent_done = 1 + ( ++step * 100 ) / steps;
-			result = Init_VoxelTypeManager(); if( !result ) return ( false );
+			result = Init_VoxelTypeManager( nogui ); if( !result ) return ( false );
 			percent_done = 1 + ( ++step * 100 ) / steps;
 			if( !nogui )
 			{
@@ -319,7 +319,7 @@ namespace Voxelarium.Core
 			result = Start_Game_Stats(); if( !result ) return ( false );
 			result = Start_Game_Events(); if( !result ) return ( false );
 
-			result = Start_World( ); if( !result ) return ( false );
+			result = Start_World( nogui ); if( !result ) return ( false );
 			start_percent = ( ++start_step * 100 ) / start_steps;
 			
 			result = Start_SectorLoader( false, null ); if( !result ) return ( false );
@@ -478,7 +478,7 @@ namespace Voxelarium.Core
 			return ( true );
 		}
 
-		bool Init_VoxelTypeManager()
+		bool Init_VoxelTypeManager( bool nogui )
 		{
 			string Msg;
 			Log.log( "Starting : VoxelTypeManager Init" );
@@ -486,7 +486,7 @@ namespace Voxelarium.Core
 			//if (!Initialized_Glew)           {ZString Err ="Can't init VoxelTypeManager : Glew init not completed"; InitLog.Log(4, ZLog::FAIL, Err); return(false);}
 			VoxelTypeManager = new VoxelTypeManager();
 			VoxelTypeManager.SetGameEnv( this );
-			if( !VoxelTypeManager.LoadVoxelTypes(  ) ) { string Err = "Can't init VoxelTypeManager."; Log.log( Err ); return ( false ); }
+			if( !VoxelTypeManager.LoadVoxelTypes( nogui ) ) { string Err = "Can't init VoxelTypeManager."; Log.log( Err ); return ( false ); }
 			Msg = "Loaded " + VoxelTypeManager.GetTexturesCount() + " Voxel Textures.";
 			Log.log( Msg );
 			if( VoxelTypeManager.GetTexturesCount() < 10 ) { string Err; Err = "Missing Texture files (count : " + VoxelTypeManager.GetTexturesCount() + ")"; Log.log( Err ); return ( false ); }
@@ -730,9 +730,9 @@ namespace Voxelarium.Core
 			Initialized_GameWindows = false;
 			return ( true );
 		}
-		bool Start_World( )
+		bool Start_World( bool nogui )
 		{
-			World = new VoxelWorld( this );
+			World = new VoxelWorld( nogui, this );
 			Render_Basic.BuildSortList( ref start_percent, ref start_step, ref start_steps );
 
 			World.renderer = Basic_Renderer;
