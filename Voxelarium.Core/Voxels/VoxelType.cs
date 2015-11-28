@@ -39,8 +39,10 @@ namespace Voxelarium.Core.Voxels
 		internal VoxelTypeManager VoxelTypeManager;
 
 		internal protected Bitmap MainTexture;
+		//internal Box2D 
 		internal Box2D TextureCoords;
-		public VoxelProperties properties;
+		internal float[] TextureUVs;
+        public VoxelProperties properties;
 
 		public delegate void OnPropertiesSet();
 		public event OnPropertiesSet PropertiesSet;
@@ -70,7 +72,7 @@ namespace Voxelarium.Core.Voxels
 		{
 			if( MainTexture != null && !loaded_texture )
 			{
-				atlas.AddTexture( MainTexture, out TextureCoords );
+				atlas.AddTexture( MainTexture, out TextureCoords, out TextureUVs );
 				loaded_texture = true;
             }
 		}

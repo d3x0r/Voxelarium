@@ -106,10 +106,13 @@ namespace Voxelarium.Core.UI
 			atlas = new Bitmap( needed_size, needed_size );
 		}
 
-		internal void AddTexture( Bitmap image, out Box2D coord )
+		internal void AddTexture( Bitmap image, out Box2D coord, out float[] uvs )
 		{
+			uvs = new float[8];
 			if( y_ofs >= 32 )
 			{
+				for( int n = 0; n < 8; n++ )
+					uvs[n] = 0;
 				coord.Position.X = 0;
 				coord.Position.Y = 0;
 				coord.Size.X = 0;
@@ -123,6 +126,15 @@ namespace Voxelarium.Core.UI
 			coord.Size.X = ( 65535.0f / texture_count );
 			coord.Size.Y = ( 65535.0f / texture_count );
 
+			uvs[0 * 2 + 0] = ( 65535.0f / texture_count ) * x_ofs;
+			uvs[0 * 2 + 1] = ( 65535.0f / texture_count ) * y_ofs;
+			uvs[1 * 2 + 0] = uvs[0 * 2 + 0] + ( 65535.0f / texture_count );
+			uvs[1 * 2 + 1] = uvs[0 * 2 + 1];
+			uvs[2 * 2 + 0] = uvs[0 * 2 + 0];
+			uvs[2 * 2 + 1] = uvs[0 * 2 + 1] + ( 65535.0f / texture_count );
+			uvs[2 * 2 + 0] = uvs[1 * 2 + 0];
+			uvs[2 * 2 + 1] = uvs[2 * 2 + 1];
+
 			Graphics g = Graphics.FromImage( atlas );
 			g.DrawImage( image, new Rectangle( texture_size * x_ofs, texture_size * y_ofs, texture_size, texture_size ) );
 			g.Dispose();
@@ -133,5 +145,8 @@ namespace Voxelarium.Core.UI
 				y_ofs++;
 			}
 		}
+
+
+
 	}
 }

@@ -181,11 +181,11 @@ namespace Voxelarium.Core
 		/* Started things */
 		internal EventSequencer GameEventSequencer;  // internal timer system
 		internal GameStats GameStat;  // timing stats for rendering
-		Game_Events Game_Events; // this is user input event dispatch
+		internal Game_Events Game_Events; // this is user input event dispatch
 
 		// Game objects
 		internal VoxelWorld World;
-		FileSectorLoader SectorLoader;
+		SectorLoader SectorLoader;
 #if FINISHED_PORTING
 		// Game objects
 
@@ -197,7 +197,6 @@ namespace Voxelarium.Core
 			ZWorldInfo WorldInfo;
 
 			// Game Windows
-			ZGameWindow_Inventory GameWindow_Inventory;
 			ZGameWindow_VoxelTypeBar VoxelTypeBar;
 			ZGameWindow_Storage GameWindow_Storage;
 			ZGameWindow_Programmable GameWindow_Programmable;
@@ -206,6 +205,7 @@ namespace Voxelarium.Core
 			ZGameWindow_DisplayInfos GameWindow_DisplayInfos;
 			ZGameWindow_Sequencer GameWindow_Sequencer;
 #endif
+		GameWindow_Inventory GameWindow_Inventory;
 		GameWindow_Advertising GameWindow_Advertising;
 
 		bool Initialized_UserDataStorage;
@@ -249,7 +249,7 @@ namespace Voxelarium.Core
 		// General Inits
 		int steps = 8;
 		int step = 0;
-		internal bool Init()
+		public bool Init( bool nogui = false )
 		{
 			bool result;
 			result = Init_UserDataStorage(); if( !result ) return ( false );
@@ -257,18 +257,21 @@ namespace Voxelarium.Core
 			percent_done = 1 + ( ++step * 100 ) / steps;
 			result = Init_VoxelTypeManager(); if( !result ) return ( false );
 			percent_done = 1 + ( ++step * 100 ) / steps;
-			result = Init_TextureManager(); if( !result ) return ( false );
-			percent_done = 1 + ( ++step * 100 ) / steps;
-			result = Init_GuiManager(); if( !result ) return ( false );
-			percent_done = 1 + ( ++step * 100 ) / steps;
-			result = Init_TileSetsAndFonts(); if( !result ) return ( false );
-			percent_done = 1 + ( ++step * 100 ) / steps;
-			result = Init_Renderer(); if( !result ) return ( false );
-			percent_done = 1 + ( ++step * 100 ) / steps;
-			result = Init_Sound(); if( !result ) return ( false );
-			percent_done = 1 + ( ++step * 100 ) / steps;
-			InitScreens();
-			percent_done = 1 + ( ++step * 100 ) / steps;
+			if( !nogui )
+			{
+				result = Init_TextureManager(); if( !result ) return ( false );
+				percent_done = 1 + ( ++step * 100 ) / steps;
+				result = Init_GuiManager(); if( !result ) return ( false );
+				percent_done = 1 + ( ++step * 100 ) / steps;
+				result = Init_TileSetsAndFonts(); if( !result ) return ( false );
+				percent_done = 1 + ( ++step * 100 ) / steps;
+				result = Init_Renderer(); if( !result ) return ( false );
+				percent_done = 1 + ( ++step * 100 ) / steps;
+				result = Init_Sound(); if( !result ) return ( false );
+				percent_done = 1 + ( ++step * 100 ) / steps;
+				InitScreens();
+				percent_done = 1 + ( ++step * 100 ) / steps;
+			}
 
 			if( VoxelGlobalSettings.COMPILEOPTION_FABDATABASEOUTPUT )
 			{
@@ -305,7 +308,7 @@ namespace Voxelarium.Core
 		internal int start_percent;
 		int start_steps = 10;
 		int start_step = 0;
-		internal bool Start_Game()
+		public bool Start_Game( bool nogui = false, bool client_networked = false )
 		{
 			bool result;
 			start_step = 0;
@@ -318,20 +321,24 @@ namespace Voxelarium.Core
 
 			result = Start_World( ); if( !result ) return ( false );
 			start_percent = ( ++start_step * 100 ) / start_steps;
-			result = Start_SectorLoader( ); if( !result ) return ( false );
+			
+			result = Start_SectorLoader( false, null ); if( !result ) return ( false );
 			start_percent = ( ++start_step * 100 ) / start_steps;
 			result = Start_PhysicEngine(); if( !result ) return ( false );
 
 			// preload sectors immeidately around the player
-			result = Start_WorldSectors(); if( !result ) return ( false );
+			result = Start_WorldSectors( nogui ); if( !result ) return ( false );
 
 			start_percent = ( ++start_step * 100 ) / start_steps;
 			result = Start_VoxelProcessor(); if( !result ) return ( false );
 #if FINISHED_PORTING
 				result = Start_ToolManager(); if( !result ) return ( false );
 #endif
-			result = Start_RendererSettings(); if( !result ) return ( false );
-			result = Start_GameWindows(); if( !result ) return ( false );
+			if( !nogui )
+			{
+				result = Start_RendererSettings(); if( !result ) return ( false );
+				result = Start_GameWindows(); if( !result ) return ( false );
+			}
 			start_percent = ( ++start_step * 100 ) / start_steps;
 			return ( true );
 		}
@@ -398,7 +405,7 @@ namespace Voxelarium.Core
 
 		// InGame
 
-		internal int UniverseNum;
+		public int UniverseNum;
 #if false
 		void MoveShip()
 			{
@@ -694,7 +701,7 @@ namespace Voxelarium.Core
 		}
 		bool Start_GameWindows()
 		{
-			//GameWindow_Inventory = new ZGameWindow_Inventory; GameWindow_Inventory.SetGameEnv( this );
+			GameWindow_Inventory = new GameWindow_Inventory(); GameWindow_Inventory.SetGameEnv( this );
 			//VoxelTypeBar = new ZGameWindow_VoxelTypeBar; VoxelTypeBar.SetGameEnv( this );
 			//GameWindow_Storage = new ZGameWindow_Storage; GameWindow_Storage.SetGameEnv( this );
 			//GameWindow_Programmable = new ZGameWindow_Programmable; GameWindow_Programmable.SetGameEnv( this );
@@ -704,7 +711,7 @@ namespace Voxelarium.Core
 			//GameWindow_DisplayInfos = new ZGameWindow_DisplayInfos; GameWindow_DisplayInfos.SetGameEnv( this );
 			//GameWindow_Sequencer = new ZGameWindow_Sequencer; GameWindow_Sequencer.SetGameEnv( this );
 
-			//GameWindow_Advertising.Show();
+			GameWindow_Advertising.Show();
 			Initialized_GameWindows = true;
 			return ( true );
 		}
@@ -739,28 +746,38 @@ namespace Voxelarium.Core
 			Initialized_World = true;
 			return ( true );
 		}
-		bool Start_WorldSectors()
+		bool Start_WorldSectors( bool nogui )
 		{
-			World.CreateDemoWorld(); // force load initial zone.
-									 //World.SetVoxel( 0, 0, 0, 1 );// World.SetVoxel(0,1,0,1); World.SetVoxel(1,0,0,1); World.SetVoxel(0,2,0,2); World.SetVoxel(0,2,1,2);
-									 //World.SetVoxel(0,2,-1,2);World.SetVoxel(10,0,10,1); World.SetVoxel(10,1,10,1); World.SetVoxel(10,2,10,1); World.SetVoxel(5,3,0,1); World.SetVoxel(0,3,5,2);
+			if( !nogui )
+				World.CreateDemoWorld(); // force load initial zone.
+			//World.SetVoxel( 0, 0, 0, 1 );// World.SetVoxel(0,1,0,1); World.SetVoxel(1,0,0,1); World.SetVoxel(0,2,0,2); World.SetVoxel(0,2,1,2);
+			//World.SetVoxel(0,2,-1,2);World.SetVoxel(10,0,10,1); World.SetVoxel(10,1,10,1); World.SetVoxel(10,2,10,1); World.SetVoxel(5,3,0,1); World.SetVoxel(0,3,5,2);
 			Initialized_World = true;
 			return ( true );
 		}
 
-		bool Start_SectorLoader( )
+		bool Start_SectorLoader( bool networked, Networking.ClientConnection connection )
 		{
-			IWorldGenesis genesis = new Genesis();
-			//IWorldGenesis genesis = Compiler.LoadGenesisCode();
-			if( genesis != null )
+			if( networked )
 			{
-				SectorLoader = new FileSectorLoader( this, genesis );
+				SectorLoader = new NetworkSectorLoader( this, connection );
 				SectorLoader.SetVoxelTypeManager( VoxelTypeManager );
 				SectorLoader.SetUniverseNum( UniverseNum );
-				if( !SectorLoader.Init( ref start_percent, ref start_step, ref start_steps ) ) return ( false );
-				World.SetSectorLoader( SectorLoader );
-				Initialized_SectorLoader = true;
-				return ( true );
+			}
+			else
+			{
+				IWorldGenesis genesis = new Genesis();
+				//IWorldGenesis genesis = Compiler.LoadGenesisCode();
+				if( genesis != null )
+				{
+					SectorLoader = new FileSectorLoader( this, genesis );
+					SectorLoader.SetVoxelTypeManager( VoxelTypeManager );
+					SectorLoader.SetUniverseNum( UniverseNum );
+					if( !SectorLoader.Init( ref start_percent, ref start_step, ref start_steps ) ) return ( false );
+					World.SetSectorLoader( SectorLoader );
+					Initialized_SectorLoader = true;
+					return ( true );
+				}
 			}
 			return false;
 		}

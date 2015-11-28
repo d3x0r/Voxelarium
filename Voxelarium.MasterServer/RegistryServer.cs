@@ -96,8 +96,8 @@ namespace Voxelarium.MasterServer
 					case Protocol.Message.PingReply:
 						// nothing to do; no content
 						break;
-					case Protocol.Message.Hello:
-						Protocol.Hello msg = Serializer.Deserialize<Protocol.Hello>( buffer );
+					case Protocol.Message.ServerHello:
+						Protocol.ServerHello msg = Serializer.Deserialize<Protocol.ServerHello>( buffer );
 						registered_server = servers.AddServer( msg.ServerName, msg.Connections, host_address );
 						break;
 					case Protocol.Message.ListServers:

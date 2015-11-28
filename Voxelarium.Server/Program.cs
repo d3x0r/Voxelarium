@@ -9,7 +9,9 @@ namespace Voxelarium.Server
 	{
 		static AutoResetEvent sleep_event;
 		static bool done;
-		static Server server;
+
+		internal static GameServer game_server;
+		internal static MasterServerConnector master;
 
 		internal static void Exit()
 		{
@@ -20,7 +22,8 @@ namespace Voxelarium.Server
 
 		static void Main( string[] args )
 		{
-			server = new Server();
+			game_server = new GameServer();
+			master = new MasterServerConnector();
 			sleep_event = new AutoResetEvent( false );
 			while( !done )
 				sleep_event.WaitOne();

@@ -49,7 +49,6 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Protocol.cs" />
     <Compile Include="RegisteredServer.cs" />
     <Compile Include="RegistryServer.cs" />
   </ItemGroup>
@@ -61,6 +60,10 @@
     <ProjectReference Include="..\Voxelarium.Common\Voxelarium.Common.csproj">
       <Project>{b7386855-1a65-4b04-b79b-95f49cf7f61a}</Project>
       <Name>Voxelarium.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Voxelarium.Protocol\Voxelarium.Protocol.csproj">
+      <Project>{cada7443-ef7e-4d9a-9877-99c51631cdd8}</Project>
+      <Name>Voxelarium.Protocol</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

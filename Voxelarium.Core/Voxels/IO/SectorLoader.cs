@@ -36,5 +36,7 @@ namespace Voxelarium.Core.Voxels.IO
 		bool Is_EjectFileNotFull();
 		void Eject_Sector( VoxelSector Sector );
 		VoxelSector GetRequested();
+		void SetVoxelTypeManager( VoxelTypeManager VoxelTypeManager );
+		void SetUniverseNum( int UniverseNum );
 	}
 }

@@ -64,7 +64,7 @@ namespace Voxelarium.Core.Game
 		//RayCast_out PointedVoxel;
 		bool[] MouseButtonMatrix = new bool[8];
 
-		//Inventory Inventory;
+		internal Inventory Inventory = new Inventory();
 
 		ushort BuildingMaterial;
 		ushort LearningModePage;

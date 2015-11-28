@@ -60,6 +60,10 @@
       <HintPath>..\packages\OpenTK.1.1.1589.5942\lib\NET40\OpenTK.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="protobuf-net, Version=2.0.0.668, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
+      <HintPath>..\packages\protobuf-net.2.0.0.668\lib\net40\protobuf-net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
@@ -67,6 +71,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Game\GameWindows\GameWindow_Inventory.cs" />
+    <Compile Include="Game\GameWindows\Controls\InventoryBox.cs" />
+    <Compile Include="Game\Inventory.cs" />
+    <Compile Include="Networking\ClientConnection.cs" />
     <Compile Include="NeuralNetwork\Brain.cs" />
     <Compile Include="NeuralNetwork\NeuronLogics\FlipFlop.cs" />
     <Compile Include="NeuralNetwork\NeuronLogics\LevelLock.cs" />
@@ -107,6 +115,7 @@
     <Compile Include="UI\Shaders\FXAAShader.cs" />
     <Compile Include="UI\Shaders\SimpleInstanceShader.cs" />
     <Compile Include="Voxels\IO\FileSectorLoader.cs" />
+    <Compile Include="Voxels\IO\NetworkSectorLoader.cs" />
     <Compile Include="Voxels\IO\SectorLoader.cs" />
     <Compile Include="Voxels\IO\SectorRequestRingList.cs" />
     <Compile Include="Voxels\IO\SectorTagHash.cs" />

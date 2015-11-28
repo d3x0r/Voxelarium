@@ -46,9 +46,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GameServer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Server.cs" />
+    <Compile Include="MasterServerConnection.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -58,6 +59,14 @@
     <ProjectReference Include="..\Voxelarium.Common\Voxelarium.Common.csproj">
       <Project>{b7386855-1a65-4b04-b79b-95f49cf7f61a}</Project>
       <Name>Voxelarium.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Voxelarium.Core\Voxelarium.Core.csproj">
+      <Project>{d8e76cd6-817d-4b50-b1c8-aba10886fb68}</Project>
+      <Name>Voxelarium.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Voxelarium.Protocol\Voxelarium.Protocol.csproj">
+      <Project>{cada7443-ef7e-4d9a-9877-99c51631cdd8}</Project>
+      <Name>Voxelarium.Protocol</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

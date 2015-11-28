@@ -1,34 +1,68 @@
 ﻿using ProtoBuf;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Text;
 
-namespace Voxelarium.MasterServer
+namespace Voxelarium.Protocol
 {
-	internal class Protocol
-	{
-		internal enum Message
+		public enum Message
 		{
-			Hello, // register a new server
+			ServerHello, // register a new server
+			ClientHello, // register a new server
 			ListServers,  // list all registered servers 
 			ConnectionUpdate, // server reports new client count
+			Servers, // some servers  from the list 
+			Ping,
+			PingReply,
 		}
 
 		[ProtoContract]
-		public class Hello
-		{
+		public class ClientHello
+	{
 			[ProtoMember( 1 )]
-			public string ServerName { get; set; }
-			[ProtoMember( 2 )]
-			public int Connections { get; set; }
-			[ProtoMember( 3 )]
-			IPAddress address;
-			public Hello()
+			public Guid ClientID { get; set; }
+			public ClientHello()
 			{
 			}
 		}
-		[ProtoContract]
+
+	[ProtoContract]
+	public class ServerHello
+	{
+		[ProtoMember( 1 )]
+		public string ServerName { get; set; }
+		[ProtoMember( 2 )]
+		public int Connections { get; set; }
+		[ProtoMember( 3 )]
+		IPAddress[] addresses { get; set; }
+		[ProtoMember( 4 )]
+		public Guid ServerID { get; set; }
+		public ServerHello()
+		{
+		}
+	}
+
+	[ProtoContract]
+	public class ListServers
+	{
+		[ProtoMember( 1 )]
+		public int start_offset { get; set; }
+		public ListServers()
+		{
+		}
+	}
+
+	[ProtoContract]
+	public class ConnectionUpdate
+	{
+		[ProtoMember( 1 )]
+		internal int Connections { get; set; }
+		public ConnectionUpdate() { }
+	}
+
+	[ProtoContract]
 		public class Server
 		{
 			[ProtoMember( 1 )]
@@ -44,5 +78,4 @@ namespace Voxelarium.MasterServer
 			{
 			}
 		}
-	}
 }

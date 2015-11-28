@@ -53,13 +53,12 @@ namespace Voxelarium.Core.Voxels.IO
 
 		IWorldGenesis SectorCreator;
 
-		internal void SetVoxelTypeManager( VoxelTypeManager VoxelTypeManager ) { this.VoxelTypeManager = VoxelTypeManager; }
-		internal void SetUniverseNum( int UniverseNum ) { this.UniverseNum = UniverseNum; }
+		public void SetVoxelTypeManager( VoxelTypeManager VoxelTypeManager ) { this.VoxelTypeManager = VoxelTypeManager; }
+		public void SetUniverseNum( int UniverseNum ) { this.UniverseNum = UniverseNum; }
 		public bool Is_EjectFileNotFull() { return ( EjectedSectorList.IsNotFull() ); }
 
 
 		//ZMonoSizeMemoryPool ZSectorTagHash::DefaultMemoryPool;
-
 
 		void thread_func( object Data )
 		{

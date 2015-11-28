@@ -48,7 +48,7 @@ namespace Voxelarium.Core.UI
 	{
 		Stopwatch sw = new Stopwatch();
 		float frequency;
-		Voxelarium.Core.VoxelGameEnvironment game;
+		internal Voxelarium.Core.VoxelGameEnvironment game;
 
 		internal static int max_texture_size;
 		internal static Matrix4 modelview;
@@ -569,6 +569,8 @@ namespace Voxelarium.Core.UI
 			SwapBuffers();
 		}
 
+		internal static float SclX( float x ) { return x * 2.0f / 1024f; }
+		internal static float SclY( float y ) { return y * 2.0f / 768f; }
 
 		[Conditional( "DEBUG" )]
 		internal static void CheckErr()

@@ -55,6 +55,16 @@ namespace Voxelarium.Common
 			return default_val;
 		}
 
+		public static Guid Read( string name, Guid default_val )
+		{
+			DataRow[] setting = settings.Tables["settings"].Select( "name='" + name + "'" );
+			if( setting.Length > 0 )
+				return Guid.Parse( (string)setting[0]["value"] );
+			else
+				Write( name, default_val );
+			return default_val;
+		}
+
 		public static float Read( string name, float default_val )
 		{
 			DataRow[] setting = settings.Tables["settings"].Select( "name='" + name + "'" );
@@ -114,6 +124,22 @@ namespace Voxelarium.Common
 				DataRow row = setting_table.NewRow();
 				row["name"] = name;
 				row["value"] = val;
+				setting_table.Rows.Add( row );
+				settings.WriteXml( SettingFilename );
+			}
+		}
+		public static void Write( string name, Guid val )
+		{
+			DataRow[] setting = settings.Tables["settings"].Select( "name='" + name + "'" );
+			if( setting.Length > 0 )
+			{
+				setting[0]["value"] = val.ToString();
+			}
+			else
+			{
+				DataRow row = setting_table.NewRow();
+				row["name"] = name;
+				row["value"] = val.ToString();
 				setting_table.Rows.Add( row );
 				settings.WriteXml( SettingFilename );
 			}
