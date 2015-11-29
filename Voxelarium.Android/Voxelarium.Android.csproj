@@ -55,1484 +55,1484 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <AndroidAsset Include="..\Voxelarium\Content\randomnum.dat" />
-    <AndroidAsset Include="..\Voxelarium\Content\Code\genesis.cs"/>
-    <AndroidAsset Include="..\Voxelarium\Content\Misc\dmy.bmp"/>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelcode_1.cs"/>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelcode_2.cs">
+    <AndroidAsset Include="Assets\randomnum.dat" />
+    <AndroidAsset Include="Assets\Code\genesis.cs"/>
+    <AndroidAsset Include="Assets\Misc\dmy.bmp"/>
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelcode_1.cs"/>
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelcode_2.cs">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\gui\blackvoxel_title_1_3.bmp">
+    <AndroidAsset Include="Assets\gui\blackvoxel_title_1_3.bmp">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\gui\button_1_5.bmp">
+    <AndroidAsset Include="Assets\gui\button_1_5.bmp">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\gui\contribute_1_1.bmp">
+    <AndroidAsset Include="Assets\gui\contribute_1_1.bmp">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\gui\dialog_background_1_2.bmp">
+    <AndroidAsset Include="Assets\gui\dialog_background_1_2.bmp">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\gui\dialog_voxeltype_1_1.bmp">
+    <AndroidAsset Include="Assets\gui\dialog_voxeltype_1_1.bmp">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\gui\font_1_1.bmp">
+    <AndroidAsset Include="Assets\gui\font_1_1.bmp">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\gui\gui_tiles_1_2.bmp">
+    <AndroidAsset Include="Assets\gui\gui_tiles_1_2.bmp">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\gui\panel_2.bmp">
+    <AndroidAsset Include="Assets\gui\panel_2.bmp">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\gui\tile_1_1.bmp">
+    <AndroidAsset Include="Assets\gui\tile_1_1.bmp">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\gui\tile_2_1.bmp">
+    <AndroidAsset Include="Assets\gui\tile_2_1.bmp">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\gui\tile_2_2.bmp">
+    <AndroidAsset Include="Assets\gui\tile_2_2.bmp">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\gui\tile_3_1.bmp">
+    <AndroidAsset Include="Assets\gui\tile_3_1.bmp">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\gui\title_1_2.bmp">
+    <AndroidAsset Include="Assets\gui\title_1_2.bmp">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_1.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_1.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_10.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_10.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_100.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_100.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_101.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_101.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_102.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_102.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_103.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_103.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_104.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_104.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_105.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_105.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_106.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_106.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_107.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_107.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_108.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_108.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_109.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_109.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_11.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_11.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_110.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_110.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_111.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_111.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_112.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_112.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_113.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_113.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_114.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_114.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_115.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_115.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_116.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_116.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_117.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_117.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_118.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_118.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_119.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_119.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_12.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_12.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_120.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_120.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_121.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_121.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_122.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_122.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_123.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_123.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_124.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_124.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_125.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_125.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_126.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_126.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_127.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_127.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_128.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_128.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_129.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_129.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_13.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_13.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_130.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_130.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_131.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_131.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_132.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_132.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_133.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_133.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_134.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_134.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_135.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_135.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_136.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_136.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_137.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_137.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_138.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_138.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_139.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_139.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_14.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_14.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_140.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_140.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_141.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_141.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_142.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_142.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_143.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_143.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_144.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_144.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_145.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_145.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_146.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_146.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_147.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_147.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_148.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_148.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_149.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_149.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_15.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_15.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_150.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_150.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_151.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_151.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_152.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_152.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_153.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_153.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_154.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_154.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_155.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_155.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_156.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_156.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_157.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_157.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_158.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_158.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_159.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_159.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_16.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_16.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_160.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_160.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_161.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_161.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_162.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_162.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_163.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_163.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_164.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_164.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_165.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_165.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_166.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_166.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_167.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_167.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_168.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_168.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_169.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_169.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_17.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_17.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_170.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_170.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_171.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_171.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_172.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_172.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_173.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_173.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_174.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_174.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_175.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_175.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_176.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_176.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_177.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_177.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_178.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_178.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_179.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_179.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_18.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_18.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_180.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_180.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_181.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_181.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_182.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_182.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_183.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_183.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_184.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_184.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_185.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_185.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_186.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_186.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_187.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_187.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_188.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_188.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_189.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_189.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_19.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_19.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_190.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_190.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_191.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_191.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_192.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_192.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_193.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_193.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_194.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_194.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_195.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_195.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_196.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_196.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_197.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_197.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_198.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_198.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_199.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_199.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_2.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_2.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_20.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_20.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_200.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_200.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_201.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_201.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_202.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_202.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_203.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_203.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_204.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_204.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_205.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_205.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_206.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_206.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_208.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_208.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_209.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_209.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_21.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_21.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_210.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_210.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_212.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_212.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_213.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_213.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_214.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_214.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_215.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_215.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_216.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_216.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_217.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_217.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_218.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_218.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_219.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_219.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_22.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_22.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_220.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_220.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_221.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_221.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_222.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_222.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_223.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_223.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_224.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_224.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_225.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_225.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_226.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_226.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_227.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_227.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_228.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_228.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_229.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_229.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_23.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_23.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_230.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_230.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_231.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_231.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_235.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_235.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_236.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_236.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_237.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_237.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_238.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_238.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_239.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_239.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_24.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_24.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_240.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_240.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_241.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_241.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_242.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_242.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_243.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_243.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_244.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_244.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_25.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_25.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_26.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_26.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_27.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_27.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_28.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_28.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_29.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_29.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_3.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_3.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_30.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_30.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_31.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_31.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_32.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_32.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_33.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_33.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_34.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_34.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_35.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_35.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_36.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_36.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_37.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_37.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_38.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_38.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_39.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_39.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_4.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_4.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_40.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_40.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_41.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_41.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_42.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_42.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_43.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_43.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_44.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_44.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_45.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_45.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_46.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_46.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_47.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_47.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_48.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_48.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_49.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_49.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_5.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_5.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_50.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_50.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_51.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_51.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_52.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_52.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_53.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_53.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_54.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_54.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_55.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_55.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_56.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_56.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_57.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_57.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_58.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_58.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_59.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_59.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_6.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_6.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_60.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_60.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_61.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_61.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_62.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_62.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_63.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_63.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_64.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_64.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_65.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_65.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_66.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_66.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_67.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_67.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_68.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_68.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_69.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_69.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_7.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_7.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_70.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_70.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_71.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_71.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_72.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_72.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_73.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_73.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_74.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_74.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_75.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_75.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_76.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_76.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_77.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_77.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_78.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_78.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_79.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_79.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_8.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_8.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_80.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_80.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_81.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_81.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_82.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_82.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_83.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_83.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_84.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_84.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_85.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_85.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_86.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_86.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_87.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_87.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_88.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_88.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_89.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_89.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_9.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_9.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_90.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_90.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_91.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_91.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_92.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_92.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_93.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_93.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_94.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_94.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_95.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_95.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_96.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_96.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_97.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_97.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_98.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_98.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxelinfo\voxelinfo_99.txt">
+    <AndroidAsset Include="Assets\VoxelTypes\voxelinfo\voxelinfo_99.txt">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_100.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_100.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_101.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_101.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_102.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_102.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_103.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_103.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_104.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_104.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_105.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_105.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_106.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_106.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_107.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_107.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_108.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_108.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_109.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_109.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_11.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_11.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_110.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_110.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_111.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_111.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_112.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_112.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_113.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_113.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_114.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_114.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_115.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_115.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_116.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_116.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_117.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_117.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_118.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_118.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_119.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_119.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_12.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_12.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_120.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_120.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_121.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_121.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_122.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_122.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_123.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_123.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_124.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_124.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_125.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_125.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_126.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_126.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_127.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_127.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_128.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_128.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_129.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_129.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_13.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_13.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_130.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_130.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_131.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_131.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_132.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_132.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_133.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_133.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_134.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_134.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_135.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_135.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_136.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_136.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_137.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_137.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_138.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_138.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_139.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_139.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_14.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_14.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_140.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_140.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_141.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_141.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_142.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_142.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_143.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_143.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_144.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_144.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_145.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_145.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_146.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_146.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_147.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_147.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_148.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_148.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_149.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_149.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_15.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_15.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_150.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_150.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_151.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_151.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_152.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_152.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_153.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_153.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_154.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_154.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_155.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_155.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_156.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_156.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_157.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_157.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_158.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_158.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_159.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_159.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_16.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_16.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_160.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_160.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_161.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_161.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_162.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_162.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_163.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_163.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_164.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_164.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_165.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_165.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_166.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_166.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_167.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_167.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_168.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_168.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_169.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_169.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_17.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_17.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_170.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_170.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_171.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_171.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_172.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_172.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_173.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_173.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_174.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_174.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_175.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_175.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_176.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_176.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_177.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_177.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_178.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_178.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_179.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_179.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_18.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_18.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_180.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_180.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_181.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_181.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_182.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_182.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_183.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_183.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_184.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_184.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_185.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_185.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_186.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_186.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_187.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_187.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_188.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_188.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_189.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_189.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_19.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_19.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_190.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_190.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_191.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_191.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_192.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_192.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_193.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_193.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_194.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_194.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_195.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_195.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_196.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_196.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_197.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_197.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_198.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_198.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_199.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_199.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_1a.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_1a.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_20.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_20.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_200.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_200.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_201.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_201.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_202.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_202.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_203.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_203.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_203_bleu.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_203_bleu.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_203_vert.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_203_vert.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_204.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_204.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_205.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_205.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_206.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_206.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_207.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_207.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_208.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_208.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_209.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_209.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_21.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_21.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_210.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_210.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_211.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_211.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_212.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_212.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_213.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_213.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_214.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_214.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_215.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_215.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_216.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_216.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_217.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_217.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_218.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_218.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_219.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_219.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_22.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_22.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_220.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_220.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_221.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_221.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_222.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_222.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_223.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_223.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_224.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_224.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_225.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_225.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_226.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_226.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_227.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_227.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_228.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_228.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_229.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_229.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_23.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_23.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_230.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_230.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_231.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_231.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_232.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_232.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_233.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_233.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_234.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_234.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_235.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_235.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_236.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_236.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_237.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_237.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_238.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_238.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_239.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_239.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_24.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_24.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_240.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_240.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_241.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_241.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_242.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_242.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_243.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_243.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_244.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_244.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_25.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_25.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_26.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_26.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_27.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_27.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_28.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_28.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_29.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_29.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_30.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_30.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_31.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_31.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_32.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_32.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_33.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_33.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_34.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_34.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_35.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_35.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_36.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_36.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_37.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_37.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_38.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_38.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_39.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_39.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_40.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_40.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_41.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_41.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_42.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_42.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_43.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_43.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_44.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_44.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_45.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_45.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_46.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_46.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_47.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_47.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_48.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_48.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_49.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_49.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_50.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_50.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_51.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_51.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_52.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_52.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_53.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_53.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_54.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_54.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_55.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_55.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_56.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_56.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_57.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_57.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_58.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_58.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_59.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_59.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_60.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_60.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_61.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_61.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_62.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_62.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_63.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_63.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_64.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_64.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_65.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_65.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_66.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_66.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_67.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_67.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_68.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_68.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_69.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_69.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_70.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_70.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_70_original.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_70_original.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_71.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_71.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_72.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_72.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_72_original.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_72_original.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_73.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_73.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_74.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_74.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_75.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_75.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_76.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_76.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_77.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_77.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_78.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_78.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_79.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_79.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_80.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_80.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_81.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_81.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_82.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_82.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_83.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_83.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_84.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_84.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_85.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_85.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_86.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_86.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_87.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_87.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_88.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_88.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_89.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_89.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_90.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_90.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_91.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_91.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_92.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_92.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_93.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_93.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_94.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_94.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_95.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_95.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_96.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_96.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_97.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_97.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_98.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_98.png">
       
     </AndroidAsset>
-    <AndroidAsset Include="..\Voxelarium\Content\VoxelTypes\voxeltexture_99.png">
+    <AndroidAsset Include="Assets\VoxelTypes\voxeltexture_99.png">
       
     </AndroidAsset>
     <None Include="GettingStarted.Xamarin" />
@@ -1552,7 +1552,7 @@
     <None Include="Properties\AndroidManifest.xml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Voxelarium.Core\Voxelarium.Core.csproj">
+    <ProjectReference Include="Core\Voxelarium.Core.csproj">
       <Project>{d8e76cd6-817d-4b50-b1c8-aba10886fb68}</Project>
       <Name>Voxelarium.Core</Name>
     </ProjectReference>
