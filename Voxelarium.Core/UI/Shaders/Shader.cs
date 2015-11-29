@@ -21,6 +21,9 @@ using System.Collections.Generic;
 using System.Text;
 using Voxelarium.Core.Support;
 using Voxelarium.Common;
+using System.Diagnostics;
+
+
 #if !USE_GLES2
 using OpenTK.Graphics.OpenGL;
 #else
@@ -131,8 +134,7 @@ namespace Voxelarium.Core.UI.Shaders
 
 			if( vertexSource == "" && fragmentSource == "" )
 			{
-				Console.WriteLine( "Failed to compile Shader." +
-					Environment.NewLine + "Nothing to Compile.", "Error" );
+				Log.log( "Failed to compile Shader. Nothing to Compile." );
 				return false;
 			}
 
@@ -157,8 +159,7 @@ namespace Voxelarium.Core.UI.Shaders
 
 				if( status_code != 1 )
 				{
-					Log.log( "Failed to Compile Vertex Shader Source." +
-						Environment.NewLine + info + Environment.NewLine + "Status Code: " + status_code.ToString() );
+					Log.log( "Failed to Compile Vertex Shader Source. \"" + info + "\"  Status Code: " + status_code.ToString() );
 
 					GL.DeleteShader( vertexShader );
 					GL.DeleteProgram( Program );
@@ -181,8 +182,7 @@ namespace Voxelarium.Core.UI.Shaders
 
 				if( status_code != 1 )
 				{
-					Console.WriteLine( "Failed to Compile Fragment Shader Source." +
-						Environment.NewLine + info + Environment.NewLine + "Status Code: " + status_code.ToString() );
+					Log.log( "Failed to Compile Fragment Shader Source." + info + "Status Code: " + status_code.ToString() );
 
 					GL.DeleteShader( fragmentShader );
 					GL.DeleteProgram( Program );
@@ -205,7 +205,7 @@ namespace Voxelarium.Core.UI.Shaders
 
 			if( status_code != 1 )
 			{
-				Console.WriteLine( "Failed to Link Shader Program." +
+				Log.log( "Failed to Link Shader Program." +
 					Environment.NewLine + info + Environment.NewLine + "Status Code: " + status_code.ToString() );
 
 				GL.DeleteProgram( Program );

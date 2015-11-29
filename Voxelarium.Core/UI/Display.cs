@@ -16,6 +16,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+using System.IO;
+
+
 #if !USE_GLES2
 using OpenTK.Graphics.OpenGL;
 using System.Drawing.Imaging;
@@ -24,6 +27,10 @@ using System.Windows.Forms;
 using OpenTK.Graphics.ES20;
 using Android.Graphics;
 using Android.Content.Res;
+using Android.Content;
+using OpenTK.Platform.Android;
+using Android.App;
+
 #endif
 using OpenTK.Input;
 using OpenTK;
@@ -43,7 +50,6 @@ using Voxelarium.Core.Voxels.Types;
 using Voxelarium.Core.Voxels.Physics;
 using OpenTK.Graphics;
 using Voxelarium.Common;
-using Android.Content;
 
 namespace Voxelarium.Core.UI
 {
@@ -94,8 +100,14 @@ namespace Voxelarium.Core.UI
 		public int Width, Height;
 		public int X, Y;
 
-		public Display( VoxelGameEnvironment game ) 
+		void CannotExit()
 		{
+			Log.log( "Still need a way to set exit... pass a methodinfo or something" );
+		}
+
+		public Display( VoxelGameEnvironment game )
+		{
+			Exit = CannotExit;
 			this.game = game;
 			string versionOpenGL = GL.GetString(StringName.Version);
 			//GL.Get
@@ -103,12 +115,13 @@ namespace Voxelarium.Core.UI
 			//display_height = Height;// = Settings.Read( "GL.Height", System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Height );
 			//mouse_x = display_width / 2;
 			//mouse_y = display_height / 2;
-
+			Width = 1080;
+			Height = 1920;
 #if !USE_GLES2
 			System.Windows.Forms.Cursor.Position = new Point( display_x + ( display_width ) / 2, display_y + display_height / 2 );
 #endif
 
-			GL.Viewport( 0, 0, Width, Height );
+			//GL.Viewport( 0, 0, Width, Height );
 #if !USE_GLES2
 			GL.Enable( EnableCap.Multisample );
 #endif
@@ -120,8 +133,6 @@ namespace Voxelarium.Core.UI
 			active_camera = free_camera; // default to freecam;
 			free_camera.MoveTo( 0, 4, 0 );
 			debug_cube_transform = btTransform.Identity;
-
-			shaders.Add( new SimpleShader() );
 
 		}
 
@@ -140,6 +151,8 @@ namespace Voxelarium.Core.UI
 		void ProcessMouseFreeCam( float time )
 		{
 			float del_time;
+			if( mouse == null )
+				return;
 			if( prior_mouse_time != 0 )
 			{
 				del_time = time;// - prior_mouse_time;
@@ -275,7 +288,7 @@ namespace Voxelarium.Core.UI
 
 		public delegate void SimpleMethod();
 		public SimpleMethod Exit;
-		public SimpleMethod SwapBuffers;
+		//public SimpleMethod SwapBuffers;
 
 		private void Shutdown()
 		{
@@ -301,7 +314,10 @@ namespace Voxelarium.Core.UI
 			}
 			if( game.Game_Run )
 				game.Engine.Step( (float)e.Time );
+			
 			ProcessMouseFreeCam( (float)e.Time );
+			if( keyboard == null )
+				return;
 			if( keyboard[Key.AltLeft] && keyboard[Key.F4] )
 			{
 				VoxelGlobalSettings.Exiting = true;
@@ -440,13 +456,8 @@ namespace Voxelarium.Core.UI
 			simple_instance.DrawQuad( verts, ref c );
 		}
 
-		public void GameDisplay_RenderFrame( object sender, OpenTK.FrameEventArgs e )
-		{
-			Display_RenderFrame( e );
-		}
-
 		int frame;
-		public void Display_RenderFrame( OpenTK.FrameEventArgs e )
+		public void Display_RenderFrame( object sender, OpenTK.FrameEventArgs e )
 		{
 			// render graphics
 			frame++;
@@ -454,9 +465,9 @@ namespace Voxelarium.Core.UI
 			if( !game_loaded )
 			{
 				DrawProgress();
-				SwapBuffers();
 				return;
 			}
+
 			game.Draw( this, sw.ElapsedTicks / frequency );
 			GL.Enable( EnableCap.DepthTest );
 			Vector3[] verts = new Vector3[4];
@@ -582,7 +593,7 @@ namespace Voxelarium.Core.UI
 
 			GL.End();
 #endif
-			SwapBuffers();
+			//SwapBuffers();
 		}
 
 		internal static float SclX( float x ) { return x * 2.0f / 1024f; }
@@ -604,15 +615,88 @@ namespace Voxelarium.Core.UI
 			//return false;
 		}
 
-		internal static Bitmap LoadBitmap( string file )
+		internal static Bitmap LoadBitmap( int location, string file )
 		{
 #if USE_GLES2
-			//Xamarin.Forms FileImageSource
-            Bitmap bitmap = BitmapFactory.DecodeResource( null /*Android.Content.Context.Resouces*/, 0 );
-			return bitmap;
+			if( location == 0 )
+			{
+				//Xamarin.Forms FileImageSource
+				Stream s = Application.Context.Assets.Open( file );
+				Bitmap bitmap = BitmapFactory.DecodeStream( s );
+				s.Dispose();
+				return bitmap;
+			}
+			else
+				return BitmapFactory.DecodeFile( file );
 #else
 			return new Bitmap( file );
 #endif
+		}
+		internal static Dictionary<string,string[]> paths = new Dictionary<string, string[]>();
+		internal static bool FileExists( string file, out int location )
+		{
+#if BUILD_ANDROID
+			string path = file.Substring( 0, file.LastIndexOf( '/' ) );
+			string fileName = file.Substring( file.LastIndexOf( '/' ) + 1 );
+			String[] assets;
+			if( paths.ContainsKey( path ) )
+				assets = paths[path];
+			else
+			{
+				assets = Application.Context.Assets.List( path );
+				paths.Add( path, assets );
+			}
+			//Log.log( "Test exists: " + path + " and " + fileName );
+			foreach( string s in assets )
+				if( String.Compare( s, fileName ) == 0 )
+				{
+					location = 0;
+					return true;
+				}
+			if( File.Exists( file ) )
+			{
+				location = 1;
+				return true;
+			}
+			location = 0;
+			return false;
+#else
+			return File.Exists( file );
+#endif
+		}
+		internal static StreamReader FileOpenText( int location, string file )
+		{
+#if BUILD_ANDROID
+			//Log.log( "can open " + file );
+			if( location == 0 )
+				return new StreamReader( Application.Context.Assets.Open( file ) );
+			else
+#endif
+				return File.OpenText( file );
+		}
+		internal static byte[] FileReadAllBytes( int location, string file )
+		{
+#if BUILD_ANDROID
+			//Log.log( "can open " + file );
+			if( location == 0 )
+			{
+				int totlength = 0;
+				int length ;
+				byte[] tmp = new byte[4096];
+				Stream s = Application.Context.Assets.Open( file );
+				while( ( length = s.Read( tmp, 0, 4096 ) ) > 0 )
+					totlength += length;
+				tmp = new byte[totlength];
+				s.Seek( 0, SeekOrigin.Begin );
+				s.Read( tmp, 0, totlength );				
+				s.Dispose();
+				s.Close();
+				return tmp;
+			}
+			else
+#endif
+				return File.ReadAllBytes( file );
+			return null;
 		}
 	}
 }

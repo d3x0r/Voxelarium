@@ -508,20 +508,20 @@ namespace Voxelarium.Core
 			Result = true;
 			ErrMsg = "*** ERROR : Missing gui texture file ";
 
-			Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH; Path += "/gui/title_1_2.bmp"; Result = TextureManager.LoadTexture( Path, 0 ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
-			Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH; Path += "/gui/blackvoxel_title_1_3.bmp"; Result = TextureManager.LoadTexture( Path, 1 ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
-			Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH; Path += "/gui/panel_2.bmp"; Result = TextureManager.LoadTexture( Path, 2 ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
-			Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH; Path += "/gui/font_1_1.bmp"; Result = TextureManager.LoadTexture( Path, 3, false ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
-			Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH; Path += "/gui/title_1_2.bmp"; Result = TextureManager.LoadTexture( Path, 4, false ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
-			Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH; Path += "/gui/tile_1_1.bmp"; Result = TextureManager.LoadTexture( Path, 5, false ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
-			Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH; Path += "/gui/tile_2_1.bmp"; Result = TextureManager.LoadTexture( Path, 6, false ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
-			Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH; Path += "/gui/gui_tiles_1_2.bmp"; Result = TextureManager.LoadTexture( Path, 7, false ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
-			Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH; Path += "/gui/dialog_background_1_2.bmp"; Result = TextureManager.LoadTexture( Path, 8, false ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
-			Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH; Path += "/gui/dialog_voxeltype_1_1.bmp"; Result = TextureManager.LoadTexture( Path, 9, false ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
-			Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH; Path += "/gui/button_1_5.bmp"; Result = TextureManager.LoadTexture( Path, 10, false ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
-			Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH; Path += "/gui/tile_2_2.bmp"; Result = TextureManager.LoadTexture( Path, 11, false ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
-			Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH; Path += "/gui/tile_3_1.bmp"; Result = TextureManager.LoadTexture( Path, 12, false ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
-			Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH; Path += "/gui/contribute_1_1.bmp"; Result = TextureManager.LoadTexture( Path, 13, false ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
+			Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH; Path += "gui/title_1_2.bmp"; Result = TextureManager.LoadTexture( Path, 0 ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
+			Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH; Path += "gui/blackvoxel_title_1_3.bmp"; Result = TextureManager.LoadTexture( Path, 1 ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
+			Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH; Path += "gui/panel_2.bmp"; Result = TextureManager.LoadTexture( Path, 2 ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
+			Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH; Path += "gui/font_1_1.bmp"; Result = TextureManager.LoadTexture( Path, 3, false ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
+			Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH; Path += "gui/title_1_2.bmp"; Result = TextureManager.LoadTexture( Path, 4, false ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
+			Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH; Path += "gui/tile_1_1.bmp"; Result = TextureManager.LoadTexture( Path, 5, false ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
+			Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH; Path += "gui/tile_2_1.bmp"; Result = TextureManager.LoadTexture( Path, 6, false ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
+			Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH; Path += "gui/gui_tiles_1_2.bmp"; Result = TextureManager.LoadTexture( Path, 7, false ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
+			Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH; Path += "gui/dialog_background_1_2.bmp"; Result = TextureManager.LoadTexture( Path, 8, false ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
+			Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH; Path += "gui/dialog_voxeltype_1_1.bmp"; Result = TextureManager.LoadTexture( Path, 9, false ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
+			Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH; Path += "gui/button_1_5.bmp"; Result = TextureManager.LoadTexture( Path, 10, false ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
+			Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH; Path += "gui/tile_2_2.bmp"; Result = TextureManager.LoadTexture( Path, 11, false ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
+			Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH; Path += "gui/tile_3_1.bmp"; Result = TextureManager.LoadTexture( Path, 12, false ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
+			Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH; Path += "gui/contribute_1_1.bmp"; Result = TextureManager.LoadTexture( Path, 13, false ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
 
 			Initialized_TextureManager = true;
 			Log.log( "Ended Ok : Texture Manager Init" );

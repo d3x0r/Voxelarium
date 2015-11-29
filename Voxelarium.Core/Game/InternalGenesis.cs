@@ -2262,36 +2262,36 @@ namespace Voxelarium.Core.Voxels
 			MiscDirectory = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH + "/Misc";
 
 			FileName = MiscDirectory + "/tmplt_1.dat";
-			if( ( Template_1 = Display.LoadBitmap( FileName ) ) == null ) return false;
+			if( ( Template_1 = Display.LoadBitmap( 0, FileName ) ) == null ) return false;
 			Canva_1.SetSize( 256, 256 );
 			Canva_1.GetFromBitmap( Template_1 );
 			start_percent = ( ++start_step * 100 ) / start_steps;
 
 			FileName = MiscDirectory + "/tmplt_2.dat";
-			if( ( Template_2 = Display.LoadBitmap( FileName ) ) == null ) return false;
+			if( ( Template_2 = Display.LoadBitmap( 0, FileName ) ) == null ) return false;
 			Canva_2.SetSize( 256, 256 );
 			Canva_2.GetFromBitmap( Template_2 );
 			start_percent = ( ++start_step * 100 ) / start_steps;
 
 			FileName = MiscDirectory + "/tmplt_3_1.dat";
-			if( ( Template_3_1 = Display.LoadBitmap( FileName ) ) == null ) return false;
+			if( ( Template_3_1 = Display.LoadBitmap( 0, FileName ) ) == null ) return false;
 			Canva_3_1.SetSize( 1024, 1024 );
 			Canva_3_1.GetFromBitmap( Template_3_1 );
 
 			start_percent = ( ++start_step * 100 ) / start_steps;
 			FileName = MiscDirectory + "/tmplt_3_2.dat";
-			if( ( Template_3_2 = Display.LoadBitmap( FileName ) ) == null ) return false;
+			if( ( Template_3_2 = Display.LoadBitmap( 0, FileName ) ) == null ) return false;
 			Canva_3_2.SetSize( 1024, 1024 );
 			Canva_3_2.GetFromBitmap( Template_3_2, true, 1 ); // r=2 b=0 g=1
 			start_percent = ( ++start_step * 100 ) / start_steps;
 
 			FileName = MiscDirectory + "/tmplt_3_3.dat";
-			if( ( Template_3_3 = Display.LoadBitmap( FileName ) ) == null ) return false;
+			if( ( Template_3_3 = Display.LoadBitmap( 0, FileName ) ) == null ) return false;
 			Canva_3_3.SetSize( 1024, 1024 );
 			Canva_3_3.GetFromBitmap( Template_3_3, true, 0 );
 			start_percent = ( ++start_step * 100 ) / start_steps;
 
-			FileName = MiscDirectory + "/sect_1.dat";
+			FileName = MiscDirectory + "/sect_1f.dat";
 			T3dTemplate_1.SetNotStandardSize();
 			T3dTemplate_1.SetVoxelTypeManager( voxelTypeManager );
 			T3dTemplate_1.Load( 0, FileName );

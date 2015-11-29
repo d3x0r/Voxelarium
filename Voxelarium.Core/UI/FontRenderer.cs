@@ -16,6 +16,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+using Voxelarium.Common;
+
+
 #if !USE_GLES2
 using OpenTK.Graphics.OpenGL;
 using System.Drawing.Imaging;
@@ -81,7 +84,8 @@ namespace Voxelarium.Core.UI
 					// if (i & 1) glTexParameteri(GL_TEXTURE_2D, 0x84FE /*TEXTURE_MAX_ANISOTROPY_EXT*/, 8);
 					//GL.TexParameterI( TextureTarget.Texture2D, TextureParameterName. 0x84FE /*TEXTURE_MAX_ANISOTROPY_EXT*/, 8 );
 #if USE_GLES2
-					Android.Opengl.GLUtils.TexImage2D( 0, 0, fontmap, 0 );
+					Log.log( "0 Generate texture {0} {1} {2}", _OpenGl_TextureRef, All.Texture2D, TextureTarget.Texture2D );
+					Android.Opengl.GLUtils.TexImage2D( (int)TextureTarget.Texture2D, 0, fontmap, 0 );
 #else
 					BitmapData data = fontmap.LockBits(
 						fontrect
@@ -198,14 +202,15 @@ namespace Voxelarium.Core.UI
 		public FontRenderer( string font, int width, int height )
 		{
 			string tmp;
-			if( File.Exists( font ) )
-				ttf = new TrueTypeFont( font );
-			else if( File.Exists( tmp = ("c:/windows/fonts/" + font) ) )
-				ttf = new TrueTypeFont( tmp );
-			else if( File.Exists( tmp = ("Content/fonts/" + font) ) )
-				ttf = new TrueTypeFont( tmp );
-			else if( File.Exists( tmp = ( "/usr/share/fonts/TTF/" + font ) ) )
-				ttf = new TrueTypeFont( tmp );
+			int location;
+			if( Display.FileExists( font, out location ) )
+				ttf = new TrueTypeFont( Display.FileReadAllBytes( location, font ), 0 );
+			else if( Display.FileExists( tmp = ("c:/windows/fonts/" + font), out location ) )
+				ttf = new TrueTypeFont( Display.FileReadAllBytes( location, tmp ), 0 );
+			else if( Display.FileExists( tmp = ("Content/fonts/" + font), out location ) )
+				ttf = new TrueTypeFont( Display.FileReadAllBytes( location, tmp ), 0 );
+			else if( Display.FileExists( tmp = ( "/usr/share/fonts/TTF/" + font ), out location ) )
+				ttf = new TrueTypeFont( Display.FileReadAllBytes( location, tmp ), 0 );
 			else
 				throw new Exception( "Font not found:" + font );
 			scalex = ttf.GetScaleForPixelHeight( width );

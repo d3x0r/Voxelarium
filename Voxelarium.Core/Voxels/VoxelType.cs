@@ -94,7 +94,7 @@ namespace Voxelarium.Core.Voxels
 				if( properties.Type < 32768 )
 				{
 					FileName = "voxeltexture_" + properties.Type + ( attempt == 1 ? ".bmp" : ".png" );
-					FileSpec = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH + "/VoxelTypes/" + FileName;
+					FileSpec = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH + "VoxelTypes/" + FileName;
 				}
 				else
 				{
@@ -106,8 +106,9 @@ namespace Voxelarium.Core.Voxels
 
 				//  if (VoxelType<32768) sprintf(Buffer, "VoxelTypes/voxeltexture_%u.bmp", VoxelType);
 				//  else                 sprintf(Buffer, "UserTextures/voxeltexture_%u.bmp", VoxelType-32767);
-				if( File.Exists( FileSpec ) )
-					image = Display.LoadBitmap( FileSpec );
+				int location;
+				if( Display.FileExists( FileSpec, out location ) )
+					image = Display.LoadBitmap( location, FileSpec );
 				if( image != null )
 					break;
 			}

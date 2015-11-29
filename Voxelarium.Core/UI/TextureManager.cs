@@ -69,7 +69,8 @@ namespace Voxelarium.Core.UI
 						// if (i & 1) glTexParameteri(GL_TEXTURE_2D, 0x84FE /*TEXTURE_MAX_ANISOTROPY_EXT*/, 8);
 						//GL.TexParameterI( TextureTarget.Texture2D, TextureParameterName. 0x84FE /*TEXTURE_MAX_ANISOTROPY_EXT*/, 8 );
 #if USE_GLES2
-						Android.Opengl.GLUtils.TexImage2D( 0, 0, Texture, 0 );
+						Log.log( "Generate texture {0} {1} {2}", _OpenGl_TextureRef, All.Texture2D, TextureTarget.Texture2D );
+						Android.Opengl.GLUtils.TexImage2D( (int)TextureTarget.Texture2D, 0, Texture, 0 );
 #else
 						BitmapData data = Texture.LockBits(
 							new Rectangle( 0, 0, Texture.Width, Texture.Height )
@@ -138,7 +139,7 @@ namespace Voxelarium.Core.UI
 			try
 			{
 				Texture.FileName = FileSpec;
-				NewImage = Display.LoadBitmap( FileSpec );
+				NewImage = Display.LoadBitmap( 0, FileSpec );
 			}
 			catch( Exception e )
 			{

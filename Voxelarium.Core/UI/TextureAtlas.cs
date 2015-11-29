@@ -64,7 +64,8 @@ namespace Voxelarium.Core.UI
 					// if (i & 1) glTexParameteri(GL_TEXTURE_2D, 0x84FE /*TEXTURE_MAX_ANISOTROPY_EXT*/, 8);
 					//GL.TexParameterI( TextureTarget.Texture2D, TextureParameterName. 0x84FE /*TEXTURE_MAX_ANISOTROPY_EXT*/, 8 );
 #if USE_GLES2
-					Android.Opengl.GLUtils.TexImage2D( 0, 0, atlas, 0 );
+					Log.log( " 2 Generate texture {0} {1} {2}", _OpenGl_TextureRef, All.Texture2D, TextureTarget.Texture2D );
+					Android.Opengl.GLUtils.TexImage2D( (int)TextureTarget.Texture2D, 0, atlas, 0 );
 #else
 					BitmapData data = atlas.LockBits(
 						new Rectangle( 0, 0, atlas.Width, atlas.Height )

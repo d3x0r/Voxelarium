@@ -41,7 +41,10 @@ namespace Voxelarium.Common
 			}
 			catch( Exception e )
 			{
-				Log.log( "Error loading setitngs: " + e.Message );
+				if( Log.initialized )
+					Log.log( "Error loading settings: " + e.Message );
+				else
+					Console.WriteLine( "Error loading settings: " + e.Message );
 			}
 		}
 

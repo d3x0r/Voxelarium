@@ -34,7 +34,11 @@ namespace Voxelarium.Core.Voxels
 		public const string COMPILEOPTION_VERSIONSTRING = "git-????";
 		public const bool COMPILEOPTION_USEHOMEDIRSTORAGE = false;
 		public const string COMPILEOPTION_SAVEFOLDERNAME = "Voxelarium";
-		public const string COMPILEOPTION_DATAFILESPATH = "./Content"; // "/usr/share/Voxelarium"
+#if BUILD_ANDROID
+		public const string COMPILEOPTION_DATAFILESPATH = ""; // "/usr/share/Voxelarium"
+#else
+		public const string COMPILEOPTION_DATAFILESPATH = "./Content/"; // "/usr/share/Voxelarium"
+#endif
 
 		public const bool COMPILEOPTION_ALLOWSTARTINGSTORAGE = false; // Allow starting storage to be present. Never introduced in the game.
 		public const bool COMPILEOPTION_ALLOWJUMPANDBUILD = true; // Jump and build allow building when floating in the air (Like when jumping).

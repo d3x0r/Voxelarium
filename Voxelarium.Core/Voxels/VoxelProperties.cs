@@ -1,8 +1,4 @@
 ﻿/*
- * Before porting, this header appeared inmost sources.  Of course
- * the change from C++ to C# required significant changes an no part
- * is entirely original.
- * 
  * This file is part of Voxelarium. Split properties from VoxelSectorType
  *
  * Copyright 2015-2016 James Buckeyne  *** Added 11/22/2015
@@ -26,6 +22,7 @@ using System.Drawing;
 using System.IO;
 using Voxelarium.Core.Types;
 using Voxelarium.Core.Voxels.Types;
+using Voxelarium.Core.UI;
 
 namespace Voxelarium.Core.Voxels
 {
@@ -179,7 +176,7 @@ namespace Voxelarium.Core.Voxels
 			string FileName;
 			if( Type < 32768 )
 			{
-				FileName = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH + "/VoxelTypes/voxelinfo/" + String.Format( "voxelinfo_" + (ulong)Type + ".txt" );
+				FileName = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH + "VoxelTypes/voxelinfo/" + String.Format( "voxelinfo_" + (ulong)Type + ".txt" );
 			}
 			else
 			{
@@ -187,10 +184,10 @@ namespace Voxelarium.Core.Voxels
 					+ "/" + VoxelGlobalSettings.COMPILEOPTION_SAVEFOLDERNAME
 					+ "/VoxelTypes/voxelinfo/" + String.Format( "voxelinfo_" + (ulong)Type + ".txt" );
 			}
-
-			if( File.Exists( FileName ) )
+			int location;
+			if( Display.FileExists( FileName, out location ) )
 			{
-				using( sr = File.OpenText( FileName ) )
+				using( sr = Display.FileOpenText( location, FileName ) )
 				{
 					string input;
 					while( ( input = sr.ReadLine() ) != null )

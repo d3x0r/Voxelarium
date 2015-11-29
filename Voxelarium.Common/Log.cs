@@ -36,6 +36,7 @@ namespace Voxelarium.Common
 		public static string ApplicationName;
 		static FileStream fs;
 		static StreamWriter sw;
+		internal static bool initialized;
 		static void BackupFile( String source, int namelen, int n )
 		{
 			String backup;
@@ -90,7 +91,8 @@ namespace Voxelarium.Common
 			LogToConsole = true || Settings.Read( "Log to debug console", 0 ) != 0;
 			LogToFile = false || Settings.Read( "Log to debug file", 1 ) != 0;
 			LogTimeDelta = ( Settings.Read( "Log Time Delta", 1 ) != 0 );
-		}
+			initialized = true;
+        }
 		static DateTime then;
 
 		static bool LogToConsole = true;
@@ -101,9 +103,13 @@ namespace Voxelarium.Common
 		{
 			String time = "";
 			String file = sf.GetFileName();
+			if( file == null )
+				file = "";
 			//if( file != null )
 			//file = file.Substring( file.LastIndexOf( "\\" ) + 1 );
+#if !BUILD_ANDROID
 			if( LogToFile )
+			{
 				lock ( sw )
 				{
 					if( LogTimeDelta )
@@ -124,6 +130,7 @@ namespace Voxelarium.Common
 				}
 
 			if( LogToConsole )
+#endif
 			{
 				System.Diagnostics.Debug.WriteLine(
 					 //Console.WriteLine( //"{0}{1}"

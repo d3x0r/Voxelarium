@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="Voxelarium.Android" android:versionCode="1" android:versionName="1.0">
-	<uses-sdk />
+	<uses-sdk android:minSdkVersion="20" android:targetSdkVersion="20" />
 	<application android:label="Voxelarium.Android" android:icon="@drawable/Icon"></application>
+	<uses-permission android:name="android.permission.INTERNET" />
 </manifest>
