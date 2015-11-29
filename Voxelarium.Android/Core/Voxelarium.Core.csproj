@@ -1,0 +1,183 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{D8E76CD6-817D-4B50-B1C8-ABA10886FB68}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Voxelarium.Core</RootNamespace>
+    <AssemblyName>Voxelarium.Core</AssemblyName>
+    <TargetFrameworkVersion>v4.4.87</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;USE_MONO_CSHARP;USE_GLES2;USE_GLES2_OLD;BUILD_ANDROID</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Prefer32Bit>false</Prefer32Bit>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;USE_MONO_CSHARP;USE_GLES2;USE_GLES2_OLD;BUILD_ANDROID</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Mono.Android" />
+    <Reference Include="Mono.CSharp" />
+    <Reference Include="OpenTK-1.0" />
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\Voxelarium.Core\Game\GameWindows\GameWindow_Inventory.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Game\GameWindows\Controls\InventoryBox.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Game\Inventory.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Networking\ClientConnection.cs" />
+    <Compile Include="..\..\Voxelarium.Core\NeuralNetwork\Brain.cs" />
+    <Compile Include="..\..\Voxelarium.Core\NeuralNetwork\NeuronLogics\FlipFlop.cs" />
+    <Compile Include="..\..\Voxelarium.Core\NeuralNetwork\NeuronLogics\LevelLock.cs" />
+    <Compile Include="..\..\Voxelarium.Core\NeuralNetwork\NeuronLogics\Oscillator.cs" />
+    <Compile Include="..\..\Voxelarium.Core\NeuralNetwork\Neuron\Neuron.cs" />
+    <Compile Include="..\..\Voxelarium.Core\NeuralNetwork\Neuron\NeuronPool.cs" />
+    <Compile Include="..\..\Voxelarium.Core\NeuralNetwork\Synapse\Synapse.cs" />
+    <Compile Include="..\..\Voxelarium.Core\NeuralNetwork\Synapse\SynapsePool.cs" />
+    <Compile Include="..\..\Voxelarium.Core\NeuralNetwork\Types\Creatable.cs" />
+    <Compile Include="..\..\Voxelarium.Core\NeuralNetwork\Types\GenericSet.cs" />
+    <Compile Include="..\..\Voxelarium.Core\NeuralNetwork\Types\GenericSlab.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Game\Actor.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Game\GameWindows\GameWindow_Advertising.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Game\Game_Events.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Game\InternalGenesis.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Game\Screens\ScreenLoading.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Game\Screens\ScreenMain.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Game\Screens\ScreenSlotSelect.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Game\Settings_Hardware.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Game\VoxelGameEngine.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Game\VoxelGameEnvironment.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Types\FastRandom.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Types\LightSpeedRandom.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Types\Random_LFSR.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Types\SaltyRandomGenerator.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Math\Transform.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Support\HighPerfTimer.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Types\XColor.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Types\XString.cs" />
+    <Compile Include="..\..\Voxelarium.Core\UI\Controls\ProgressBar.cs" />
+    <Compile Include="..\..\Voxelarium.Core\UI\Display.cs" />
+    <Compile Include="..\..\Voxelarium.Core\UI\EventConsumer.cs" />
+    <Compile Include="..\..\Voxelarium.Core\UI\EventManager.cs" />
+    <Compile Include="..\..\Voxelarium.Core\UI\Controls\FontFrame.cs" />
+    <Compile Include="..\..\Voxelarium.Core\UI\Controls\Frame.cs" />
+    <Compile Include="..\..\Voxelarium.Core\UI\FontRenderer.cs" />
+    <Compile Include="..\..\Voxelarium.Core\UI\GraphicUserManager.cs" />
+    <Compile Include="..\..\Voxelarium.Core\UI\Shaders\FXAAShader.cs" />
+    <Compile Include="..\..\Voxelarium.Core\UI\Shaders\SimpleInstanceShader.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Voxels\IO\FileSectorLoader.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Voxels\IO\NetworkSectorLoader.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Voxels\IO\SectorLoader.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Voxels\IO\SectorRequestRingList.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Voxels\IO\SectorTagHash.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Voxels\Physics\BEPU.VoxelBlob.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Voxels\Physics\BEPU.VoxelGrid.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Voxels\Physics\BEPUDebugDrawer.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Voxels\Types\GenericCanvas.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Voxels\Types\GenericCharCanvas.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Voxels\Types\InclusionProbabilizer.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Voxels\Types\LinearInterpolator.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Voxels\Types\SortingTree.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Voxels\UI\Camera.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Voxels\UI\Radius_Zoning.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Voxels\UI\RenderInterface.cs" />
+    <Compile Include="..\..\Voxelarium.Core\UI\Screen.cs" />
+    <Compile Include="..\..\Voxelarium.Core\UI\Shaders\Shader.cs" />
+    <Compile Include="..\..\Voxelarium.Core\UI\Shaders\EdgeShader.cs" />
+    <Compile Include="..\..\Voxelarium.Core\UI\Shaders\SimpleGuiShader.cs" />
+    <Compile Include="..\..\Voxelarium.Core\UI\Shaders\SimpleShader.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Math\Matrix3x3.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Math\Quaternion.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Math\Scalar.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Math\Vector3.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Voxels\Physics\Physics.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Support\Settings.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Support\Compiler.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Properties\AssemblyInfo.cs" />
+    <Compile Include="..\..\Voxelarium.Core\UI\Shaders\SimpleGuiTextureShader.cs" />
+    <Compile Include="..\..\Voxelarium.Core\UI\Shaders\SimpleTextureShader.cs" />
+    <Compile Include="..\..\Voxelarium.Core\UI\Shaders\VoxelGeometryShader.cs" />
+    <Compile Include="..\..\Voxelarium.Core\UI\Sound.cs" />
+    <Compile Include="..\..\Voxelarium.Core\UI\TextureAtlas.cs" />
+    <Compile Include="..\..\Voxelarium.Core\UI\TextureManager.cs" />
+    <Compile Include="..\..\Voxelarium.Core\UI\TileSet.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Voxels\EventSequencer.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Voxels\FabMachineInfo.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Game\GameStats.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Voxels\SectorModifiedTracker.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Voxels\SectorRingList.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Voxels\SectorSphere.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Voxels\Types\Fastbit_Array_64k.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Voxels\Types\PooledType.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Voxels\Types\VSimpleTypes.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Voxels\Types\VStream.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Voxels\Types\VStreamFile.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Voxels\UI\Render_Basic.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Voxels\UI\Render_Smooth.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Voxels\UI\VoxelCuller.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Voxels\Utils\VoxelGfx_Tree.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Voxels\Utils\VoxelGfx_Tree_Giant.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Voxels\Utils\VoxelGfx_Tree_Straight.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Voxels\VoxelExtension.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Voxels\UI\VoxelGeometry.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Voxels\VoxelGlobalSettings.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Voxels\VoxelProperties.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Voxels\VoxelReactor.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Voxels\VoxelRef.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Voxels\VoxelSector.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Voxels\VoxelType.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Voxels\VoxelTypeManager.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Voxels\VoxelType_Void.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Voxels\VoxelWorld.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Voxels\VoxelWorldProcessor.cs" />
+    <Compile Include="..\..\Voxelarium.Core\Voxels\WorldGenesis.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BEPU\BEPUphysics.csproj">
+      <Project>{c0d52c9f-14b8-4008-8ddc-109c27561a5c}</Project>
+      <Name>BEPUphysics</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ProtoBuf-Minimal\protobuf-net.csproj">
+      <Project>{8374e4d7-2a91-48f1-9360-09b09cf27c3f}</Project>
+      <Name>protobuf-net</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TrueTypeSharp\TrueTypeSharp.csproj">
+      <Project>{b722113f-1252-4be1-9d43-6bc82b3e37d1}</Project>
+      <Name>TrueTypeSharp</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Common\Voxelarium.Common.csproj">
+      <Project>{b7386855-1a65-4b04-b79b-95f49cf7f61a}</Project>
+      <Name>Voxelarium.Common</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

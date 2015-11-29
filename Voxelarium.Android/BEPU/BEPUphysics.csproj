@@ -1,0 +1,538 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{C0D52C9F-14B8-4008-8DDC-109C27561A5C}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>BEPUphysics</RootNamespace>
+    <AssemblyName>BEPUphysics</AssemblyName>
+    <TargetFrameworkVersion>v4.4.87</TargetFrameworkVersion>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>..\..\BEPU\BEPUPhysics\Physics\strongNameKey.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;WINDOWS;ALLOWUNSAFE;CHECKMATH;ALLOW_LAZY_VECTORS</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DocumentationFile>bin\Debug\BEPUphysics.XML</DocumentationFile>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
+    <Prefer32Bit>false</Prefer32Bit>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
+    <Optimize>false</Optimize>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>WINDOWS;ALLOWUNSAFE;ALLOW_LAZY_VECTORS</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DocumentationFile>bin\Release\BEPUphysics.XML</DocumentationFile>
+    <Optimize>true</Optimize>
+    <NoStdLib>false</NoStdLib>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\..\BEPU\BEPUPhysics\IK\ActiveSet.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\IK\AngularPlaneControl.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\IK\Bone.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\IK\Control.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\IK\DragControl.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\IK\IKAngularJoint.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\IK\IKBallSocketJoint.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\IK\IKConstraint.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\IK\IKDistanceJoint.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\IK\IKDistanceLimit.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\IK\IKJoint.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\IK\IKLimit.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\IK\IKLinearAxisLimit.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\IK\IKPointOnLineJoint.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\IK\IKPointOnPlaneJoint.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\IK\IKRevoluteJoint.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\IK\IKSolver.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\IK\IKSwingLimit.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\IK\IKSwivelHingeJoint.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\IK\IKTwistJoint.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\IK\IKTwistLimit.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\IK\RevoluteControl.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\IK\SingleBoneAngularMotor.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\IK\SingleBoneAngularPlaneConstraint.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\IK\SingleBoneConstraint.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\IK\SingleBoneLinearMotor.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\IK\SingleBoneRevoluteConstraint.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\IK\StateControl.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\BroadPhaseSystems\BroadPhase.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\BroadPhaseEntries\BroadPhaseEntry.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\BroadPhaseSystems\BroadPhaseOverlap.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\BroadPhaseSystems\BruteForce.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\BroadPhaseSystems\Hierarchies\DynamicHierarchy.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\BroadPhaseSystems\Hierarchies\DynamicHierarchyNode.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\BroadPhaseSystems\Hierarchies\DynamicHierarchyQueryAccelerator.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\BroadPhaseSystems\IBoundingBoxOwner.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\BroadPhaseSystems\IBroadPhaseEntryOwner.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\BroadPhaseSystems\IQueryAccelerator.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\BroadPhaseSystems\SortAndSweep\Grid2DEntry.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\BroadPhaseSystems\SortAndSweep\Grid2DSortAndSweep.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\BroadPhaseSystems\SortAndSweep\Grid2DSortAndSweepQueryAccelerator.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\BroadPhaseSystems\SortAndSweep\GridCell2D.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\BroadPhaseSystems\SortAndSweep\SortAndSweep1D.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\BroadPhaseSystems\SortAndSweep\SortedGrid2DSet.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\BroadPhaseEntries\StaticGroup.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\BroadPhaseEntries\StaticCollidable.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\BroadPhaseEntries\Events\CompoundEventManager.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\BroadPhaseEntries\Events\IContactEventTriggerer.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\BroadPhaseEntries\Events\IEntryEventTriggerer.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\BroadPhaseEntries\MobileCollidables\CompoundHelper.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\BroadPhaseEntries\MobileCollidables\MobileMeshCollidable.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Character\CharacterContactPositionState.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Character\CharacterController.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Character\CharacterContactCategorizer.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Character\CharacterPairLocker.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Character\HorizontalMotionConstraint.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Character\ICharacterTag.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Character\MovementMode.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Character\QueryManager.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Character\StanceManager.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Character\StepManager.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Character\SupportFinder.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Character\VerticalMotionConstraint.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionRuleManagement\ICollisionRulesOwner.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionShapes\ConvexShapes\ConvexShapeDescription.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionShapes\EntityShapeVolumeDescription.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionShapes\StaticGroupShape.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\BroadPhaseEntries\CollidableCollection.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\BroadPhaseEntries\CollidablePair.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\BroadPhaseEntries\EntityCollidableCollection.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\BroadPhaseEntries\InstancedMesh.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\BroadPhaseEntries\MobileCollidables\CompoundCollidable.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\BroadPhaseEntries\MobileCollidables\CompoundHierarchy.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\BroadPhaseEntries\MobileCollidables\ConvexCollidable.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\BroadPhaseEntries\MobileCollidables\EntityCollidable.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\BroadPhaseEntries\MobileCollidables\TriangleCollidable.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionRuleManagement\CollisionGroup.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionRuleManagement\CollisionGroupPair.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionRuleManagement\CollisionRule.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionRuleManagement\CollisionRules.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionShapes\CollisionShape.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionShapes\CompoundShape.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionShapes\ConvexShapes\BoxShape.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionShapes\ConvexShapes\CapsuleShape.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionShapes\ConvexShapes\ConeShape.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionShapes\ConvexShapes\ConvexHullShape.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionShapes\ConvexShapes\ConvexShape.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionShapes\ConvexShapes\CylinderShape.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionShapes\ConvexShapes\InertiaHelper.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionShapes\ConvexShapes\MinkowskiSumShape.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionShapes\ConvexShapes\SphereShape.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionShapes\ConvexShapes\TransformableShape.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionShapes\ConvexShapes\TriangleShape.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionShapes\ConvexShapes\WrappedShape.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionShapes\EntityShape.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionShapes\InstancedMeshShape.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionShapes\MobileMeshShape.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionShapes\ShapeDistributionInformation.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionShapes\StaticMeshShape.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionShapes\TerrainShape.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionTests\CollisionAlgorithms\BoxBoxCollider.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionTests\CollisionAlgorithms\BoxSphereTester.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionTests\CollisionAlgorithms\GeneralConvexPairTester.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionTests\CollisionAlgorithms\GJK\GJKToolbox.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionTests\CollisionAlgorithms\GJK\PairSimplex.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionTests\CollisionAlgorithms\GJK\RaySimplex.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionTests\CollisionAlgorithms\GJK\SimpleSimplex.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionTests\CollisionAlgorithms\MinkowskiToolbox.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionTests\CollisionAlgorithms\MPRToolbox.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionTests\CollisionAlgorithms\SphereTester.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionTests\CollisionAlgorithms\TriangleConvexPairTester.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionTests\CollisionAlgorithms\TrianglePairTester.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionTests\CollisionAlgorithms\TriangleSpherePairTester.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionTests\CollisionAlgorithms\TriangleTrianglePairTester.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionTests\Contact.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionTests\ContactData.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionTests\ContactReducer.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionTests\ContactRefresher.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionTests\ContactSupplementData.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionTests\Manifolds\BoxContactManifold.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionTests\Manifolds\BoxSphereContactManifold.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionTests\Manifolds\ContactManifold.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionTests\Manifolds\GeneralConvexContactManifold.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionTests\Manifolds\InstancedMeshContactManifold.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionTests\Manifolds\InstancedMeshConvexContactManifold.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionTests\Manifolds\InstancedMeshSphereContactManifold.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionTests\Manifolds\MobileMeshContactManifold.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionTests\Manifolds\MobileMeshConvexContactManifold.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionTests\Manifolds\MobileMeshSphereContactManifold.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionTests\Manifolds\MobileMeshTriangleContactManifold.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionTests\Manifolds\SphereContactManifold.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionTests\Manifolds\StaticMeshContactManifold.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionTests\Manifolds\StaticMeshConvexContactManifold.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionTests\Manifolds\StaticMeshSphereContactManifold.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionTests\Manifolds\TerrainContactManifold.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionTests\Manifolds\TerrainConvexContactManifold.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionTests\Manifolds\TerrainSphereContactManifold.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionTests\Manifolds\TriangleConvexContactManifold.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionTests\Manifolds\TriangleMeshConvexContactManifold.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\CollisionTests\Manifolds\TerrainVertexIndices.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\Collision\ContactFrictionConstraint.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\Collision\ContactManifoldConstraint.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\Collision\ContactManifoldConstraintGroup.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\Collision\ContactPenetrationConstraint.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\Collision\ConvexContactManifoldConstraint.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\Collision\NonConvexContactManifoldConstraint.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\Collision\SlidingFrictionTwoAxis.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\Collision\TwistFrictionConstraint.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\SolverUpdateable.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\IJacobians.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\ISolverSettings.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\ISpringConstraint.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\IXDImpulseConstraint.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\JointTransform.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\SingleEntity\MaximumAngularVelocityConstraint.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\SingleEntity\MaximumLinearVelocityConstraint.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\SingleEntity\SingleEntityAngularMotor.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\SingleEntity\SingleEntityConstraint.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\SingleEntity\SingleEntityLinearMotor.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\SolverGroups\CustomizableSolverGroup.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\SolverGroups\LineSliderJoint.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\SolverGroups\PlaneSliderJoint.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\SolverGroups\PrismaticJoint.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\SolverGroups\RevoluteJoint.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\SolverGroups\SolverGroup.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\SolverGroups\SwivelHingeJoint.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\SolverGroups\UniversalJoint.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\SolverGroups\WeldJoint.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\SolverSettings.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\SpringSettings.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\TwoEntity\JointLimits\DistanceLimit.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\TwoEntity\JointLimits\EllipseSwingLimit.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\TwoEntity\JointLimits\JointLimit.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\TwoEntity\JointLimits\LinearAxisLimit.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\TwoEntity\JointLimits\RevoluteLimit.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\TwoEntity\JointLimits\SwingLimit.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\TwoEntity\JointLimits\TwistLimit.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\TwoEntity\Joints\BallSocketJoint.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\TwoEntity\Joints\DistanceJoint.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\TwoEntity\Joints\Joint.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\TwoEntity\Joints\NoRotationJoint.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\TwoEntity\Joints\PointOnLineJoint.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\TwoEntity\Joints\PointOnPlaneJoint.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\TwoEntity\Joints\RevoluteAngularJoint.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\TwoEntity\Joints\SwivelHingeAngularJoint.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\TwoEntity\Joints\TwistJoint.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\TwoEntity\Motors\AngularMotor.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\TwoEntity\Motors\LinearAxisMotor.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\TwoEntity\Motors\Motor.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\TwoEntity\Motors\MotorSettings.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\TwoEntity\Motors\RevoluteMotor.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\TwoEntity\Motors\TwistMotor.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\TwoEntity\TwoEntityConstraint.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\PhysicsThreadResources.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\DataStructures\BoundingBoxTree.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\DataStructures\MeshBoundingBoxTree.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\DataStructures\MeshBoundingBoxTreeData.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\DataStructures\StaticMeshData.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\DataStructures\TransformableMeshData.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\DataStructures\TreeOverlapPair.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\DataStructures\TriangleMesh.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\DeactivationManagement\DeactivationManager.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\DeactivationManagement\ISimulationIslandConnection.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\DeactivationManagement\ISimulationIslandConnectionOwner.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\DeactivationManagement\ISimulationIslandMemberOwner.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\DeactivationManagement\SimulationIsland.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\DeactivationManagement\SimulationIslandConnection.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\DeactivationManagement\SimulationIslandMember.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\DeactivationManagement\SimulationIslandMemberList.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Entities\Entity.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Entities\EntityBase.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Entities\EntityConstraintCollection.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Entities\EntitySolverUpdateableCollection.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Entities\MorphableEntity.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Entities\Prefabs\Box.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Entities\Prefabs\Capsule.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Entities\Prefabs\CompoundBody.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Entities\Prefabs\Cone.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Entities\Prefabs\ConvexHull.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Entities\Prefabs\Cylinder.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Entities\Prefabs\MinkowskiSum.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Entities\Prefabs\MobileMesh.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Entities\Prefabs\Sphere.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Entities\Prefabs\TransformableEntity.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Entities\Prefabs\Triangle.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Entities\Prefabs\WrappedBody.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\EntityStateManagement\BufferedStatesAccessor.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\EntityStateManagement\BufferedStatesManager.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\EntityStateManagement\EntityBufferedStates.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\EntityStateManagement\EntityStateReadBuffers.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\EntityStateManagement\EntityStateWriteBuffer.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\EntityStateManagement\InterpolatedStatesAccessor.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\EntityStateManagement\InterpolatedStatesManager.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\EntityStateManagement\MotionState.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\ISpaceObject.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Materials\IMaterialOwner.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Materials\InteractionProperties.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Materials\Material.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Materials\MaterialManager.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Materials\MaterialPair.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\MultithreadedProcessingStage.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\NarrowPhase.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\NarrowPhaseHelper.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\NarrowPhasePairFactory.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\BoxPairHandler.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\BoxSpherePairHandler.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\CollidablePairHandler.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\CompoundConvexPairHandler.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\CompoundGroupPairHandler.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\CompoundInstancedMeshPairHandler.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\CompoundMobileMeshPairHandler.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\CompoundPairHandler.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\CompoundStaticMeshPairHandler.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\CompoundTerrainPairHandler.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\ContactCollection.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\ContactInformation.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\ConvexConstraintPairHandler.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\ConvexPairHandler.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\GeneralConvexPairHandler.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\GroupPairHandler.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\InstancedMeshConvexPairHandler.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\InstancedMeshPairHandler.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\InstancedMeshSpherePairHandler.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\IPairHandlerParent.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\DetectorVolumeMobileMeshPairHandler.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\DetectorVolumeCompoundPairHandler.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\DetectorVolumeGroupPairHandler.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\DetectorVolumeConvexPairHandler.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\DetectorVolumePairHandler.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\IDetectorVolumePairHandlerParent.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\StaticGroupCompoundPairHandler.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\StaticGroupMobileMeshPairHandler.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\StaticGroupConvexPairHandler.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\StaticGroupPairHandler.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\MeshGroupPairHandler.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\MobileMeshConvexPairHandler.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\MobileMeshInstancedMeshPairHandler.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\MobileMeshMeshPairHandler.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\MobileMeshMobileMeshPairHandler.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\MobileMeshPairHandler.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\MobileMeshSpherePairHandler.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\MobileMeshStaticMeshPairHandler.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\MobileMeshTerrainPairHandler.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\MobileMeshTrianglePairHandler.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\NarrowPhasePair.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\SpherePairHandler.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\StandardPairHandler.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\StaticMeshConvexPairHandler.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\StaticMeshPairHandler.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\StaticMeshSpherePairHandler.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\TerrainConvexPairHandler.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\TerrainPairHandler.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\TerrainSpherePairHandler.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\BroadPhaseEntries\Events\ContactEventManager.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\BroadPhaseEntries\Events\EntryEventManager.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\BroadPhaseEntries\Terrain.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\NarrowPhaseSystems\Pairs\TriangleConvexPairHandler.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\OtherSpaceStages\BoundingBoxUpdater.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\OtherSpaceStages\DeferredEventDispatcher.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\OtherSpaceStages\ForceUpdater.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\OtherSpaceStages\IDeferredEventCreator.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\OtherSpaceStages\IDeferredEventCreatorOwner.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\BroadPhaseEntries\MobileCollidables\MobileCollidable.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\BroadPhaseEntries\Events\CollisionEventTypes.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\BroadPhaseEntries\DetectorVolume.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\PhysicsChecker.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Character\SphereCharacterController.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\UpdateableSystems\CombinedUpdateable.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\UpdateableSystems\ForceFields\BoundingSphereForceFieldShape.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Vehicle\CylinderCastWheelShape.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Vehicle\WheelFrictionBlender.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\OtherSpaceStages\IForceUpdateable.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\OtherSpaceStages\SpaceObjectBuffer.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\BroadPhaseEntries\Collidable.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Paths\CardinalSpline3D.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Paths\ConstantAngularSpeedCurve.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Paths\ConstantLinearSpeedCurve.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Paths\ConstantSpeedCurve.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Paths\Curve.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Paths\CurveControlPoint.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Paths\CurveControlPointList.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Paths\CurveEndpointBehavior.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Paths\FiniteDifferenceSpline3D.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Paths\HermiteCurve3D.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Paths\LinearInterpolationCurve3D.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Paths\Path following\EntityMover.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Paths\Path following\EntityRotator.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Paths\Path.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Paths\QuaternionSlerpCurve.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Paths\SpeedControlledCurve.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Paths\StepCurve1D.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Paths\VariableAngularSpeedCurve.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Paths\VariableLinearSpeedCurve.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Paths\VariableSpeedCurve.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\PositionUpdating\ContinuousPositionUpdater.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\PositionUpdating\ICCDPositionUpdateable.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\PositionUpdating\IPositionUpdateable.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\PositionUpdating\PositionUpdater.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\ProcessingStage.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\RayCastResult.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\PhysicsResources.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Settings\CollisionDetectionSettings.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Settings\CollisionResponseSettings.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Settings\MotionSettings.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\Solver.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Constraints\SolverUpdateableChange.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Space.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\BroadPhaseEntries\StaticMesh.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\TimeStepSettings.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\UpdateableSystems\FluidVolume.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\UpdateableSystems\ForceFields\BoundingBoxForceFieldShape.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\UpdateableSystems\ForceFields\ForceField.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\UpdateableSystems\ForceFields\ForceFieldShape.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\UpdateableSystems\ForceFields\InfiniteForceFieldShape.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\UpdateableSystems\ForceFields\VolumeForceFieldShape.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\UpdateableSystems\IBeforeNarrowPhaseUpdateable.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\UpdateableSystems\IBeforePositionUpdateUpdateable.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\UpdateableSystems\IBeforeSolverUpdateable.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\UpdateableSystems\IDuringForcesUpdateable.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\UpdateableSystems\IEndOfFrameUpdateable.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\UpdateableSystems\IEndOfTimeStepUpdateable.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\UpdateableSystems\ISpaceUpdateable.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\UpdateableSystems\Updateable.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\UpdateableSystems\UpdateableManager.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\UpdateableSystems\UpdateableManagers.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Vehicle\RaycastWheelShape.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Vehicle\Vehicle.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Vehicle\Wheel.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Vehicle\WheelBrake.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Vehicle\WheelDrivingMotor.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Vehicle\WheelShape.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Vehicle\WheelSlidingFriction.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Physics\Vehicle\WheelSuspension.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\AffineTransform.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\BoundingBox.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\BoundingSphere.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\ContainmentType.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\ConvexHullHelper.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\ConvexHullHelper.Pruning.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\DataStructures\ConcurrentDeque.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\DataStructures\ObservableDictionary.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\DataStructures\ObservableList.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\DataStructures\QuickDictionary.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\DataStructures\QuickList.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\DataStructures\QuickQueue.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\DataStructures\QuickSet.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\DataStructures\RawList.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\DataStructures\RawValueList.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\DataStructures\ReadOnlyDictionary.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\DataStructures\ReadOnlyEnumerable.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\DataStructures\ReadOnlyList.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\DataStructures\TinyList.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\DataStructures\TinyStructList.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\Int2.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\MathChecker.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\MathHelper.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\Matrix.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\Matrix2x2.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\Matrix2x3.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\Matrix3x2.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\Matrix3x3.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\PermutationMapper.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\Plane.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\Quaternion.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\Ray.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\RayHit.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\ResourceManagement\BufferPool.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\ResourceManagement\BufferPools.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\ResourceManagement\CommonResources.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\ResourceManagement\LockingBufferPool.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\ResourceManagement\LockingResourcePool.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\ResourceManagement\ResourcePool.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\ResourceManagement\UnsafeResourcePool.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\RigidTransform.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\SpinLock.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\Threading\IParallelLooper.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\Threading\ParallelLooper.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\Threading\ParallelLoopWorker.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\Toolbox.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\TriangleSidedness.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\Vector2.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\Vector3.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\Vector4.cs" />
+    <Compile Include="..\..\BEPU\BEPUPhysics\Utilities\VoronoiRegion.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\BEPU\BEPUPhysics\Physics\strongNameKey.snk" />
+    <None Include="..\..\BEPU\BEPUPhysics\Utilities\strongNameKey.snk" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.0,Profile=Client">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4 Client Profile %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

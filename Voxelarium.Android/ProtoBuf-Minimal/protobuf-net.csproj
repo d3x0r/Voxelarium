@@ -1,0 +1,195 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{8374E4D7-2A91-48F1-9360-09B09CF27C3F}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ProtoBuf</RootNamespace>
+    <AssemblyName>protobuf-net</AssemblyName>
+    <TargetFrameworkVersion>v4.4.87</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <StartupObject>
+    </StartupObject>
+    <SignAssembly>true</SignAssembly>
+    <ApplicationIcon>
+    </ApplicationIcon>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation />
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' != 'Profile'">
+    <AssemblyOriginatorKeyFile>../../ProtoBuf-Minimal/ProtoBuf.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;FEAT_COMPILER PLAT_BINARYFORMATTER PLAT_XMLSERIALIZER</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DocumentationFile>bin\Debug\protobuf-net.xml</DocumentationFile>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <LangVersion>ISO-2</LangVersion>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;FEAT_COMPILER PLAT_BINARYFORMATTER PLAT_XMLSERIALIZER</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <DocumentationFile>bin\Release\protobuf-net.xml</DocumentationFile>
+    <DebugSymbols>true</DebugSymbols>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <LangVersion>ISO-2</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Runtime.Serialization"/>
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\ProtoBuf-Minimal\BclHelpers.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\BufferExtension.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\BufferPool.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\CallbackAttributes.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Compiler\CompilerDelegates.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Compiler\CompilerContext.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Compiler\Local.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\ProtoConverterAttribute.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\DataFormat.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="..\..\ProtoBuf-Minimal\Extensible.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\ExtensibleUtil.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\GlobalSuppressions.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Helpers.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\IExtensible.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\IExtension.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\ImplicitFields.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\KeyValuePairProxy.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Meta\AttributeMap.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Meta\BasicList.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Meta\CallbackSet.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Meta\MetaType.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Meta\RuntimeTypeModel.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Meta\SubType.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Meta\TypeFormatEventArgs.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Meta\TypeModel.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Meta\ValueMember.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\NetObjectCache.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\PrefixStyle.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Properties\AssemblyInfo.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\ProtoContractAttribute.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\ProtoEnumAttribute.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\ProtoException.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\ProtoIgnoreAttribute.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\ProtoIncludeAttribute.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\ProtoMemberAttribute.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\ProtoReader.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\ProtoWriter.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\SerializationContext.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Serializer.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Serializers\BlobSerializer.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Serializers\CharSerializer.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Serializers\CompiledSerializer.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Serializers\BooleanSerializer.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Serializers\ArrayDecorator.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Serializers\ByteSerializer.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Serializers\ImmutableCollectionDecorator.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Serializers\NullDecorator.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Serializers\ParseableSerializer.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Serializers\KeyValuePairDecorator.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Serializers\ListDecorator.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Serializers\NetObjectSerializer.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Serializers\SByteSerializer.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Serializers\MemberSpecifiedDecorator.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Serializers\SystemTypeSerializer.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Serializers\TupleSerializer.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Serializers\ReflectedUriDecorator.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Serializers\UriDecorator.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Serializers\EnumSerializer.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Serializers\DefaultValueDecorator.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Serializers\GuidSerializer.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Serializers\IProtoTypeSerializer.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Serializers\ISerializerProxy.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Serializers\SurrogateSerializer.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Serializers\UInt16Serializer.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Serializers\Int16Serializer.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Serializers\DecimalSerializer.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Serializers\TimeSpanSerializer.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Serializers\DateTimeSerializer.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Serializers\UInt32Serializer.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Serializers\UInt64Serializer.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Serializers\Int64Serializer.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Serializers\DoubleSerializer.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Serializers\SingleSerializer.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Serializers\FieldDecorator.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Serializers\Int32Serializer.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Serializers\IProtoSerializer.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Serializers\PropertyDecorator.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Serializers\ProtoDecoratorBase.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Serializers\StringSerializer.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Serializers\SubItemSerializer.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Serializers\TagDecorator.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\Serializers\TypeSerializer.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\ServiceModel\ProtoBehaviorAttribute.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\ServiceModel\ProtoBehaviorExtensionElement.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\ServiceModel\ProtoEndpointBehavior.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\ServiceModel\ProtoOperationBehavior.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\ServiceModel\XmlProtoSerializer.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\SubItemToken.cs" />
+    <Compile Include="..\..\ProtoBuf-Minimal\WireType.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{3259AA49-8AA1-44D3-9025-A0B520596A8C}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\..\ProtoBuf-Minimal\..\Licence.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\ProtoBuf-Minimal\Web\TODO.txt" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <!--  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <PostBuildEvent>@%25SystemRoot%25\Microsoft.NET\Framework\v2.0.50727\MSBuild "$(ProjectPath)" /t:Rebuild /p:Configuration=Net20 /v:n</PostBuildEvent>
+  </PropertyGroup>-->
+</Project>
