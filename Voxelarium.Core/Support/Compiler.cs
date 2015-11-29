@@ -16,14 +16,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#define USE_EXTERNAL_COMPILER
+#if !USE_MONO_CSHARP
+//#define USE_EXTERNAL_COMPILER
+#endif
 using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Text;
+#if !BUILD_ANDROID
 using System.Windows.Forms;
+#endif
 using Voxelarium.Common;
 using Voxelarium.Core.Voxels;
 using Voxelarium.Core.Voxels.Types;
@@ -70,7 +74,7 @@ namespace Voxelarium.Core.Support
 			if( File.Exists( FileName ) )
 			{
 				string code = File.ReadAllText( FileName );
-				Assembly a = CompileCode( code, FileName, new string[] { "System.Drawing.dll" } );
+				Assembly a = CompileCode( "IWorldGenesis", code, FileName, new string[] { "System.Drawing.dll" } );
 				if( a != null )
 				{
 					Type[] types = a.GetTypes();
@@ -88,7 +92,7 @@ namespace Voxelarium.Core.Support
 		}
 
 
-		static Assembly CompileCode( string code, string filename, string[] extra )
+		static Assembly CompileCode( string classname, string code, string filename, string[] extra )
 		{
 #if USE_ROSLYN_COMPILATION
 					Microsoft.CodeAnalysis.
@@ -111,7 +115,6 @@ namespace Voxelarium.Core.Support
 				}
 #endif
 #if USE_MONO_CSHARP
-				if( props.VoxelClassName != null )
 				{
 					if( sw == null )
 						sw = new StringWriter();
@@ -136,20 +139,11 @@ namespace Voxelarium.Core.Support
 					s = sw.ToString();
 					if( !s.Contains( "error" ) )
 					{
-						Assembly asm = ( (Type)e.Evaluate( "typeof(" + props.VoxelClassName + ");" ) ).Assembly;
+						Assembly asm = ( (Type)e.Evaluate( "typeof(" + classname + ");" ) ).Assembly;
 						Log.log( "got types   " + ( DateTime.Now.Ticks - now ) );
-						Type[] types = asm.GetTypes();
-						loaded_objects.Add( type, asm );
-						foreach( Type t in types )
-						{
-							if( t.BaseType.Name == "VoxelType" )
-							{
-								object o = Activator.CreateInstance( t );
-								return o as VoxelType;
-							}
-						}
-					}
-					else
+						return asm;
+				}
+				else
 						Log.log( "Compile Failure: " + s );
 				}
 #endif
@@ -208,7 +202,7 @@ namespace Voxelarium.Core.Support
 			return null;
 		}
 
-		internal static bool LoadVoxelCode( int type )
+		internal static bool LoadVoxelCode( VoxelProperties props, int type )
 		{
 			string FileName;
 			if( type < 32768 )
@@ -224,7 +218,7 @@ namespace Voxelarium.Core.Support
 			if( false && File.Exists( FileName ) )
 			{
 				string code = File.ReadAllText( FileName );
-				Assembly a = CompileCode( code, FileName, null );
+				Assembly a = CompileCode( props.VoxelClassName, code, FileName, null );
 				if( a != null && AllowAssembly( a ) )
 				{
 					loaded_objects.Add( type, a );
@@ -234,11 +228,11 @@ namespace Voxelarium.Core.Support
 			return false;
 		}
 
-		internal static VoxelExtension LoadExtendedVoxelExtension( int type )
+		internal static VoxelExtension LoadExtendedVoxelExtension( VoxelProperties props, int type )
 		{
 			Assembly a = loaded_objects[type];
 			if( a == null )
-				if( LoadVoxelCode( type ) )
+				if( LoadVoxelCode( props, type ) )
 					a = loaded_objects[type];
 
 			if( a != null )
@@ -257,11 +251,11 @@ namespace Voxelarium.Core.Support
 		}
 
 
-		internal static VoxelType LoadExtendedVoxelType( int type )
+		internal static VoxelType LoadExtendedVoxelType( VoxelProperties props, int type )
 		{
 			Assembly a = loaded_objects[type];
 			if( a == null )
-				if( LoadVoxelCode( type ) )
+				if( LoadVoxelCode( props, type ) )
 					a = loaded_objects[type];
 
 			if( a != null )

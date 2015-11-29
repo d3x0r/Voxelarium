@@ -30,7 +30,7 @@ using OpenTK;
 using OpenTK.Input;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+
 using System.Text;
 using Voxelarium.Core.UI;
 using Voxelarium.Core.Voxels;
@@ -212,14 +212,14 @@ namespace Voxelarium.Core.Game.GameWindows
 					if( nButton == 3 )
 					{
 						int TransfertQuantity = 1;
-						if( render.Keyboard[ Key.ShiftLeft] ||
-							render.Keyboard[Key.ShiftRight] )
+						if( render.keyboard[ Key.ShiftLeft] ||
+							render.keyboard[Key.ShiftRight] )
 							TransfertQuantity = 10;
-						if( render.Keyboard[Key.ControlLeft] ||
-							render.Keyboard[Key.ControlRight] )
+						if( render.keyboard[Key.ControlLeft] ||
+							render.keyboard[Key.ControlRight] )
 							TransfertQuantity = 100;
-						if( render.Keyboard[Key.AltLeft] ||
-							render.Keyboard[Key.AltRight] )
+						if( render.keyboard[Key.AltLeft] ||
+							render.keyboard[Key.AltRight] )
 							TransfertQuantity = 1000;
 						if( TransfertQuantity > In_Quantity ) TransfertQuantity = In_Quantity;
 						if( In_Quantity > 0 )

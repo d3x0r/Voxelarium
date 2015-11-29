@@ -24,7 +24,12 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+// really this is IF_ANDROID_PORT
+#if !USE_GLES2
 using System.Drawing.Imaging;
+#else
+using Android.Graphics;
+#endif
 using System.Text;
 
 namespace Voxelarium.Core.Voxels.Types
@@ -346,7 +351,14 @@ namespace Voxelarium.Core.Voxels.Types
 			{
 				for( y = 0; y < Height; y++ )
 					for( x = 0; x < Width; x++ )
-						Canvas[Offset++] = (byte)( (int)( Image.GetPixel( x, y ).ToArgb() & ( 0xFF << Channel ) ) >> Channel );
+
+						Canvas[Offset++] = (byte)( (int)(
+#if USE_GLES2
+							Image.GetPixel( x, y )
+#else
+							Image.GetPixel( x, y ).ToArgb() 
+#endif
+							& ( 0xFF << Channel ) ) >> Channel );
 			}
 			//Image.UnlockBits( data );
 		}

@@ -1,11 +1,11 @@
 ﻿//#define USE_GLES2
 #if !USE_GLES2
-using OpenTK;
 using OpenTK.Graphics.OpenGL;
 #else
 using OpenTK.Graphics.ES20;
 #endif
 
+using OpenTK;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -28,8 +28,15 @@ namespace Voxelarium.Core.Voxels.UI
 			// 16 second 4 (16)
 			internal ushort u, v;
 #if USE_GLES2
+			// 20  ...
 			internal byte use_texture;
+			// 21
 			internal byte flat_color;
+			// 22
+			internal byte decal_texture;
+			// 23 unused
+			internal byte unused;
+			// 24
 			internal short power;
 #else
 			// 20  ...
@@ -181,11 +188,18 @@ namespace Voxelarium.Core.Voxels.UI
 				if( solid_used == 0 )
 					return;
 				if( vbo_solid == -1 )
+#if USE_GLES2
+					GL.GenBuffers( 1, out vbo_solid );
+#else
 					vbo_solid = GL.GenBuffer();
-
+#endif
 				if( vao_solid == -1 )
 				{
+#if USE_GLES3
+					GL.GenVertexArrays();
+#elif !USE_GLES2
 					vao_solid = GL.GenVertexArray();
+#endif
 
 #if USE_GLES2
 					GL.Oes.BindVertexArray( vao_solid );
@@ -202,7 +216,13 @@ namespace Voxelarium.Core.Voxels.UI
 					{
 						fixed ( float* data = &solid_buffer[0].p1 )
 						{
-							GL.BufferData( BufferTarget.ArrayBuffer, (IntPtr)( VertexSize * solid_used), (IntPtr)data, BufferUsageHint.StaticDraw );
+							GL.BufferData( BufferTarget.ArrayBuffer, (IntPtr)( VertexSize * solid_used), (IntPtr)data
+#if USE_GLES2
+									, BufferUsage.StaticDraw
+#else
+									, BufferUsageHint.StaticDraw 
+#endif
+								);
 							Display.CheckErr();
 						}
 					}
@@ -213,11 +233,17 @@ namespace Voxelarium.Core.Voxels.UI
 				if( transparent_used == 0 )
 					return;
 				if( vbo_transparent == -1 )
+#if USE_GLES2
+					GL.GenBuffers( 1, out vbo_transparent );
+#else
 					vbo_transparent = GL.GenBuffer();
-
+#endif
 				if( vao_transparent == -1 )
 				{
+#if USE_GLES3
+#elif !USE_GLES2
 					vao_transparent = GL.GenVertexArray();
+#endif
 
 #if USE_GLES2
 					GL.Oes.BindVertexArray( vao_solid );
@@ -234,7 +260,13 @@ namespace Voxelarium.Core.Voxels.UI
 					{
 						fixed ( float* data = &transparent_buffer[0].p1 )
 						{
-							GL.BufferData( BufferTarget.ArrayBuffer, (IntPtr)( VertexSize * transparent_used), (IntPtr)data, BufferUsageHint.StaticDraw );
+							GL.BufferData( BufferTarget.ArrayBuffer, (IntPtr)( VertexSize * transparent_used), (IntPtr)data
+#if USE_GLES2
+									, BufferUsage.StaticDraw
+#else
+									, BufferUsageHint.StaticDraw 
+#endif
+								);
 							Display.CheckErr();
 						}
 					}
@@ -245,11 +277,19 @@ namespace Voxelarium.Core.Voxels.UI
 				if( custom_used == 0 )
 					return;
 				if( vbo_custom == -1 )
+#if USE_GLES2
+					GL.GenBuffers( 1, out vbo_custom );
+#else
 					vbo_custom = GL.GenBuffer();
+#endif
 
 				if( vao_custom == -1 )
 				{
+#if USE_GLES3
 					vao_custom = GL.GenVertexArray();
+#elif !USE_GLES2
+					vao_custom = GL.GenVertexArray();
+#endif
 
 #if USE_GLES2
 					GL.Oes.BindVertexArray( vao_solid );
@@ -266,7 +306,13 @@ namespace Voxelarium.Core.Voxels.UI
 					{
 						fixed ( float* data = &custom_buffer[0].p1 )
 						{
-							GL.BufferData( BufferTarget.ArrayBuffer, (IntPtr)( VertexSize * custom_used ), (IntPtr)data, BufferUsageHint.StaticDraw );
+							GL.BufferData( BufferTarget.ArrayBuffer, (IntPtr)( VertexSize * custom_used ), (IntPtr)data
+#if USE_GLES2
+									, BufferUsage.StaticDraw
+#else
+									, BufferUsageHint.StaticDraw 
+#endif
+								);
 							Display.CheckErr();
 						}
 					}
@@ -354,7 +400,13 @@ namespace Voxelarium.Core.Voxels.UI
 					{
 						fixed ( float* data = &solid_buffer[0].p1 )
 						{
-							GL.BufferData( BufferTarget.ArrayBuffer, (IntPtr)( VertexSize * solid_used ), (IntPtr)data, BufferUsageHint.StaticDraw );
+							GL.BufferData( BufferTarget.ArrayBuffer, (IntPtr)( VertexSize * solid_used ), (IntPtr)data
+#if USE_GLES2
+									, BufferUsage.StaticDraw
+#else
+									, BufferUsageHint.StaticDraw 
+#endif
+								);
 							Display.CheckErr();
 						}
 					}
@@ -370,7 +422,13 @@ namespace Voxelarium.Core.Voxels.UI
 					{
 						fixed ( float* data = &transparent_buffer[0].p1 )
 						{
-							GL.BufferData( BufferTarget.ArrayBuffer, (IntPtr)( VertexSize * transparent_used ), (IntPtr)data, BufferUsageHint.StaticDraw );
+							GL.BufferData( BufferTarget.ArrayBuffer, (IntPtr)( VertexSize * transparent_used ), (IntPtr)data
+#if USE_GLES2
+									, BufferUsage.StaticDraw
+#else
+									, BufferUsageHint.StaticDraw 
+#endif
+								);
 							Display.CheckErr();
 						}
 					}
@@ -386,7 +444,13 @@ namespace Voxelarium.Core.Voxels.UI
 					{
 						fixed ( float* data = &custom_buffer[0].p1 )
 						{
-							GL.BufferData( BufferTarget.ArrayBuffer, (IntPtr)( VertexSize * custom_used ), (IntPtr)data, BufferUsageHint.StaticDraw );
+							GL.BufferData( BufferTarget.ArrayBuffer, (IntPtr)( VertexSize * custom_used ), (IntPtr)data
+#if USE_GLES2
+									, BufferUsage.StaticDraw
+#else
+									, BufferUsageHint.StaticDraw 
+#endif
+										);
 							Display.CheckErr();
 						}
 					}
@@ -423,7 +487,11 @@ namespace Voxelarium.Core.Voxels.UI
 				GL.BindVertexArray( vao_transparent );
 #endif
 				Display.CheckErr();
+#if USE_GLES2
+				GL.DrawArrays( BeginMode.Triangles, 0, transparent_used * 3 );
+#else
 				GL.DrawArrays( PrimitiveType.Triangles, 0, transparent_used * 3 );
+#endif
 				Display.CheckErr();
 			}
 			else if( custom )
@@ -434,7 +502,11 @@ namespace Voxelarium.Core.Voxels.UI
 				GL.BindVertexArray( vao_custom );
 #endif
 				Display.CheckErr();
+#if USE_GLES2
+				GL.DrawArrays( BeginMode.Triangles, 0, custom_used * 3 );
+#else
 				GL.DrawArrays( PrimitiveType.Triangles, 0, custom_used * 3 );
+#endif
 				Display.CheckErr();
 			}
 			else 
@@ -445,10 +517,17 @@ namespace Voxelarium.Core.Voxels.UI
 				GL.BindVertexArray( vao_solid );
 #endif
 				Display.CheckErr();
+#if USE_GLES2
+				GL.DrawArrays( BeginMode.Triangles, 0, solid_used * 3 );
+#else
 				GL.DrawArrays( PrimitiveType.Triangles, 0, solid_used * 3 );
+#endif
 				Display.CheckErr();
 			}
+
+#if !USE_GLES2
 			GL.BindVertexArray( 0 );
+#endif
 			Display.CheckErr();
 		}
 

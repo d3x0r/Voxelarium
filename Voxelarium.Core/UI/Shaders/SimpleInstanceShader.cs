@@ -17,12 +17,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #if !USE_GLES2
-using Voxelarium.LinearMath;
-using OpenTK;
 using OpenTK.Graphics.OpenGL;
 #else
 using OpenTK.Graphics.ES20;
 #endif
+using Voxelarium.LinearMath;
+using OpenTK;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -85,7 +85,11 @@ namespace Voxelarium.Core.UI.Shaders
 			Display.CheckErr();
 			GL.VertexAttribPointer( vertex_attrib_id, 3, VertexAttribPointerType.Float, false, 0, verts );
 			Display.CheckErr();
+#if !USE_GLES2
 			GL.DrawArrays( PrimitiveType.TriangleStrip, 0, 4 );
+#else
+			GL.DrawArrays( BeginMode.TriangleStrip, 0, 4 );
+#endif
 			Display.CheckErr();
 		}
 
@@ -98,7 +102,11 @@ namespace Voxelarium.Core.UI.Shaders
 			GL.VertexAttribPointer( vertex_attrib_id, 3, VertexAttribPointerType.Float, false, 0, verts );
 			Display.CheckErr();
 			GL.LineWidth( 0.5f );
+#if !USE_GLES2
 			GL.DrawArrays( PrimitiveType.Lines, 0, 24 );
+#else
+			GL.DrawArrays( BeginMode.Lines, 0, 24 );
+#endif
 		}
 	}
 }

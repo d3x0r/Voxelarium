@@ -24,13 +24,17 @@
 #if !USE_GLES2
 using OpenTK.Graphics.OpenGL;
 #else
+using Android.Graphics;
 using OpenTK.Graphics.ES20;
 #endif
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+// really this is IF_ANDROID_PORT
+#if !USE_GLES2
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+#endif
 using System.Text;
 using Voxelarium.Common;
 using Voxelarium.Core.Support;
@@ -60,22 +64,17 @@ namespace Voxelarium.Core.UI
 						GL.GenTextures( 1, out _OpenGl_TextureRef );
 						Display.CheckErr();
 
-						Shader.BindTexture( 0, _OpenGl_TextureRef );
+						Voxelarium.Core.UI.Shaders.Shader.BindTexture( 0, _OpenGl_TextureRef );
 						Display.CheckErr();
 						// if (i & 1) glTexParameteri(GL_TEXTURE_2D, 0x84FE /*TEXTURE_MAX_ANISOTROPY_EXT*/, 8);
 						//GL.TexParameterI( TextureTarget.Texture2D, TextureParameterName. 0x84FE /*TEXTURE_MAX_ANISOTROPY_EXT*/, 8 );
+#if USE_GLES2
+						Android.Opengl.GLUtils.TexImage2D( 0, 0, Texture, 0 );
+#else
 						BitmapData data = Texture.LockBits(
 							new Rectangle( 0, 0, Texture.Width, Texture.Height )
 							, System.Drawing.Imaging.ImageLockMode.ReadOnly
 							, Texture.PixelFormat );
-#if USE_GLES2
-						GL.TexImage2D( TextureTarget2d.Texture2D, 0, TextureComponentCount.Rgba
-							, data.Width, data.Height
-							, 0, OpenTK.Graphics.ES20.PixelFormat.Rgba
-							, PixelType.UnsignedByte
-							, data.Scan0
-							);
-#else
 						GL.TexImage2D( TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba
 							, data.Width, data.Height
 							, 0, OpenTK.Graphics.OpenGL.PixelFormat.Bgra
@@ -101,7 +100,9 @@ namespace Voxelarium.Core.UI
 							param = (int)TextureMagFilter.Nearest;
 							GL.TexParameter( TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, param );
 						}
+#if !USE_GLES2
 						Texture.UnlockBits( data );
+#endif
 					}
 					return _OpenGl_TextureRef;
 				}
@@ -137,7 +138,7 @@ namespace Voxelarium.Core.UI
 			try
 			{
 				Texture.FileName = FileSpec;
-				NewImage = new Bitmap( FileSpec );
+				NewImage = Display.LoadBitmap( FileSpec );
 			}
 			catch( Exception e )
 			{
@@ -145,6 +146,7 @@ namespace Voxelarium.Core.UI
 				return false;
 			}
 
+#if !USE_GLES2
 			if( VoxelGlobalSettings.COMPILEOPTION_LOWRESTEXTURING )
 				if( NewImage.Width > 128 )
 				{
@@ -158,6 +160,7 @@ namespace Voxelarium.Core.UI
 					}
 					NewImage = newImage;
 				}
+#endif
 
 			Texture.Texture = NewImage;
 			Texture.LinearInterpolation = LinearInterpolation;

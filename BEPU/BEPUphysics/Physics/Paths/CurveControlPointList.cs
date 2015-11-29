@@ -34,6 +34,10 @@ namespace BEPUphysics.Paths
             get { return list.Count; }
         }
 
+		public bool Contains( CurveControlPoint<TValue> thing )
+		{
+			return list.Contains( thing );
+		}
         /// <summary>
         /// Gets the curve associated with this control point list.
         /// </summary>

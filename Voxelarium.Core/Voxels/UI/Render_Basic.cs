@@ -23,7 +23,6 @@
 */
 using Voxelarium.LinearMath;
 using OpenTK;
-using OpenTK.Graphics.OpenGL;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -35,6 +34,11 @@ using Voxelarium.Core.Voxels.Physics;
 using System.Diagnostics;
 using Voxelarium.Core.UI.Shaders;
 using Voxelarium.Common;
+#if !USE_GLES2
+using OpenTK.Graphics.OpenGL;
+#else
+using OpenTK.Graphics.ES20;
+#endif
 
 namespace Voxelarium.Core.Voxels.UI
 {
@@ -932,9 +936,12 @@ namespace Voxelarium.Core.Voxels.UI
 			//GL.Disable( EnableCap.DepthTest );
 			//GL.DepthMask( false );
 			//glDepthMask( GL_FALSE );
-			GL.AlphaFunc( AlphaFunction.Greater, 0.2f );
 
+#if !USE_GLES2
+			GL.AlphaFunc( AlphaFunction.Greater, 0.2f );
 			GL.Enable( EnableCap.AlphaTest );
+#endif
+
 			GL.Enable( EnableCap.Blend );
 			GL.BlendFunc( BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha );
 

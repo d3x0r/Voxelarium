@@ -109,7 +109,7 @@ namespace Voxelarium.MasterServer
 						break;
 					case Protocol.Message.ServerHello:
 						Protocol.ServerHello msg = Serializer.Deserialize<Protocol.ServerHello>( buffer );
-						registered_server = servers.AddServer( msg.ServerName, msg.Connections, host_address );
+						registered_server = servers.AddServer( msg, host_address );
 						break;
 					case Protocol.Message.ListServers:
 						Protocol.ListServers listcmd = Serializer.Deserialize<Protocol.ListServers>( buffer );

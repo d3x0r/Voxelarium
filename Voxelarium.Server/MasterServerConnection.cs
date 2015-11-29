@@ -65,7 +65,7 @@ namespace Voxelarium.Server
 				}
 				catch( Exception e )
 				{
-					Log.log( "Disconnected" );
+					Log.log( "Disconnected: {0}", e.Message );
 					socket.Close();
 					return;
 				}

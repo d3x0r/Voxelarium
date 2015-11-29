@@ -197,7 +197,11 @@ namespace Voxelarium.Core.UI.Shaders
 
 			GL.LinkProgram( Program );
 			GL.GetProgramInfoLog( Program, out info );
+#if USE_GLES2
+			GL.GetProgram( Program, ProgramParameter.LinkStatus, out status_code );
+#else
 			GL.GetProgram( Program, GetProgramParameterName.LinkStatus, out status_code );
+#endif
 
 			if( status_code != 1 )
 			{

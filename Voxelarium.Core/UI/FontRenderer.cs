@@ -17,16 +17,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #if !USE_GLES2
-using OpenTK;
 using OpenTK.Graphics.OpenGL;
+using System.Drawing.Imaging;
 #else
+using Android.Graphics;
 using OpenTK.Graphics.ES20;
 #endif
+using OpenTK;
 
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Text;
 using TrueTypeSharp;
@@ -75,22 +76,17 @@ namespace Voxelarium.Core.UI
 				}
 				if( dirty )
 				{
-					Shader.BindTexture( 0, _OpenGl_TextureRef );
+					Voxelarium.Core.UI.Shaders.Shader.BindTexture( 0, _OpenGl_TextureRef );
 					Display.CheckErr();
 					// if (i & 1) glTexParameteri(GL_TEXTURE_2D, 0x84FE /*TEXTURE_MAX_ANISOTROPY_EXT*/, 8);
 					//GL.TexParameterI( TextureTarget.Texture2D, TextureParameterName. 0x84FE /*TEXTURE_MAX_ANISOTROPY_EXT*/, 8 );
+#if USE_GLES2
+					Android.Opengl.GLUtils.TexImage2D( 0, 0, fontmap, 0 );
+#else
 					BitmapData data = fontmap.LockBits(
 						fontrect
 						, System.Drawing.Imaging.ImageLockMode.ReadOnly
 						, fontmap.PixelFormat );
-#if USE_GLES2
-						GL.TexImage2D( TextureTarget2d.Texture2D, 0, TextureComponentCount.Rgba
-							, data.Width, data.Height
-							, 0, OpenTK.Graphics.ES20.PixelFormat.Rgba
-							, PixelType.UnsignedByte
-							, data.Scan0
-							);
-#else
 					GL.TexImage2D( TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba
 						, data.Width, data.Height
 						, 0, OpenTK.Graphics.OpenGL.PixelFormat.Bgra
@@ -108,7 +104,9 @@ namespace Voxelarium.Core.UI
 					param = (int)TextureMagFilter.Linear;
 					GL.TexParameter( TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, param );
 
+#if !USE_GLES2
 					fontmap.UnlockBits( data );
+#endif
 				}
 				return _OpenGl_TextureRef;
 			}
@@ -116,11 +114,18 @@ namespace Voxelarium.Core.UI
 
 		void ExpandMap()
 		{
+#if USE_GLES2
+			Bitmap newmap = Bitmap.CreateBitmap( fontmap.Width * 2, fontmap.Height * 2, Bitmap.Config.Argb8888 );
+			Canvas canvas = new Canvas( newmap );
+			canvas.DrawBitmap( fontmap, 0, 0, new Paint() );
+			canvas.Dispose();
+#else
 			Bitmap newmap = new Bitmap( fontmap.Width * 2, fontmap.Height * 2 );
 
 			Graphics g = Graphics.FromImage( newmap );
 			g.DrawImage( fontmap, 0, 0, fontrect, GraphicsUnit.Pixel );
 			g.Dispose();
+#endif
 
 			fontmap = newmap;
 			fontrect = new Rectangle( 0, 0, fontmap.Width, fontmap.Height );
@@ -212,12 +217,19 @@ namespace Voxelarium.Core.UI
 			ascent = (int)( ascent * scaley );
 			descent = (int)( descent * scaley );
 
+#if !USE_GLES2
 			fontrect = new Rectangle( 0, 0, 256, 256 );
 			fontmap = new Bitmap( 256, 256 );
 			Graphics g = Graphics.FromImage( fontmap );
 			Brush b = new SolidBrush( Color.FromArgb( 0 ) );
 			g.FillRectangle( b, fontrect );
 			g.Dispose();
+#else
+			fontmap = Bitmap.CreateBitmap( 256, 256, Bitmap.Config.Argb8888 );
+			Canvas canvas = new Canvas( fontmap );
+			canvas.DrawColor( Android.Graphics.Color.Transparent );
+			canvas.Dispose();
+#endif
 			charmap = new Dictionary<uint, FontCharacter>();
 
 			line_heights = new List<int>();
@@ -258,7 +270,13 @@ namespace Voxelarium.Core.UI
 						for( int bx = 0; bx < c.width; bx++ )
 						{
 							byte opacity = data[by * c.width + bx];
-							fontmap.SetPixel( c.x + bx, c.y + by, Color.FromArgb( opacity, 0xFF, 0xFF, 0xFF ) );
+							fontmap.SetPixel( c.x + bx, c.y + by
+#if USE_GLES2
+								, Android.Graphics.Color.Argb( opacity, 0xFF, 0xFF, 0xFF )
+#else
+								, Color.FromArgb( opacity, 0xFF, 0xFF, 0xFF ) 
+#endif
+								);
 							//bm_data.Scan0.bitmap.SetPixel( x - x0, y - y0, Color.FromArgb( opacity, 0x00, 0x00, 0x00 ) );
 						}
 					}

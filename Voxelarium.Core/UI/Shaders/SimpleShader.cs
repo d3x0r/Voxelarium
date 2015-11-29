@@ -75,7 +75,11 @@ namespace Voxelarium.Core.UI.Shaders
 			Display.CheckErr();
 			GL.VertexAttribPointer( vertex_attrib_id, 3, VertexAttribPointerType.Float, false, 0, verts );
 			Display.CheckErr();
+#if !USE_GLES2
 			GL.DrawArrays( PrimitiveType.TriangleStrip, 0, 4 );
+#else
+			GL.DrawArrays( BeginMode.TriangleStrip, 0, 4 );
+#endif
 			Display.CheckErr();
 		}
 
@@ -95,7 +99,11 @@ namespace Voxelarium.Core.UI.Shaders
 					Display.CheckErr();
 					try
 					{
-					GL.DrawArrays( PrimitiveType.Lines, 0, 24 );
+#if !USE_GLES2
+						GL.DrawArrays( PrimitiveType.Lines, 0, 24 );
+#else
+						GL.DrawArrays( BeginMode.Lines, 0, 24 );
+#endif
 						Display.CheckErr();
 					}
 					catch( Exception e )

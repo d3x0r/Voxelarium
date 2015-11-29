@@ -18,8 +18,12 @@
 */
 #if !USE_GLES2
 using OpenTK.Graphics.OpenGL;
+using System.Drawing.Imaging;
+using System.Windows.Forms;
 #else
 using OpenTK.Graphics.ES20;
+using Android.Graphics;
+using Android.Content.Res;
 #endif
 using OpenTK.Input;
 using OpenTK;
@@ -27,24 +31,23 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
-using System.Windows.Forms;
 using Voxelarium.Core.UI.Shaders;
 using System.Diagnostics;
 using Voxelarium.LinearMath;
 using System.Threading;
 using Voxelarium.Core.Game.Screens;
 using Voxelarium.Core.Voxels;
-using System.Drawing.Imaging;
 using Voxelarium.Core.Support;
 using Voxelarium.Core.Voxels.UI;
 using Voxelarium.Core.Voxels.Types;
 using Voxelarium.Core.Voxels.Physics;
 using OpenTK.Graphics;
 using Voxelarium.Common;
+using Android.Content;
 
 namespace Voxelarium.Core.UI
 {
-	public class Display : OpenTK.GameWindow
+	public class Display
 	{
 		Stopwatch sw = new Stopwatch();
 		float frequency;
@@ -81,61 +84,54 @@ namespace Voxelarium.Core.UI
 		static bool InitializedGame;
 		static bool game_loaded;
 
-		internal static Camera free_camera;
-		internal static Camera active_camera;
+		internal static Voxelarium.Core.Voxels.UI.Camera free_camera;
+		internal static Voxelarium.Core.Voxels.UI.Camera active_camera;
 		static btTransform debug_cube_transform;
 
-		public Display( VoxelGameEnvironment game ) : base(
-				  Settings.Read( "GL.Width", System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Width )
-				, Settings.Read( "GL.Height", System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Height )
-				, new OpenTK.Graphics.GraphicsMode( 32, 24, 24, 4, ColorFormat.Empty, 2, true )
-				, "Voxelarium", GameWindowFlags.Default )
+		internal KeyboardDevice keyboard;
+		public KeyboardDevice Keyboard { set { keyboard = value; } }
+		public MouseDevice Mouse { set { mouse = value; } }
+		public int Width, Height;
+		public int X, Y;
+
+		public Display( VoxelGameEnvironment game ) 
 		{
 			this.game = game;
 			string versionOpenGL = GL.GetString(StringName.Version);
 			//GL.Get
-			mouse = Mouse;
-			this.WindowBorder = OpenTK.WindowBorder.Hidden;
-			display_width = Width;// = Settings.Read( "GL.Width", System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Width );
-			display_height = Height;// = Settings.Read( "GL.Height", System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Height );
-			mouse_x = display_width / 2;
-			mouse_y = display_height / 2;
-			display_x = X = Settings.Read( "GL.Display.X", System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.X );
-			display_y = Y = Settings.Read( "GL.Display.Y", System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Y );
+			//display_width = Width;// = Settings.Read( "GL.Width", System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Width );
+			//display_height = Height;// = Settings.Read( "GL.Height", System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Height );
+			//mouse_x = display_width / 2;
+			//mouse_y = display_height / 2;
+
+#if !USE_GLES2
 			System.Windows.Forms.Cursor.Position = new Point( display_x + ( display_width ) / 2, display_y + display_height / 2 );
-			UpdateFrame += Display_UpdateFrame;
-			RenderFrame += Display_RenderFrame;
+#endif
+
 			GL.Viewport( 0, 0, Width, Height );
+#if !USE_GLES2
 			GL.Enable( EnableCap.Multisample );
+#endif
 			Matrix4.CreatePerspectiveFieldOfView( (float)( System.Math.PI / 2 ), (float)Width / (float)Height, 0.01f, 10000, out projection );
 			//projection = Matrix4.Identity;
 
 			// generic fly camera not attached to any object
-			free_camera = new Camera();
+			free_camera = new Voxels.UI.Camera();
 			active_camera = free_camera; // default to freecam;
 			free_camera.MoveTo( 0, 4, 0 );
 			debug_cube_transform = btTransform.Identity;
 
 			shaders.Add( new SimpleShader() );
-			KeyDown += Display_KeyDown;
-			KeyUp += Display_KeyUp;
-			MouseWheel += Display_MouseWheel;
-			MouseMove += Display_MouseMove;
-			MouseDown += Display_MouseDown;
-			MouseUp += Display_MouseUp;
 
-			this.Load += Display_Load;
-			this.Resize += Display_Resize;
-			this.Move += Display_Move;
 		}
 
-		private void Display_MouseUp( object sender, MouseButtonEventArgs e )
+		public void Display_MouseUp( object sender, MouseButtonEventArgs e )
 		{
 			foreach( EventConsumer consumer in game.EventManager.ConsumerList )
 				consumer.MouseButtonRelease( e.Button, mouse_x = e.X * 2.0f / Width - 1, mouse_y = ( Height - (float)e.Y ) * 2.0f / Height - 1 );
 		}
 
-		private void Display_MouseDown( object sender, MouseButtonEventArgs e )
+		public void Display_MouseDown( object sender, MouseButtonEventArgs e )
 		{
 			foreach( EventConsumer consumer in game.EventManager.ConsumerList )
 				consumer.MouseButtonClick( e.Button, mouse_x = e.X * 2.0f / Width - 1, mouse_y = ( Height - (float)e.Y ) * 2.0f / Height - 1 );
@@ -163,7 +159,7 @@ namespace Voxelarium.Core.UI
 			prior_mouse_time = time;
 		}
 
-		private void Display_MouseMove( object sender, MouseMoveEventArgs e )
+		public void Display_MouseMove( object sender, MouseMoveEventArgs e )
 		{
 			//Log.log( "Mouse move {0},{1}", e.X, e.Y );
 			mouse_x = e.X * 2.0f / Width - 1;
@@ -177,7 +173,9 @@ namespace Voxelarium.Core.UI
 				consumer.MouseMove( del_mouse_x, del_mouse_y, mouse_x, mouse_y );
 			if( HiddenMouse )
 			{
+#if !USE_GLES2
 				System.Windows.Forms.Cursor.Position = new Point( ( X + Width ) / 2, ( Y + Height ) / 2 );
+#endif
 				_mouse_x = 0;
 				_mouse_y = 0;
 			}
@@ -188,7 +186,7 @@ namespace Voxelarium.Core.UI
 			}
 		}
 
-		private void Display_MouseWheel( object sender, MouseWheelEventArgs e )
+		public void Display_MouseWheel( object sender, MouseWheelEventArgs e )
 		{
 			MouseButton button = e.Delta < 0 ? MouseButton.Button7 : MouseButton.Button6;
 			foreach( EventConsumer consumer in game.EventManager.ConsumerList )
@@ -196,40 +194,45 @@ namespace Voxelarium.Core.UI
 
 		}
 
-		private void Display_KeyUp( object sender, KeyboardKeyEventArgs e )
+		public void Display_KeyUp( object sender, KeyboardKeyEventArgs e )
 		{
 			foreach( EventConsumer consumer in game.EventManager.ConsumerList )
 				consumer.KeyDown( e.Key );
 		}
 
-		private void Display_KeyDown( object sender, KeyboardKeyEventArgs e )
+		public void Display_KeyDown( object sender, KeyboardKeyEventArgs e )
 		{
 			foreach( EventConsumer consumer in game.EventManager.ConsumerList )
 				consumer.KeyDown( e.Key );
 		}
 
-		private void Display_Move( object sender, EventArgs e )
+		public void Display_Move( object sender, EventArgs e )
 		{
 			display_x = X;
 			display_y = Y;
 		}
-		private void Display_Resize( object sender, EventArgs e )
+		public void Display_Resize( object sender, EventArgs e )
 		{
 			display_width = Width;
 			display_height = Height;
 			GL.Viewport( 0, 0, Width, Height );
 		}
 
-		private void Display_Load( object sender, EventArgs e )
+		public void Display_Load( object sender, EventArgs e )
 		{
-			int val = GL.GetInteger( GetPName.CullFace );
+			//int val = GL.GetInteger( GetPName.CullFace );
 			frequency = Stopwatch.Frequency / 1000.0f;
 			sw.Start();
-
+#if !USE_GLES2
 			max_texture_size = GL.GetInteger( GetPName.MaxTextureSize );
-
 			CheckErr();
 			GL.Hint( HintTarget.PerspectiveCorrectionHint, HintMode.Nicest );
+			CheckErr();
+#else
+			GL.GetInteger( GetPName.MaxTextureSize, out max_texture_size );
+			CheckErr();
+#endif
+
 			//throw new NotImplementedException();
 		}
 
@@ -237,12 +240,16 @@ namespace Voxelarium.Core.UI
 		public static void HideMouse()
 		{
 			HiddenMouse = true;
+#if !BUILD_ANDROID
 			System.Windows.Forms.Cursor.Hide();
+#endif
 		}
 		public static void ShowMouse()
 		{
 			HiddenMouse = false;
+#if !BUILD_ANDROID
 			System.Windows.Forms.Cursor.Show();
+#endif
 		}
 
 
@@ -266,13 +273,17 @@ namespace Voxelarium.Core.UI
 			simple_gui.DrawQuad( coords, ref c );
 		}
 
+		public delegate void SimpleMethod();
+		public SimpleMethod Exit;
+		public SimpleMethod SwapBuffers;
+
 		private void Shutdown()
 		{
 			VoxelGlobalSettings.Exiting = true;
 			Exit();
 		}
 
-		private void Display_UpdateFrame( object sender, OpenTK.FrameEventArgs e )
+		public void Display_UpdateFrame( object sender, OpenTK.FrameEventArgs e )
 		{
 			if( !InitializedGame )
 			{
@@ -291,69 +302,69 @@ namespace Voxelarium.Core.UI
 			if( game.Game_Run )
 				game.Engine.Step( (float)e.Time );
 			ProcessMouseFreeCam( (float)e.Time );
-			if( Keyboard[Key.AltLeft] && Keyboard[Key.F4] )
+			if( keyboard[Key.AltLeft] && keyboard[Key.F4] )
 			{
 				VoxelGlobalSettings.Exiting = true;
 				Shutdown();
 			}
-			if( Keyboard[Key.Escape] )
+			if( keyboard[Key.Escape] )
 			{
 				Shutdown();
 			}
 
-			if( Keyboard[Key.X] && !Keyboard[Key.ShiftLeft] )
+			if( keyboard[Key.X] && !keyboard[Key.ShiftLeft] )
 				debug_cube_transform.m_origin.x += 0.2f;
-			if( Keyboard[Key.X] && Keyboard[Key.ShiftLeft] )
+			if( keyboard[Key.X] && keyboard[Key.ShiftLeft] )
 				debug_cube_transform.m_origin.x -= 0.2f;
-			if( Keyboard[Key.Z] && !Keyboard[Key.ShiftLeft] )
+			if( keyboard[Key.Z] && !keyboard[Key.ShiftLeft] )
 				debug_cube_transform.m_origin.z += 0.2f;
-			if( Keyboard[Key.Z] && Keyboard[Key.ShiftLeft] )
+			if( keyboard[Key.Z] && keyboard[Key.ShiftLeft] )
 				debug_cube_transform.m_origin.z -= 0.2f;
-			if( Keyboard[Key.Y] && !Keyboard[Key.ShiftLeft] )
+			if( keyboard[Key.Y] && !keyboard[Key.ShiftLeft] )
 				debug_cube_transform.m_origin.y += 0.2f;
-			if( Keyboard[Key.Y] && Keyboard[Key.ShiftLeft] )
+			if( keyboard[Key.Y] && keyboard[Key.ShiftLeft] )
 				debug_cube_transform.m_origin.y -= 0.2f;
 
-			if( Keyboard[Key.R] && !Keyboard[Key.ShiftLeft] )
+			if( keyboard[Key.R] && !keyboard[Key.ShiftLeft] )
 				debug_cube_transform.m_basis.Rotate( 2, 0.1f );
-			if( Keyboard[Key.R] && Keyboard[Key.ShiftLeft] )
+			if( keyboard[Key.R] && keyboard[Key.ShiftLeft] )
 				debug_cube_transform.m_basis.Rotate( 2, -0.1f );
 
-			if( Keyboard[Key.T] && !Keyboard[Key.ShiftLeft] )
+			if( keyboard[Key.T] && !keyboard[Key.ShiftLeft] )
 				debug_cube_transform.m_basis.Rotate( 1, 0.1f );
-			if( Keyboard[Key.T] && Keyboard[Key.ShiftLeft] )
+			if( keyboard[Key.T] && keyboard[Key.ShiftLeft] )
 				debug_cube_transform.m_basis.Rotate( 1, -0.1f );
 
-			if( Keyboard[Key.P] && !Keyboard[Key.ShiftLeft] )
+			if( keyboard[Key.P] && !keyboard[Key.ShiftLeft] )
 				debug_cube_transform.m_basis.Rotate( 0, 0.1f );
-			if( Keyboard[Key.P] && Keyboard[Key.ShiftLeft] )
+			if( keyboard[Key.P] && keyboard[Key.ShiftLeft] )
 				debug_cube_transform.m_basis.Rotate( 0, -0.1f );
 
-			if( Keyboard[Key.Space] )
+			if( keyboard[Key.Space] )
 				free_camera.MoveUp( 10 * (float)e.Time );
-			if( Keyboard[Key.AltLeft] )
+			if( keyboard[Key.AltLeft] )
 				free_camera.MoveUp( -10 * (float)e.Time );
-			if( Keyboard[Key.W] )
+			if( keyboard[Key.W] )
 			{
 				free_camera.MoveForward( 40 * (float)e.Time );
 			}
-			if( Keyboard[Key.S] )
+			if( keyboard[Key.S] )
 			{
 				free_camera.MoveForward( -10 * (float)e.Time );
 			}
-			if( Keyboard[Key.A] )
+			if( keyboard[Key.A] )
 			{
 				free_camera.MoveRight( -10 * (float)e.Time );
 			}
-			if( Keyboard[Key.D] )
+			if( keyboard[Key.D] )
 			{
 				free_camera.MoveRight( 10 * (float)e.Time );
 			}
-			if( Keyboard[Key.Q] )
+			if( keyboard[Key.Q] )
 			{
 				free_camera.RotateRoll( -2f * (float)e.Time );
 			}
-			if( Keyboard[Key.E] )
+			if( keyboard[Key.E] )
 			{
 				free_camera.RotateRoll( 2f * (float)e.Time );
 			}
@@ -429,8 +440,13 @@ namespace Voxelarium.Core.UI
 			simple_instance.DrawQuad( verts, ref c );
 		}
 
+		public void GameDisplay_RenderFrame( object sender, OpenTK.FrameEventArgs e )
+		{
+			Display_RenderFrame( e );
+		}
+
 		int frame;
-		private void Display_RenderFrame( object sender, OpenTK.FrameEventArgs e )
+		public void Display_RenderFrame( OpenTK.FrameEventArgs e )
 		{
 			// render graphics
 			frame++;
@@ -575,13 +591,28 @@ namespace Voxelarium.Core.UI
 		[Conditional( "DEBUG" )]
 		internal static void CheckErr()
 		{
+#if !USE_GLES2
 			ErrorCode code = GL.GetError();
+#else
+			ErrorCode code = GL.GetErrorCode( );
+#endif
 			if( code != 0 )
 			{
 				Log.log( "error " + code, 1  );
 				//return true;
 			}
 			//return false;
+		}
+
+		internal static Bitmap LoadBitmap( string file )
+		{
+#if USE_GLES2
+			//Xamarin.Forms FileImageSource
+            Bitmap bitmap = BitmapFactory.DecodeResource( null /*Android.Content.Context.Resouces*/, 0 );
+			return bitmap;
+#else
+			return new Bitmap( file );
+#endif
 		}
 	}
 }

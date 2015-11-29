@@ -43,7 +43,7 @@ namespace BEPUutilities
         /// <param name="m41">Value at row 4, column 1 of the matrix.</param>
         /// <param name="m42">Value at row 4, column 2 of the matrix.</param>
         /// <param name="m43">Value at row 4, column 3 of the matrix.</param>
-        /// <param name="1/*M44*/">Value at row 4, column 4 of the matrix.</param>
+        /// <param name="m44">Value at row 4, column 4 of the matrix.</param>
         public Matrix(float m11, float m12, float m13, float m14/*0*/,
                       float m21, float m22, float m23, float m24/*0*/,
                       float m31, float m32, float m33, float m34/*0*/,

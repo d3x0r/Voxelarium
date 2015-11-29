@@ -12,7 +12,7 @@ namespace Voxelarium
         {
             Voxelarium.Core.VoxelGameEnvironment game = new Voxelarium.Core.VoxelGameEnvironment();
 
-            Display d = new Display( game );
+            GameDisplay d = new GameDisplay( game );
             d.Run( 60.0 );
         }
     }

@@ -291,6 +291,7 @@ namespace Voxelarium.Core.UI
 			OutSize.Y = y;
 		}
 
+#if GET_TILE_PIXEL
 		internal int GetTilePixel( int TileNum, int x, int y )
 		{
 			Image image;
@@ -307,5 +308,6 @@ namespace Voxelarium.Core.UI
 			}
 			return 0;
 		}
+#endif
 	};
 }

@@ -92,7 +92,11 @@ namespace Voxelarium.Core.UI.Shaders
 			Display.CheckErr();
 			GL.VertexAttribPointer( vertex_attrib_id, 3, VertexAttribPointerType.Float, false, 0, verts );
 			Display.CheckErr();
+#if !USE_GLES2
 			GL.DrawArrays( PrimitiveType.TriangleStrip, 0, 4 );
+#else
+			GL.DrawArrays( BeginMode.TriangleStrip, 0, 4 );
+#endif
 			Display.CheckErr();
 			GL.DisableVertexAttribArray( vertex_attrib_id );
 			GL.DisableVertexAttribArray( texture_attrib_id );
@@ -110,7 +114,11 @@ namespace Voxelarium.Core.UI.Shaders
 			Display.CheckErr();
 			GL.VertexAttribPointer( vertex_attrib_id, 3, VertexAttribPointerType.Float, false, 0, verts );
 			Display.CheckErr();
-			GL.DrawArrays( PrimitiveType.Triangles, 0, 6 );
+#if !USE_GLES2
+			GL.DrawArrays( PrimitiveType.TriangleStrip, 0, 6 );
+#else
+			GL.DrawArrays( BeginMode.TriangleStrip, 0, 6 );
+#endif
 			Display.CheckErr();
 			GL.DisableVertexAttribArray( vertex_attrib_id );
 			GL.DisableVertexAttribArray( texture_attrib_id );

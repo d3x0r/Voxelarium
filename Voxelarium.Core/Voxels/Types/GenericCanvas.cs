@@ -21,10 +21,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#if !USE_GLES2
+using System.Drawing.Imaging;
+#else
+using Android.Graphics;
+#endif
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
+// really this is IF_ANDROID_PORT
 using System.Text;
 
 namespace Voxelarium.Core.Voxels.Types

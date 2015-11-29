@@ -6,7 +6,7 @@ using OpenTK.Graphics.ES20;
 using BEPUutilities;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+
 using System.Text;
 using BEPUphysics;
 using BEPUphysics.Entities;
@@ -36,12 +36,15 @@ namespace Voxelarium.Core.Voxels.Physics
 
 		public static void drawLine( ref Vector3 from, ref Vector3 to, ref Vector3 fromColor, ref Vector3 toColor )
 		{
+#if !USE_GLES2
+			GL.DrawArrays( PrimitiveType.TriangleStrip, 0, 4 );
 			GL.Begin( PrimitiveType.Lines );
 			GL.Color3( fromColor.ToFloat3() );
 			GL.Vertex3( from.ToFloat3() );
 			GL.Color3( toColor.ToFloat3() );
 			GL.Vertex3( to.ToFloat3() );
 			GL.End();
+#endif
 		}
 
 		public  void reportErrorWarning( string warningString )

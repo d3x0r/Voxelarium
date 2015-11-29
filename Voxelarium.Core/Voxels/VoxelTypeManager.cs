@@ -128,8 +128,8 @@ namespace Voxelarium.Core.Voxels
 			for( ; i < 300; i++ )
 			{
 				VoxelProperties props = VoxelProperties.Load( i );
-				if( Compiler.LoadVoxelCode( props.Type ) )
-					VoxelType = Compiler.LoadExtendedVoxelType( props.Type );
+				if( Compiler.LoadVoxelCode( props, props.Type ) )
+					VoxelType = Compiler.LoadExtendedVoxelType( props, props.Type );
 				else
 					VoxelType = null;
 				if( VoxelType == null )

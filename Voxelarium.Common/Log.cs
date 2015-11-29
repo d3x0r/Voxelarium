@@ -18,7 +18,10 @@
 */
 using System;
 using System.IO;
+#if !BUILD_ANDROID
 using System.Windows.Forms;
+#else
+#endif
 
 namespace Voxelarium.Common
 {
@@ -53,6 +56,7 @@ namespace Voxelarium.Common
 		}
 		static Log()
 		{
+#if !BUILD_ANDROID
 			int retry = 1;
 			int idx1 = Application.ExecutablePath.LastIndexOfAny( new char[] { '/', '\\' } );
 			int idx2 = Application.ExecutablePath.LastIndexOfAny( new char[] { '.' } );
@@ -80,6 +84,9 @@ namespace Voxelarium.Common
 				//Log.log( "In use, attempting new name..." + logname );
 				goto retry;
 			}
+#else
+			ApplicationName = "XamarinAndroidProgram";
+#endif
 			LogToConsole = true || Settings.Read( "Log to debug console", 0 ) != 0;
 			LogToFile = false || Settings.Read( "Log to debug file", 1 ) != 0;
 			LogTimeDelta = ( Settings.Read( "Log Time Delta", 1 ) != 0 );

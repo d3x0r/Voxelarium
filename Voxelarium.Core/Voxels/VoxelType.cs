@@ -21,6 +21,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#if USE_GLES2
+using Android.Graphics;
+#else
+#endif
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -103,7 +107,7 @@ namespace Voxelarium.Core.Voxels
 				//  if (VoxelType<32768) sprintf(Buffer, "VoxelTypes/voxeltexture_%u.bmp", VoxelType);
 				//  else                 sprintf(Buffer, "UserTextures/voxeltexture_%u.bmp", VoxelType-32767);
 				if( File.Exists( FileSpec ) )
-					image = new Bitmap( FileSpec );
+					image = Display.LoadBitmap( FileSpec );
 				if( image != null )
 					break;
 			}
@@ -113,6 +117,7 @@ namespace Voxelarium.Core.Voxels
 			if( Image->Width > 128 ) Image->ReduceSize();
 #endif
 			MainTexture = image;
+#if !USE_GLES2
 			if( image.PixelFormat != System.Drawing.Imaging.PixelFormat.Format32bppArgb
 				&& image.PixelFormat != System.Drawing.Imaging.PixelFormat.Format32bppRgb
 				)
@@ -120,6 +125,7 @@ namespace Voxelarium.Core.Voxels
 				if( properties.Type < 32768 ) Log.log( "Warning : Image {0} is not 32 bit, this can cause crashes.", properties.Type, false );
 				else Log.log( "Warning : User defined image {0} is not 32 bit, this can cause crashes.", properties.Type - 32767, false );
 			}
+#endif
 			return ( true );
 		}
 
