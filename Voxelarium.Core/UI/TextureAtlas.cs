@@ -45,13 +45,17 @@ namespace Voxelarium.Core.UI
 		int x_ofs, y_ofs;
 
 		int _OpenGl_TextureRef = -1;
+		bool invalidated;
 
 		internal int OpenGl_TextureRef
 		{
 			get
 			{
-				if( _OpenGl_TextureRef == -1 )
-				{
+				if( invalidated ) {
+					if( _OpenGl_TextureRef != -1 )
+						_OpenGl_TextureRef = -1;
+				}
+				if( _OpenGl_TextureRef == -1 ) {
 					Log.log( "Load atlas texture  (check thread)" );
 
 					GL.ActiveTexture( TextureUnit.Texture0 );
@@ -59,12 +63,14 @@ namespace Voxelarium.Core.UI
 
 					GL.GenTextures( 1, out _OpenGl_TextureRef );
 					Display.CheckErr();
+
 					Voxelarium.Core.UI.Shaders.Shader.BindTexture( 0, _OpenGl_TextureRef );
 					Display.CheckErr();
+
 					// if (i & 1) glTexParameteri(GL_TEXTURE_2D, 0x84FE /*TEXTURE_MAX_ANISOTROPY_EXT*/, 8);
 					//GL.TexParameterI( TextureTarget.Texture2D, TextureParameterName. 0x84FE /*TEXTURE_MAX_ANISOTROPY_EXT*/, 8 );
 #if USE_GLES2
-					Log.log( " 2 Generate texture {0} {1} {2}", _OpenGl_TextureRef, All.Texture2D, TextureTarget.Texture2D );
+					//Log.log( " 2 Generate texture {0} {1} {2}", _OpenGl_TextureRef, All.Texture2D, TextureTarget.Texture2D );
 					Android.Opengl.GLUtils.TexImage2D( (int)TextureTarget.Texture2D, 0, atlas, 0 );
 #else
 					BitmapData data = atlas.LockBits(
@@ -109,6 +115,12 @@ namespace Voxelarium.Core.UI
 #else
 			atlas = new Bitmap( needed_size, needed_size );
 #endif
+			Display.OnInvalidate += Display_OnInvalidate;
+		}
+
+		void Display_OnInvalidate ()
+		{
+			invalidated = true;
 		}
 
 		internal void AddTexture( Bitmap image, out Box2D coord, out float[] uvs )

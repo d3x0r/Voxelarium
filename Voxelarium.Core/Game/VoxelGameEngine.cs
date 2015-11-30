@@ -28,6 +28,7 @@ using System.Threading;
 using Voxelarium.Core.Game.Screens;
 using Voxelarium.Core.Support;
 using Voxelarium.Core.UI;
+using Voxelarium.Common;
 
 namespace Voxelarium.Core
 {
@@ -242,7 +243,9 @@ namespace Voxelarium.Core
 					//if( Ge && Ge->Gui )
 				}
 			}
-			GuiManager.Render( display );
+
+			if( GuiManager != null )
+				GuiManager.Render( display );
 
 			//Timer.End();
 			Timer_Draw.End();

@@ -58,6 +58,7 @@ namespace Voxelarium.Core.UI
 
 		int _OpenGl_TextureRef = -1;
 		bool dirty;
+		bool invalidated;
 		TrueTypeFont ttf;
 		Dictionary<uint, FontCharacter> charmap = new Dictionary<uint, FontCharacter>();
 		List<int> line_heights = new List<int>();
@@ -68,9 +69,13 @@ namespace Voxelarium.Core.UI
 		{
 			get
 			{
+				if( invalidated ) {
+					invalidated = false;
+					_OpenGl_TextureRef = -1;
+				}
 				if( _OpenGl_TextureRef == -1 )
 				{
-					GL.ActiveTexture( TextureUnit.Texture1 );
+					GL.ActiveTexture( TextureUnit.Texture0 );
 					Display.CheckErr();
 
 					GL.GenTextures( 1, out _OpenGl_TextureRef );
@@ -79,12 +84,15 @@ namespace Voxelarium.Core.UI
 				}
 				if( dirty )
 				{
+					GL.ActiveTexture( TextureUnit.Texture0 );
+					Display.CheckErr();
+
 					Voxelarium.Core.UI.Shaders.Shader.BindTexture( 0, _OpenGl_TextureRef );
 					Display.CheckErr();
 					// if (i & 1) glTexParameteri(GL_TEXTURE_2D, 0x84FE /*TEXTURE_MAX_ANISOTROPY_EXT*/, 8);
 					//GL.TexParameterI( TextureTarget.Texture2D, TextureParameterName. 0x84FE /*TEXTURE_MAX_ANISOTROPY_EXT*/, 8 );
 #if USE_GLES2
-					Log.log( "0 Generate texture {0} {1} {2}", _OpenGl_TextureRef, All.Texture2D, TextureTarget.Texture2D );
+					//Log.log( "0 Generate texture {0} {1} {2}", _OpenGl_TextureRef, All.Texture2D, TextureTarget.Texture2D );
 					Android.Opengl.GLUtils.TexImage2D( (int)TextureTarget.Texture2D, 0, fontmap, 0 );
 #else
 					BitmapData data = fontmap.LockBits(
@@ -111,6 +119,7 @@ namespace Voxelarium.Core.UI
 #if !USE_GLES2
 					fontmap.UnlockBits( data );
 #endif
+					dirty = false;
 				}
 				return _OpenGl_TextureRef;
 			}
@@ -203,8 +212,9 @@ namespace Voxelarium.Core.UI
 		{
 			string tmp;
 			int location;
-			if( Display.FileExists( font, out location ) )
+			if( Display.FileExists( font, out location ) ) {
 				ttf = new TrueTypeFont( Display.FileReadAllBytes( location, font ), 0 );
+			}
 			else if( Display.FileExists( tmp = ("c:/windows/fonts/" + font), out location ) )
 				ttf = new TrueTypeFont( Display.FileReadAllBytes( location, tmp ), 0 );
 			else if( Display.FileExists( tmp = ("Content/fonts/" + font), out location ) )
@@ -222,8 +232,8 @@ namespace Voxelarium.Core.UI
 			ascent = (int)( ascent * scaley );
 			descent = (int)( descent * scaley );
 
-#if !USE_GLES2
 			fontrect = new Rectangle( 0, 0, 256, 256 );
+#if !USE_GLES2
 			fontmap = new Bitmap( 256, 256 );
 			Graphics g = Graphics.FromImage( fontmap );
 			Brush b = new SolidBrush( Color.FromArgb( 0 ) );
@@ -241,6 +251,13 @@ namespace Voxelarium.Core.UI
 			line_heights.Add( -1 );
 			line_offsets = new List<int>();
 			line_offsets.Add( 0 );
+
+			Display.OnInvalidate += Display_OnInvalidate;
+		}
+
+		void Display_OnInvalidate ()
+		{
+			invalidated = true;
 		}
 
 		public FontCharacter GetCharacter( uint code )

@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+//#define LOG_UNIFORMS
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -57,6 +58,17 @@ namespace Voxelarium.Core.UI.Shaders
 			Fragment = 0x2
 		}
 
+		public Shader()
+		{
+			Display.OnInvalidate += Display_OnInvalidate;
+		}
+
+		void Display_OnInvalidate ()
+		{
+			loaded = false;
+			Program = 0;
+		}
+
 		/// <summary>
 		/// Get Whether the Shader function is Available on this Machine or not
 		/// </summary>
@@ -73,6 +85,7 @@ namespace Voxelarium.Core.UI.Shaders
 		internal void Unload(  )
 		{
 			loaded = false;
+			Log.log( "Unload - delete" );
 			GL.DeleteProgram( Program );
 		}
 
@@ -102,6 +115,9 @@ namespace Voxelarium.Core.UI.Shaders
 				//if( !parameters_set )
 				{
 					Display.CheckErr();
+					#if LOG_UNIFORMS
+					Log.log( "projection is {0}", projection_id );
+					#endif
 					GL.UniformMatrix4( projection_id, false, ref Display.projection );
 					Display.CheckErr();
 					unsafe
@@ -111,12 +127,18 @@ namespace Voxelarium.Core.UI.Shaders
 						float* matrix_ptr = &tmp.m_el0.x;
 						//fixed ( float* matrix_ptr = &Display.worldview.m_el0.x )
 						{
+							#if LOG_UNIFORMS
+							Log.log( "worldview is {0}", worldview_id );
+							#endif
 							GL.UniformMatrix4( worldview_id, 1, false, matrix_ptr );
 						}
 					}
 					Display.CheckErr();
 					if( modelview_id >= 0 )
 					{
+						#if LOG_UNIFORMS
+						Log.log( "modelview is {0}", modelview_id );
+						#endif
 						GL.UniformMatrix4( modelview_id, false, ref Display.modelview );
 						Display.CheckErr();
 					}
@@ -138,13 +160,15 @@ namespace Voxelarium.Core.UI.Shaders
 				return false;
 			}
 
-			if( Program > 0 )
+			if( Program > 0 ) {
+				Log.log( "Recompile - delete" );
 				GL.DeleteProgram( Program );
+			}
 
 			//Variables.Clear();
 
 			Program = GL.CreateProgram();
-
+			//Log.log( "program ID is {0} for {1}", Program, this.ToString() );
 			if( vertexSource != "" )
 			{
 				int vertexShader = GL.CreateShader( ShaderType.VertexShader );
@@ -215,8 +239,17 @@ namespace Voxelarium.Core.UI.Shaders
 			}
 
 			projection_id = GL.GetUniformLocation( Program, "Projection" );
+			#if LOG_UNIFORMS
+			Log.log( "uniform is {0}", projection_id );
+			#endif
 			worldview_id = GL.GetUniformLocation( Program, "worldView" );
+			#if LOG_UNIFORMS
+			Log.log( "uniform is {0}", worldview_id );
+			#endif
 			modelview_id = GL.GetUniformLocation( Program, "modelView" );
+			#if LOG_UNIFORMS
+			Log.log( "uniform is {0}", modelview_id );
+			#endif
 			return true;
 		}
 

@@ -51,25 +51,34 @@ namespace Voxelarium.Core.UI
 			internal bool LinearInterpolation;
 			int _OpenGl_TextureRef;
 			internal string FileName;
-
+			bool dirty;
+			bool invalidated;
 			internal int OpenGl_TextureRef
 			{
 				get
 				{
-					if( _OpenGl_TextureRef == -1 )
-					{
+					if( invalidated ) {
+						Log.log( "Texture has been invalidated... try reload" );
+						_OpenGl_TextureRef = -1;
+						invalidated = false;
+					}
+					if( _OpenGl_TextureRef == -1 ) {
 						GL.ActiveTexture( TextureUnit.Texture0 );
 						Display.CheckErr();
 
 						GL.GenTextures( 1, out _OpenGl_TextureRef );
 						Display.CheckErr();
-
+						dirty = true;
+					}
+					if( dirty)
+					{
+						dirty = false;
 						Voxelarium.Core.UI.Shaders.Shader.BindTexture( 0, _OpenGl_TextureRef );
 						Display.CheckErr();
 						// if (i & 1) glTexParameteri(GL_TEXTURE_2D, 0x84FE /*TEXTURE_MAX_ANISOTROPY_EXT*/, 8);
 						//GL.TexParameterI( TextureTarget.Texture2D, TextureParameterName. 0x84FE /*TEXTURE_MAX_ANISOTROPY_EXT*/, 8 );
 #if USE_GLES2
-						Log.log( "Generate texture {0} {1} {2}", _OpenGl_TextureRef, All.Texture2D, TextureTarget.Texture2D );
+						//Log.log( "Generate texture {0} {1} {2}", _OpenGl_TextureRef, All.Texture2D, TextureTarget.Texture2D );
 						Android.Opengl.GLUtils.TexImage2D( (int)TextureTarget.Texture2D, 0, Texture, 0 );
 #else
 						BitmapData data = Texture.LockBits(
@@ -114,6 +123,12 @@ namespace Voxelarium.Core.UI
 				Texture = null;
 				LinearInterpolation = false;
 				_OpenGl_TextureRef = -1;
+				Display.OnInvalidate += Display_OnInvalidate;
+			}
+
+			void Display_OnInvalidate ()
+			{
+				invalidated = true;
 			}
 			~Texture_Entry()
 			{

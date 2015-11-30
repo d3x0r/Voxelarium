@@ -128,7 +128,7 @@ namespace Voxelarium.Common
 						sw.Flush();
 					}
 				}
-
+			}
 			if( LogToConsole )
 #endif
 			{

@@ -49,23 +49,42 @@ namespace Voxelarium.Core
 
 		public VoxelGameEnvironment()
 		{
+#if BUILD_ANDROID
 			try
 			{
-				default_font = new FontRenderer( "msyh.ttf", 24, 24 );
+				default_font = new FontRenderer( "/system/fonts/DroidSans.ttf", 24, 24 );
 			}
 			catch( Exception e )
 			{
+				Log.log( "font load failed : " + e.Message );
+			}
+			try
+			{
+				menu_font = new FontRenderer( "/system/fonts/DroidSans.ttf", 48, 48 );
+			}
+			catch( Exception e )
+			{
+			}
+#else
+			try
+			{
+				default_font = new FontRenderer( "Roboto-Regular.ttf", 24, 24 );
+			}
+			catch( Exception e )
+			{
+				Log.log( "font load failed : " + e.Message );
 				try
 				{
 					default_font = new FontRenderer( "DroidSans.ttf", 24, 24 );
 				}
 				catch( Exception e2 )
 				{
+					Log.log( "font load failed : " + e2.Message );
 				}
 			}
 			try
 			{
-				menu_font = new FontRenderer( "msyh.ttf", 48, 48 );
+				menu_font = new FontRenderer( "Roboto-Regular.ttf", 48, 48 );
 			}
 			catch( Exception e )
 			{
@@ -77,6 +96,7 @@ namespace Voxelarium.Core
 				{
 				}
 			}
+#endif
 			percent_done = 1;
 			Initialized_SDL =
 			Initialized_GraphicMode =
@@ -313,27 +333,37 @@ namespace Voxelarium.Core
 			bool result;
 			start_step = 0;
 			start_percent = 0;
+			//Log.log( "Start Game 1" );
 			result = Start_PersistGameEnv(); if( !result ) return ( false );
+			//Log.log( "Start Game 2" );
 			result = Start_GameEventSequencer(); if( !result ) return ( false );
 			//    result = Start_WorldInfo();          if(!result) return(false);
+			//Log.log( "Start Game 3" );
 			result = Start_Game_Stats(); if( !result ) return ( false );
+			//Log.log( "Start Game 4" );
 			result = Start_Game_Events(); if( !result ) return ( false );
 
+			//Log.log( "Start Game 5" );
 			result = Start_World( nogui ); if( !result ) return ( false );
 			start_percent = ( ++start_step * 100 ) / start_steps;
 			
+			//Log.log( "Start Game 6" );
 			result = Start_SectorLoader( false, null ); if( !result ) return ( false );
 			start_percent = ( ++start_step * 100 ) / start_steps;
+			//Log.log( "Start Game 7" );
 			result = Start_PhysicEngine(); if( !result ) return ( false );
 
 			// preload sectors immeidately around the player
-			result = Start_WorldSectors( nogui ); if( !result ) return ( false );
+			//Log.log( "Start Game 8" );
+			result = Start_WorldSectors( nogui, ref start_percent, ref start_step, ref start_steps ); if( !result ) return ( false );
 
 			start_percent = ( ++start_step * 100 ) / start_steps;
+			//Log.log( "Start Game 9" );
 			result = Start_VoxelProcessor(); if( !result ) return ( false );
 #if FINISHED_PORTING
 				result = Start_ToolManager(); if( !result ) return ( false );
 #endif
+			//Log.log( "Start Game 10" );
 			if( !nogui )
 			{
 				result = Start_RendererSettings(); if( !result ) return ( false );
@@ -746,10 +776,10 @@ namespace Voxelarium.Core
 			Initialized_World = true;
 			return ( true );
 		}
-		bool Start_WorldSectors( bool nogui )
+		bool Start_WorldSectors( bool nogui, ref int start_percent, ref int start_step, ref int start_steps  )
 		{
 			if( !nogui )
-				World.CreateDemoWorld(); // force load initial zone.
+				World.CreateDemoWorld( ref start_percent, ref start_step, ref start_steps ); // force load initial zone.
 			//World.SetVoxel( 0, 0, 0, 1 );// World.SetVoxel(0,1,0,1); World.SetVoxel(1,0,0,1); World.SetVoxel(0,2,0,2); World.SetVoxel(0,2,1,2);
 			//World.SetVoxel(0,2,-1,2);World.SetVoxel(10,0,10,1); World.SetVoxel(10,1,10,1); World.SetVoxel(10,2,10,1); World.SetVoxel(5,3,0,1); World.SetVoxel(0,3,5,2);
 			Initialized_World = true;
@@ -766,7 +796,8 @@ namespace Voxelarium.Core
 			}
 			else
 			{
-				IWorldGenesis genesis = new Genesis();
+				IWorldGenesis genesis;
+				genesis = new Genesis();
 				//IWorldGenesis genesis = Compiler.LoadGenesisCode();
 				if( genesis != null )
 				{

@@ -11,28 +11,35 @@ using System.Reflection;
 using System.IO;
 using System.Data;
 using System.Net.Sockets;
+using OpenTK.Input;
 
 namespace Voxelarium.Android
 {
 	public delegate void UpdateMethod( object unused, FrameEventArgs e );
-	public delegate void SetDisplayParams( int width, int height );
+	public delegate void SetDisplayParams( int x, int y, int width, int height );
+	public delegate void SetExit( object invokeOn, MethodInfo mi );
+	public delegate void KeyEvent(object sender, KeyboardKeyEventArgs e);
+	public delegate bool SetDevices(KeyboardDevice keyboard, MouseDevice mouse);
+	public delegate bool TouchEvent(MotionEvent e);
+	//public delegate void KeyPress (object sender, KeyEventArgs e);
 
-	public class InfoInterface
+	public class DisplayInterface
 	{
-
+		public SetExit setExit;
+		public SetDevices setDevices;
 		public UpdateMethod updateMethod;
 		public UpdateMethod displayMethod;
+		public UpdateMethod invalidateContext;
+		public KeyEvent onKeyDown;
+		public KeyEvent onKeyUp;
+		public TouchEvent onTouchEvent;
+		public SetDisplayParams setDisplayParams;
 	}
 
 	class GLView1 : AndroidGameView
 	{
-
-
-		public UpdateMethod Update;
-		public UpdateMethod Render;
-		public SetDisplayParams display;
-
-
+		static DisplayInterface displayInterface;
+		static object looderObject;
 
 		static StringWriter sw;
 		static Mono.CSharp.ReportPrinter rp ;
@@ -42,6 +49,8 @@ namespace Voxelarium.Android
 
 		void LoadGame( Context context )
 		{
+			if( displayInterface != null )
+				return;
 			//System.Reflection.Emit.AssemblyBuilder
 			//Mono.Runtime.
 			DataTable dt = new DataTable();
@@ -109,9 +118,9 @@ namespace Voxelarium.Android
 				namespace MyLoader {
 				public class Loader{ 
 					static Loader() { } 
-					public Loader( string save_path, InfoInterface ii, object dataTableRef, object socketRef ) { 
+					public Loader( string save_path, DisplayInterface ii, object dataTableRef, object socketRef ) { 
 						Assembly a = Assembly.LoadFile( save_path + ""/Voxelarium.Core.dll"" );
-						Console.WriteLine( ""a is "" + a );
+						//Console.WriteLine( ""a is "" + a );
 						Type gameType = null;
 						Type displayType = null;
 						Type[] types = a.GetTypes();
@@ -124,14 +133,32 @@ namespace Voxelarium.Android
 						}
 						object gameObject = Activator.CreateInstance( gameType );
 						object displayObject = Activator.CreateInstance( displayType, new object[] { gameObject }, null );
+
 						MethodInfo mi = displayType.GetMethod( ""Display_UpdateFrame"" );
-						Console.WriteLine( ""Got Methodinfo : "" + mi );
 						ii.updateMethod = (UpdateMethod)mi.CreateDelegate( typeof(UpdateMethod), displayObject );
+
 						mi = displayType.GetMethod( ""Display_RenderFrame"" );
-						Console.WriteLine( ""Got Methodinfo : "" + mi );
 						ii.displayMethod = (UpdateMethod)mi.CreateDelegate( typeof(UpdateMethod), displayObject );
+
+						mi = displayType.GetMethod( ""Display_InvalidateContext"" );
+						ii.invalidateContext = (UpdateMethod)mi.CreateDelegate( typeof(UpdateMethod), displayObject );
+
+						mi = displayType.GetMethod( ""Display_SetExit"" );
+						ii.setExit = (SetExit)mi.CreateDelegate( typeof(SetExit), displayObject );
+
+						mi = displayType.GetMethod( ""Display_KeyDown"" );
+						ii.onKeyDown = (KeyEvent)mi.CreateDelegate( typeof(KeyEvent), displayObject );
+
+						mi = displayType.GetMethod( ""Display_KeyUp"" );
+						ii.onKeyUp = (KeyEvent)mi.CreateDelegate( typeof(KeyEvent), displayObject );
+
+						mi = displayType.GetMethod( ""Display_OnTouchEvent"" );
+						ii.onTouchEvent = (TouchEvent)mi.CreateDelegate( typeof(TouchEvent), displayObject );
+
+						mi = displayType.GetMethod( ""Display_SetDisplayParams"" );
+						ii.setDisplayParams = (SetDisplayParams)mi.CreateDelegate( typeof(SetDisplayParams), displayObject );					
 						
-						Console.WriteLine( ""Success?"" );
+						//Console.WriteLine( ""Success?"" );
 					} 
 				}}", out m );
 
@@ -143,13 +170,13 @@ namespace Voxelarium.Android
 					object val = e.Evaluate( "typeof( MyLoader.Loader );" );
 					if( val != null )
 					{
-						InfoInterface ii = new InfoInterface();
-						object o = Activator.CreateInstance( (Type)val, new object[] { save_path, ii, dt, sock }, null );
-						Update = ii.updateMethod;
-						Render = ii.displayMethod;
-						//Assembly asm = ( (Type)e.Evaluate( "typeof(" + Loader + ");" ) ).Assembly;
-						//Log.log( "got types   " + ( DateTime.Now.Ticks - now ) );
-						//return asm;
+						displayInterface = new DisplayInterface();
+						looderObject = Activator.CreateInstance( (Type)val, new object[] { save_path, displayInterface, dt, sock }, null );
+
+						displayInterface.setExit( this, typeof( GLView1 ).GetMethod( "Exit" ) );
+
+						//displayInterface.setDevices( Keyboard, Mouse );
+
 					}
 				}
 
@@ -160,6 +187,11 @@ namespace Voxelarium.Android
 				
 		}
 
+		public void Exit()
+		{
+			System.Environment.Exit( 0 );
+		}
+
 		//Voxelarium.Core.UI.Display 
 		public GLView1( Context context ) : base( context )
 		{
@@ -168,6 +200,48 @@ namespace Voxelarium.Android
 			// and during CreateFrameBuffer
 			//this.ContextSet += GLView1_ContextSet;;
 			this.ContextRenderingApi = GLVersion.ES2;
+			this.KeyPress += GLView1_KeyPress;
+			this.Resize += GLView1_Resize;
+			this.Touch += GLView1_Touch;
+		}
+
+		void GLView1_Touch (object sender, TouchEventArgs e)
+		{
+			displayInterface.onTouchEvent( e.Event );
+		}
+
+		void GLView1_Resize (object sender, EventArgs e)
+		{
+			displayInterface.setDisplayParams( 0, 0, Width, Height );
+		}
+
+		void GLView1_KeyPress (object sender, KeyEventArgs e)
+		{
+			//e.KeyCode
+			//displayInterface.keyPress( sender, e );
+		}
+		/*
+		public override bool OnKeyDown(Keycode keyCode, KeyEvent e)
+		{
+			KeyboardKeyEventArgs args = new KeyboardKeyEventArgs();
+			args.Key = keyCode;
+			displayInterface.onKeyDown( null, args );
+			return true;
+		}
+		public override bool OnKeyUp(Keycode keyCode, KeyEvent e)
+		{
+			KeyboardKeyEventArgs args = new KeyboardKeyEventArgs();
+			args.Key = keyCode;
+			displayInterface.onKeyUp( null, args );
+			return true;
+		}
+*/
+		public override bool OnTouchEvent(MotionEvent e)
+		{
+			Console.WriteLine( "last/first touch?" );
+			if( e.PointerCount == 0 )
+				displayInterface.onTouchEvent( e );
+			return base.OnTouchEvent(e);
 		}
 
 
@@ -193,6 +267,7 @@ namespace Voxelarium.Android
 			{
 				// if you don't call this, the context won't be created
 				base.CreateFrameBuffer();
+				displayInterface.invalidateContext( null, null );
 				return;
 			}
 			catch( Exception ex )
@@ -221,14 +296,14 @@ namespace Voxelarium.Android
 		protected override void OnUpdateFrame(FrameEventArgs e)
 		{
 			base.OnUpdateFrame(e);
-			Update( this, e );
+			displayInterface.updateMethod( this, e );
 		}
 
 		// This gets called on each frame render
 		protected override void OnRenderFrame( FrameEventArgs e )
 		{
 			base.OnRenderFrame( e );
-			Render( null, e );
+			displayInterface.displayMethod( null, e );
 
 			SwapBuffers();
 		}

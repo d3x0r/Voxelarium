@@ -337,17 +337,20 @@ namespace Voxelarium.Core.Voxels
 				Manager.LoadTexturesToAtlas( TextureAtlas, ref percent, ref step, ref steps );
         }
 
-		internal void CreateDemoWorld()
+		internal void CreateDemoWorld( ref int start_percent, ref int start_step, ref int start_steps )
 		{
 			int x, y, z;
+			start_steps += 64;
+
 			for( x = -2; x <= 1; x++ )
 			{
 				for( y = -2; y <= 1; y++ )
 				{
 					for( z = -2; z <= 1; z++ )
 					{
-						Log.log( "Load guarantee {0} {1} {2}", x, y, z );
+						//Log.log( "Load guarantee {0} {1} {2}", x, y, z );
 						FindSector_Secure( x, y, z );
+						start_percent = ( ++start_step * 100 ) / start_steps;
 					}
 				}
 			}

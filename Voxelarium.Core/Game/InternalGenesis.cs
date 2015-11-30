@@ -21,6 +21,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+using Voxelarium.Common;
+
+
 #if USE_GLES2
 using Android.Graphics;
 #else
@@ -2259,13 +2262,15 @@ namespace Voxelarium.Core.Voxels
 			this.voxelTypeManager = voxelTypeManager;
 			string MiscDirectory, FileName;
 			start_steps += 10;
-			MiscDirectory = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH + "/Misc";
+			//Log.log( "long time loading Templates..." );
+			MiscDirectory = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH + "Misc";
 
 			FileName = MiscDirectory + "/tmplt_1.dat";
 			if( ( Template_1 = Display.LoadBitmap( 0, FileName ) ) == null ) return false;
 			Canva_1.SetSize( 256, 256 );
 			Canva_1.GetFromBitmap( Template_1 );
 			start_percent = ( ++start_step * 100 ) / start_steps;
+			//Log.log( "long time loading Templates 2..." );
 
 			FileName = MiscDirectory + "/tmplt_2.dat";
 			if( ( Template_2 = Display.LoadBitmap( 0, FileName ) ) == null ) return false;
@@ -2273,11 +2278,13 @@ namespace Voxelarium.Core.Voxels
 			Canva_2.GetFromBitmap( Template_2 );
 			start_percent = ( ++start_step * 100 ) / start_steps;
 
+			//Log.log( "long time loading Templates 3..." );
 			FileName = MiscDirectory + "/tmplt_3_1.dat";
 			if( ( Template_3_1 = Display.LoadBitmap( 0, FileName ) ) == null ) return false;
 			Canva_3_1.SetSize( 1024, 1024 );
 			Canva_3_1.GetFromBitmap( Template_3_1 );
 
+			//Log.log( "long time loading Templates 4..." );
 			start_percent = ( ++start_step * 100 ) / start_steps;
 			FileName = MiscDirectory + "/tmplt_3_2.dat";
 			if( ( Template_3_2 = Display.LoadBitmap( 0, FileName ) ) == null ) return false;
@@ -2285,6 +2292,7 @@ namespace Voxelarium.Core.Voxels
 			Canva_3_2.GetFromBitmap( Template_3_2, true, 1 ); // r=2 b=0 g=1
 			start_percent = ( ++start_step * 100 ) / start_steps;
 
+			//Log.log( "long time loading Templates 5..." );
 			FileName = MiscDirectory + "/tmplt_3_3.dat";
 			if( ( Template_3_3 = Display.LoadBitmap( 0, FileName ) ) == null ) return false;
 			Canva_3_3.SetSize( 1024, 1024 );

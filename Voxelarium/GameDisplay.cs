@@ -28,7 +28,8 @@ namespace Voxelarium
 			display.Mouse = Mouse;
 			display.Keyboard = Keyboard;
 			UpdateFrame += display.Display_UpdateFrame;
-			RenderFrame += display.GameDisplay_RenderFrame;
+			RenderFrame += display.Display_RenderFrame;
+			RenderFrame += GameDisplay_RenderFrame;
 			display.Width = Width;
 			display.Height = Height;
 			display.X = X;
@@ -46,8 +47,13 @@ namespace Voxelarium
 			Move += GameDisplay_Move;
 
 			display.Exit = Exit;
-			display.SwapBuffers = SwapBuffers;
+			//display.SwapBuffers = SwapBuffers;
 		}
+
+		private void GameDisplay_RenderFrame( object sender, FrameEventArgs e )
+		{
+			SwapBuffers();
+        }
 
 		private void GameDisplay_Move( object sender, EventArgs e )
 		{

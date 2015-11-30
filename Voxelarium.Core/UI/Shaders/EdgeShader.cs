@@ -64,15 +64,21 @@ namespace Voxelarium.Core.UI.Shaders
 			+ "varying vec2 ex_Texture;"
 			+ "varying vec4 ex_Color;"
 			+ "void main(void) {"
-			+ "  float a = ex_Texture.x - round(ex_Texture.x );\n"
-			+ "  float b = ex_Texture.y - round(ex_Texture.y );\n"
-			+ "  float g;\n"
-			+ "  float h;\n"
-			+ "  vec3 white;\n"
-			+ "  a = 4.0f*(0.25-a*a);\n"
-			+ "  b = 4.0f*(0.25-b*b);\n"
-			+ "  a = pow( a, in_Pow );\n"
-			+ "  b = pow( b, in_Pow );\n"
+			+
+			#if USE_GLES2
+			@"float a = mod(ex_Texture.x +0.5f, 1.0f )-0.5f;
+			  float b = mod(ex_Texture.y +0.5f, 1.0f )-0.5f;" +
+			#else
+			@"float a = ex_Modulous.x - round(ex_Modulous.x );
+			  float b = ex_Modulous.y - round(ex_Modulous.y );"+
+			#endif
+			 @"  float g;
+				  float h;
+ 				vec3 white;
+				a = 4.0f*(0.25-a*a);
+				b = 4.0f*(0.25-b*b);
+				a = pow( a, in_Pow );
+				b = pow( b, in_Pow );" +
 #if MORE_ROUNDED
 			+ "  g = sqrt((a*a+b*b)/2);\n"
 			+ "  h = pow(g,200.0) * 0.5;\n"  // up to 600 even works...
@@ -81,11 +87,11 @@ namespace Voxelarium.Core.UI.Shaders
 			+ "  gl_FragColor = vec4( h * in_Color.rgb, in_Color.a ) ;"
 #else
 			//+ "  g = pow( ( max(a,b)),in_Pow);\n"
-			+ "  g = min(1.0f,b+a);\n"
-			+ "  h = max((b+a)-1.0f,0.0f)/3.0f;\n"
-			//+ "  gl_FragColor = vec4( a,b,0,1) ;"
-			+ "  white = vec3(1,1,1) * max(in_Color.r,max(in_Color.g,in_Color.b));\n"
-			+ "  gl_FragColor = vec4( (1.0f-g)*in_FaceColor.rgb + h * ( white - in_FaceColor.rgb )+ (g * in_Color.rgb), in_Color.a ) ;"
+			@"  g = min(1.0f,b+a);
+		       h = max((b+a)-1.0f,0.0f)/3.0f;
+			//  gl_FragColor = vec4( a,b,0,1) ;
+			  white = vec3(1,1,1) * max(in_Color.r,max(in_Color.g,in_Color.b));
+			  gl_FragColor = vec4( (1.0f-g)*in_FaceColor.rgb + h * ( white - in_FaceColor.rgb )+ (g * in_Color.rgb), in_Color.a ) ;"
 #endif
 			+ "}";
 
@@ -153,32 +159,37 @@ namespace Voxelarium.Core.UI.Shaders
 			"#version 130\n"
 			+ 
 #endif
-			  "uniform  float in_Pow;\n"
-			+ "varying vec2 ex_Texture;"
-			+ "varying vec4 ex_Color;"
-			+ "void main(void) {"
-			+ "  float a = ex_Texture.x - round(ex_Texture.x );\n"
-			+ "  float b = ex_Texture.y - round(ex_Texture.y );\n"
-			+ "  float g;\n"
-			+ "  float h;\n"
-			+ "  vec3 white;\n"
-			+ "  a = 4.0f*(0.25-a*a);\n"
-			+ "  b = 4.0f*(0.25-b*b);\n"
-			+ "  a = pow( a, in_Pow );\n"
-			+ "  b = pow( b, in_Pow );\n"
+			  @"uniform  float in_Pow;
+			    varying vec2 ex_Texture;
+			    varying vec4 ex_Color;
+			    void main(void) {" +
+			#if USE_GLES2
+			@"float a = mod(ex_Texture.x +0.5f, 1.0f )-0.5f;
+			  float b = mod(ex_Texture.y +0.5f, 1.0f )-0.5f;" +
+			#else
+			@"float a = ex_Modulous.x - round(ex_Modulous.x );
+			  float b = ex_Modulous.y - round(ex_Modulous.y );"+
+			#endif
+			  @"float g;
+			  float h;
+			  vec3 white;
+			  a = 4.0f*(0.25-a*a);
+			  b = 4.0f*(0.25-b*b);
+			  a = pow( a, in_Pow );
+			  b = pow( b, in_Pow );"+
 #if MORE_ROUNDED
-			+ "  g = sqrt((a*a+b*b)/2);\n"
-			+ "  h = pow(g,200.0) * 0.5;\n"  // up to 600 even works...
-			+ "  g = pow( ( max(a,b)),400);\n"
-			+ "  h = (g+h);"
-			+ "  gl_FragColor = vec4( h * in_Color.rgb, in_Color.a ) ;"
+			   @" g = sqrt((a*a+b*b)/2);
+			    h = pow(g,200.0) * 0.5;  // up to 600 even works...
+			    g = pow( ( max(a,b)),400);
+			    h = (g+h);
+			    gl_FragColor = vec4( h * in_Color.rgb, in_Color.a ) ;"
 #else
 			//+ "  g = pow( ( max(a,b)),in_Pow);\n"
 			//+ "  h = pow( ( a*b),in_Pow/4);\n"
-			+ "  g = min(1.0f,b+a);\n"
-			+ "  h = max((b+a)-1.0f,0.0f)/3.0f;\n"
-			+ "  white = vec3(1.0f,1.0f,1.0f) * max(ex_Color.r,max(ex_Color.g,ex_Color.b));\n"
-			+ "  gl_FragColor = vec4( h * white + (g * ex_Color.rgb), ex_Color.a ) ;"
+			  @" g = min(1.0f,b+a);
+			   h = max((b+a)-1.0f,0.0f)/3.0f;
+			   white = vec3(1.0f,1.0f,1.0f) * max(ex_Color.r,max(ex_Color.g,ex_Color.b));
+			   gl_FragColor = vec4( h * white + (g * ex_Color.rgb), ex_Color.a ) ;"
 			//+ "  gl_FragColor = vec4( g * ex_Color.rgb, ex_Color.a ) ;"
 #endif
 			+ "}";

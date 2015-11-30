@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using System.Text;
 using Voxelarium.Core.Voxels;
 using Voxelarium.Core.Voxels.Types;
+using Voxelarium.Common;
 
 namespace Voxelarium.Core.UI
 {
@@ -171,7 +172,6 @@ namespace Voxelarium.Core.UI
 			Dimensions.Size.X = 2;
 			Dimensions.Size.Y = 2;
 			Dimensions.Size.Z = 10;
-
 			FirstFrame.Render( render, ref Dimensions );
 		}
 

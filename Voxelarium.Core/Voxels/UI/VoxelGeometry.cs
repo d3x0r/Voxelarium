@@ -179,6 +179,70 @@ namespace Voxelarium.Core.Voxels.UI
 			used = 0;
 		}
 
+		void SetupBuffer()
+		{
+			GL.VertexAttribPointer( GeometryShader.vertex_attrib_id, 3, VertexAttribPointerType.Float, false, VertexSize, 0 );
+			Display.CheckErr();
+			GL.EnableVertexAttribArray( GeometryShader.vertex_attrib_id );
+			Display.CheckErr();
+			if( GeometryShader.texture_attrib_id >= 0 )
+			{
+				GL.EnableVertexAttribArray( GeometryShader.texture_attrib_id );
+				Display.CheckErr();
+				GL.VertexAttribPointer( GeometryShader.texture_attrib_id, 2, VertexAttribPointerType.UnsignedShort, false, VertexSize, 16 );
+				Display.CheckErr();
+			}
+			if( GeometryShader.use_texture_id >= 0 )
+			{
+				GL.EnableVertexAttribArray( GeometryShader.use_texture_id );
+				Display.CheckErr();
+				GL.VertexAttribPointer( GeometryShader.use_texture_id, 1, VertexAttribPointerType.Byte, false, VertexSize, 20 );
+				Display.CheckErr();
+			}
+			if( GeometryShader.flat_color_id >= 0 )
+			{
+				GL.EnableVertexAttribArray( GeometryShader.flat_color_id );
+				Display.CheckErr();
+				GL.VertexAttribPointer( GeometryShader.flat_color_id, 1, VertexAttribPointerType.Byte, false, VertexSize, 21 );
+				Display.CheckErr();
+			}
+			if( GeometryShader.decal_texture_id >= 0 )
+			{
+				GL.EnableVertexAttribArray( GeometryShader.flat_color_id );
+				Display.CheckErr();
+				GL.VertexAttribPointer( GeometryShader.flat_color_id, 1, VertexAttribPointerType.Byte, false, VertexSize, 22 );
+				Display.CheckErr();
+			}
+			if( GeometryShader.power_id >= 0 )
+			{
+				GL.EnableVertexAttribArray( GeometryShader.power_id );
+				Display.CheckErr();
+				GL.VertexAttribPointer( GeometryShader.power_id, 1, VertexAttribPointerType.Short, false, VertexSize, 24 );
+				Display.CheckErr();
+			}
+			if( GeometryShader.mod_attrib_id >= 0 )
+			{
+				GL.EnableVertexAttribArray( GeometryShader.mod_attrib_id );
+				Display.CheckErr();
+				GL.VertexAttribPointer( GeometryShader.mod_attrib_id, 2, VertexAttribPointerType.UnsignedByte, false, VertexSize, 26 );
+				Display.CheckErr();
+			}
+			if( GeometryShader.color_id >= 0 )
+			{
+				GL.EnableVertexAttribArray( GeometryShader.color_id );
+				Display.CheckErr();
+				GL.VertexAttribPointer( GeometryShader.color_id, 4, VertexAttribPointerType.UnsignedByte, false, VertexSize, 28 );
+				Display.CheckErr();
+			}
+			if( GeometryShader.face_color_id >= 0 )
+			{
+				GL.EnableVertexAttribArray( GeometryShader.face_color_id );
+				Display.CheckErr();
+				GL.VertexAttribPointer( GeometryShader.face_color_id, 4, VertexAttribPointerType.UnsignedByte, false, VertexSize, 32 );
+				Display.CheckErr();
+			}
+		}
+
 		void LoadBuffer( bool transparent, bool custom )
 		{
 			bool setup_array = false;
@@ -199,6 +263,8 @@ namespace Voxelarium.Core.Voxels.UI
 					GL.GenVertexArrays();
 #elif !USE_GLES2
 					vao_solid = GL.GenVertexArray();
+#else
+					GL.Oes.GenVertexArrays( 1, out vao_solid);
 #endif
 
 #if USE_GLES2
@@ -243,10 +309,12 @@ namespace Voxelarium.Core.Voxels.UI
 #if USE_GLES3
 #elif !USE_GLES2
 					vao_transparent = GL.GenVertexArray();
+#else
+					GL.Oes.GenVertexArrays( 1, out vao_transparent);
 #endif
 
 #if USE_GLES2
-					GL.Oes.BindVertexArray( vao_solid );
+					GL.Oes.BindVertexArray( vao_transparent );
 #else
 					GL.BindVertexArray( vao_transparent );
 #endif
@@ -289,10 +357,12 @@ namespace Voxelarium.Core.Voxels.UI
 					vao_custom = GL.GenVertexArray();
 #elif !USE_GLES2
 					vao_custom = GL.GenVertexArray();
+#else
+					GL.Oes.GenVertexArrays( 1, out vao_custom);
 #endif
 
 #if USE_GLES2
-					GL.Oes.BindVertexArray( vao_solid );
+					GL.Oes.BindVertexArray( vao_custom );
 #else
 					GL.BindVertexArray( vao_custom );
 #endif
@@ -497,7 +567,7 @@ namespace Voxelarium.Core.Voxels.UI
 			else if( custom )
 			{
 #if USE_GLES2
-				GL.Oes.BindVertexArray( vao_solid );
+				GL.Oes.BindVertexArray( vao_custom );
 #else
 				GL.BindVertexArray( vao_custom );
 #endif
@@ -525,7 +595,9 @@ namespace Voxelarium.Core.Voxels.UI
 				Display.CheckErr();
 			}
 
-#if !USE_GLES2
+#if USE_GLES2
+			GL.Oes.BindVertexArray( 0 );
+#else
 			GL.BindVertexArray( 0 );
 #endif
 			Display.CheckErr();

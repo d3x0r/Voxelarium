@@ -16,7 +16,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-using System.IO;
 
 
 #if !USE_GLES2
@@ -30,7 +29,7 @@ using Android.Content.Res;
 using Android.Content;
 using OpenTK.Platform.Android;
 using Android.App;
-
+using Android.Views;
 #endif
 using OpenTK.Input;
 using OpenTK;
@@ -50,6 +49,9 @@ using Voxelarium.Core.Voxels.Types;
 using Voxelarium.Core.Voxels.Physics;
 using OpenTK.Graphics;
 using Voxelarium.Common;
+using System.IO;
+using System.Reflection;
+
 
 namespace Voxelarium.Core.UI
 {
@@ -76,6 +78,7 @@ namespace Voxelarium.Core.UI
 		int display_height;
 		int display_x;
 		int display_y;
+		internal static float Aspect;
 		internal SimpleShader simple = new SimpleShader();
 		internal SimpleInstanceShader simple_instance = new SimpleInstanceShader();
 		internal SimpleGuiShader simple_gui = new SimpleGuiShader();
@@ -86,6 +89,9 @@ namespace Voxelarium.Core.UI
 
 		internal static List<Shaders.Shader> used_shaders = new List<Shaders.Shader>();
 		internal List<Shaders.Shader> shaders = new List<Shaders.Shader>();
+
+		internal delegate void InvalidateEvent();
+		internal static event InvalidateEvent OnInvalidate;
 
 		static bool InitializedGame;
 		static bool game_loaded;
@@ -102,14 +108,15 @@ namespace Voxelarium.Core.UI
 
 		void CannotExit()
 		{
-			Log.log( "Still need a way to set exit... pass a methodinfo or something" );
+			//Log.log( "Still need a way to set exit... pass a methodinfo or something" );
+			System.Environment.Exit(0);
 		}
 
 		public Display( VoxelGameEnvironment game )
 		{
 			Exit = CannotExit;
 			this.game = game;
-			string versionOpenGL = GL.GetString(StringName.Version);
+			//string versionOpenGL = GL.GetString(StringName.Version);
 			//GL.Get
 			//display_width = Width;// = Settings.Read( "GL.Width", System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Width );
 			//display_height = Height;// = Settings.Read( "GL.Height", System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Height );
@@ -151,21 +158,29 @@ namespace Voxelarium.Core.UI
 		void ProcessMouseFreeCam( float time )
 		{
 			float del_time;
-			if( mouse == null )
-				return;
 			if( prior_mouse_time != 0 )
 			{
 				del_time = time;// - prior_mouse_time;
+				del_time = 1.0f;
+				float scale = 1;//100;
 				if( del_mouse_x != 0 )
 				{
-					float delta = (float)( del_mouse_x * del_time ) * 100;
+					float delta = (float)( del_mouse_x * del_time ) * scale;
+					#if BUILD_ANDROID
+					free_camera.RotateYaw( -delta );
+					#else
 					free_camera.RotateYaw( delta );
+					#endif
 					del_mouse_x = 0;
 				}
 				if( del_mouse_y != 0 )
 				{
-					float delta = (float)( del_mouse_y * del_time ) * 100;
+					float delta = (float)( del_mouse_y * del_time ) * scale;
+					#if BUILD_ANDROID
+					free_camera.RotatePitch( -delta );
+					#else
 					free_camera.RotatePitch( delta );
+					#endif
 					del_mouse_y = 0;
 				}
 			}
@@ -206,6 +221,81 @@ namespace Voxelarium.Core.UI
 				consumer.MouseButtonClick( button, mouse_x, mouse_y );
 
 		}
+#if BUILD_ANDROID
+		bool touch_down;
+		bool first_down;
+		public bool Display_OnTouchEvent( MotionEvent e )
+		{
+			if( e.Action == MotionEventActions.Down
+				|| e.Action != MotionEventActions.Up ) {
+				if( !touch_down )
+					first_down = true;
+				else
+					first_down = false;
+				touch_down = true;
+			} else {
+				foreach( EventConsumer consumer in game.EventManager.ConsumerList )
+					consumer.MouseButtonRelease( MouseButton.Button1, mouse_x, mouse_y );
+				touch_down = false;
+				return true; // nothing to compute
+			}
+			MotionEvent.PointerCoords coords = new MotionEvent.PointerCoords();
+			/*
+			Log.log( "Motion Events {0}  on display of {1} {2}", e.PointerCount, Width, Height );
+			//if( e.EdgeFlags & Edge.Top )
+			for( int n = 0; n < e.PointerCount; n++ ) {
+				e.GetPointerCoords( n, coords );
+				float x = coords.X;
+				float y = coords.Y;
+				float p = e.GetPressure( n );
+				Log.log( "got event at {0},{1}  {2}", x, y, p );
+			}
+			*/
+			e.GetPointerCoords( 0, coords );
+
+			mouse_x = coords.X * 2.0f / Width - 1;
+			mouse_y = ( Height - coords.Y ) * 2.0f / Height - 1;
+			if( first_down ) {
+				_mouse_x = mouse_x;
+				_mouse_y = mouse_y;
+
+				foreach( EventConsumer consumer in game.EventManager.ConsumerList )
+					consumer.MouseButtonClick( MouseButton.Button1, mouse_x, mouse_y );
+			} else {
+				if( _mouse_x != -2 ) {
+					del_mouse_x += mouse_x - _mouse_x;
+					del_mouse_y += mouse_y - _mouse_y;
+				}
+				foreach (EventConsumer consumer in game.EventManager.ConsumerList)
+					consumer.MouseMove( del_mouse_x, del_mouse_y, mouse_x, mouse_y );
+				if( HiddenMouse ) {
+					#if !USE_GLES2
+		System.Windows.Forms.Cursor.Position = new Point( ( X + Width ) / 2, ( Y + Height ) / 2 );
+					#endif
+					//_mouse_x = 0;
+					//_mouse_y = 0;
+				} else {
+					//_mouse_x = mouse_x;
+					//_mouse_y = mouse_y;
+				}
+				_mouse_x = mouse_x;
+				_mouse_y = mouse_y;
+			}
+
+			return true;
+		}
+#endif
+		
+		public void Display_SetDisplayParams( int x, int y, int width, int height )
+		{
+			//Log.log( "New display Parameters {0},{1}", width, height );
+			display_width = Width = width;
+			display_height = Height = height;
+			Matrix4.CreatePerspectiveFieldOfView( (float)( System.Math.PI / 2 ), (float)Width / (float)Height, 0.01f, 10000, out projection );
+			// so we can redo inventory box appropriately
+			// otherwise it'll be badly mis-shapen on rotated screens.
+			Aspect = (float)Width / (float)Height;
+		}
 
 		public void Display_KeyUp( object sender, KeyboardKeyEventArgs e )
 		{
@@ -224,6 +314,7 @@ namespace Voxelarium.Core.UI
 			display_x = X;
 			display_y = Y;
 		}
+
 		public void Display_Resize( object sender, EventArgs e )
 		{
 			display_width = Width;
@@ -231,6 +322,7 @@ namespace Voxelarium.Core.UI
 			GL.Viewport( 0, 0, Width, Height );
 		}
 
+		bool loaded;
 		public void Display_Load( object sender, EventArgs e )
 		{
 			//int val = GL.GetInteger( GetPName.CullFace );
@@ -294,6 +386,19 @@ namespace Voxelarium.Core.UI
 		{
 			VoxelGlobalSettings.Exiting = true;
 			Exit();
+		}
+
+		public void Display_SetExit( object o, MethodInfo mi )
+		{
+			Delegate d = Delegate.CreateDelegate( typeof( SimpleMethod ), o, mi );
+			Exit = (SimpleMethod)d;// mi.CreateDelegate( typeof(SimpleMethod), o );
+		}
+
+		public void Display_InvalidateContext( object sender, OpenTK.FrameEventArgs e )
+		{
+			if( OnInvalidate != null )
+				OnInvalidate();
+			// have to reload textures here...
 		}
 
 		public void Display_UpdateFrame( object sender, OpenTK.FrameEventArgs e )
@@ -459,6 +564,10 @@ namespace Voxelarium.Core.UI
 		int frame;
 		public void Display_RenderFrame( object sender, OpenTK.FrameEventArgs e )
 		{
+			if( !loaded ) {
+				loaded = true;
+				Display_Load( sender, e );
+			}
 			// render graphics
 			frame++;
 			GL.Clear( ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit );
@@ -503,6 +612,7 @@ namespace Voxelarium.Core.UI
 
 			Vector4 color = new Vector4( 0.5f, 0.5f, 0.2f, 1 );
 			Vector4 face_color = new Vector4( 0f, 0f, 1f, 1 );
+
 			if( edge.Activate() )
 			{
 				Display.CheckErr();
@@ -534,8 +644,7 @@ namespace Voxelarium.Core.UI
 				Display.CheckErr();
 			}
 			GL.UseProgram( 0 );
-
-			{
+			if( game.TileSetStyles != null ) {
 				TileSet.TileStyle style = game.TileSetStyles.GetStyle( 2 );
 				Box box = new Box();
 				Vector4 DrawColor = new Vector4( 1 );
@@ -545,22 +654,21 @@ namespace Voxelarium.Core.UI
 				box.Position.X = -5;
 				box.Position.Y = 0;
 				box.Position.Z = 0;
-				game.Font_1.RenderFont( this, style, ref box, "-20 X", ref DrawColor );
+				game.default_font.RenderFont( this, ref box, 1, "-20 X", ref DrawColor );
 				box.Position.X = 5;
-				game.Font_1.RenderFont( this, style, ref box, "20 X", ref DrawColor );
+				game.default_font.RenderFont( this, ref box, 1, "20 X", ref DrawColor );
 				box.Position.X = 0;
 				box.Position.Y = -5;
-				game.Font_1.RenderFont( this, style, ref box, "-20 Y", ref DrawColor );
+				game.default_font.RenderFont( this, ref box, 1, "-20 Y", ref DrawColor );
 				box.Position.Y = 5;
-				game.Font_1.RenderFont( this, style, ref box, "20 Y", ref DrawColor );
+				game.default_font.RenderFont( this, ref box, 1, "20 Y", ref DrawColor );
 				box.Position.Y = 0;
 				box.Position.Z = -5;
-				game.Font_1.RenderFont( this, style, ref box, "-20 Z", ref DrawColor );
+				game.default_font.RenderFont( this, ref box, 1, "-20 Z", ref DrawColor );
 				box.Position.Z = 5;
-				game.Font_1.RenderFont( this, style, ref box, "20 Z", ref DrawColor );
-
-				DrawDebugCube();
+				game.default_font.RenderFont( this, ref box, 1, "20 Z", ref DrawColor );
 			}
+			DrawDebugCube();
 			//Log.log( " Origin is " + free_camera.location.m_origin );
 			Display.CheckErr();
 #if !USE_GLES2
@@ -636,8 +744,17 @@ namespace Voxelarium.Core.UI
 		internal static bool FileExists( string file, out int location )
 		{
 #if BUILD_ANDROID
-			string path = file.Substring( 0, file.LastIndexOf( '/' ) );
-			string fileName = file.Substring( file.LastIndexOf( '/' ) + 1 );
+			string path, fileName;
+			if( file.Contains( "/" ) )
+			{
+				path = file.Substring( 0, file.LastIndexOf( '/' ) );
+				fileName = file.Substring( file.LastIndexOf( '/' ) + 1 );
+			}
+			else
+			{
+				path = "";
+				fileName = file;
+			}
 			String[] assets;
 			if( paths.ContainsKey( path ) )
 				assets = paths[path];
@@ -661,6 +778,7 @@ namespace Voxelarium.Core.UI
 			location = 0;
 			return false;
 #else
+			location = 0;
 			return File.Exists( file );
 #endif
 		}
@@ -686,17 +804,23 @@ namespace Voxelarium.Core.UI
 				Stream s = Application.Context.Assets.Open( file );
 				while( ( length = s.Read( tmp, 0, 4096 ) ) > 0 )
 					totlength += length;
+				s.Close();
 				tmp = new byte[totlength];
-				s.Seek( 0, SeekOrigin.Begin );
+				// have to re-open to seek 0
+				s = Application.Context.Assets.Open( file );
+				//s.Seek( 0, SeekOrigin.Begin );
 				s.Read( tmp, 0, totlength );				
-				s.Dispose();
 				s.Close();
 				return tmp;
 			}
 			else
 #endif
-				return File.ReadAllBytes( file );
-			return null;
+			{
+				//Log.log( "Location is " + location + " " + file);
+				byte[] bytes= File.ReadAllBytes( file );
+				//Log.log( "Return " + bytes.Length );
+				return bytes;
+				}
 		}
 	}
 }

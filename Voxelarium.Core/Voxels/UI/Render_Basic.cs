@@ -2474,6 +2474,7 @@ namespace Voxelarium.Core.Voxels.UI
 						}
 						break;
 				}
+
 				n = VoxelSector.ZVOXELBLOCKCOUNT;
 				foreach( ushort index in sorter )
 				{

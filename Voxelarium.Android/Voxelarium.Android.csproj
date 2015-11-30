@@ -1050,6 +1050,17 @@
     <None Include="GettingStarted.Xamarin" />
     <None Include="Resources\AboutResources.txt" />
     <None Include="Assets\AboutAssets.txt" />
+    <AndroidAsset Include="Assets\Misc\1_sect_1.dat" />
+    <AndroidAsset Include="Assets\Misc\sect_1.dat" />
+    <AndroidAsset Include="Assets\Misc\sect_2.dat" />
+    <AndroidAsset Include="Assets\Misc\tmplt_1.dat" />
+    <AndroidAsset Include="Assets\Misc\tmplt_2.dat" />
+    <AndroidAsset Include="Assets\Misc\tmplt_3_1.dat" />
+    <AndroidAsset Include="Assets\Misc\tmplt_3_2.dat" />
+    <AndroidAsset Include="Assets\Misc\tmplt_3_3.dat" />
+    <AndroidAsset Include="Assets\Misc\Vegetation_1.dat" />
+    <AndroidAsset Include="Assets\Misc\Vegetation_2.dat" />
+    <AndroidAsset Include="Assets\Misc\Vegetation_3.dat" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\layout\Main.axml" />

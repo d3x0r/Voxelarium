@@ -43,34 +43,58 @@ namespace Voxelarium.Core.UI.Shaders
 		internal int decal_texture_id; 
 
 		const string Vertex_Simple =
-				@"#version 130
-			uniform mat4 modelView;
+			#if !USE_GLES2
+				@"#version 130"+
+			#endif
+			@"uniform mat4 modelView;
 			uniform mat4 worldView;
 			uniform mat4 Projection;
 			attribute vec4 vPosition;
 			attribute vec2 in_Texture;
 			attribute  vec4 in_Color;
 			attribute  vec4 in_FaceColor;
-			attribute  float in_Pow;
-			attribute  int in_use_texture;
-			attribute  int in_flat_color;
-			attribute  int in_decal_texture;
-			attribute  vec2 in_Modulous;
+			attribute  float in_Pow;"+
+		#if USE_GLES2
+		@"
+			attribute  float in_use_texture;
+			attribute  float in_flat_color;
+			attribute  float in_decal_texture;"+
+		#else
+		@"
+		attribute  int in_use_texture;
+		attribute  int in_flat_color;
+		attribute  int in_decal_texture;"+
+		#endif
+		
+		@"	attribute  vec2 in_Modulous;
 			varying vec4 ex_Color;
 			varying vec2 ex_texCoord;
-			varying  float ex_Pow;
-			flat out  int ex_use_texture;
+			varying  float ex_Pow;"+
+		#if USE_GLES2
+			@"float ex_use_texture;
+			float ex_flat_color;
+			float ex_decal_texture;
+			varying vec4 ex_FaceColor;"+
+		#else
+			@"flat out  int ex_use_texture;
 			flat out  int ex_flat_color;
 			flat out  int ex_decal_texture;
-			out vec4 ex_FaceColor;
-			varying  vec2 ex_Modulous;
+			out vec4 ex_FaceColor;"+
+		#endif
+			@"varying  vec2 ex_Modulous;
 			void main(void) {
 			//  gl_Position = Projection * worldView * modelView * vPosition;
-				gl_Position = Projection * worldView * vPosition;
-				ex_texCoord = in_Texture/65535;
+				gl_Position = Projection * worldView * vPosition;"+
+		#if USE_GLES2
+				@"ex_texCoord = in_Texture/65535.0f;
+				ex_Color = in_Color/255.0f;
+				ex_FaceColor = in_FaceColor/255.0f;"+
+		#else
+				@"ex_texCoord = in_Texture/65535;
 				ex_Color = in_Color/255;
-				ex_FaceColor = in_FaceColor/255;
-				ex_Pow = in_Pow;
+				ex_FaceColor = in_FaceColor/255;"+
+		#endif
+				@"ex_Pow = in_Pow;
 				ex_use_texture = in_use_texture;
 				ex_flat_color = in_flat_color;
 				ex_Modulous = in_Modulous;
@@ -78,33 +102,64 @@ namespace Voxelarium.Core.UI.Shaders
 			;
 
 		const string Fragment_Simple =
-			@"#version 130
-			varying vec2 ex_texCoord;
-			varying vec4 ex_Color;
-			in float ex_Pow;
-			flat in  int ex_use_texture;
-			flat in  int ex_flat_color;
-			in  vec2 ex_Modulous;
-			in  vec4 ex_FaceColor;
+			#if !USE_GLES2
+			@"#version 130"+
+			#endif
+			@"varying vec2 ex_texCoord;
+			varying vec4 ex_Color;" +
+		#if USE_GLES2
+		@"varying float ex_Pow;
+			float ex_use_texture;
+			float ex_flat_color;
+			varying vec2 ex_Modulous;
+			varying vec4 ex_FaceColor;
 			uniform sampler2D tex;
 			void main(void) {
-			  if( ex_use_texture != 0 )
+			  if( ex_use_texture > 0.5f )
 				{
 					gl_FragColor = ex_Color * texture2D( tex, ex_texCoord );
 				}
-				else if( ex_flat_color != 0 )
+				else if( ex_flat_color > 0.5f )
 				{
 					gl_FragColor =vec4(1,0,1,1);// ex_Color;
 				}
 				else
 				{
-				float a = ex_Modulous.x - round(ex_Modulous.x );
+			" +
+						#else
+			@"in float ex_Pow;
+			flat in  int ex_use_texture;
+			flat in  int ex_flat_color;
+			in  vec2 ex_Modulous;
+			in  vec4 ex_FaceColor;
+		    uniform sampler2D tex;
+		void main(void) {
+		if( ex_use_texture != 0 )
+		{
+		gl_FragColor = ex_Color * texture2D( tex, ex_texCoord );
+		}
+		else if( ex_flat_color != 0 )
+		{
+		gl_FragColor =vec4(1,0,1,1);// ex_Color;
+		}
+		else
+		{
+		" +
+		#endif
+		#if USE_GLES2
+				@"float a = mod(ex_Modulous.x +0.5f, 1.0f )-0.5f;
+				float b = mod(ex_Modulous.y +0.5f, 1.0f )-0.5f;
+				"+
+		#else
+				@"float a = ex_Modulous.x - round(ex_Modulous.x );
 				float b = ex_Modulous.y - round(ex_Modulous.y );
-				float g;
+				"+
+		#endif
+				@"float g;
 				float h;
 				vec3 white;
-				a = 4*(0.25-a*a);
-				b = 4*(0.25-b*b);
+				a = 4.0f*(0.25f-a*a);
+				b = 4.0f*(0.25f-b*b);
 				a = pow( a, ex_Pow );
 				b = pow( b, ex_Pow );
 			"
@@ -117,12 +172,12 @@ namespace Voxelarium.Core.UI.Shaders
 #else
 			+ @"//g = pow( ( max(a,b)),in_Pow);
 				//h = pow( ( a*b),in_Pow/4);
-				g = min(1,b+a);
-				h = max((b+a)-1,0)/3;
-				white = vec3(1,1,1) * max(ex_Color.r,max(ex_Color.g,ex_Color.b));
+				g = min(1.0f,b+a);
+				h = max((b+a)-1.0f,0.0f)/3.0f;
+				white = vec3(1.0f,1.0f,1.0f) * max(ex_Color.r,max(ex_Color.g,ex_Color.b));
 			//	gl_FragColor = vec4( h * white + (g * ex_Color.rgb), ex_Color.a ) ;
 			//  gl_FragColor = vec4( g * ex_Color.rgb, ex_Color.a ) ;
-			    gl_FragColor = vec4( (1-g)*ex_FaceColor.rgb + h* ( white - ex_FaceColor.rgb )+ (g* ex_Color.rgb), ex_Color.a ) ;
+			    gl_FragColor = vec4( (1.0f-g)*ex_FaceColor.rgb + h* ( white - ex_FaceColor.rgb )+ (g* ex_Color.rgb), ex_Color.a ) ;
 			"
 #endif
 			 + @" } 
