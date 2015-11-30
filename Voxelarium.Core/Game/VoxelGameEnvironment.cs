@@ -504,21 +504,20 @@ namespace Voxelarium.Core
 			System.IO.Directory.CreateDirectory( Path_UserTextures );
 
 			Initialized_UserDataStorage = true;
-			Log.log( "Ended OK : UserDataStorage Initialization" );
+			//Log.log( "Ended OK : UserDataStorage Initialization" );
 			return ( true );
 		}
 
 		bool Init_VoxelTypeManager( bool nogui )
 		{
 			string Msg;
-			Log.log( "Starting : VoxelTypeManager Init" );
+			//Log.log( "Starting : VoxelTypeManager Init" );
 			//if (!Initialized_GraphicMode)    {ZString Err ="Can't init VoxelTypeManager : GraphicMode init not completed"; InitLog.Log(3, ZLog::FAIL, Err); return(false);}
 			//if (!Initialized_Glew)           {ZString Err ="Can't init VoxelTypeManager : Glew init not completed"; InitLog.Log(4, ZLog::FAIL, Err); return(false);}
 			VoxelTypeManager = new VoxelTypeManager();
 			VoxelTypeManager.SetGameEnv( this );
 			if( !VoxelTypeManager.LoadVoxelTypes( nogui ) ) { string Err = "Can't init VoxelTypeManager."; Log.log( Err ); return ( false ); }
-			Msg = "Loaded " + VoxelTypeManager.GetTexturesCount() + " Voxel Textures.";
-			Log.log( Msg );
+			//Log.log( "Loaded " + VoxelTypeManager.GetTexturesCount() + " Voxel Textures." );
 			if( VoxelTypeManager.GetTexturesCount() < 10 ) { string Err; Err = "Missing Texture files (count : " + VoxelTypeManager.GetTexturesCount() + ")"; Log.log( Err ); return ( false ); }
 			if( null != VoxelTypeManager.GetVoxelType( 50 ) ) VoxelTypeManager.FillZeroSlots( 50 );
 			else return ( false );

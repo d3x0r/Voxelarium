@@ -10,6 +10,7 @@ using Voxelarium.Core.Voxels.Types;
 using Voxelarium.Core.Voxels.UI;
 using Voxelarium.Core.Voxels.Physics;
 using Voxelarium.Common;
+using Voxelarium.Core.UI;
 
 namespace Voxelarium.Core.Voxels
 {
@@ -751,6 +752,7 @@ namespace Voxelarium.Core.Voxels
 
 		public VoxelSector( VoxelGameEnvironment GameEnv, VoxelWorld world, int x = 0, int y = 0, int z = 0 )
 		{
+			Display.OnInvalidate += Display_OnInvalidate;
 			//Console.WriteLine( "Sectors in memory : " + SectorsInMemory + " at " + x + ","+y+","+z );
 			Pos_x = x;
 			Pos_y = y;
@@ -764,6 +766,11 @@ namespace Voxelarium.Core.Voxels
 			{
 				physics = new PhysicsEngine.Sector( GameEnv.Engine, world, this );
 			}
+		}
+
+		void Display_OnInvalidate ()
+		{
+			Flag_Render_Dirty = true;
 		}
 
 		public VoxelSector( VoxelSector Sector )

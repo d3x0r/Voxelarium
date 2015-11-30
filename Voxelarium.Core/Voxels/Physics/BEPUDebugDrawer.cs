@@ -2,6 +2,9 @@
 using OpenTK.Graphics.OpenGL;
 #else
 using OpenTK.Graphics.ES20;
+using Voxelarium.Core.UI;
+
+
 #endif
 using BEPUutilities;
 using System;
@@ -26,25 +29,29 @@ namespace Voxelarium.Core.Voxels.Physics
 			Console.WriteLine( "Draw GL Text : " + textString );
 		}
 
-		public  void drawContactPoint( ref Vector3 PointOnB, ref Vector3 normalOnB, double distance, int lifeTime, ref Vector3 color )
+		public  void drawContactPoint( Display render, ref Vector3 PointOnB, ref Vector3 normalOnB, double distance, int lifeTime, ref Vector3 color )
 		{
 			Vector3 tmpD;
 			PointOnB.Add( ref normalOnB, out tmpD );
-			drawLine( ref PointOnB, ref tmpD, ref color, ref color );
+			drawLine( render, ref PointOnB, ref tmpD, ref color, ref color );
 
 		}
 
-		public static void drawLine( ref Vector3 from, ref Vector3 to, ref Vector3 fromColor, ref Vector3 toColor )
+		public static void drawLine( Display render, ref Vector3 from, ref Vector3 to, ref Vector3 fromColor, ref Vector3 toColor )
 		{
-#if !USE_GLES2
-			GL.DrawArrays( PrimitiveType.TriangleStrip, 0, 4 );
-			GL.Begin( PrimitiveType.Lines );
-			GL.Color3( fromColor.ToFloat3() );
-			GL.Vertex3( from.ToFloat3() );
-			GL.Color3( toColor.ToFloat3() );
-			GL.Vertex3( to.ToFloat3() );
-			GL.End();
-#endif
+			OpenTK.Vector3[] v = new OpenTK.Vector3[2];
+			OpenTK.Vector4 c;
+			c.X = fromColor.X;
+			c.Y = fromColor.Y;
+			c.Z = fromColor.Z;
+			c.W = 1;
+			v[0].X = from.X;
+			v[0].Y = from.Y;
+			v[0].Z = from.Z;
+			v[1].X = to.X;
+			v[1].Y = to.Y;
+			v[1].Z = to.Z;
+			render.simple.DrawLine( v, ref c );
 		}
 
 		public  void reportErrorWarning( string warningString )
@@ -52,7 +59,7 @@ namespace Voxelarium.Core.Voxels.Physics
 			Console.WriteLine( warningString );
 		}
 
-		static void DrawBoundingBox( BoundingBox bb )
+		static void DrawBoundingBox( Display render, BoundingBox bb )
 		{
 			///Box box = e as Box;
 			// = e.CollisionInformation.BoundingBox;
@@ -81,21 +88,21 @@ namespace Voxelarium.Core.Voxels.Physics
 			Vector3 white = Vector3.One;
 			white.Y = 0;
 			white.Z = 0;
-			drawLine( ref corners[0], ref corners[1], ref white, ref white );
-			drawLine( ref corners[1], ref corners[2], ref white, ref white );
-			drawLine( ref corners[2], ref corners[3], ref white, ref white );
-			drawLine( ref corners[3], ref corners[0], ref white, ref white );
-			drawLine( ref corners[0], ref corners[4], ref white, ref white );
-			drawLine( ref corners[1], ref corners[5], ref white, ref white );
-			drawLine( ref corners[2], ref corners[6], ref white, ref white );
-			drawLine( ref corners[3], ref corners[7], ref white, ref white );
-			drawLine( ref corners[4], ref corners[5], ref white, ref white );
-			drawLine( ref corners[5], ref corners[6], ref white, ref white );
-			drawLine( ref corners[6], ref corners[7], ref white, ref white );
-			drawLine( ref corners[7], ref corners[4], ref white, ref white );
+			drawLine( render, ref corners[0], ref corners[1], ref white, ref white );
+			drawLine( render, ref corners[1], ref corners[2], ref white, ref white );
+			drawLine( render, ref corners[2], ref corners[3], ref white, ref white );
+			drawLine( render, ref corners[3], ref corners[0], ref white, ref white );
+			drawLine( render, ref corners[0], ref corners[4], ref white, ref white );
+			drawLine( render, ref corners[1], ref corners[5], ref white, ref white );
+			drawLine( render, ref corners[2], ref corners[6], ref white, ref white );
+			drawLine( render, ref corners[3], ref corners[7], ref white, ref white );
+			drawLine( render, ref corners[4], ref corners[5], ref white, ref white );
+			drawLine( render, ref corners[5], ref corners[6], ref white, ref white );
+			drawLine( render, ref corners[6], ref corners[7], ref white, ref white );
+			drawLine( render, ref corners[7], ref corners[4], ref white, ref white );
 		}
 
-		static void DrawBox( Box box )
+		static void DrawBox( Display render, Box box )
 		{
 			{
 				Vector3 o = box.WorldTransform.Translation;
@@ -117,29 +124,29 @@ namespace Voxelarium.Core.Voxels.Physics
 				corners[7] = corners[0] - ( zdir * size.Z ) - ( ydir * size.Y );
 
 				Vector3 white = Vector3.One;
-				drawLine( ref corners[0], ref corners[1], ref white, ref white );
-				drawLine( ref corners[1], ref corners[2], ref white, ref white );
-				drawLine( ref corners[2], ref corners[3], ref white, ref white );
-				drawLine( ref corners[3], ref corners[0], ref white, ref white );
-				drawLine( ref corners[0], ref corners[4], ref white, ref white );
-				drawLine( ref corners[1], ref corners[5], ref white, ref white );
-				drawLine( ref corners[2], ref corners[6], ref white, ref white );
-				drawLine( ref corners[3], ref corners[7], ref white, ref white );
-				drawLine( ref corners[4], ref corners[5], ref white, ref white );
-				drawLine( ref corners[5], ref corners[6], ref white, ref white );
-				drawLine( ref corners[6], ref corners[7], ref white, ref white );
-				drawLine( ref corners[7], ref corners[4], ref white, ref white );
+				drawLine( render, ref corners[0], ref corners[1], ref white, ref white );
+				drawLine( render, ref corners[1], ref corners[2], ref white, ref white );
+				drawLine( render, ref corners[2], ref corners[3], ref white, ref white );
+				drawLine( render, ref corners[3], ref corners[0], ref white, ref white );
+				drawLine( render, ref corners[0], ref corners[4], ref white, ref white );
+				drawLine( render, ref corners[1], ref corners[5], ref white, ref white );
+				drawLine( render, ref corners[2], ref corners[6], ref white, ref white );
+				drawLine( render, ref corners[3], ref corners[7], ref white, ref white );
+				drawLine( render, ref corners[4], ref corners[5], ref white, ref white );
+				drawLine( render, ref corners[5], ref corners[6], ref white, ref white );
+				drawLine( render, ref corners[6], ref corners[7], ref white, ref white );
+				drawLine( render, ref corners[7], ref corners[4], ref white, ref white );
 			}
 		}
 
-		public static void DrawSpace( PhysicsEngine engine )
+		public static void DrawSpace( Display render, PhysicsEngine engine )
 		{
 			if( engine != null )
 			{
 				foreach( Entity e in engine.test_entitites )
 				{
 					Box box = e as Box;
-					DrawBox( box );
+					DrawBox( render, box );
 				}
 				lock( engine.active_sectors )
 				{

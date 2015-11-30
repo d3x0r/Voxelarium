@@ -83,6 +83,23 @@ namespace Voxelarium.Core.UI.Shaders
 			Display.CheckErr();
 		}
 
+		internal void DrawLine( Vector3[] verts, ref Vector4 color )
+		{
+			GL.Uniform4( color_id, ref color );
+			Display.CheckErr();
+			GL.EnableVertexAttribArray( vertex_attrib_id );
+			Display.CheckErr();
+			GL.VertexAttribPointer( vertex_attrib_id, 3, VertexAttribPointerType.Float, false, 0, verts );
+			Display.CheckErr();
+			#if !USE_GLES2
+			GL.DrawArrays( PrimitiveType.Lines, 0, 2 );
+			#else
+			GL.DrawArrays( BeginMode.Lines, 0, 2 );
+			#endif
+			Display.CheckErr();
+
+		}
+
 		internal unsafe void DrawBox( float[] verts, ref Vector4 color )
 		{
 			fixed( float *_verts = verts )

@@ -97,14 +97,30 @@ namespace Voxelarium.Core.Voxels.UI
 
 		internal VoxelGeometry()
 		{
+			Display.OnInvalidate += Display_OnInvalidate;
 			vbo_solid = -1;
 			vao_solid = -1;
 			vbo_transparent = -1;
 			vao_transparent = -1;
+			vbo_custom = -1;
+			vao_custom = -1;
+		
 			solid_available = 100;
 			solid_buffer = new Vertex[solid_available];
 			transparent_available = 100;
 			transparent_buffer = new Vertex[transparent_available];
+			custom_available = 100;
+			custom_buffer = new Vertex[transparent_available];
+		}
+
+		void Display_OnInvalidate ()
+		{
+			vbo_solid = -1;
+			vao_solid = -1;
+			vbo_transparent = -1;
+			vao_transparent = -1;
+			vbo_custom = -1;
+			vao_custom = -1;
 		}
 
 		void UpdateInternals()

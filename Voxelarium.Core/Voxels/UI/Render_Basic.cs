@@ -924,10 +924,13 @@ namespace Voxelarium.Core.Voxels.UI
 				{
 					if( GameEnv.Enable_LoadNewSector )
 						world.RequestSector( x, y, z, Priority + PriorityBoost );
-					GL.Disable( EnableCap.DepthTest );
-					if( SectorVisible )
-						Render_EmptySector( display, world, x, y, z, 1.0f, 0.3f, 0.1f );
-					GL.Enable( EnableCap.DepthTest );
+					if( VoxelGlobalSettings.COMPILEOPTION_DRAW_MISSING_SECTORS )
+					{
+						GL.Disable( EnableCap.DepthTest );
+						if( SectorVisible ) // culling 
+							Render_EmptySector( display, world, x, y, z, 1.0f, 0.3f, 0.1f );
+						GL.Enable( EnableCap.DepthTest );
+					}
 					//return;
 				}
 			}
@@ -1423,6 +1426,7 @@ namespace Voxelarium.Core.Voxels.UI
 			}
 		}
 
+		#if FOUND_OPTIMAL_SORTING
 		struct BinaryQueueNode {
 			internal int minx, maxx, midx;
 			internal int miny, maxy, midy;
@@ -1882,6 +1886,7 @@ namespace Voxelarium.Core.Voxels.UI
 				}
 			}
 		}
+		#endif
 
 		internal static void BuildSortList( ref int start_percent, ref int start_step, ref int start_steps )
 		{

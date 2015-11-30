@@ -44,6 +44,7 @@ namespace Voxelarium.Core.Voxels
 		public const bool COMPILEOPTION_ALLOWJUMPANDBUILD = true; // Jump and build allow building when floating in the air (Like when jumping).
 
 		public const bool COMPILEOPTION_ALLOWSAVE = true;
+		public const bool COMPILEOPTION_DRAW_MISSING_SECTORS = false;
 #if DEVELOPPEMENT_ON
 		public const bool COMPILEOPTION_FABDATABASEOUTPUT = false;
 		public const bool COMPILEOPTION_BOUNDCHECKING = true;

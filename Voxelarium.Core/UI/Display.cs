@@ -671,6 +671,8 @@ namespace Voxelarium.Core.UI
 			DrawDebugCube();
 			//Log.log( " Origin is " + free_camera.location.m_origin );
 			Display.CheckErr();
+
+			BulletDebugDrawer.DrawSpace( this, game.Engine );
 #if !USE_GLES2
 			GL.MatrixMode( MatrixMode.Projection );
 			GL.LoadMatrix( ref projection );
@@ -688,7 +690,6 @@ namespace Voxelarium.Core.UI
 				}
 			}
 			Shader.Deactivate();
-			BulletDebugDrawer.DrawSpace( game.Engine );
 
 			//GL.BindTexture( TextureTarget.Texture2D, frame %100 );
 			GL.Begin( PrimitiveType.Triangles );
