@@ -15,6 +15,7 @@ using BEPUphysics;
 using BEPUphysics.Entities;
 using BEPUphysics.Entities.Prefabs;
 using Voxelarium.Core.Support;
+using Voxelarium.Core.UI;
 
 namespace Voxelarium.Core.Voxels.Physics
 {
@@ -51,6 +52,7 @@ namespace Voxelarium.Core.Voxels.Physics
 			v[1].X = to.X;
 			v[1].Y = to.Y;
 			v[1].Z = to.Z;
+			render.simple.Activate();
 			render.simple.DrawLine( v, ref c );
 		}
 

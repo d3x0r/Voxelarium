@@ -22,8 +22,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 using OpenTK;
-using System;
-using System.Collections.Generic;
 using Voxelarium.Core.UI;
 
 namespace Voxelarium.Core.Game.Screens
@@ -32,7 +30,6 @@ namespace Voxelarium.Core.Game.Screens
 	{
 		FontFrame Frame_Loading;
 		ProgressBar LoadProgress;
-		Vector2 Loading_Size;
 		internal ScreenLoading( VoxelGameEnvironment.Pages page_id ) : base( page_id )
 		{
 		}
@@ -50,10 +47,11 @@ namespace Voxelarium.Core.Game.Screens
 					Frame_Loading.SetDisplayText( "LOADING..." );
 					Frame_Loading.Font = GameEnv.default_font;// SetStyle( GameEnv.TileSetStyles.GetStyle( 1 ) );
 					Frame_Loading.FontSize = ( 2.0f / 10 );
+					Vector2 Loading_Size;
 					Frame_Loading.GetTextDisplaySize( out Loading_Size );
 					Frame_Loading.SetPosition(  1-Loading_Size.X / 2.0f, 1-Loading_Size.Y / 2.0f );
 					Frame_Loading.SetSize( Loading_Size.X + 1.0f, Loading_Size.Y );
-					Frame_Loading.TextureNum = 3;
+					Frame_Loading.TextureNum = TextureID.OldFont;
 
 					LoadProgress = new ProgressBar();
 					LoadProgress.SetPosition( 0.5f, 0.5f );

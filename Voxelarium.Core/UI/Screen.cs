@@ -30,15 +30,14 @@ namespace Voxelarium.Core.UI
 	internal abstract class Screen
 	{
 		protected VoxelGameEnvironment.Pages page_id;
-		public delegate ScreenChoices Process( VoxelGameEnvironment Game );
+
 		public enum ScreenChoices {
-			SAME_SCREEN = -1,
 			CHOICE_RETURN,
             MAIN_MENU,
 			QUIT,
 			OPTIONS,
 			PLAYGAME,
-			NONE
+			NONE // no action, stay on this screen
 				, SlotChoice1
 				, SlotChoice2
 				, SlotChoice3
@@ -57,8 +56,8 @@ namespace Voxelarium.Core.UI
 				, SlotChoice16
 		};
 		internal ScreenChoices ResultCode;
-		internal Screen( VoxelGameEnvironment.Pages Page_id ) { page_id = Page_id; ResultCode = ScreenChoices.SAME_SCREEN; }
-		internal abstract ScreenChoices ProcessScreen( VoxelGameEnvironment Game );
+		internal Screen( VoxelGameEnvironment.Pages Page_id ) { page_id = Page_id; ResultCode = ScreenChoices.NONE; }
+		internal abstract ScreenChoices ProcessScreen( VoxelGameEnvironment GameEnv );
 
 		// because coordindates are now -1 to 1 instead of 0 to X
 		internal static float SclX( float x ) { return x / 1920; }

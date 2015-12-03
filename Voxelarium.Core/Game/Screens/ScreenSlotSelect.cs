@@ -79,9 +79,9 @@ namespace Voxelarium.Core.Game.Screens
 
 				Size.Y = 0.2f;
 				Size.X = Size.Y * 10.0f;
-				LogoBlackvoxel.SetPosition( 0, 2-0.2f );
+				LogoBlackvoxel.SetPosition( 0.1f, 2-0.2f );
 				LogoBlackvoxel.SetSize( Size.X, Size.Y );
-				LogoBlackvoxel.SetTexture( 1 );
+				LogoBlackvoxel.SetTexture( TextureID.TitleBanner );
 				GameEnv.GuiManager.AddFrame( LogoBlackvoxel );
 
 				// DÃ©finition et rÃ©glage du sous-titre
@@ -123,7 +123,7 @@ namespace Voxelarium.Core.Game.Screens
 					//SlotPos.Y = (i / 4 * (2.0f / 4.3f)) + ( i/ 8 * (2.0f * 0.05f) ) + (float)2.0f * 0.025f;
 					SlotSize.X = 2.0f / 5.0f;
 					SlotSize.Y = 2.0f / 10.0f;
-					Slot[i].SetTexture( 11 );
+					Slot[i].SetTexture( TextureID.Title2 );
 
 					if( SlotUsed[i] ) Slot[i].SetColor( 1.0f, 1.0f, 1.0f );
 					else Slot[i].SetColor( 1.0f, 1.0f, 1.0f );
@@ -139,7 +139,7 @@ namespace Voxelarium.Core.Game.Screens
 					SlotTitle[i].SetDisplayText( SlotString[i] );
 					SlotTitle[i].Font = GameEnv.default_font;//.SetStyle( GameEnv.TileSetStyles.GetStyle( 3 ) );
 					SlotTitle[i].FontSize = ( 2.0f / 30 );
-					SlotTitle[i].SetTexture( 3 );
+					SlotTitle[i].SetTexture( TextureID.OldFont );
 					SlotTitle[i].GetTextDisplaySize( out Size );
 					SlotTitle[i].SetPosition( SlotSize.X * 0.07f, SlotSize.Y * 0.2f );
 					// SlotTitle[i].SetPosition(SlotSize.X / 2 - Size.X/2, SlotSize.Y * 0.2f);
@@ -154,7 +154,7 @@ namespace Voxelarium.Core.Game.Screens
 					SlotStatus[i].SetDisplayText( StatusString[i] );
 					SlotStatus[i].Font = GameEnv.default_font;//.SetStyle( GameEnv.TileSetStyles.GetStyle( 3 ) );
 					SlotStatus[i].FontSize = ( 2.0f / 30 );
-					SlotStatus[i].SetTexture( 3 );
+					SlotStatus[i].SetTexture( TextureID.OldFont );
 					SlotStatus[i].GetTextDisplaySize( out Size );
 					SlotStatus[i].SetPosition( SlotSize.X * 0.65f, SlotSize.Y * 0.65f );
 					// SlotStatus[i].SetPosition(SlotSize.X / 2 - Size.X/2, SlotSize.Y * 0.45f);
@@ -181,8 +181,8 @@ namespace Voxelarium.Core.Game.Screens
 
 				for( i = 0; i < 16; i++ )
 				{
-					if( Slot[i].Is_MouseIn() ) Slot[i].SetTexture( 12 );
-					if( Slot[i].Is_MouseOut() ) Slot[i].SetTexture( 11 );
+					if( Slot[i].Is_MouseIn() ) Slot[i].SetTexture( TextureID.Title3 );
+					if( Slot[i].Is_MouseOut() ) Slot[i].SetTexture( TextureID.Title2 );
 					if( Slot[i].Is_MouseClick() ) { ChoosedSlot = ScreenChoices.SlotChoice1+i; }
 				}
 

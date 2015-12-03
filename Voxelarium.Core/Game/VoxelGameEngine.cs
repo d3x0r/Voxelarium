@@ -47,6 +47,8 @@ namespace Voxelarium.Core
 			, SETTINGS_KEYMAP
 			, GAME_WORLD_1
 			, SAVE_GAME
+			, CONNECTING_TO_MASTER_SERVER
+			, SELECT_SERVER
 		};
 		//HighPerfTimer Timer;
 		HighPerfTimer Timer_Draw;
@@ -55,7 +57,6 @@ namespace Voxelarium.Core
 		//uint FrameTime;
 		//		Screen_ChooseOption Screen_ChooseOption;
 		//Screen_SlotSelection Screen_SlotSelection;
-		//Screen_Loading Screen_Loading;
 		//Screen_Saving Screen_Saving;
 		//Screen_Options_Display Screen_Options_Display;
 
@@ -66,6 +67,8 @@ namespace Voxelarium.Core
 		//Screen_Options_Keymap Screen_Options_Keymap;
 		ScreenLoading Screen_Loading;
 		ScreenMain Screen_Main;
+		ScreenConnecting Screen_Connecting;
+		ScreenSelectServer Screen_Select_Server;
 		internal ScreenSlotSelect Screen_SlotSelection; 
 
 		Screen _active_screen;
@@ -92,10 +95,16 @@ namespace Voxelarium.Core
 			}
 		}
 
+		public delegate void OnUpdate( double timeDelta );
+		event OnUpdate Update;
+
 		// return false to Exit()
-		public bool Update()
+		internal bool DoUpdate( double timeDelta )
 		{
 			//Timer.Start();
+			if( Update != null )
+				Update( timeDelta );
+
 			if( _active_screen != null )
 			{
 				Screen.ScreenChoices Result = _active_screen.ProcessScreen( this );
@@ -115,8 +124,6 @@ namespace Voxelarium.Core
 						active_screen = Screen_SlotSelection;
 						break;
 					case Screen.ScreenChoices.NONE:
-						break;
-					case Screen.ScreenChoices.SAME_SCREEN:
 						break;
 					case Screen.ScreenChoices.QUIT:
 						return false; // return false to Exit();

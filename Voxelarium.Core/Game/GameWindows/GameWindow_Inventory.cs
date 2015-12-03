@@ -102,7 +102,7 @@ namespace Voxelarium.Core.Game.GameWindows
 
 			MainWindow.SetPosition( MainWindow_Pos.X, MainWindow_Pos.Y );
 			MainWindow.SetSize( MainWindow_Size.X, MainWindow_Size.Y );
-			MainWindow.SetTexture( 8 );
+			MainWindow.SetTexture( TextureID.DialogBackground );
 			GameEnv.GuiManager.AddFrame( MainWindow );
 
 			// Inventory main title

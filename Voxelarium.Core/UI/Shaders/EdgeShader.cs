@@ -65,12 +65,12 @@ namespace Voxelarium.Core.UI.Shaders
 			+ "varying vec4 ex_Color;"
 			+ "void main(void) {"
 			+
-			#if USE_GLES2
+#if USE_GLES2
 			@"float a = mod(ex_Texture.x +0.5f, 1.0f )-0.5f;
 			  float b = mod(ex_Texture.y +0.5f, 1.0f )-0.5f;" +
-			#else
-			@"float a = ex_Modulous.x - round(ex_Modulous.x );
-			  float b = ex_Modulous.y - round(ex_Modulous.y );"+
+#else
+			@"float a = ex_Texture.x - round(ex_Texture.x );
+			  float b = ex_Texture.y - round(ex_Texture.y );" +
 			#endif
 			 @"  float g;
 				  float h;
@@ -163,12 +163,12 @@ namespace Voxelarium.Core.UI.Shaders
 			    varying vec2 ex_Texture;
 			    varying vec4 ex_Color;
 			    void main(void) {" +
-			#if USE_GLES2
+#if USE_GLES2
 			@"float a = mod(ex_Texture.x +0.5f, 1.0f )-0.5f;
 			  float b = mod(ex_Texture.y +0.5f, 1.0f )-0.5f;" +
-			#else
-			@"float a = ex_Modulous.x - round(ex_Modulous.x );
-			  float b = ex_Modulous.y - round(ex_Modulous.y );"+
+#else
+			@"float a = ex_Texture.x - round(ex_Texture.x );
+			  float b = ex_Texture.y - round(ex_Texture.y );" +
 			#endif
 			  @"float g;
 			  float h;

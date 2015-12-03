@@ -47,11 +47,21 @@ namespace Voxelarium.Core
 			}
 		}
 
-		public static bool Read( string name, bool default_val = false )
+		public static bool Read( string name, bool default_val )
 		{
 			DataRow[] setting = settings.Tables["settings"].Select( "name='" + name + "'" );
 			if( setting.Length > 0 )
 				return Convert.ToBoolean(setting[0]["value"]);
+			else
+				Write( name, default_val );
+			return default_val;
+		}
+
+		public static Guid Read( string name, Guid default_val )
+		{
+			DataRow[] setting = settings.Tables["settings"].Select( "name='" + name + "'" );
+			if( setting.Length > 0 )
+				return Guid.Parse( (string)setting[0]["value"] );
 			else
 				Write( name, default_val );
 			return default_val;
@@ -67,23 +77,7 @@ namespace Voxelarium.Core
 			return default_val;
 		}
 
-		public static void Write( string name, bool val )
-		{
-			DataRow[] setting = settings.Tables["settings"].Select( "name='" + name + "'" );
-			if( setting.Length > 0 )
-			{
-				setting[0]["value"] = val;
-			}
-			else
-			{
-				DataRow row = setting_table.NewRow();
-				row["name"] = name;
-				row["value"] = val;
-				setting_table.Rows.Add( row );
-				settings.WriteXml( SettingFilename );
-			}
-		}
-		public static int Read( string name, int default_val = 0 )
+		public static int Read( string name, int default_val )
 		{
 			DataRow[] setting = settings.Tables["settings"].Select( "name='" + name + "'" );
 			if( setting.Length > 0 )
@@ -92,7 +86,7 @@ namespace Voxelarium.Core
 				Write( name, default_val );
 			return default_val;
 		}
-		public static Key Read( string name, Key default_val = 0 )
+		public static Key Read( string name, Key default_val )
 		{
 			DataRow[] setting = settings.Tables["settings"].Select( "name='" + name + "'" );
 			if( setting.Length > 0 )
@@ -104,24 +98,17 @@ namespace Voxelarium.Core
 			return default_val;
 		}
 
-		public static void Write( string name, int val )
+		public static string Read( string name, string default_val )
 		{
 			DataRow[] setting = settings.Tables["settings"].Select( "name='" + name + "'" );
 			if( setting.Length > 0 )
-			{
-				setting[0]["value"] = val;
-			}
+				return (string)setting[0]["value"];
 			else
-			{
-				DataRow row = setting_table.NewRow();
-				row["name"] = name;
-				row["value"] = val;
-				setting_table.Rows.Add( row );
-				settings.WriteXml( SettingFilename );
-			}
+				Write( name, default_val );
+			return default_val;
 		}
 
-		public static void Write( string name, Key val )
+		public static void Write<ValType>( string name, ValType val )
 		{
 			DataRow[] setting = settings.Tables["settings"].Select( "name='" + name + "'" );
 			if( setting.Length > 0 )
@@ -133,49 +120,6 @@ namespace Voxelarium.Core
 				DataRow row = setting_table.NewRow();
 				row["name"] = name;
 				row["value"] = val.ToString();
-				setting_table.Rows.Add( row );
-				settings.WriteXml( SettingFilename );
-			}
-		}
-
-		public static void Write( string name, float val )
-		{
-			DataRow[] setting = settings.Tables["settings"].Select( "name='" + name + "'" );
-			if( setting.Length > 0 )
-			{
-				setting[0]["value"] = val;
-			}
-			else
-			{
-				DataRow row = setting_table.NewRow();
-				row["name"] = name;
-				row["value"] = val;
-				setting_table.Rows.Add( row );
-				settings.WriteXml( SettingFilename );
-			}
-		}
-		public static string Read( string name, string default_val = "" )
-		{
-			DataRow[] setting = settings.Tables["settings"].Select( "name='" + name + "'" );
-			if( setting.Length > 0 )
-				return (string)setting[0]["value"];
-			else
-				Write( name, default_val );
-			return default_val;
-		}
-
-		public static void Write( string name, string val )
-		{
-			DataRow[] setting = settings.Tables["settings"].Select( "name='" + name + "'" );
-			if( setting.Length > 0 )
-			{
-				setting[0]["value"] = val;
-			}
-			else
-			{
-				DataRow row = setting_table.NewRow();
-				row["name"] = name;
-				row["value"] = val;
 				setting_table.Rows.Add( row );
 				settings.WriteXml( SettingFilename );
 			}

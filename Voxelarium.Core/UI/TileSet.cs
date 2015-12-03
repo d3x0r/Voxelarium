@@ -77,7 +77,7 @@ namespace Voxelarium.Core.UI
 
 		public TextureManager TextureManager;
 		public List<TileCoord> CoordTable;
-		public int TextureNum;
+		public TextureID TextureNum;
 
 		//
 		int Texture_Width, Texture_Height;
@@ -108,7 +108,7 @@ namespace Voxelarium.Core.UI
 		}
 
 		internal void SetTextureManager( TextureManager TextureManager ) { this.TextureManager = TextureManager; }
-		internal void SetTextureNum( int TextureNum ) { this.TextureNum = TextureNum; }
+		internal void SetTextureNum( TextureID TextureNum ) { this.TextureNum = TextureNum; }
 
 
 		// Prepare tiling

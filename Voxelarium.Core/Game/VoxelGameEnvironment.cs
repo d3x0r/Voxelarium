@@ -84,7 +84,7 @@ namespace Voxelarium.Core
 			}
 			try
 			{
-				menu_font = new FontRenderer( "Roboto-Regular.ttf", 48, 48 );
+				menu_font = new FontRenderer( "Roboto-Regular.ttf", 64, 64 );
 			}
 			catch( Exception e )
 			{
@@ -183,7 +183,6 @@ namespace Voxelarium.Core
 		internal VoxelWorldProcessor VoxelProcessor;
 		internal VoxelTypeManager VoxelTypeManager;
 		internal VoxelTypeManager GetVoxelTypeManager() { return VoxelTypeManager; }
-		internal Settings_Hardware Settings_Hardware;
 		internal TextureManager TextureManager;
 		internal GraphicUserManager GuiManager;
 		internal EventManager EventManager = new EventManager();
@@ -411,7 +410,6 @@ namespace Voxelarium.Core
 				if( Initialized_TileSetsAndFonts ) Cleanup_TileSetsAndFonts( InitLog.Sec( 2100 ) );
 				if( Initialized_UserDataStorage ) Cleanup_UserDataStorage( InitLog.Sec( 2000 ) );
 #endif
-			if( Initialized_Settings ) Cleanup_Settings(  );
 			return ( true );
 		}
 
@@ -537,20 +535,20 @@ namespace Voxelarium.Core
 			Result = true;
 			ErrMsg = "*** ERROR : Missing gui texture file ";
 
-			Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH; Path += "gui/title_1_2.bmp"; Result = TextureManager.LoadTexture( Path, 0 ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
-			Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH; Path += "gui/blackvoxel_title_1_3.bmp"; Result = TextureManager.LoadTexture( Path, 1 ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
-			Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH; Path += "gui/panel_2.bmp"; Result = TextureManager.LoadTexture( Path, 2 ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
-			Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH; Path += "gui/font_1_1.bmp"; Result = TextureManager.LoadTexture( Path, 3, false ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
-			Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH; Path += "gui/title_1_2.bmp"; Result = TextureManager.LoadTexture( Path, 4, false ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
-			Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH; Path += "gui/tile_1_1.bmp"; Result = TextureManager.LoadTexture( Path, 5, false ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
-			Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH; Path += "gui/tile_2_1.bmp"; Result = TextureManager.LoadTexture( Path, 6, false ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
-			Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH; Path += "gui/gui_tiles_1_2.bmp"; Result = TextureManager.LoadTexture( Path, 7, false ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
-			Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH; Path += "gui/dialog_background_1_2.bmp"; Result = TextureManager.LoadTexture( Path, 8, false ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
-			Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH; Path += "gui/dialog_voxeltype_1_1.bmp"; Result = TextureManager.LoadTexture( Path, 9, false ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
-			Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH; Path += "gui/button_1_5.bmp"; Result = TextureManager.LoadTexture( Path, 10, false ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
-			Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH; Path += "gui/tile_2_2.bmp"; Result = TextureManager.LoadTexture( Path, 11, false ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
-			Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH; Path += "gui/tile_3_1.bmp"; Result = TextureManager.LoadTexture( Path, 12, false ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
-			Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH; Path += "gui/contribute_1_1.bmp"; Result = TextureManager.LoadTexture( Path, 13, false ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
+			/*0 */Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH + "gui/title_1_2.bmp"; Result = TextureManager.LoadTexture( Path, TextureID.MainMenuBackground ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
+			/*1 */Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH + "gui/blackvoxel_title_1_3.png"; Result = TextureManager.LoadTexture( Path, TextureID.TitleBanner ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
+			/*2 */Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH + "gui/panel_2.bmp"; Result = TextureManager.LoadTexture( Path, TextureID.Panel ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
+			/*3 */Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH + "gui/font_1_1.bmp"; Result = TextureManager.LoadTexture( Path, TextureID.OldFont, false ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
+			///*4*/Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPAth+= "gui/title_1_2.bmp"; Result = TextureManager.LoadTexture( Path, TextureID., false ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
+			/*5 */Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH + "gui/tile_1_1.bmp"; Result = TextureManager.LoadTexture( Path, TextureID.TitleA, false ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
+			/*6 */Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH + "gui/tile_2_1.bmp"; Result = TextureManager.LoadTexture( Path, TextureID.TitleB, false ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
+			/*7 */Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH + "gui/gui_tiles_1_2.bmp"; Result = TextureManager.LoadTexture( Path, TextureID.OldGuiTiles, false ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
+			/*8 */Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH + "gui/dialog_background_1_2.bmp"; Result = TextureManager.LoadTexture( Path, TextureID.DialogBackground, false ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
+			/*9 */Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH + "gui/dialog_voxeltype_1_1.bmp"; Result = TextureManager.LoadTexture( Path, TextureID.DialogVoxelTypeBackground, false ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
+			/*10*/Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH + "gui/button_1_5.bmp"; Result = TextureManager.LoadTexture( Path, TextureID.Button, false ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
+			/*11*/Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH + "gui/tile_2_2.bmp"; Result = TextureManager.LoadTexture( Path, TextureID.Title2, false ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
+			/*12*/Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH + "gui/tile_3_1.bmp"; Result = TextureManager.LoadTexture( Path, TextureID.Title3, false ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
+			/*13*/Path = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH + "gui/contribute_1_1.png"; Result = TextureManager.LoadTexture( Path, TextureID.Contribute, false ); if( !Result ) { Err = ErrMsg + Path; Log.log( Err ); return ( false ); }
 
 			Initialized_TextureManager = true;
 			Log.log( "Ended Ok : Texture Manager Init" );
@@ -585,7 +583,7 @@ namespace Voxelarium.Core
 
 			Font_1 = new TileSet();
 			Font_1.SetTextureManager( TextureManager );
-			Font_1.SetTextureNum( 3 );
+			Font_1.SetTextureNum( TextureID.OldFont );
 			Font_1.SetTextureSize( 128, 128 );
 			Font_1.SetTileSlotSize( 8, 8 );
 			Font_1.SetTileSize( 2 * ( 8.0f / 1920.0f ), 2 * ( 8.0f / 1080.0f ) );
@@ -597,7 +595,7 @@ namespace Voxelarium.Core
 
 			GuiTileset = new TileSet();
 			GuiTileset.SetTextureManager( TextureManager );
-			GuiTileset.SetTextureNum( 7 );
+			GuiTileset.SetTextureNum( TextureID.OldGuiTiles );
 			GuiTileset.SetTextureSize( 512, 512 );
 			GuiTileset.SetTileSlotSize( 32, 32 );
 			GuiTileset.SetTileSize( 2 * ( 32.0f / 1920.0f ), 2 * ( 32.0f / 1080.0f ) );
@@ -860,9 +858,16 @@ namespace Voxelarium.Core
 		bool Start_PhysicEngine()
 		{
 			Engine = new PhysicsEngine();
+			Update += VoxelGameEnvironment_Update;
 			Initialized_PhysicEngine = true;
 			return true;
 		}
+
+		private void VoxelGameEnvironment_Update( double timeDelta )
+		{
+			if( Game_Run )
+				Engine.Step( (float)timeDelta );
+        }
 
 		bool End_PhysicsEngine()
 		{
@@ -876,8 +881,6 @@ namespace Voxelarium.Core
 			bool Res;
 
 			Log.log( "Starting : Settings" );
-
-			Settings_Hardware = new Settings_Hardware();
 			Res = Settings_Hardware.Load(); // If loading fail, continue anyway with default.
 
 			if( Res ) Log.log( "Info : Hardware Settings Loaded From File" );
@@ -889,12 +892,6 @@ namespace Voxelarium.Core
 			return ( true );
 		}
 
-		bool Cleanup_Settings(  )
-		{
-			Log.log( "Cleanup : Settings" );
-			Settings_Hardware = null;
-			return ( true );
-		}
 		bool Start_RendererSettings()
 		{
 			Basic_Renderer.SetRenderSectorRadius( Settings_Hardware.RenderingDistance_Horizontal, Settings_Hardware.RenderingDistance_Vertical );

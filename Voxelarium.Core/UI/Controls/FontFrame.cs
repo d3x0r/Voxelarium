@@ -35,19 +35,50 @@ namespace Voxelarium.Core.UI
 		float line_height;
 		internal FontFrame()
 		{
-			FrameType = VoxelGlobalSettings.MulticharConst( 'T', 'E', 'X', 'T' );
+			FrameType = VoxelUtils.MulticharConst( 'T', 'E', 'X', 'T' );
 			TextToDisplay = "";
 		}
 		internal virtual void SetDisplayText( string TextToDisplay ) { this.TextToDisplay = TextToDisplay; }
+		internal string Text
+		{
+			set
+			{
+				TextToDisplay = value;
+				if( font != null && line_height != 0 )
+				{
+					Vector2 TextSize;
+					GetTextDisplaySize( out TextSize );
+					SetSize( TextSize.X + 1.0f, TextSize.Y );
+				}
+			}
+		}
 		//internal virtual void Style( TileSet.TileStyle TileStyle ) { this.TileStyle = TileStyle; }
-		internal virtual FontRenderer Font { set { font = value; } }
-		internal virtual float FontSize { set { line_height = value; } get { return line_height; } }
+		internal virtual FontRenderer Font {
+			set {
+				font = value;
+				if( TextToDisplay != null && line_height != 0 )
+				{
+					Vector2 TextSize;
+					GetTextDisplaySize( out TextSize );
+					SetSize( TextSize.X + 1.0f, TextSize.Y );
+				}
+			}
+		}
+		internal virtual float FontSize { set { line_height = value;
+				if( font != null && TextToDisplay != null )
+				{
+					Vector2 TextSize;
+					GetTextDisplaySize( out TextSize );
+					SetSize( TextSize.X + 1.0f, TextSize.Y );
+				}
+			}
+			get { return line_height; } }
 		internal virtual void GetTextDisplaySize( out Vector2 OutSize )
 		{
 			if( font != null )
 			{
 				Vector2 target_size;
-				font.GetFontRenderSize( TextToDisplay, out target_size );
+				font.GetFontRenderSize( TextToDisplay, line_height, out target_size );
 				OutSize.X = ( target_size.X * line_height ) / target_size.Y;
 				OutSize.Y = ( line_height );
 			}
@@ -61,12 +92,12 @@ namespace Voxelarium.Core.UI
 			{
 				EffectivePosition.Position = ParentPosition.Position + Dimensions.Position;
 				EffectivePosition.Position.Z -= 0.1f;
-                EffectivePosition.Size = Dimensions.Size;
+				EffectivePosition.Size = Dimensions.Size;
 				if( Flag_Show_Frame )
 				{
 					if( font != null )
 						font.RenderFont( render, ref EffectivePosition, line_height
-                            , this.TextToDisplay, ref DrawColor );
+						               , this.TextToDisplay, ref DrawColor );
 				}
 
 				// Render child frames

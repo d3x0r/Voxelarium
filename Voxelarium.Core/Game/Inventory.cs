@@ -49,7 +49,7 @@ namespace Voxelarium.Core.Game
 		internal int ActualItem;
 		internal int ActualTool;
 
-	    internal enum SlotType {
+		internal enum SlotType {
 			Inventory_StartSlot = 0,
 			Inventory_EndSlot = 39,
 			Tools_StartSlot = 40,

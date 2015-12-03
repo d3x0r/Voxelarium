@@ -48,7 +48,7 @@ namespace Voxelarium.Core.Game.GameWindows
 
 		internal InventoryBox()
 		{
-			FrameType = VoxelGlobalSettings.MulticharConst( 'I', 'B', 'O', 'X' ); // = InventoryBox;
+			FrameType = VoxelUtils.MulticharConst( 'I', 'B', 'O', 'X' ); // = InventoryBox;
 			Flag_Cap_Dragable = true;
 			VoxelType = 0;
 		}
@@ -176,7 +176,7 @@ namespace Voxelarium.Core.Game.GameWindows
 
 		internal void DropItem( Display render, Frame Item, ushort nButton )
 		{
-			if( Item.FrameType == VoxelGlobalSettings.MulticharConst( 'I', 'B', 'O', 'X' ) )
+			if( Item.FrameType == VoxelUtils.MulticharConst( 'I', 'B', 'O', 'X' ) )
 			{
 				InventoryBox IbItem;
 				ushort In_VoxelType, Temp_VoxelType;

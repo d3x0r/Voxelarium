@@ -383,19 +383,34 @@ namespace Voxelarium.Core.Voxels
 
 		// Data stored by block
 		public uint DataSize;
-		public class VoxelData
+		public struct VoxelData : IDisposable
 		{
-			public ushort[] Data = new ushort[ZVOXELBLOCSIZE_X * ZVOXELBLOCSIZE_Y * ZVOXELBLOCSIZE_Z];  // voxel type index
-			public ushort[] TempInfos = new ushort[ZVOXELBLOCSIZE_X * ZVOXELBLOCSIZE_Y * ZVOXELBLOCSIZE_Z];// TempÃ©rature des voxels
-			public VoxelExtension[] OtherInfos = new VoxelExtension[ZVOXELBLOCSIZE_X * ZVOXELBLOCSIZE_Y * ZVOXELBLOCSIZE_Z];// Informations autres
-			//public byte[] FaceCulling = new byte[ZVOXELBLOCSIZE_X * ZVOXELBLOCSIZE_Y * ZVOXELBLOCSIZE_Z];
+			static int data_created;
+			public VoxelData( uint initialSize ) {
+				data_created++;
+				Data = new ushort[initialSize];
+				OtherInfos = new VoxelExtension[initialSize];
+			}
+			public ushort[] Data;  // voxel type index
+			//public ushort[] TempInfos = new ushort[ZVOXELBLOCSIZE_X * ZVOXELBLOCSIZE_Y * ZVOXELBLOCSIZE_Z];// TempÃ©rature des voxels
+			public VoxelExtension[] OtherInfos; // Informations autres
+
+			public void Dispose()
+			{
+				Data = null;
+				OtherInfos = null;
+			}
 		}
+
 		public VoxelData Data;
 
 		internal VoxelCuller Culler;
 
 		//public VObject DisplayData;
-		internal VoxelGeometry geometry;
+		internal VoxelGeometry solid_geometry;
+		internal VoxelGeometry transparent_geometry;
+		internal VoxelGeometry custom_geometry;
+
 		public SectorModifiedTracker ModifTracker;
 
 		public int RefreshWaitCount;
@@ -458,9 +473,8 @@ namespace Voxelarium.Core.Voxels
 		void ChangeSize( uint Size_x, uint Size_y, uint Size_z )
 		{
 			int i;
-			Data.Data = null;
-			Data.OtherInfos = null;
-			Data.TempInfos = null;
+			Data = new VoxelData( Size_x * Size_y * Size_z );
+			//Data.TempInfos = null;
 
 			//if (OtherInfos)  {delete [] OtherInfos;  OtherInfos  = 0; }
 			//if (TempInfos)   {delete [] TempInfos;   TempInfos   = 0; }
@@ -470,15 +484,14 @@ namespace Voxelarium.Core.Voxels
 			this.Size_z = Size_z;
 			Handle_x = Handle_y = Handle_z = 0;
 			DataSize = Size_x * Size_y * Size_z;
-			geometry.Clear();
+			solid_geometry.Clear();
+			transparent_geometry.Clear();
+			custom_geometry.Clear();
 
-			Data.Data = new ushort[DataSize];
-			Data.TempInfos = new ushort[DataSize];
-			Data.OtherInfos = new VoxelExtension[DataSize];
 			if( Culler != null )
 				Culler.InitFaceCullData( this );
 
-			for( i = 0; i < DataSize; i++ ) Data.TempInfos[i] = 273 + 20;
+			//for( i = 0; i < DataSize; i++ ) Data.TempInfos[i] = 273 + 20;
 		}
 
 		// Handle point is set relative to default point.
@@ -776,20 +789,13 @@ namespace Voxelarium.Core.Voxels
 		public VoxelSector( VoxelSector Sector )
 		{
 			uint DataSize;
-
 			DataSize = Sector.DataSize;
+			Data = new VoxelData( ZVOXELBLOCKCOUNT );
 
-			Data = new VoxelData();
-			//OtherInfos  = new uint[DataSize];
-			//TempInfos   = new ushort[DataSize];
 			for( int i = 0; i < DataSize; i++ )
 			{
 				Data.Data[i] = Sector.Data.Data[i];
-				Data.TempInfos[i] = Sector.Data.TempInfos[i];
 			}
-			//memcpy(FaceCulling, Sector.FaceCulling, DataSize);
-			//memcpy(OtherInfos, Sector.OtherInfos, DataSize * sizeof(uint));
-			//memcpy(TempInfos, Sector.TempInfos, DataSize << 2);
 
 			VoxelTypeManager = null;
 			Next = Pred = GlobalList_Next = GlobalList_Pred = null;
@@ -830,7 +836,9 @@ namespace Voxelarium.Core.Voxels
 			int i;
 
 
-			geometry = new VoxelGeometry();
+			solid_geometry = new VoxelGeometry();
+			transparent_geometry = new VoxelGeometry();
+			custom_geometry = new VoxelGeometry();
 
 			//Pos_x = 0; Pos_y = 0; Pos_z = 0;
 			Handle_x = Handle_y = Handle_z = 0;
@@ -841,13 +849,7 @@ namespace Voxelarium.Core.Voxels
 #if VOXEL_CULLER
 			Culling = 0;
 #endif
-
-			Data = new VoxelData();
-			Data.Data = new ushort[DataSize];
-			Data.TempInfos = new ushort[DataSize];
-			Data.OtherInfos = new VoxelExtension[DataSize];
-			//for( i = 0; i < DataSize; i++ ) Data.OtherInfos[i] = null;
-			for( i = 0; i < DataSize; i++ ) Data.TempInfos[i] = 273 + 20;
+			Data = new VoxelData( Size_x * Size_y * Size_z );
 
 			for( int r = 0; r < 6; r++ )
 			{
@@ -900,17 +902,13 @@ namespace Voxelarium.Core.Voxels
 					Data.OtherInfos[i] = null;
 				}
 			}
-			Data = null;
-			// Delete memory zones
-
-			//if (Data)        {delete [] Data;        Data = 0;        }
+			Data.Dispose();
 #if VOXEL_CULLER
 			if( Culling ) { delete[] Culling; Culling = 0; }
 #endif
-			geometry.Dispose();
-			//DisplayData = null;
-			//if (OtherInfos)  {delete [] OtherInfos;  OtherInfos  = 0; }
-			//if (TempInfos)   {delete [] TempInfos;   TempInfos   = 0; }
+			solid_geometry.Dispose();
+			transparent_geometry.Dispose();
+			custom_geometry.Dispose();
 			world = null;
 
 			SectorsInMemory--;
@@ -1882,7 +1880,7 @@ bool Decompress_FaceCulling_RLE(byte * Data, void * Stream)
 					}
 					Data.Data[i] = 0;
 					Data.OtherInfos[i] = null;
-					Data.TempInfos[i] = 0;
+					//Data.TempInfos[i] = 0;
 				}
 			}
 		}

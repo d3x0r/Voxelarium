@@ -58,7 +58,7 @@ namespace Voxelarium.Core.Voxels
 		//protected:
 		//	bool _ThrowExtension( ZStream_SpecialRamStream* Stream, ZMemSize ExtensionSize );
 
-		public virtual uint GetExtensionID() { return ( VoxelGlobalSettings.MulticharConst( 'N', 'S', 'P', 'C' ) ); }
+		public virtual uint GetExtensionID() { return ( VoxelUtils.MulticharConst( 'N', 'S', 'P', 'C' ) ); }
 		public virtual bool Save( BinaryWriter Stream ) { return true; }
 		public virtual bool Load( BinaryReader Stream ) { return true; }
 		//public virtual void SetGameEnv( VoxelGameEnvironment GameEnv ) { }
@@ -83,21 +83,21 @@ namespace Voxelarium.Core.Voxels
 
 		public static uint[] ExtensionCharCodes = {
 			 0
-			, VoxelGlobalSettings.MulticharConst( 'S', 'T', 'O', 'R' )
-			, VoxelGlobalSettings.MulticharConst( 'U', 'T', 'T', 'R' )
-			, VoxelGlobalSettings.MulticharConst( 'P', 'L', 'Z', '1' )
-			, VoxelGlobalSettings.MulticharConst( 'F', 'M', 'C', 'H' )
-			, VoxelGlobalSettings.MulticharConst( 'P', 'R', 'O', 'G' )
-			, VoxelGlobalSettings.MulticharConst( 'F', 'U', 'S', 'E' )
-			, VoxelGlobalSettings.MulticharConst( 'B', 'F', 'U', 'R' ) // 7 blst furnace
-			, VoxelGlobalSettings.MulticharConst( 'M', 'R', 'X', '1' )  //8
-			, VoxelGlobalSettings.MulticharConst( 'S', 'E', 'Q', 'U' )
-			, VoxelGlobalSettings.MulticharConst( 'E', 'M', 'Y', '1' ) // 10 egmy
-			, VoxelGlobalSettings.MulticharConst( 'B', 'F', 'G', 'R' ) // fertile ground
-			, VoxelGlobalSettings.MulticharConst( 'F', 'O', 'O', 'D' )
-			, VoxelGlobalSettings.MulticharConst( 'B', 'A', 'N', 'I' )  // animal
-			, VoxelGlobalSettings.MulticharConst( 'A', 'R', 'M', 'A' )  // aroma
-			, VoxelGlobalSettings.MulticharConst( 'A', 'R', 'M', 'G' )   // aroma generator
+			, VoxelUtils.MulticharConst( 'S', 'T', 'O', 'R' )
+			, VoxelUtils.MulticharConst( 'U', 'T', 'T', 'R' )
+			, VoxelUtils.MulticharConst( 'P', 'L', 'Z', '1' )
+			, VoxelUtils.MulticharConst( 'F', 'M', 'C', 'H' )
+			, VoxelUtils.MulticharConst( 'P', 'R', 'O', 'G' )
+			, VoxelUtils.MulticharConst( 'F', 'U', 'S', 'E' )
+			, VoxelUtils.MulticharConst( 'B', 'F', 'U', 'R' ) // 7 blst furnace
+			, VoxelUtils.MulticharConst( 'M', 'R', 'X', '1' )  //8
+			, VoxelUtils.MulticharConst( 'S', 'E', 'Q', 'U' )
+			, VoxelUtils.MulticharConst( 'E', 'M', 'Y', '1' ) // 10 egmy
+			, VoxelUtils.MulticharConst( 'B', 'F', 'G', 'R' ) // fertile ground
+			, VoxelUtils.MulticharConst( 'F', 'O', 'O', 'D' )
+			, VoxelUtils.MulticharConst( 'B', 'A', 'N', 'I' )  // animal
+			, VoxelUtils.MulticharConst( 'A', 'R', 'M', 'A' )  // aroma
+			, VoxelUtils.MulticharConst( 'A', 'R', 'M', 'G' )   // aroma generator
 		//, // count unused
 	};
 

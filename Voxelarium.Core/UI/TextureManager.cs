@@ -43,6 +43,22 @@ using Voxelarium.Core.Voxels;
 
 namespace Voxelarium.Core.UI
 {
+	internal enum TextureID
+	{
+		MainMenuBackground
+			, TitleBanner
+			, Panel
+			, OldFont
+			, TitleA
+			, TitleB
+			, OldGuiTiles
+			, DialogBackground
+			, DialogVoxelTypeBackground
+			, Button
+			, Title2
+			, Title3
+			, Contribute
+	}
 	internal class TextureManager : List<TextureManager.Texture_Entry>
 	{
 		internal class Texture_Entry
@@ -146,7 +162,7 @@ namespace Voxelarium.Core.UI
 		};
 
 
-		internal bool LoadTexture( string FileSpec, int TextureNum, bool LinearInterpolation = true )
+		internal bool LoadTexture( string FileSpec, TextureID TextureNum, bool LinearInterpolation = true )
 		{
 			Bitmap NewImage;
 			Texture_Entry Texture = new Texture_Entry();
@@ -180,10 +196,10 @@ namespace Voxelarium.Core.UI
 
 			Texture.Texture = NewImage;
 			Texture.LinearInterpolation = LinearInterpolation;
-			while( Count < ( TextureNum + 1 ) )
+			while( Count < ( (int)TextureNum + 1 ) )
 				this.Add( null );
 
-			this[TextureNum] = Texture;
+			this[(int)TextureNum] = Texture;
 
 			return ( true );
 		}
@@ -193,9 +209,9 @@ namespace Voxelarium.Core.UI
 			return ( Count );
 		}
 
-		internal Texture_Entry GetTextureEntry( int TextureNum )
+		internal Texture_Entry GetTextureEntry( TextureID TextureNum )
 		{
-			return this[TextureNum];
+			return this[(int)TextureNum];
 		}
 	}
 }

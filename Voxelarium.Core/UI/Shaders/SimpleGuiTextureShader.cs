@@ -30,10 +30,10 @@ namespace Voxelarium.Core.UI.Shaders
 {
 	internal class SimpleGuiTextureShader : Shader
 	{
-		int vertex_attrib_id;
-		int texture_attrib_id;
-		int color_id;
-		int texture_id;
+		internal int vertex_attrib_id;
+		internal int texture_attrib_id;
+		internal int color_id;
+		internal int texture_id;
 
 		const string Vertex =
 				  "attribute vec4 vPosition;\n"

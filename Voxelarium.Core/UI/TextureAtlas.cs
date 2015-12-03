@@ -85,7 +85,7 @@ namespace Voxelarium.Core.UI
 						);
 #endif
 					Display.CheckErr();
-					GL.TexParameter( TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest );
+					GL.TexParameter( TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear );
 					Display.CheckErr();
 					GL.TexParameter( TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest );
 					Display.CheckErr();
@@ -136,19 +136,19 @@ namespace Voxelarium.Core.UI
 				coord.Size.Y = 0;
 				return;
 			}
-
+			float scalar = 32768 / texture_count;
 			//Log.log( "output texture to atlas... {0} {1}", x_ofs, y_ofs );
-			coord.Position.X = ( 65535.0f / texture_count ) * x_ofs;
-			coord.Position.Y = ( 65535.0f / texture_count ) * y_ofs;
-			coord.Size.X = ( 65535.0f / texture_count );
-			coord.Size.Y = ( 65535.0f / texture_count );
+			coord.Position.X = ( scalar ) * x_ofs;
+			coord.Position.Y = ( scalar ) * y_ofs;
+			coord.Size.X = ( scalar );
+			coord.Size.Y = ( scalar );
 
-			uvs[0 * 2 + 0] = ( 65535.0f / texture_count ) * x_ofs;
-			uvs[0 * 2 + 1] = ( 65535.0f / texture_count ) * y_ofs;
-			uvs[1 * 2 + 0] = uvs[0 * 2 + 0] + ( 65535.0f / texture_count );
+			uvs[0 * 2 + 0] = ( scalar ) * x_ofs;
+			uvs[0 * 2 + 1] = ( scalar ) * y_ofs;
+			uvs[1 * 2 + 0] = uvs[0 * 2 + 0] + ( scalar );
 			uvs[1 * 2 + 1] = uvs[0 * 2 + 1];
 			uvs[2 * 2 + 0] = uvs[0 * 2 + 0];
-			uvs[2 * 2 + 1] = uvs[0 * 2 + 1] + ( 65535.0f / texture_count );
+			uvs[2 * 2 + 1] = uvs[0 * 2 + 1] + ( scalar );
 			uvs[2 * 2 + 0] = uvs[1 * 2 + 0];
 			uvs[2 * 2 + 1] = uvs[2 * 2 + 1];
 

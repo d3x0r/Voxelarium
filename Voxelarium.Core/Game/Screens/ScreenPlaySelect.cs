@@ -30,7 +30,7 @@ using Voxelarium.Core.Voxels;
 
 namespace Voxelarium.Core.Game.Screens
 {
-	internal class ScreenMain : Screen
+	internal class ScreenPlaySelect : Screen
 	{
 		Frame TitleBackground = new Frame();
 		Frame Title = new Frame();
@@ -44,7 +44,7 @@ namespace Voxelarium.Core.Game.Screens
 		FontFrame Frame_Quit = new FontFrame();
 		Vector2 Quit_Size;
 
-		internal ScreenMain(VoxelGameEnvironment.Pages page_id ) : base( page_id )
+		internal ScreenPlaySelect( VoxelGameEnvironment.Pages page_id ) : base( page_id )
 		{
 		}
 
@@ -65,8 +65,10 @@ namespace Voxelarium.Core.Game.Screens
 				TitleBackground.SetTexture( 0 );
 				GameEnv.GuiManager.AddFrame( TitleBackground );
 
+
+
 				Title_Size.X = 0.55f; Title_Size.X = 0.1f;
-				Title.SetPosition( screen_x - Title_Size.X / 2.0f, screen_y - 1 / 8.0f );
+				Title.SetPosition( ( screen_x - Title_Size.X ) / 2.0f, screen_y - 1 / 8.0f );
 				Title.SetSize( Title_Size.X, Title_Size.Y );
 				Title.SetTexture( TextureID.TitleBanner );
 				TitleBackground.AddFrame( Title );
@@ -82,35 +84,26 @@ namespace Voxelarium.Core.Game.Screens
 				TitleBackground.AddFrame( Frame_Version );
 
 
-				Frame_PlayGame.Text = "Play Game";
+				Frame_PlayGame.Text = "Single Player";
 				Frame_PlayGame.Font = GameEnv.menu_font;// .SetStyle( GameEnv.TileSetStyles.GetStyle( 1 ) );
 				Frame_PlayGame.FontSize = ( 2.0f / 10 );
 				Frame_PlayGame.GetTextDisplaySize( out PlayGame_Size );
 				Frame_PlayGame.SetPosition( screen_x / 2.0f - PlayGame_Size.X / 2.0f
 											, screen_y *3f/ 4f );
 				Frame_PlayGame.SetSize( PlayGame_Size.X + SclX( 128.0f ), PlayGame_Size.Y );
-				Frame_PlayGame.TextureNum = TextureID.OldFont;
+				//Frame_PlayGame.TextureNum = TextureID.OldFont;
 				TitleBackground.AddFrame( Frame_PlayGame );
 
-				Frame_Options.SetDisplayText( "Options" );
+				Frame_Options.SetDisplayText( "Multiplayer" );
 				Frame_Options.Font = GameEnv.menu_font;// .SetStyle( GameEnv.TileSetStyles.GetStyle( 1 ) );
 				Frame_Options.FontSize = ( 2.0f / 10 );
 				Frame_Options.GetTextDisplaySize( out Options_Size );
 				Frame_Options.SetPosition( screen_x / 2.0f - Options_Size.X / 2.0f
 									,  screen_y *3f/4f - PlayGame_Size.Y );
 				Frame_Options.SetSize( Options_Size.X + 1.0f, Options_Size.Y );
-				Frame_Options.TextureNum = TextureID.OldFont;
+				//Frame_Options.TextureNum = TextureID.OldFont;
 				TitleBackground.AddFrame( Frame_Options );
 
-
-				Frame_Quit.SetDisplayText( "Quit" );
-				Frame_Quit.Font = GameEnv.menu_font;// .SetStyle( GameEnv.TileSetStyles.GetStyle( 1 ) );
-				Frame_Quit.FontSize = ( 2.0f / 10 );
-				Frame_Quit.GetTextDisplaySize( out Quit_Size );
-				Frame_Quit.SetPosition( screen_x / 2.0f - Quit_Size.X / 2.0f
-					,  screen_y * 3f/ 4f - (PlayGame_Size.Y + Options_Size.Y) );
-				Frame_Quit.SetSize( Quit_Size.X + 1.0f, Quit_Size.Y );
-				Frame_Quit.TextureNum = TextureID.OldFont;
 
 				TitleBackground.AddFrame( Frame_Quit );
 				//printf("FrameAdress : %lx\n",(unsigned int)&Frame_PlayGame);
@@ -120,11 +113,11 @@ namespace Voxelarium.Core.Game.Screens
 				if( Frame_PlayGame.Is_MouseOut() ) { Frame_PlayGame.SetColor( 1.0f, 1.0f, 1.0f ); }
 				if( Frame_Options.Is_MouseIn() ) { Frame_Options.SetColor( 0.5f, 0.5f, 1.0f ); }
 				if( Frame_Options.Is_MouseOut() ) { Frame_Options.SetColor( 1.0f, 1.0f, 1.0f ); }
-				if( Frame_Quit.Is_MouseIn() ) { Frame_Quit.SetColor( 0.5f, 0.5f, 1.0f ); }
-				if( Frame_Quit.Is_MouseOut() ) { Frame_Quit.SetColor( 1.0f, 1.0f, 1.0f ); }
+				//if( Frame_Quit.Is_MouseIn() ) { Frame_Quit.SetColor( 0.5f, 0.5f, 1.0f ); }
+				//if( Frame_Quit.Is_MouseOut() ) { Frame_Quit.SetColor( 1.0f, 1.0f, 1.0f ); }
 				if( Frame_PlayGame.Is_MouseClick() ) { ResultCode = ScreenChoices.PLAYGAME; }
 				if( Frame_Options.Is_MouseClick() ) { ResultCode = ScreenChoices.OPTIONS; }
-				if( Frame_Quit.Is_MouseClick() ) { ResultCode = ScreenChoices.QUIT; }
+				//if( Frame_Quit.Is_MouseClick() ) { ResultCode = ScreenChoices.QUIT; }
 			}
 
 			return ( ResultCode );

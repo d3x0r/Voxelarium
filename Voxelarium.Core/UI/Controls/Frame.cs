@@ -29,11 +29,11 @@ using Voxelarium.Core.Voxels.Types;
 
 namespace Voxelarium.Core.UI
 {
-	internal class Frame
+	public class Frame
 	{
 		internal uint FrameType;
 		internal LinkedList<Frame> SubFrameList = new LinkedList<Frame>();
-		internal int TextureNum;
+		internal TextureID TextureNum;
 		internal Vector4 DrawColor;
 		internal GraphicUserManager GuiManager;
 		internal Frame ParentFrame;
@@ -78,7 +78,7 @@ namespace Voxelarium.Core.UI
 
 		internal Frame()
 		{
-			FrameType = VoxelGlobalSettings.MulticharConst( 'B', 'F', 'R', 'M' ); // = BaseFRaMe
+			FrameType = VoxelUtils.MulticharConst( 'B', 'F', 'R', 'M' ); // = BaseFRaMe
 			Flag_Cap_Dragable = false;
 			Flag_Draging = false;
 			Dimensions.Position.X = 0.0f;
@@ -209,7 +209,7 @@ namespace Voxelarium.Core.UI
 			}
 
 		}
-		internal virtual void SetTexture( int TextureNum ) { this.TextureNum = TextureNum; }
+		internal virtual void SetTexture( TextureID TextureNum ) { this.TextureNum = TextureNum; }
 		internal virtual void SetPosition( float x, float y ) { Dimensions.Position.X = x; Dimensions.Position.Y = y; }
 		internal virtual void SetDragPosition( float x, float y ) { DragAbsolutePosition.X = x; DragAbsolutePosition.Y = y; }
 		//internal virtual void SetZPosition( float z ) { Dimensions.Position.Z = z; }

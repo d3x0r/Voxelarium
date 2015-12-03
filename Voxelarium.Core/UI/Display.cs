@@ -319,10 +319,15 @@ namespace Voxelarium.Core.UI
 		{
 			display_width = Width;
 			display_height = Height;
+			Aspect = (float)Width / (float)Height;
+			Matrix4.CreatePerspectiveFieldOfView( (float)( System.Math.PI / 2 ), (float)Width / (float)Height, 0.01f, 10000, out projection );
 			GL.Viewport( 0, 0, Width, Height );
 		}
 
+#if BUILD_ANDROID
+		// OnLoad doesn't exist in Android GameWindow events...
 		bool loaded;
+#endif
 		public void Display_Load( object sender, EventArgs e )
 		{
 			//int val = GL.GetInteger( GetPName.CullFace );
@@ -337,6 +342,7 @@ namespace Voxelarium.Core.UI
 			GL.GetInteger( GetPName.MaxTextureSize, out max_texture_size );
 			CheckErr();
 #endif
+			GL.BlendFunc( BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha );
 
 			//throw new NotImplementedException();
 		}
@@ -409,16 +415,14 @@ namespace Voxelarium.Core.UI
 				Thread init = new Thread( InitGame );
 				init.Start( game );
 			}
-			if( game_loaded )
+			if( game_loaded ) // basic initialization done.
 			{
-				if( !game.Update() )
+				if( !game.DoUpdate( e.Time ) )
 				{
 					VoxelGlobalSettings.Exiting = true;
 					Shutdown();
 				}
 			}
-			if( game.Game_Run )
-				game.Engine.Step( (float)e.Time );
 			
 			ProcessMouseFreeCam( (float)e.Time );
 			if( keyboard == null )
@@ -498,6 +502,19 @@ namespace Voxelarium.Core.UI
 				game.VoxelProcessor.SetPlayerPosition( ref free_camera.location.m_origin );
         }
 
+		static bool blending_enabled;
+		internal static void EnableBlending( bool enable )
+		{
+			if( blending_enabled != enable )
+			{
+				if( enable )
+					GL.Enable( EnableCap.Blend );
+				else
+					GL.Disable( EnableCap.Blend );
+				blending_enabled = enable;
+			}
+		}
+
 		void InitGame( object o )
 		{
 			VoxelGameEnvironment game = o as VoxelGameEnvironment;
@@ -564,10 +581,12 @@ namespace Voxelarium.Core.UI
 		int frame;
 		public void Display_RenderFrame( object sender, OpenTK.FrameEventArgs e )
 		{
+#if BUILD_ANDROID
 			if( !loaded ) {
 				loaded = true;
 				Display_Load( sender, e );
 			}
+#endif
 			// render graphics
 			frame++;
 			GL.Clear( ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit );
@@ -577,7 +596,6 @@ namespace Voxelarium.Core.UI
 				return;
 			}
 
-			game.Draw( this, sw.ElapsedTicks / frequency );
 			GL.Enable( EnableCap.DepthTest );
 			Vector3[] verts = new Vector3[4];
 			Vector2[] text = new Vector2[4];
@@ -644,6 +662,7 @@ namespace Voxelarium.Core.UI
 				Display.CheckErr();
 			}
 			GL.UseProgram( 0 );
+			DrawDebugCube();
 			if( game.TileSetStyles != null ) {
 				TileSet.TileStyle style = game.TileSetStyles.GetStyle( 2 );
 				Box box = new Box();
@@ -651,24 +670,46 @@ namespace Voxelarium.Core.UI
 				box.Size.X = 1;
 				box.Size.Y = 1;
 				box.Size.Z = 0;
+				Vector3 u; free_camera.location.GetRight( out u );
+
+				//( Vector3.UnitZ + Vector3.UnitY ).Normalized();
+				Vector3 v;  free_camera.location.GetUp( out v );
+				//( -Vector3.UnitZ + Vector3.UnitY ).Normalized(); ;
+				Vector2 string_size;
+				game.default_font.GetFontRenderSize( "-5 X", 1, out string_size );
 				box.Position.X = -5;
 				box.Position.Y = 0;
 				box.Position.Z = 0;
-				game.default_font.RenderFont( this, ref box, 1, "-20 X", ref DrawColor );
+				box.Position -= u * string_size.X/2 + v * string_size.Y/2;
+				game.default_font.RenderFont( this, ref box, ref u, ref v, 1, "-5 X", ref DrawColor );
 				box.Position.X = 5;
-				game.default_font.RenderFont( this, ref box, 1, "20 X", ref DrawColor );
+				box.Position.Y = 0;
+				box.Position.Z = 0;
+				box.Position -= u * string_size.X / 2 + v * string_size.Y / 2;
+				game.default_font.RenderFont( this, ref box, ref u, ref v, 1, "5 X", ref DrawColor );
+
+				game.default_font.GetFontRenderSize( "5 X", 1, out string_size );
 				box.Position.X = 0;
 				box.Position.Y = -5;
-				game.default_font.RenderFont( this, ref box, 1, "-20 Y", ref DrawColor );
+				box.Position.Z = 0;
+				box.Position -= u * string_size.X / 2 + v * string_size.Y / 2;
+				game.default_font.RenderFont( this, ref box, ref u, ref v, 1, "-5 Y", ref DrawColor );
+				box.Position.X = 0;
 				box.Position.Y = 5;
-				game.default_font.RenderFont( this, ref box, 1, "20 Y", ref DrawColor );
+				box.Position.Z = 0;
+				box.Position -= u * string_size.X / 2 + v * string_size.Y / 2;
+				game.default_font.RenderFont( this, ref box, ref u, ref v, 1, "5 Y", ref DrawColor );
+				box.Position.X = 0;
 				box.Position.Y = 0;
 				box.Position.Z = -5;
-				game.default_font.RenderFont( this, ref box, 1, "-20 Z", ref DrawColor );
+				box.Position -= u * string_size.X / 2 + v * string_size.Y / 2;
+				game.default_font.RenderFont( this, ref box, ref u, ref v, 1, "-5 Z", ref DrawColor );
+				box.Position.X = 0;
+				box.Position.Y = 0;
 				box.Position.Z = 5;
-				game.default_font.RenderFont( this, ref box, 1, "20 Z", ref DrawColor );
+				box.Position -= u * string_size.X / 2 + v * string_size.Y / 2;
+				game.default_font.RenderFont( this, ref box, ref u, ref v, 1, "5 Z", ref DrawColor );
 			}
-			DrawDebugCube();
 			//Log.log( " Origin is " + free_camera.location.m_origin );
 			Display.CheckErr();
 
@@ -702,6 +743,7 @@ namespace Voxelarium.Core.UI
 
 			GL.End();
 #endif
+			game.Draw( this, sw.ElapsedTicks / frequency );
 			//SwapBuffers();
 		}
 

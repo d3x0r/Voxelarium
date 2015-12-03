@@ -111,9 +111,9 @@ namespace Voxelarium.Core.UI
 						, TextureParameterName.TextureMinFilter
 						, (int)TextureMinFilter.Linear );
 
-					int param = (int)TextureMinFilter.Linear;// Nearest;
+					int param = (int)TextureMinFilter.Nearest;
 					GL.TexParameter( TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, param ); // GL_LINEAR GL_NEAREST
-					param = (int)TextureMagFilter.Linear;
+					param = (int)TextureMagFilter.Nearest;
 					GL.TexParameter( TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, param );
 
 #if !USE_GLES2
@@ -260,6 +260,8 @@ namespace Voxelarium.Core.UI
 			invalidated = true;
 		}
 
+		static int version;
+
 		public FontCharacter GetCharacter( uint code )
 		{
 			uint index = ttf.FindGlyphIndex( code );
@@ -273,7 +275,7 @@ namespace Voxelarium.Core.UI
 				int a, b, cv, d;
 				ttf.GetGlyphBox( index, out a, out c.topSideBearing, out cv, out d );
 				c.topSideBearing = (int)( c.topSideBearing * scaley );
-                byte[] data = ttf.GetGlyphBitmap( index, scalex, scaley,
+				byte[] data = ttf.GetGlyphBitmap( index, scalex, scaley,
 					out c.width, out c.height, out c.xOffset, out c.yOffset );
 
 				//static void SaveBitmap( byte[] data, int x0, int y0, int x1, int y1,
@@ -302,6 +304,7 @@ namespace Voxelarium.Core.UI
 							//bm_data.Scan0.bitmap.SetPixel( x - x0, y - y0, Color.FromArgb( opacity, 0x00, 0x00, 0x00 ) );
 						}
 					}
+					//fontmap.Save( "fontmap" + version++ + ".png" );
 					//fontmap.UnlockBits( bm_data );
 				}
 				dirty = true;
@@ -327,22 +330,22 @@ namespace Voxelarium.Core.UI
 			return rune;
 		}
 
-		public void GetFontRenderSize( string text, out Vector2 size )
+		public void GetFontRenderSize( string text, float scale, out Vector2 size )
 		{
 			int c;
 			char ch;
 			uint rune;
 			int line_width = 0;
 			size.X = 0;
-			size.Y = line_height;
+			size.Y = scale;
 			for( c = 0; c < text.Length; c++ )
 			{
 				rune = GetUnicode( ref c, text );
 				if( rune == '\n' )
 				{
-					size.Y += line_height;
-					if( line_width > size.X )
-						size.X = line_width;
+					size.Y += scale;
+					if( ( line_width * scale / line_height) > size.X )
+						size.X = line_width * scale/line_height;
 					line_width = 0;
 				}
 				else
@@ -351,25 +354,31 @@ namespace Voxelarium.Core.UI
 					line_width += fontchar.advanceWidth;
 				}
 			}
-			if( line_width > size.X )
-				size.X = line_width;
+			if( ( line_width * scale / line_height ) > size.X )
+				size.X = line_width * scale / line_height;
 		}
 
-
+		/// <summary>
+		/// Draw a string.
+		/// </summary>
+		/// <param name="render">display to draw string in/on</param>
+		/// <param name="EffectivePosition">Where to draw the text (size unused)</param>
+		/// <param name="scale">how big to render the font...</param>
+		/// <param name="text"></param>
+		/// <param name="color"></param>
 		internal void RenderFont( Display render, ref Box EffectivePosition
 			, float scale, string text
 			, ref Vector4 color )
 		{
 			int c;
 			uint rune;
-			GL.Enable( EnableCap.Blend );
-			GL.BlendFunc( BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha );
+			Display.EnableBlending( true );
+			GL.Enable( EnableCap.DepthTest );
 			render.simple_gui_texture.Activate();
 			render.simple_gui_texture.SetUniforms( OpenGl_TextureRef, ref color );
-
 			float[] quad = new float[12];
 			float[] uvs = new float[8];
-			float x_left, y_top;
+			float x_left, y_bottom;
 			float x = EffectivePosition.Position.X;
 			float y = EffectivePosition.Position.Y;
 			float z = EffectivePosition.Position.Z + EffectivePosition.Size.Z;
@@ -379,30 +388,32 @@ namespace Voxelarium.Core.UI
 			{
 				rune = GetUnicode( ref c, text );
 				if( rune == '\n' )
-					y++;
+				{
+					y -= scale;
+					x = EffectivePosition.Position.X;
+				}
 				else
 				{
 					ch = GetCharacter( rune );
 					if( ch.width > 0 )
 					{
 						x_left = x + ( ch.leftSideBearing * scale / line_height );
-						y_top = y + ( ch.topSideBearing * scale / line_height );//( ( ( line_height + ch.yOffset ) * scale ) / line_height );
+						yp = y + ( ( ch.topSideBearing - descent) * scale / line_height );//( ( ( line_height + ch.yOffset ) * scale ) / line_height );
 						xp = x_left + ( ch.width * scale / line_height );
-						yp = y_top + ( ch.height * scale / line_height );
+						y_bottom = yp + ( ch.height * scale / line_height );
 
-						quad[0*3+0] = x_left;
-						quad[0*3+1] = y_top;
+						quad[0 * 3 + 0] = x_left;
+						quad[0 * 3 + 1] = yp;
 						quad[0 * 3 + 2] = z;
 						quad[1 * 3 + 0] = x_left;
-						quad[1 * 3 + 1] = yp;
+						quad[1 * 3 + 1] = y_bottom;
 						quad[1 * 3 + 2] = z;
 						quad[2 * 3 + 0] = xp;
-						quad[2 * 3 + 1] = y_top;
+						quad[2 * 3 + 1] = yp;
 						quad[2 * 3 + 2] = z;
 						quad[3 * 3 + 0] = xp;
-						quad[3 * 3 + 1] = yp;
+						quad[3 * 3 + 1] = y_bottom;
 						quad[3 * 3 + 2] = z;
-
 						render.simple_gui_texture.DrawQuad( quad, ch.uvs );
 					}
 					x = x + ( ch.advanceWidth * scale / line_height );
@@ -410,6 +421,87 @@ namespace Voxelarium.Core.UI
 			}
 		}
 
+		internal void RenderFont( Display render, ref Box EffectivePosition
+			, ref Vector3 u, ref Vector3 v
+			, float scale, string text
+			, ref Vector4 color )
+		{
+			int c;
+			uint rune;
+			Display.EnableBlending( true );
+			GL.Enable( EnableCap.DepthTest );
+			render.simple_texture.Activate();
+			render.simple_texture.SetUniforms( OpenGl_TextureRef, ref color );
+
+			float[] quad = new float[12];
+			float[] uvs = new float[8];
+			float x_left, y_bottom;
+			Vector3 o = EffectivePosition.Position;
+			Vector3 topleft;
+			Vector3 topright;
+			Vector3 bottomleft;
+			Vector3 bottomright;
+			Vector3 tmp_x_left;
+			Vector3 tmp_x_right;
+			Vector3 tmp_y_top;
+			Vector3 tmp_y_bottom;
+
+			float x_del = 0;
+			float y_del = 0;
+			float x_right, yp;
+			FontCharacter ch;
+			for( c = 0; c < text.Length; c++ )
+			{
+				rune = GetUnicode( ref c, text );
+				if( rune == '\n' )
+				{
+					y_del -= scale;
+					x_del = 0;
+				}
+				else
+				{
+					ch = GetCharacter( rune );
+					if( ch.width > 0 )
+					{
+						x_left = x_del + ( ch.leftSideBearing * scale / line_height );
+						yp = y_del + ( ( ch.topSideBearing - descent ) * scale / line_height );//( ( ( line_height + ch.yOffset ) * scale ) / line_height );
+						x_right = x_left + ( ch.width * scale / line_height );
+						y_bottom = yp + ( ch.height * scale / line_height );
+
+						Vector3.Multiply( ref u, x_left, out tmp_x_left );
+						Vector3.Add( ref o, ref tmp_x_left, out topleft );
+						Vector3.Multiply( ref v, yp, out tmp_y_top );
+						Vector3.Add( ref topleft, ref tmp_y_top, out topleft );
+
+						Vector3.Multiply( ref u, x_right, out tmp_x_right );
+						Vector3.Add( ref o, ref tmp_x_right, out topright );
+						Vector3.Add( ref topright, ref tmp_y_top, out topright );
+
+						Vector3.Add( ref o, ref tmp_x_left, out bottomleft );
+						Vector3.Multiply( ref v, y_bottom, out tmp_y_bottom );
+						Vector3.Add( ref bottomleft, ref tmp_y_bottom, out bottomleft );
+
+						Vector3.Add( ref o, ref tmp_x_right, out bottomright );
+						Vector3.Add( ref bottomright, ref tmp_y_bottom, out bottomright );
+
+						quad[0 * 3 + 0] = topleft.X;
+						quad[0 * 3 + 1] = topleft.Y;
+						quad[0 * 3 + 2] = topleft.Z;
+						quad[1 * 3 + 0] = bottomleft.X;
+						quad[1 * 3 + 1] = bottomleft.Y;
+						quad[1 * 3 + 2] = bottomleft.Z;
+						quad[2 * 3 + 0] = topright.X;
+						quad[2 * 3 + 1] = topright.Y;
+                        quad[2 * 3 + 2] = topright.Z;
+                        quad[3 * 3 + 0] = bottomright.X;
+						quad[3 * 3 + 1] = bottomright.Y;
+						quad[3 * 3 + 2] = bottomright.Z;
+						render.simple_texture.DrawQuad( quad, ch.uvs );
+					}
+					x_del += ( ch.advanceWidth * scale / line_height );
+				}
+			}
+		}
 		void RenderFont( Display render, ref Vector3 normal, ref Vector3 anchor, string text
 			, float scale
 			, ref Vector4 color )

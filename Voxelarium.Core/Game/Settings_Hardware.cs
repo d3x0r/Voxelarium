@@ -30,45 +30,49 @@ namespace Voxelarium.Core.Game
 {
 	internal class Settings_Hardware
 	{
-		// Resolution and screen
-		internal uint Setting_Resolution_h;
-		internal uint Setting_Resolution_v;
-		internal uint Setting_ViewPort_Offset_x;
-		internal uint Setting_ViewPort_Offset_y;
-		internal uint Setting_ViewPort_Size_x;
-		internal uint Setting_ViewPort_Size_y;
-		internal bool Setting_FullScreen;
+		// unique identifier for this client
+		// determines Identity for network play.
+		internal static Guid ClientID;
 
+		// Resolution and screen
+		internal static uint Setting_Resolution_h;
+		internal static uint Setting_Resolution_v;
+		internal static uint Setting_ViewPort_Offset_x;
+		internal static uint Setting_ViewPort_Offset_y;
+		internal static uint Setting_ViewPort_Size_x;
+		internal static uint Setting_ViewPort_Size_y;
+		internal static bool Setting_FullScreen;
 		// Sound
-		internal bool Setting_SoundEnabled;
-		internal float Setting_SoundVolume;
+		internal static bool Setting_SoundEnabled;
+		internal static float Setting_SoundVolume;
 
 		// Mouse
-		internal float Setting_MouseFactor;
+		internal static float Setting_MouseFactor;
 
 		// Keyboard
-		internal Key Setting_Key_MoveForward;
-		internal Key Setting_Key_MoveBackward;
-		internal Key Setting_Key_MoveLeft;
-		internal Key Setting_Key_MoveRight;
-		internal Key Setting_Key_MoveUp;
-		internal Key Setting_Key_MoveDown;
-		internal Key Setting_Key_Jump;
-		internal Key Setting_Key_Inventory;
+		internal static Key Setting_Key_MoveForward;
+		internal static Key Setting_Key_MoveBackward;
+		internal static Key Setting_Key_MoveLeft;
+		internal static Key Setting_Key_MoveRight;
+		internal static Key Setting_Key_MoveUp;
+		internal static Key Setting_Key_MoveDown;
+		internal static Key Setting_Key_Jump;
+		internal static Key Setting_Key_Inventory;
 
 		// Graphic quality;
 
-		internal uint RenderingDistance_Horizontal;
-		internal uint RenderingDistance_Vertical;
-		internal float Opt_SectCFactor; // Sector Rendering Culling Factor.
-		internal float PixelAspectRatio;
+		internal static uint RenderingDistance_Horizontal;
+		internal static uint RenderingDistance_Vertical;
+		internal static float Opt_SectCFactor; // Sector Rendering Culling Factor.
+		internal static float PixelAspectRatio;
 
 		// Options for special gaming modes
 
-		internal bool Experimental_LearningMode;
+		internal static bool Experimental_LearningMode;
 
-		internal Settings_Hardware()
+		static Settings_Hardware()
 		{
+			ClientID = new Guid();
 			Setting_Resolution_h = 0;
 			Setting_Resolution_v = 0;
 			Setting_FullScreen = true;
@@ -88,15 +92,22 @@ namespace Voxelarium.Core.Game
 			Setting_Key_Jump = Key.Space;
 			Setting_Key_Inventory = Key.I;
 
-			RenderingDistance_Horizontal = 8;
+#if BUILD_ANDROID
+			RenderingDistance_Horizontal = 3;
+			RenderingDistance_Vertical = 2;
+#else
+			RenderingDistance_Horizontal = 5;
 			RenderingDistance_Vertical = 3;
+#endif
 			Opt_SectCFactor = 1.0f;
 			PixelAspectRatio = 1.0f;
 			Experimental_LearningMode = false;
 		}
 
-		internal bool Load()
+		internal static bool Load()
 		{
+			ClientID = Settings.Read( "Client ID", ClientID );
+
 			//Settings.Read( "Setting_Resolution_h" ) Setting_Resolution_h = Line.GetULong();
 			//			Settings.Read( "Setting_Resolution_v" ) Setting_Resolution_v = Line.GetULong();
 			Setting_FullScreen = Settings.Read( "Setting_FullScreen", false );
@@ -121,12 +132,12 @@ namespace Voxelarium.Core.Game
 			Setting_Key_Jump = Settings.Read( "Setting_Key_Jump", Setting_Key_Jump );
 			Setting_Key_Inventory = Settings.Read( "Setting_Key_Inventory", Setting_Key_Inventory );
 
-			RenderingDistance_Horizontal = (uint)Settings.Read( "RenderingDistance_Horizontal", 4 );
+			RenderingDistance_Horizontal = (uint)Settings.Read( "RenderingDistance_Horizontal", RenderingDistance_Horizontal );
 			{
 				if( RenderingDistance_Horizontal < 1 ) RenderingDistance_Horizontal = 1;
 				if( RenderingDistance_Horizontal > 65535 ) RenderingDistance_Horizontal = 65535;
 			}
-			RenderingDistance_Vertical = (uint)Settings.Read( "RenderingDistance_Vertical", 3 );
+			RenderingDistance_Vertical = (uint)Settings.Read( "RenderingDistance_Vertical", RenderingDistance_Vertical );
 			{
 				if( RenderingDistance_Vertical < 1 ) RenderingDistance_Vertical = 1;
 				if( RenderingDistance_Vertical > 65535 ) RenderingDistance_Vertical = 65535;

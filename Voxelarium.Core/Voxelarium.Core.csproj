@@ -51,10 +51,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Game\DroneBody.cs" />
     <Compile Include="Game\GameWindows\GameWindow_Inventory.cs" />
     <Compile Include="Game\GameWindows\Controls\InventoryBox.cs" />
     <Compile Include="Game\Inventory.cs" />
+    <Compile Include="Game\Screens\ScreenConnecting.cs" />
+    <Compile Include="Game\Screens\ScreenPlaySelect.cs" />
+    <Compile Include="Game\Screens\ScreenSelectServer.cs" />
     <Compile Include="Networking\ClientConnection.cs" />
+    <Compile Include="Networking\MasterServerConnection.cs" />
     <Compile Include="NeuralNetwork\Brain.cs" />
     <Compile Include="NeuralNetwork\NeuronLogics\FlipFlop.cs" />
     <Compile Include="NeuralNetwork\NeuronLogics\LevelLock.cs" />
@@ -84,6 +89,7 @@
     <Compile Include="Support\HighPerfTimer.cs" />
     <Compile Include="Types\XColor.cs" />
     <Compile Include="Types\XString.cs" />
+    <Compile Include="UI\Controls\FrameListbox.cs" />
     <Compile Include="UI\Controls\ProgressBar.cs" />
     <Compile Include="UI\Display.cs" />
     <Compile Include="UI\EventConsumer.cs" />
@@ -91,8 +97,11 @@
     <Compile Include="UI\Controls\FontFrame.cs" />
     <Compile Include="UI\Controls\Frame.cs" />
     <Compile Include="UI\FontRenderer.cs" />
+    <Compile Include="UI\FrameBufferObject.cs" />
     <Compile Include="UI\GraphicUserManager.cs" />
+    <Compile Include="UI\GuiGeometry.cs" />
     <Compile Include="UI\Shaders\FXAAShader.cs" />
+    <Compile Include="UI\Shaders\GuiGeometryShader.cs" />
     <Compile Include="UI\Shaders\SimpleInstanceShader.cs" />
     <Compile Include="Voxels\IO\FileSectorLoader.cs" />
     <Compile Include="Voxels\IO\NetworkSectorLoader.cs" />
@@ -144,11 +153,13 @@
     <Compile Include="Voxels\UI\Render_Basic.cs" />
     <Compile Include="Voxels\UI\Render_Smooth.cs" />
     <Compile Include="Voxels\UI\VoxelCuller.cs" />
+    <Compile Include="Voxels\UI\VoxelGeometry.cs" />
+    <Compile Include="UI\GeometryBuffer.cs" />
     <Compile Include="Voxels\Utils\VoxelGfx_Tree.cs" />
     <Compile Include="Voxels\Utils\VoxelGfx_Tree_Giant.cs" />
     <Compile Include="Voxels\Utils\VoxelGfx_Tree_Straight.cs" />
     <Compile Include="Voxels\VoxelExtension.cs" />
-    <Compile Include="Voxels\UI\VoxelGeometry.cs" />
+    <Compile Include="Voxels\UI\VoxelGeometry_old.cs" />
     <Compile Include="Voxels\VoxelGlobalSettings.cs" />
     <Compile Include="Voxels\VoxelProperties.cs" />
     <Compile Include="Voxels\VoxelReactor.cs" />
@@ -157,6 +168,7 @@
     <Compile Include="Voxels\VoxelType.cs" />
     <Compile Include="Voxels\VoxelTypeManager.cs" />
     <Compile Include="Voxels\VoxelType_Void.cs" />
+    <Compile Include="Voxels\VoxelUtils.cs" />
     <Compile Include="Voxels\VoxelWorld.cs" />
     <Compile Include="Voxels\VoxelWorldProcessor.cs" />
     <Compile Include="Voxels\WorldGenesis.cs" />

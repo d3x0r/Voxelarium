@@ -18,6 +18,8 @@ Copyright (c) 2003-2006 Gino van den Bergen / Erwin Coumans  http://continuousph
  Now part of Voxelarium.
  */
 
+using OpenTK;
+
 namespace Voxelarium.LinearMath
 {
 
@@ -103,7 +105,9 @@ namespace Voxelarium.LinearMath
 
 		public void GetForward( out btVector3 v ) { v.x = m_basis.m_el2.x; v.y = m_basis.m_el2.y; v.z = m_basis.m_el2.z; v.w = btScalar.BT_ZERO; }
 		public void GetRight( out btVector3 v ) { v.x = m_basis.m_el0.x; v.y = m_basis.m_el0.y; v.z = m_basis.m_el0.z; v.w = btScalar.BT_ZERO; }
+		public void GetRight( out Vector3 v ) { v.X = m_basis.m_el0.x; v.Y = m_basis.m_el0.y; v.Z = m_basis.m_el0.z; }
 		public void GetUp( out btVector3 v ) { v.x = m_basis.m_el1.x; v.y = m_basis.m_el1.y; v.z = m_basis.m_el1.z; v.w = btScalar.BT_ZERO; }
+		public void GetUp( out Vector3 v ) { v.X = m_basis.m_el1.x; v.Y = m_basis.m_el1.y; v.Z = m_basis.m_el1.z; }
 
 		/*@brief Set the current transform as the value of the product of two transforms
 		  @param t1 Transform 1

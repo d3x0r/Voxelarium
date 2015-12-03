@@ -25,6 +25,7 @@ using OpenTK;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Voxelarium.Core.Voxels;
 using Voxelarium.Core.Voxels.Types;
 
 namespace Voxelarium.Core.UI
@@ -36,7 +37,7 @@ namespace Voxelarium.Core.UI
 
 		internal ProgressBar()
 		{
-			//FrameType = MulticharConst( 'P', 'B', 'A', 'R' ); // = InventoryBox;
+			FrameType = VoxelUtils.MulticharConst( 'P', 'B', 'A', 'R' ); // = InventoryBox;
 			Flag_Cap_Dragable = false;
 		}
 

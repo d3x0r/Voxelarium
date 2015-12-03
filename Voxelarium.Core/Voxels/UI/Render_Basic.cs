@@ -910,7 +910,8 @@ namespace Voxelarium.Core.Voxels.UI
 						if( VoxelGlobalSettings.COMPILEOPTION_FINETIMINGTRACKING )
 							Timer_SectorRefresh.Start();
 
-						Sector.geometry.DrawBuffer( false, false, world.TextureAtlas.OpenGl_TextureRef );
+						Sector.solid_geometry.SetupUniforms( world.TextureAtlas.OpenGl_TextureRef );
+						Sector.solid_geometry.DrawBuffer();
 						//glCallList( ( (ZRender_Interface_displaydata*)Sector.DisplayData ).DisplayList_Regular[current_gl_camera] );
 
 						Stat.SectorRender_Count++; RenderedSectors++;
@@ -944,9 +945,7 @@ namespace Voxelarium.Core.Voxels.UI
 			GL.AlphaFunc( AlphaFunction.Greater, 0.2f );
 			GL.Enable( EnableCap.AlphaTest );
 #endif
-
-			GL.Enable( EnableCap.Blend );
-			GL.BlendFunc( BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha );
+			Display.EnableBlending( true );
 
 			for( int Entry = 0; Entry < SectorsToProcess; Entry++ )
 			{
@@ -967,7 +966,8 @@ namespace Voxelarium.Core.Voxels.UI
 						if( VoxelGlobalSettings.COMPILEOPTION_FINETIMINGTRACKING )
 							Timer_SectorRefresh.Start();
 
-						Sector.geometry.DrawBuffer( true, false, world.TextureAtlas.OpenGl_TextureRef );
+						Sector.transparent_geometry.SetupUniforms( world.TextureAtlas.OpenGl_TextureRef );
+						Sector.transparent_geometry.DrawBuffer();
 						//glCallList( ( (ZRender_Interface_displaydata*)Sector.DisplayData ).DisplayList_Transparent[current_gl_camera] );
 						Stat.SectorRender_Count++;
 
@@ -981,7 +981,7 @@ namespace Voxelarium.Core.Voxels.UI
 				}
 			}
 			GL.Enable( EnableCap.DepthTest );
-			GL.Disable( EnableCap.Blend );
+			Display.EnableBlending( false );
 
 			Timer.End();
 
@@ -1017,7 +1017,7 @@ namespace Voxelarium.Core.Voxels.UI
 
 			if( Sector.Flag_Render_Dirty )
 			{
-				VoxelGeometry geometry = Sector.geometry;
+				VoxelGeometry geometry = Sector.solid_geometry;
 				float voxelSize = Sector.world.VoxelBlockSize;
 				byte[] FaceCulling = ( Sector.Culler as BasicVoxelCuller ).FaceCulling;
 				//Log.log( "Is Dirty Building sector {0} {1} {2}", Sector.Pos_x, Sector.Pos_y, Sector.Pos_z );
@@ -1032,7 +1032,6 @@ namespace Voxelarium.Core.Voxels.UI
 				//for( Pass = 0; Pass < 2; Pass++ )
 				Pass = 0;
 				{
-					geometry.SetSolid();
 					geometry.Clear();
 					/*
 					Log.log( "Sector is {6} {7} {8} near l{0} r{1} ab{2} bl{3} bh{4} ah{5}"
@@ -1188,7 +1187,6 @@ namespace Voxelarium.Core.Voxels.UI
 					// if in the first pass, the sector has no transparent block, the second pass is cancelled.
 					//if( Sector.Flag_Void_Transparent ) break;
 				}
-				geometry.SetSolid();
 				Sector.Flag_Render_Dirty = false;
 			}
 		}
@@ -1218,7 +1216,7 @@ namespace Voxelarium.Core.Voxels.UI
 
 			//Log.log( "Building sector {0} {1} {2}", Sector.Pos_x, Sector.Pos_y, Sector.Pos_z );
 			// Display list creation or reuse.
-			VoxelGeometry geometry = Sector.geometry;
+			VoxelGeometry geometry = Sector.transparent_geometry;
 			float voxelSize = Sector.world.VoxelBlockSize;
 			byte[] FaceCulling = ( Sector.Culler as BasicVoxelCuller ).FaceCulling;
 			Sector_Display_x = (int)( Sector.Pos_x * Sector.Size_x * voxelSize );
@@ -1246,8 +1244,6 @@ namespace Voxelarium.Core.Voxels.UI
 			if( Sector.Flag_Render_Dirty_Transparent )
 			{
 				{
-					geometry.SetTransparent(); 
-
 					geometry.Clear();
 
 					prevcube = 0;
@@ -1369,10 +1365,7 @@ namespace Voxelarium.Core.Voxels.UI
 							}
 						}
 					}
-					// if in the first pass, the sector has no transparent block, the second pass is cancelled.
-					//if( Sector.Flag_Void_Transparent ) break;
 				}
-				geometry.SetSolid();
 				Sector.Flag_Render_Dirty_Transparent = false;
 			}
 		}

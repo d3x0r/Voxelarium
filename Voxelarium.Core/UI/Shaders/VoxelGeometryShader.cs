@@ -44,7 +44,8 @@ namespace Voxelarium.Core.UI.Shaders
 
 		const string Vertex_Simple =
 			#if !USE_GLES2
-				@"#version 130"+
+				@"#version 130
+			"+
 			#endif
 			@"uniform mat4 modelView;
 			uniform mat4 worldView;
@@ -70,30 +71,30 @@ namespace Voxelarium.Core.UI.Shaders
 			varying vec4 ex_Color;
 			varying vec2 ex_texCoord;
 			varying  float ex_Pow;"+
-		#if USE_GLES2
+#if USE_GLES2
 			@"float ex_use_texture;
 			float ex_flat_color;
 			float ex_decal_texture;
 			varying vec4 ex_FaceColor;"+
-		#else
+#else
 			@"flat out  int ex_use_texture;
 			flat out  int ex_flat_color;
 			flat out  int ex_decal_texture;
 			out vec4 ex_FaceColor;"+
-		#endif
+#endif
 			@"varying  vec2 ex_Modulous;
 			void main(void) {
 			//  gl_Position = Projection * worldView * modelView * vPosition;
 				gl_Position = Projection * worldView * vPosition;"+
-		#if USE_GLES2
-				@"ex_texCoord = in_Texture/65535.0f;
+#if USE_GLES2
+				@"ex_texCoord = in_Texture/32768.0f;
 				ex_Color = in_Color/255.0f;
 				ex_FaceColor = in_FaceColor/255.0f;"+
-		#else
-				@"ex_texCoord = in_Texture/65535;
-				ex_Color = in_Color/255;
-				ex_FaceColor = in_FaceColor/255;"+
-		#endif
+#else
+				@"ex_texCoord = in_Texture/32768;
+				ex_Color = in_Color/256;
+				ex_FaceColor = in_FaceColor/256;" +
+#endif
 				@"ex_Pow = in_Pow;
 				ex_use_texture = in_use_texture;
 				ex_flat_color = in_flat_color;
@@ -102,12 +103,13 @@ namespace Voxelarium.Core.UI.Shaders
 			;
 
 		const string Fragment_Simple =
-			#if !USE_GLES2
-			@"#version 130"+
-			#endif
+#if !USE_GLES2
+			@"#version 130
+			"+
+#endif
 			@"varying vec2 ex_texCoord;
 			varying vec4 ex_Color;" +
-		#if USE_GLES2
+#if USE_GLES2
 		@"varying float ex_Pow;
 			float ex_use_texture;
 			float ex_flat_color;
@@ -126,7 +128,7 @@ namespace Voxelarium.Core.UI.Shaders
 				else
 				{
 			" +
-						#else
+#else
 			@"in float ex_Pow;
 			flat in  int ex_use_texture;
 			flat in  int ex_flat_color;
@@ -145,16 +147,16 @@ namespace Voxelarium.Core.UI.Shaders
 		else
 		{
 		" +
-		#endif
-		#if USE_GLES2
+#endif
+#if USE_GLES2
 				@"float a = mod(ex_Modulous.x +0.5f, 1.0f )-0.5f;
 				float b = mod(ex_Modulous.y +0.5f, 1.0f )-0.5f;
 				"+
-		#else
+#else
 				@"float a = ex_Modulous.x - round(ex_Modulous.x );
 				float b = ex_Modulous.y - round(ex_Modulous.y );
 				"+
-		#endif
+#endif
 				@"float g;
 				float h;
 				vec3 white;

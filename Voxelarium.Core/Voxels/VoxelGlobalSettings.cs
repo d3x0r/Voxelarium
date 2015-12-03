@@ -27,7 +27,6 @@ namespace Voxelarium.Core.Voxels
 {
 	public class VoxelGlobalSettings
 	{
-		public static uint MulticharConst( char a, char b, char c, char d ) { return ( (uint)a ) | ( (uint)b << 9 ) | ( (uint)c << 16 ) | ( (uint)d << 24 ); }
 
 		public static bool Exiting;
 
