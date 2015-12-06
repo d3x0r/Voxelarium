@@ -24,22 +24,14 @@
 using Voxelarium.LinearMath;
 using OpenTK;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using Voxelarium.Core.Game;
-using Voxelarium.Core.Voxels.Types;
 using Voxelarium.Common;
 
 namespace Voxelarium.Core.Voxels
 {
 	public class VoxelReactor
 	{
-
-		//public static ZLightSpeedRandom Random;
-
 		public static SaltyRandomGenerator Random;
-
-		public static VoxelSector DummySector;
 
 		Vector3 PlayerPosition;
 		VoxelGameEnvironment GameEnv;
@@ -47,8 +39,6 @@ namespace Voxelarium.Core.Voxels
 		VoxelTypeManager VoxelTypeManager;
 		//ZEgmyTargetManager EgmyWaveManager;
 		uint CycleNum;
-
-
 
 #if asdfasdfasdf
 		public:
@@ -66,21 +56,8 @@ namespace Voxelarium.Core.Voxels
     static ZBlocPosN xbp6_nc[6];// same as xbp6 with -1,+1 range
 #endif
 
-		// Fast computing offsets;
-		static public byte[] Of_x = new byte[VoxelSector.ZVOXELBLOCSIZE_X + 2];
-		static public byte[] Of_y = new byte[VoxelSector.ZVOXELBLOCSIZE_Y + 2];
-		static public byte[] Of_z = new byte[VoxelSector.ZVOXELBLOCSIZE_Z + 2];
-		static public uint[] If_x = new uint[VoxelSector.ZVOXELBLOCSIZE_X + 2];
-		static public uint[] If_y = new uint[VoxelSector.ZVOXELBLOCSIZE_Y + 2];
-		static public uint[] If_z = new uint[VoxelSector.ZVOXELBLOCSIZE_Z + 2];
-
-		// DirCodes
-
-		public static byte[] DirCodeTable = new byte[16];
-
 		// Time remaining on FireMine action
 		uint FireMineTime;
-
 
 		public
 			void Init( VoxelGameEnvironment GameEnv )
@@ -89,52 +66,15 @@ namespace Voxelarium.Core.Voxels
 			this.World = GameEnv.World;
 			this.VoxelTypeManager = GameEnv.VoxelTypeManager;
 			PlayerPosition.X = PlayerPosition.Y = PlayerPosition.Z = 0;
-
 		}
-
 
 		internal VoxelReactor()
 		{
-			int i;
-
 			if( Random == null )
 			{
 				// one-time inits for static members.
 				Random = new SaltyRandomGenerator();
-				//Random.Init( 0 );
-				// Dummy Sector
-
-				DummySector = new VoxelSector( null, (VoxelWorld)null );
-				DummySector.Fill( 0xFFFF );
-
-				// Multiplexing Sector Tables for fast access to voxels
-				Of_x[0] = 0; Of_x[VoxelSector.ZVOXELBLOCSIZE_X + 1] = 2; for( i = 1; i <= VoxelSector.ZVOXELBLOCSIZE_X; i++ ) Of_x[i] = 1;
-				Of_y[0] = 0; Of_y[VoxelSector.ZVOXELBLOCSIZE_Y + 1] = 8; for( i = 1; i <= VoxelSector.ZVOXELBLOCSIZE_Y; i++ ) Of_y[i] = 4;
-				Of_z[0] = 0; Of_z[VoxelSector.ZVOXELBLOCSIZE_Z + 1] = 32; for( i = 1; i <= VoxelSector.ZVOXELBLOCSIZE_Z; i++ ) Of_z[i] = 16;
-
-				// Multiplexing Voxel Tables for fast access to voxels
-
-				If_x[0] = ( VoxelSector.ZVOXELBLOCSIZE_X - 1 ) * VoxelSector.ZVOXELBLOCSIZE_Y;
-				If_x[VoxelSector.ZVOXELBLOCSIZE_X + 1] = 0;
-				for( i = 0; i < VoxelSector.ZVOXELBLOCSIZE_X; i++ ) If_x[i + 1] = (uint)i * VoxelSector.ZVOXELBLOCSIZE_Y;
-				If_y[0] = ( VoxelSector.ZVOXELBLOCSIZE_Y - 1 );
-				If_y[VoxelSector.ZVOXELBLOCSIZE_Y + 1] = 0;
-				for( i = 0; i < VoxelSector.ZVOXELBLOCSIZE_Y; i++ ) If_y[i + 1] = (uint)i;
-				If_z[0] = ( VoxelSector.ZVOXELBLOCSIZE_Z - 1 ) * VoxelSector.ZVOXELBLOCSIZE_Y * VoxelSector.ZVOXELBLOCSIZE_X;
-				If_z[VoxelSector.ZVOXELBLOCSIZE_Z + 1] = 0;
-				for( i = 0; i < VoxelSector.ZVOXELBLOCSIZE_Z; i++ ) If_z[i + 1] = (uint)i * VoxelSector.ZVOXELBLOCSIZE_Y * VoxelSector.ZVOXELBLOCSIZE_X;
-
 			}
-
-#if asfasdf
-			// Reaction table
-			ReactionTable = new VoxelReaction[65536];
-			for( i = 0; i < 65536; i++ ) ReactionTable[i] = 0;
-			// Green acid reaction
-			ReactionTable[86] = new ZVoxelReaction( 89, 0 );
-			// ReactionTable[86].SetReaction(1,10,10);
-#endif
-			//ReactionTable[86].Set(1,10);
 		}
 
 
@@ -162,7 +102,7 @@ namespace Voxelarium.Core.Voxels
 			Actor SelectedActor;
 
 			btVector3 PlayerLocation;
-			Log.log( "Begin Reaction Processing" );
+			//Log.log( "Begin Reaction Processing" );
 			int Sectors_processed = 0;
 			int Voxels_Processed = 0;
 			// FireMine
@@ -221,7 +161,7 @@ namespace Voxelarium.Core.Voxels
 							{
 								MainOffset = (uint)(zofs + xofs + y);
                                 VoxelType = VoxelP[MainOffset];
-								if( VoxelTypeManager[VoxelType].properties.Is_Active )
+								if( ( vref.Type = VoxelTypeManager[VoxelType] ).properties.Is_Active )
 								{
 									if( !Sector.ModifTracker.Get( MainOffset ) ) // If voxel is already processed, don't process it once more in the same cycle.
 									{
@@ -229,8 +169,7 @@ namespace Voxelarium.Core.Voxels
 										vref.wx = RSx + ( vref.x = (byte)x );
 										vref.wy = RSy + ( vref.y = (byte)y );
 										vref.wz = RSz + ( vref.z = (byte)z );
-										vref.Offset = If_x[x + 1] + If_y[y + 1] + If_z[z + 1];
-										vref.Type = VoxelTypeManager.VoxelTable[VoxelType];
+										vref.Offset = MainOffset;
 
 										IsActiveVoxels = true;
 										vref.VoxelExtension = Extension[MainOffset];
@@ -249,7 +188,7 @@ namespace Voxelarium.Core.Voxels
 				}
 				Sector = Sector.GlobalList_Next;
 			}
-			Log.log( "Finish Reaction Processing {0} {1} ", Sectors_processed, Voxels_Processed );
+			//Log.log( "Finish Reaction Processing {0} {1} ", Sectors_processed, Voxels_Processed );
 		}
 	}
 }

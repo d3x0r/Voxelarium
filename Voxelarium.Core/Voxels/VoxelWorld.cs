@@ -402,6 +402,11 @@ namespace Voxelarium.Core.Voxels
 			int x, y, z, Offset;
 			VoxelSector SectorPointer;
 
+			for( x = 0; x < 6; x++ )
+			{
+				if( Sector.near_sectors[x] != null ) Sector.near_sectors[x].near_sectors[x ^ 1] = null;
+				Sector.near_sectors[x] = null;
+			}
 			GameEnv.Engine.Remove( Sector.physics );
 			// Finding sector in hash
 			x = ( Sector.Pos_x & ( SectorHashSize_x - 1 ) );
