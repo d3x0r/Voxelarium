@@ -43,8 +43,15 @@ namespace Voxelarium.Core.Voxels
 
 		int LoadedTexturesCount;
 
-		internal FastBit_Array_64k ActiveTable;
+		//internal FastBit_Array_64k ActiveTable;
 
+		internal VoxelType this[int n]
+		{
+			get
+			{
+				return VoxelTable[n];
+			}
+		}
 
 		internal int GetTexturesCount() { return ( LoadedTexturesCount ); }
 
@@ -52,8 +59,6 @@ namespace Voxelarium.Core.Voxels
 		{
 			GameEnv = null;
 			LoadedTexturesCount = 0;
-			ActiveTable = new FastBit_Array_64k();
-			ActiveTable.Clear();
 			VoxelTable = new VoxelType[65536];
 		}
 
@@ -64,7 +69,6 @@ namespace Voxelarium.Core.Voxels
 			{
 				VoxelTable[i] = null;
 			}
-			ActiveTable = null;
 			VoxelTable = null;
 		}
 
@@ -73,7 +77,7 @@ namespace Voxelarium.Core.Voxels
 		{
 			VoxelTable[TypeNum] = VoxelType;
 			VoxelType.VoxelTypeManager = this;
-			ActiveTable.Set( TypeNum, VoxelType.properties.Is_Active );
+			//ActiveTable.Set( TypeNum, VoxelType.properties.Is_Active );
 		}
 
 		internal void SetGameEnv( VoxelGameEnvironment GameEnv )
@@ -117,7 +121,7 @@ namespace Voxelarium.Core.Voxels
 		internal bool LoadVoxelTypes( bool nogui )
 		{
 			Log.log( "Here we start to do magic to get voxel types..." );
-			int i;
+			ushort i;
 			VoxelType VoxelType;
 
 			i = 0;
@@ -147,12 +151,14 @@ namespace Voxelarium.Core.Voxels
 						success = true;
 				}
 				else if( !nogui )
+				{
 					success = VoxelType.LoadTexture();
-                if( success )
+					if( !success )
+						Log.log( "Fatal error : Missing texture for " + i );
+				}
+				if( success )
 				{
 					AddVoxelType( i, VoxelType );
-					//VoxelType.LoadVoxelInformations();
-					ActiveTable.Set( i, VoxelType.properties.Is_Active );
 					LoadedTexturesCount++;
 				}
 			}

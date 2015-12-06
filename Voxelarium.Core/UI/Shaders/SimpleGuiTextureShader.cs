@@ -73,9 +73,9 @@ namespace Voxelarium.Core.UI.Shaders
 			Display.CheckErr();
 			//GL.ActiveTexture( TextureUnit.Texture0 );
 			//Display.CheckErr();
-			Shader.BindTexture( 0, texture );
+			int gui_unit = Shader.BindTexture( texture );
 			Display.CheckErr();
-			GL.Uniform1( texture_id, 0 );
+			GL.Uniform1( texture_id, gui_unit );
 			Display.CheckErr();
 		}
 

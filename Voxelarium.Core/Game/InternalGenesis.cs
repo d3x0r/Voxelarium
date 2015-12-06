@@ -900,7 +900,6 @@ namespace Voxelarium.Core.Voxels
 							else if( Deep2 < -20 ) VoxelType = 10;
 							else VoxelType = 0;
 						}
-
 						VoxelSector.SetCube( x, y, z, VoxelType );
 					}
 				}
@@ -986,9 +985,9 @@ namespace Voxelarium.Core.Voxels
 			Zone.x = ( VoxelSector.Pos_x >> ( 8 - VoxelSector.ZVOXELBLOCSHIFT_X ) ) + ( Z_GENESISMAP_SIZE >> 1 );
 			Zone.z = ( VoxelSector.Pos_z >> ( 8 - VoxelSector.ZVOXELBLOCSHIFT_Z ) ) + ( Z_GENESISMAP_SIZE >> 1 );
 
-			SectorStart.x = ( VoxelSector.Pos_x);
-			SectorStart.z = ( VoxelSector.Pos_z);
-			SectorStart.y = ( VoxelSector.Pos_y);
+			SectorStart.x = ( VoxelSector.Pos_x << VoxelSector.ZVOXELBLOCSHIFT_X ) & 255;
+			SectorStart.z = ( VoxelSector.Pos_z << VoxelSector.ZVOXELBLOCSHIFT_Z ) & 255;
+			SectorStart.y = ( VoxelSector.Pos_y << VoxelSector.ZVOXELBLOCSHIFT_Y );
 
 			RiverCanva.Clear();
 

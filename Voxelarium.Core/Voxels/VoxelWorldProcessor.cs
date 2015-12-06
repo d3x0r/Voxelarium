@@ -25,7 +25,10 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
+using Voxelarium.Common;
+using Voxelarium.Core.Game;
 using Voxelarium.Core.Support;
+using Voxelarium.Core.UI;
 using Voxelarium.Core.Voxels.Types;
 using Voxelarium.LinearMath;
 
@@ -47,15 +50,15 @@ namespace Voxelarium.Core.Voxels
 		//ULong RNG_z = 0;
 
 		ZVector3L Player_Sector;
-		ZVector3f Player_Position;
-		ZVector3L Player_Voxel;
+		//ZVector3f Player_Position;
+		//ZVector3L Player_Voxel;
 
-		float SectorEjectDistance;
+		int SectorEjectDistance;
 		uint debug_DeleteRequests = 0;
 
 		public VoxelWorldProcessor()
 		{
-			SectorEjectDistance = 1000000.0f;
+			SectorEjectDistance = (int)( Math.Max( Settings_Hardware.RenderingDistance_Horizontal, Settings_Hardware.RenderingDistance_Vertical ) + 2);
 		}
 
 		~VoxelWorldProcessor()
@@ -65,32 +68,39 @@ namespace Voxelarium.Core.Voxels
 
 		internal void SetWorld( VoxelWorld World ) { this.World = World; }
 		internal void SetGameEnv( VoxelGameEnvironment GameEnv ) { this.GameEnv = GameEnv; }
-		internal void SetSectorEjectDistance( float SectorEjectDistance ) { this.SectorEjectDistance = SectorEjectDistance; }
+		internal void SetSectorEjectDistance( int SectorEjectDistance ) { this.SectorEjectDistance = SectorEjectDistance; }
 
-		internal void SetPlayerPosition( ref btVector3 v )
+		internal void SetPlayerPosition( VoxelWorld world, ref btVector3 v )
 		{
 			{
-				Player_Position.x = v.x;
-				Player_Position.y = v.y;
-				Player_Position.z = v.z;
-				Player_Sector.x = (int)( v.x / ( VoxelGlobalSettings.WorldVoxelBlockSize * VoxelSector.ZVOXELBLOCSIZE_X ) );
-				Player_Sector.y = (int)( v.y / ( VoxelGlobalSettings.WorldVoxelBlockSize * VoxelSector.ZVOXELBLOCSIZE_Y ) );
-				Player_Sector.z = (int)( v.z / ( VoxelGlobalSettings.WorldVoxelBlockSize * VoxelSector.ZVOXELBLOCSIZE_Z ) );
-				Player_Voxel.x = (int)( v.x / VoxelGlobalSettings.WorldVoxelBlockSize );
-				Player_Voxel.y = (int)( v.y / VoxelGlobalSettings.WorldVoxelBlockSize );
-				Player_Voxel.z = (int)( v.z / VoxelGlobalSettings.WorldVoxelBlockSize );
+				//Player_Position.x = v.x;
+				//Player_Position.y = v.y;
+				//Player_Position.z = v.z;
+				Player_Sector.x = (int)( v.x / ( world.VoxelBlockSize * VoxelSector.ZVOXELBLOCSIZE_X ) );
+				Player_Sector.y = (int)( v.y / ( world.VoxelBlockSize * VoxelSector.ZVOXELBLOCSIZE_Y ) );
+				Player_Sector.z = (int)( v.z / ( world.VoxelBlockSize * VoxelSector.ZVOXELBLOCSIZE_Z ) );
+				//Player_Voxel.x = (int)( v.x / world.VoxelBlockSize );
+				//Player_Voxel.y = (int)( v.y / world.VoxelBlockSize );
+				//Player_Voxel.z = (int)( v.z / world.VoxelBlockSize );
 			}
 		}
 
 		internal void Start()
 		{
+			Display.AtExit += Display_AtExit;
 			VoxelReactor = new VoxelReactor();
 			VoxelReactor.Init( this.GameEnv );
 			ThreadContinue = true;
 			thread = new Thread( thread_func );
+			thread.Start( this );
 			//Thread[1] = (SDL_Thread * )SDL_CreateThread(thread_func, "thread_func", this);
 			//Thread[2] = (SDL_Thread * )SDL_CreateThread(thread_func, "thread_func", this);
 			//Thread[3] = (SDL_Thread * )SDL_CreateThread(thread_func, "thread_func", this);
+		}
+
+		private void Display_AtExit()
+		{
+			ThreadContinue = false;
 		}
 
 		internal void End()
@@ -158,12 +168,14 @@ namespace Voxelarium.Core.Voxels
 			// Compute distance of the sector from the player position sector.
 			// If sector is too far, don't process further and send sector to unloading list.
 
-			float xdist = Sector.Pos_x - Player_Sector.x;
-			float ydist = Sector.Pos_y - Player_Sector.y;
-			float zdist = Sector.Pos_z - Player_Sector.z;
-			float Dist = (float)Math.Sqrt( xdist * xdist + ydist * ydist + zdist * zdist );
-
-			if( Dist > SectorEjectDistance && !Sector.Flag_KeepInMemory )
+			int xdist = Sector.Pos_x - Player_Sector.x;
+			int ydist = Sector.Pos_y - Player_Sector.y;
+			int zdist = Sector.Pos_z - Player_Sector.z;
+			int Dist = ( xdist * xdist + ydist * ydist + zdist * zdist );
+			if( Dist > SectorEjectDistance )
+				if( Sector.Flag_KeepInMemory )
+					Log.log( "Prevented eject; is processing in reactor" );
+            if( Dist > SectorEjectDistance && !Sector.Flag_KeepInMemory )
 			{
 				if( World.RequestSectorEject( Sector ) )
 				{
@@ -175,19 +187,19 @@ namespace Voxelarium.Core.Voxels
 			} // 14
 
 			// **************************** Sector face culling ***********************
-
+			// handled during normal culling...
 			//uint64_t CullingResult;
-
-			if( Sector.PartialCulling != 0 )
-			{
-				//CullingResult = 
-				Sector.Culler.CullSector( Sector, false, Sector.PartialCulling );
-				//Sector.PartialCulling ^= CullingResult & (DRAWFACE_ABOVE | DRAWFACE_BELOW | DRAWFACE_LEFT | DRAWFACE_RIGHT | DRAWFACE_AHEAD | DRAWFACE_BEHIND);
-				//Sector.PartialCulling &= (DRAWFACE_ABOVE | DRAWFACE_BELOW | DRAWFACE_LEFT | DRAWFACE_RIGHT | DRAWFACE_AHEAD | DRAWFACE_BEHIND);
-				//if (CullingResult) Sector.Flag_Render_Dirty = true;
-				// printf("Cull %ld,%ld,%ld :%lx (%lx)\n", Sector.Pos_x, Sector.Pos_y, Sector.Pos_z, CullingResult, (ULong)Sector.PartialCulling);
-			}
-
+			/*
+						if( !Sector.Flag_DeletePending && Sector.PartialCulling != 0 )
+						{
+							//CullingResult = 
+							Sector.Culler.CullSector( Sector, false, Sector.PartialCulling );
+							//Sector.PartialCulling ^= CullingResult & (DRAWFACE_ABOVE | DRAWFACE_BELOW | DRAWFACE_LEFT | DRAWFACE_RIGHT | DRAWFACE_AHEAD | DRAWFACE_BEHIND);
+							//Sector.PartialCulling &= (DRAWFACE_ABOVE | DRAWFACE_BELOW | DRAWFACE_LEFT | DRAWFACE_RIGHT | DRAWFACE_AHEAD | DRAWFACE_BEHIND);
+							//if (CullingResult) Sector.Flag_Render_Dirty = true;
+							// printf("Cull %ld,%ld,%ld :%lx (%lx)\n", Sector.Pos_x, Sector.Pos_y, Sector.Pos_z, CullingResult, (ULong)Sector.PartialCulling);
+						}
+						*/
 			// **************************** Egmy Scattering ****************************
 #if asdf
 			if( GameEnv.GameEventSequencer.SlotIsActivated( 1 ) )

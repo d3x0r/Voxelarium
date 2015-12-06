@@ -29,7 +29,7 @@ namespace Voxelarium.Core.Voxels
 	public class VoxelProperties
 	{
 		public string VoxelTypeName;
-		public int Type;
+		public ushort Type;
 
 		public string VoxelClassName;
 		//Type VoxelExtension;
@@ -112,7 +112,7 @@ namespace Voxelarium.Core.Voxels
 		public FabMachineInfo FabInfo;
 		public uint Documentation_PageNum;
 
-		public VoxelProperties( int Type )
+		public VoxelProperties( ushort Type )
 		{
 			this.Type = Type;
 
@@ -271,7 +271,7 @@ namespace Voxelarium.Core.Voxels
 			return ( true );
 		}
 
-		public static VoxelProperties Load( int type )
+		public static VoxelProperties Load( ushort type )
 		{
 			VoxelProperties props = new VoxelProperties( type );
 			props.LoadVoxelProperties();

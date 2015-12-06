@@ -220,8 +220,6 @@ namespace Voxelarium.Core
 				// Rendering
 				if( Basic_Renderer != null )
 				{
-
-
 					// Process Input events (Mouse, Keyboard)
 					// this is handeld from callbacks
 					//EventManager.ProcessEvents();       // Process incoming events.
@@ -234,7 +232,6 @@ namespace Voxelarium.Core
 					World.ProcessOldEjectedSectors();
 
 					// if (MoveShipCounter>125 ) {GameEnv.MoveShip(); MoveShipCounter = 0; }
-
 					// Player physics
 					// PhysicEngine.DoPhysic( GameEnv.Time_FrameTime );
 

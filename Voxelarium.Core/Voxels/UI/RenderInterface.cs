@@ -393,7 +393,14 @@ namespace Voxelarium.Core.Voxels.UI
 			SectorSphere.Init( Horizontal, Vertical );
 		}
 
-		
+		internal abstract bool SetVoxel_WithCullingUpdate( VoxelWorld world, ushort VoxelValue
+							, VoxelSector.ModifiedFieldFlags ImportanceFactor
+							, bool CreateExtension
+							, ref VoxelRef Location );
+		internal abstract void UpdateCulling( ref VoxelRef Location
+									, VoxelSector.ModifiedFieldFlags ImportanceFactor
+								);
+
 #if ALLOW_INLINE
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 #endif

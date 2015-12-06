@@ -106,21 +106,21 @@ namespace Voxelarium.Core.Voxels.UI
 			{
 				GL.EnableVertexAttribArray( GeometryShader.use_texture_id );
 				Display.CheckErr();
-				GL.VertexAttribPointer( GeometryShader.use_texture_id, 1, VertexAttribPointerType.Byte, false, VoxelVertex.VertexSize, 20 );
+				GL.VertexAttribPointer( GeometryShader.use_texture_id, 1, VertexAttribPointerType.UnsignedByte, false, VoxelVertex.VertexSize, 20 );
 				Display.CheckErr();
 			}
 			if( GeometryShader.flat_color_id >= 0 )
 			{
 				GL.EnableVertexAttribArray( GeometryShader.flat_color_id );
 				Display.CheckErr();
-				GL.VertexAttribPointer( GeometryShader.flat_color_id, 1, VertexAttribPointerType.Byte, false, VoxelVertex.VertexSize, 21 );
+				GL.VertexAttribPointer( GeometryShader.flat_color_id, 1, VertexAttribPointerType.UnsignedByte, false, VoxelVertex.VertexSize, 21 );
 				Display.CheckErr();
 			}
 			if( GeometryShader.decal_texture_id >= 0 )
 			{
-				GL.EnableVertexAttribArray( GeometryShader.flat_color_id );
+				GL.EnableVertexAttribArray( GeometryShader.decal_texture_id );
 				Display.CheckErr();
-				GL.VertexAttribPointer( GeometryShader.flat_color_id, 1, VertexAttribPointerType.Byte, false, VoxelVertex.VertexSize, 22 );
+				GL.VertexAttribPointer( GeometryShader.decal_texture_id, 1, VertexAttribPointerType.UnsignedByte, false, VoxelVertex.VertexSize, 22 );
 				Display.CheckErr();
 			}
 			if( GeometryShader.power_id >= 0 )
@@ -141,14 +141,14 @@ namespace Voxelarium.Core.Voxels.UI
 			{
 				GL.EnableVertexAttribArray( GeometryShader.color_id );
 				Display.CheckErr();
-				GL.VertexAttribPointer( GeometryShader.color_id, 4, VertexAttribPointerType.UnsignedByte, false, VoxelVertex.VertexSize, 28 );
+				GL.VertexAttribPointer( GeometryShader.color_id, 4, VertexAttribPointerType.UnsignedByte, true, VoxelVertex.VertexSize, 28 );
 				Display.CheckErr();
 			}
 			if( GeometryShader.face_color_id >= 0 )
 			{
 				GL.EnableVertexAttribArray( GeometryShader.face_color_id );
 				Display.CheckErr();
-				GL.VertexAttribPointer( GeometryShader.face_color_id, 4, VertexAttribPointerType.UnsignedByte, false, VoxelVertex.VertexSize, 32 );
+				GL.VertexAttribPointer( GeometryShader.face_color_id, 4, VertexAttribPointerType.UnsignedByte, true, VoxelVertex.VertexSize, 32 );
 				Display.CheckErr();
 			}
 		}
@@ -171,17 +171,18 @@ namespace Voxelarium.Core.Voxels.UI
 			}
 		}
 
-
+		int atlas_texture_unit;
 		internal void SetupUniforms( int atlas_id )
 		{
-			Shader.BindTexture( 1, atlas_id );
+			// setup info here... but don't actually set the uniform because it's not active.
+			atlas_texture_unit = Shader.BindTexture( atlas_id );
 		}
 
 		protected override void ShaderActivate()
 		{
 			GeometryShader.Activate();
 
-			GL.Uniform1( GeometryShader.texture_id, 1 );
+			GL.Uniform1( GeometryShader.texture_id, atlas_texture_unit );
 			Display.CheckErr();
 		}
 
@@ -190,7 +191,7 @@ namespace Voxelarium.Core.Voxels.UI
 			int n;
 			int b;
 			int point_base;
-			if( used == available )
+			if( ( used + 3 ) >= available )
 				expand();
 			dirty = true;
 			for( n = 0; n < 3; n++ )

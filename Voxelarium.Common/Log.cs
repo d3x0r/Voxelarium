@@ -88,8 +88,14 @@ namespace Voxelarium.Common
 #else
 			ApplicationName = "XamarinAndroidProgram";
 #endif
+
+#if BUILD_ANDROID
 			LogToConsole = true || Settings.Read( "Log to debug console", 0 ) != 0;
-			LogToFile = false || Settings.Read( "Log to debug file", 1 ) != 0;
+			LogToFile = false && Settings.Read( "Log to debug file", 1 ) != 0;
+#else
+			LogToConsole = Settings.Read( "Log to debug console", 0 ) != 0;
+			LogToFile = Settings.Read( "Log to debug file", 1 ) != 0;
+#endif
 			LogTimeDelta = ( Settings.Read( "Log Time Delta", 1 ) != 0 );
 			initialized = true;
         }

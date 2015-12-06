@@ -88,12 +88,12 @@ namespace Voxelarium.Core.UI.Shaders
 				gl_Position = Projection * worldView * vPosition;"+
 #if USE_GLES2
 				@"ex_texCoord = in_Texture/32768.0f;
-				ex_Color = in_Color/255.0f;
-				ex_FaceColor = in_FaceColor/255.0f;"+
+				ex_Color = in_Color;
+				ex_FaceColor = in_FaceColor;"+
 #else
 				@"ex_texCoord = in_Texture/32768;
-				ex_Color = in_Color/256;
-				ex_FaceColor = in_FaceColor/256;" +
+				ex_Color = in_Color;
+				ex_FaceColor = in_FaceColor;" +
 #endif
 				@"ex_Pow = in_Pow;
 				ex_use_texture = in_use_texture;

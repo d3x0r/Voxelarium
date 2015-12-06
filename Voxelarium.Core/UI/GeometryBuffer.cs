@@ -50,7 +50,6 @@ namespace Voxelarium.Core.UI
 
 		internal GeometryBuffer( int InitialCapacity )
 		{
-			Display.OnInvalidate += Display_OnInvalidate;
 			vbo = -1;
 			vao = -1;
 		
@@ -61,7 +60,7 @@ namespace Voxelarium.Core.UI
 		{
 		}
 
-		void Display_OnInvalidate ()
+		internal void Invalidate ()
 		{
 			vbo = -1;
 			vao = -1;
@@ -161,9 +160,46 @@ namespace Voxelarium.Core.UI
 #endif
 				Display.CheckErr();
 #if USE_GLES2
-				GL.DrawArrays( BeginMode.Triangles, 0, used * 3 );
+				GL.DrawArrays( BeginMode.Triangles, 0, used );
 #else
-				GL.DrawArrays( PrimitiveType.Triangles, 0, used * 3 );
+				GL.DrawArrays( PrimitiveType.Triangles, 0, used );
+#endif
+				Display.CheckErr();
+			}
+
+#if USE_GLES2
+			GL.Oes.BindVertexArray( 0 );
+#else
+			GL.BindVertexArray( 0 );
+#endif
+			Display.CheckErr();
+		}
+
+#if USE_GLES2
+		internal void DrawBuffer( BeginMode primitive )
+#else
+		internal void DrawBuffer( PrimitiveType primitive )
+#endif
+		{
+			if( used == 0 )
+				return;
+
+			ShaderActivate();
+			// setup and possibly re-load data into buffer...
+			// handles dirty buffer reload
+			LoadBuffer();
+
+			{
+#if USE_GLES2
+				GL.Oes.BindVertexArray( vao );
+#else
+				GL.BindVertexArray( vao );
+#endif
+				Display.CheckErr();
+#if USE_GLES2
+				GL.DrawArrays( primitive, 0, used );
+#else
+				GL.DrawArrays( primitive, 0, used );
 #endif
 				Display.CheckErr();
 			}

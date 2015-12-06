@@ -28,6 +28,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Voxelarium.Core.Support;
+using Voxelarium.Core.UI;
 using Voxelarium.Core.Voxels;
 
 namespace Voxelarium.Core.Voxels.Physics
@@ -42,14 +43,14 @@ namespace Voxelarium.Core.Voxels.Physics
 	{
 		internal Space world;
 		internal Entity[] test_entitites = new Entity[10];
+		ParallelLooper parallelLooper = new ParallelLooper();
 		public PhysicsEngine()
 		{
-			ParallelLooper parallelLooper = new ParallelLooper();
+			Display.AtExit += Display_AtExit;
 			for( int i = 0; i < ( Environment.ProcessorCount - 3 ); i++ )
 			{
 				parallelLooper.AddThread();
 			}
-
 			VoxelGridConvexPairHandler.EnsurePairsAreRegistered();
 			world = new Space();
 			world.ForceUpdater.Gravity = new Vector3( 0, -9.81f, 0 );
@@ -58,12 +59,18 @@ namespace Voxelarium.Core.Voxels.Physics
 				int n;
 				for( n = 0; n < 10; n++ )
 				{
-					Vector3 origin = new Vector3( 0, n * 4, 0 );
-					test_entitites[n] = new Box( origin, 2, 2, 2, 1 );
+					Vector3 origin = new Vector3( 1800, n * 8, 0 );
+					test_entitites[n] = new Box( origin, 4, 4, 4, 1 );
 					world.Add( test_entitites[n] );
 				}
 			}
 
+		}
+
+		private void Display_AtExit()
+		{
+			while( parallelLooper.ThreadCount > 0 )
+				parallelLooper.RemoveThread();
 		}
 
 		public void Dispose()
@@ -88,6 +95,7 @@ namespace Voxelarium.Core.Voxels.Physics
 
 		internal void Remove( Sector sector )
 		{
+			sector.PhysicsSpace = null;
 			lock ( active_sectors )
 			{
 				active_sectors.Remove( sector );
@@ -109,16 +117,23 @@ namespace Voxelarium.Core.Voxels.Physics
 
 			internal Space PhysicsSpace;
 
-			internal bool Empty { get { return shape.Empty; } set { shape.Empty = value; } }
+			internal bool Empty { get { return shape.Empty; } set {
+					if( value == true && !shape.Empty )
+					{
+						int len = content.Length;
+						for( int i = 0; i < len; i++ )
+							content[i] = VoxelShape.Empty;
+					}
+					shape.Empty = value; } }
 
 			internal Sector( PhysicsEngine pe, VoxelWorld world, VoxelSector sector )
 			{
 				this.sector = sector;
 				content = new VoxelShape[sector.Size_x * sector.Size_y * sector.Size_z];
 				shape = new VoxelGridShape( content, world.VoxelBlockSize );
-				grid = new VoxelGrid( shape, new Vector3( sector.Pos_x * VoxelSector.ZVOXELBLOCSIZE_X * world.VoxelBlockSize
-													, sector.Pos_y * VoxelSector.ZVOXELBLOCSIZE_X * world.VoxelBlockSize
-													, sector.Pos_z * VoxelSector.ZVOXELBLOCSIZE_X * world.VoxelBlockSize ) );
+				grid = new VoxelGrid( shape, new Vector3( sector.Pos_x * sector.Size_x * world.VoxelBlockSize
+													, sector.Pos_y * sector.Size_y * world.VoxelBlockSize
+													, sector.Pos_z * sector.Size_z * world.VoxelBlockSize ) );
 				PhysicsSpace = pe.world;
 			}
 
@@ -147,6 +162,7 @@ namespace Voxelarium.Core.Voxels.Physics
 			internal void SetPos( int x, int y, int z )
 			{
 				grid.Position = new Vector3( x, y, z );
+				grid.UpdateBoundingBox();
 			}
 
 

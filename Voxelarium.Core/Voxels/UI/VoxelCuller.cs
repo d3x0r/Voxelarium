@@ -31,5 +31,7 @@ namespace Voxelarium.Core.Voxels.UI
 		internal abstract byte[] GetData();
 
 		internal abstract void CullSector( VoxelSector Sector, bool internal_faces, VoxelSector.FACEDRAW_Operations interesting_faces );
+		internal abstract void CullSingleVoxel( VoxelSector _Sector, uint offset );
+
 	}
 }

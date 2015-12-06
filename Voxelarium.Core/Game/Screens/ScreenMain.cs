@@ -62,11 +62,11 @@ namespace Voxelarium.Core.Game.Screens
 
 				TitleBackground.SetPosition( 0, 0 );
 				TitleBackground.SetSize( screen_x, screen_y );
-				TitleBackground.SetTexture( 0 );
+				TitleBackground.SetTexture( TextureID.MainMenuBackground );
 				GameEnv.GuiManager.AddFrame( TitleBackground );
 
-				Title_Size.X = 0.55f; Title_Size.X = 0.1f;
-				Title.SetPosition( screen_x - Title_Size.X / 2.0f, screen_y - 1 / 8.0f );
+				Title_Size.X = 1.8f; Title_Size.Y = 0.2f;
+				Title.SetPosition( ( screen_x - Title_Size.X ) / 2.0f, screen_y - 1 / 5.0f );
 				Title.SetSize( Title_Size.X, Title_Size.Y );
 				Title.SetTexture( TextureID.TitleBanner );
 				TitleBackground.AddFrame( Title );

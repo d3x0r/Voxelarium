@@ -105,13 +105,15 @@ namespace Voxelarium.Core
 				{
 					System.Array.Copy( data, 0, inbuf, total_bytes, data.Length );
 					total_bytes += data.Length;
-                }
+				}
 
 				entropy = bits.ComputeHash( inbuf );
 
 				bits_used = 0;
 				bits_avail = entropy.Length * 8;
 			}
+			else
+				entropy = bits.ComputeHash( new byte[0] );
 		}
 
 		uint my_mask_mask( int length )

@@ -343,15 +343,14 @@ namespace Voxelarium.Core.Voxels
 		public enum ModifiedFieldFlags : byte
 		{
 			NONE = 0,         // No changes. Assigned at sector creation.
-			SAVEMASK = 28,    // If one of theses bits are set, sector must be saved.
 			BITSECTORMODIFIED = 1, // If sector is modified for any reason, this bit is set.
 			BITDISCARDABLE = 2, // Change aren't important and must be discarded at saving.
 			BITUNIMPORTANT = 4, // Change aren't important but must be saved anyway. The sector can be discarded if changes are made to the world.
 			BITIMPORTANT = 8, // The changes are important and must be preserved.
 			BITCRITICAL = 16,// The changes are critical as they are done directly by player. These sectors must be preserved at all cost.
 
+			SAVEMASK = BITCRITICAL | BITIMPORTANT | BITUNIMPORTANT/*28*/,    // If one of theses bits are set, sector must be saved.
 			// These values is what you MUST use with functions using "ImportanceFactor" field
-
 			DISCARDABLE = BITDISCARDABLE | BITSECTORMODIFIED,  // Changes aren't important at all and MUST be discarded at saving.
 			UNIMPORTANT = BITUNIMPORTANT | BITSECTORMODIFIED,   // Changes aren't important BUT MUST be saved anyway. Can be discarded if a new game version change zone disposition.
 			IMPORTANT = BITIMPORTANT | BITSECTORMODIFIED,   // Changes are important and bust be preserved.
@@ -765,7 +764,6 @@ namespace Voxelarium.Core.Voxels
 
 		public VoxelSector( VoxelGameEnvironment GameEnv, VoxelWorld world, int x = 0, int y = 0, int z = 0 )
 		{
-			Display.OnInvalidate += Display_OnInvalidate;
 			//Console.WriteLine( "Sectors in memory : " + SectorsInMemory + " at " + x + ","+y+","+z );
 			Pos_x = x;
 			Pos_y = y;
@@ -781,9 +779,12 @@ namespace Voxelarium.Core.Voxels
 			}
 		}
 
-		void Display_OnInvalidate ()
+		internal void Invalidate ()
 		{
 			Flag_Render_Dirty = true;
+			solid_geometry.Invalidate();
+			transparent_geometry.Invalidate();
+			custom_geometry.Invalidate();
 		}
 
 		public VoxelSector( VoxelSector Sector )
@@ -880,6 +881,7 @@ namespace Voxelarium.Core.Voxels
 			int i;
 			VoxelExtension Infos;
 
+			physics.Empty = true;
 			for( i = 0; i < DataSize; i++ )
 			{
 				if( ( Infos = Data.OtherInfos[i] ) != null )

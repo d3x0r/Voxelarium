@@ -353,13 +353,13 @@ namespace Voxelarium.Core.UI.Shaders
 
 		internal void SetUniforms( int texture, int font )
 		{
-			Shader.BindTexture( 2, texture );
+			int atlas_unit = Shader.BindTexture( texture );
 			Display.CheckErr();
-			GL.Uniform1( texture_id, 2 );
+			GL.Uniform1( texture_id, atlas_unit );
 			Display.CheckErr();
-			Shader.BindTexture( 0, texture );
+			int font_unit = Shader.BindTexture( font );
 			Display.CheckErr();
-			GL.Uniform1( font_texture_id, 0 );
+			GL.Uniform1( font_texture_id, font_unit );
 			Display.CheckErr();
 		}
 

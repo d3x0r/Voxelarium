@@ -22,6 +22,7 @@
 using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Text;
@@ -153,6 +154,9 @@ namespace Voxelarium.Core.Support
 			string codeBase = Assembly.GetExecutingAssembly().CodeBase;
 			UriBuilder uri = new UriBuilder( codeBase );
 			string path = Uri.UnescapeDataString( uri.Path );
+			string codeBase_common = Assembly.GetAssembly( typeof( Log ) ).CodeBase;
+			UriBuilder uri_common = new UriBuilder( codeBase_common );
+			string path_common = Uri.UnescapeDataString( uri_common.Path );
 
 			using( Microsoft.CSharp.CSharpCodeProvider foo =
 						new Microsoft.CSharp.CSharpCodeProvider() )
@@ -160,24 +164,45 @@ namespace Voxelarium.Core.Support
 				string[] externals;
 				if( extra != null )
 				{
-					externals = new string[1 + extra.Length];
+					externals = new string[2 + extra.Length];
 					externals[0] = path;
+					externals[1] = path_common;
 					for( int i = 0; i < extra.Length; i++ )
 						externals[i + 1] = extra[i];
 				}
 				else
 				{
-					externals = new string[1];
+					externals = new string[2];
 					externals[0] = path;
+					externals[1] = path_common;
 				}
-				CompilerResults res = foo.CompileAssemblyFromSource(
-					new System.CodeDom.Compiler.CompilerParameters( externals )
-					{
-						IncludeDebugInformation = true
-						, GenerateInMemory = true
-					},
-					code
-				);
+				CompilerParameters parameters = new System.CodeDom.Compiler.CompilerParameters( externals )
+				{
+					// debug info doesn't load anyway?
+					IncludeDebugInformation = true
+						,
+					GenerateInMemory = false
+						,
+					TempFiles = new TempFileCollection( Environment.GetEnvironmentVariable( "TEMP" ), true )
+					, CompilerOptions = "/debug:pdbonly"
+				};
+
+				// already part of the TempFileCollection
+				//parameters.TempFiles.KeepFiles = true;
+
+				string fileExtension = "pdb";
+				if( ( parameters.CompilerOptions != null ) 
+					&& ( CultureInfo.InvariantCulture.CompareInfo.IndexOf(
+						parameters.CompilerOptions, "/debug:pdbonly", CompareOptions.IgnoreCase ) != -1 ) )
+				{
+					//parameters.TempFiles.AddExtension( fileExtension, true );
+				}
+				else
+				{
+					//parameters.TempFiles.AddExtension( fileExtension );
+				}
+
+				CompilerResults res = foo.CompileAssemblyFromSource( parameters, code );
 				if( res.Errors.Count == 0 )
 				{
 					if( AllowAssembly( res.CompiledAssembly ) )
@@ -205,9 +230,11 @@ namespace Voxelarium.Core.Support
 		internal static bool LoadVoxelCode( VoxelProperties props, int type )
 		{
 			string FileName;
+			if( loaded_objects.ContainsKey( type ) )
+				return true;
 			if( type < 32768 )
 			{
-				FileName = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH + "/VoxelTypes/voxelinfo/" + String.Format( "voxelcode_" + type + ".cs" );
+				FileName = VoxelGlobalSettings.COMPILEOPTION_DATAFILESPATH + "VoxelTypes/voxelinfo/" + String.Format( "voxelcode_" + type + ".cs" );
 			}
 			else
 			{
@@ -215,7 +242,7 @@ namespace Voxelarium.Core.Support
 					+ "/" + VoxelGlobalSettings.COMPILEOPTION_SAVEFOLDERNAME
 					+ "/VoxelTypes/voxelinfo/" + String.Format( "voxelcode_" + type + ".cs" );
 			}
-			if( false && File.Exists( FileName ) )
+			if( File.Exists( FileName ) )
 			{
 				string code = File.ReadAllText( FileName );
 				Assembly a = CompileCode( props.VoxelClassName, code, FileName, null );

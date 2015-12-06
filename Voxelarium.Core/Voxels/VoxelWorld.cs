@@ -38,7 +38,7 @@ namespace Voxelarium.Core.Voxels
 	{
 		public static VoxelSector WorkingFullSector;
 		public static VoxelSector WorkingEmptySector;
-		public static VoxelSector WorkingScratchSector;
+		//public static VoxelSector WorkingScratchSector;
 
 		VoxelGameEnvironment GameEnv;
 		internal SectorRingList SectorEjectList;
@@ -71,15 +71,25 @@ namespace Voxelarium.Core.Voxels
 			WorkingEmptySector = new VoxelSector( null, (VoxelWorld)null );
 			//GameEnv.Basic_Renderer.GetCuller().InitFaceCullData( WorkingEmptySector );
 			WorkingEmptySector.Fill( 0 );
-			WorkingScratchSector = new VoxelSector( null, (VoxelWorld)null );
+			//WorkingScratchSector = new VoxelSector( null, (VoxelWorld)null );
 			//GameEnv.Basic_Renderer.GetCuller().InitFaceCullData( WorkingScratchSector );
 		}
+
+		private void Display_OnInvalidate()
+		{
+			VoxelSector sector;
+			for( sector = SectorList; sector != null; sector = sector.GlobalList_Next )
+			{
+				sector.Invalidate();
+			}
+        }
 
 		public VoxelWorld( bool nogui, VoxelGameEnvironment GameEnv )
 		{
 			uint i;
 			this.nogui = nogui;
 			this.GameEnv = GameEnv;
+			Display.OnInvalidate += Display_OnInvalidate;
 			SectorEjectList = new SectorRingList( 256 * 256 * 32/*65536*/);
 			if( !nogui )
 				TextureAtlas = new TextureAtlas( 32, 64 );
@@ -87,7 +97,6 @@ namespace Voxelarium.Core.Voxels
 			SectorTable = new VoxelSector[TableSize];
 
 			for( i = 0; i < TableSize; i++ ) SectorTable[i] = null;
-
 
 			SectorList = null;
 			UniverseNum = 1;
@@ -123,7 +132,7 @@ namespace Voxelarium.Core.Voxels
 
 			if( WorkingFullSector != null ) { WorkingFullSector.Dispose(); WorkingFullSector = null; }
 			if( WorkingEmptySector != null ) { WorkingEmptySector.Dispose(); WorkingEmptySector = null; }
-			if( WorkingScratchSector != null ) { WorkingScratchSector.Dispose(); WorkingScratchSector = null; }
+			//if( WorkingScratchSector != null ) { WorkingScratchSector.Dispose(); WorkingScratchSector = null; }
 			SectorList = null;
 			UniverseNum = 0;
 			if( SectorEjectList != null ) SectorEjectList.Dispose();
@@ -135,13 +144,9 @@ namespace Voxelarium.Core.Voxels
 			int xs, ys, zs, Offset;
 			VoxelSector SectorPointer;
 
-			xs = x % SectorHashSize_x;
-			ys = y % SectorHashSize_y;
-			zs = z % SectorHashSize_z;
-
-			xs &= 0x1f;
-			ys &= 0x1f;
-			zs &= 0x1f;
+			xs = x & ( SectorHashSize_x - 1 );
+			ys = y & ( SectorHashSize_y- 1 );
+			zs = z & ( SectorHashSize_z - 1 );
 
 			Offset = xs + ys * SectorHashSize_x + ( zs * SectorHashSize_x * SectorHashSize_y );
 
@@ -159,13 +164,9 @@ namespace Voxelarium.Core.Voxels
 			int xs, ys, zs, Offset;
 			VoxelSector SectorPointer;
 
-			xs = x % SectorHashSize_x;
-			ys = y % SectorHashSize_y;
-			zs = z % SectorHashSize_z;
-
-			xs &= 0x1f;
-			ys &= 0x1f;
-			zs &= 0x1f;
+			xs = x & ( SectorHashSize_x - 1 );
+			ys = y & ( SectorHashSize_y - 1 );
+			zs = z & ( SectorHashSize_z - 1 );
 
 			Offset = xs + ys * SectorHashSize_x + ( zs * SectorHashSize_x * SectorHashSize_y );
 			bool requested = false;
@@ -319,11 +320,11 @@ namespace Voxelarium.Core.Voxels
 			result.VoxelTypeManager = VoxelTypeManager;
 			if( result.Sector == null )
 			{
-				result.Type = 0;
+				result.Type = null;
 				result.VoxelExtension = null;
 				return false;
 			}
-			result.Type = result.Sector.Data.Data[result.Offset];
+			result.Type = VoxelTypeManager[result.Sector.Data.Data[result.Offset]];
 			result.VoxelExtension = result.Sector.Data.OtherInfos[result.Offset];
 
 			return true;
@@ -391,7 +392,8 @@ namespace Voxelarium.Core.Voxels
 				// printf("EjectPass : %lx %lu\n",Sector,++debug_ejectpass);
 				RemoveSector( Sector );
 				SectorLoader.Eject_Sector( Sector );
-				Sector.Dispose();
+				// ejecting sectors are re-used not disposed.
+				//Sector.Dispose();
 			}
 		}
 
@@ -400,11 +402,11 @@ namespace Voxelarium.Core.Voxels
 			int x, y, z, Offset;
 			VoxelSector SectorPointer;
 
+			GameEnv.Engine.Remove( Sector.physics );
 			// Finding sector in hash
-
-			x = ( Sector.Pos_x % SectorHashSize_x ) & 0xff;
-			y = ( Sector.Pos_y % SectorHashSize_y ) & 0xFF;
-			z = ( Sector.Pos_z % SectorHashSize_z ) & 0xff;
+			x = ( Sector.Pos_x & ( SectorHashSize_x - 1 ) );
+			y = ( Sector.Pos_y & ( SectorHashSize_y - 1 ) );
+			z = ( Sector.Pos_z & ( SectorHashSize_z - 1 ) );
 			Offset = x + y * SectorHashSize_x + ( z * SectorHashSize_x * SectorHashSize_y );
 			SectorPointer = SectorTable[Offset];
 			while( SectorPointer != Sector )
@@ -427,7 +429,37 @@ namespace Voxelarium.Core.Voxels
 			// Zeroing fields
 
 			Sector.Next = null; Sector.Pred = null; Sector.GlobalList_Next = null; Sector.GlobalList_Pred = null;
-
 		}
+		public void Swap( ref VoxelRef self, ref VoxelRef other, VoxelSector.ModifiedFieldFlags importance )
+		{
+			ushort selfType = self.Type.properties.Type;// Sector.Data.Data[self.Offset];
+			VoxelExtension selfOtherInfo = self.VoxelExtension;//Sector.Data.OtherInfos[self.Offset];
+			ushort otherType = other.Type.properties.Type;//Sector.Data.Data[other.Offset];
+			VoxelExtension otherOtherInfo = other.VoxelExtension;//.Sector.Data.OtherInfos[other.Offset];
+
+
+			self.Sector.Data.Data[self.Offset] = otherType;
+			self.Sector.Data.OtherInfos[self.Offset] = otherOtherInfo;
+			other.Sector.Data.Data[other.Offset] = selfType;
+			other.Sector.Data.OtherInfos[other.Offset] = selfOtherInfo;
+
+			/* someday we should figure out if it's a transparent or a solid pixel that moved */
+			self.Sector.Flag_Render_Dirty |= true;
+			self.Sector.Flag_Render_Dirty_Transparent |= true;
+			other.Sector.Flag_Render_Dirty |= true;
+			other.Sector.Flag_Render_Dirty_Transparent |= true;
+			self.Sector.Culler.CullSingleVoxel( self.Sector, self.Offset );
+			other.Sector.Culler.CullSingleVoxel( other.Sector, other.Offset );
+			self.Sector.Flag_IsModified |= importance;
+			other.Sector.Flag_IsModified |= importance;
+		}
+
+		public void Swap( ref VoxelRef self, VoxelSector.RelativeVoxelOrds direction, VoxelSector.ModifiedFieldFlags importance )
+		{
+			VoxelRef other; VoxelRef.GetNearVoxelRef( out other, ref self, direction );
+			Swap( ref self, ref other, importance );
+		}
+
+
 	}
 }

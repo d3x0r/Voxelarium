@@ -62,7 +62,8 @@ namespace Voxelarium.Core.UI
 		internal Voxelarium.Core.VoxelGameEnvironment game;
 
 		internal static int max_texture_size;
-		internal static Matrix4 modelview;
+		internal static int max_texture_units;
+        internal static Matrix4 modelview;
 		//internal static Matrix4 worldview;
 
 		internal static Matrix4 projection;
@@ -86,7 +87,7 @@ namespace Voxelarium.Core.UI
 		internal ColorEdgeShader color_edge = new ColorEdgeShader();
 		internal SimpleTextureShader simple_texture = new SimpleTextureShader();
 		internal SimpleGuiTextureShader simple_gui_texture = new SimpleGuiTextureShader();
-
+		internal static SimpleVertShader simpleVertShader = new SimpleVertShader();
 		internal static List<Shaders.Shader> used_shaders = new List<Shaders.Shader>();
 		internal List<Shaders.Shader> shaders = new List<Shaders.Shader>();
 
@@ -105,6 +106,7 @@ namespace Voxelarium.Core.UI
 		public MouseDevice Mouse { set { mouse = value; } }
 		public int Width, Height;
 		public int X, Y;
+		internal static event SimpleMethod AtExit;
 
 		void CannotExit()
 		{
@@ -139,6 +141,7 @@ namespace Voxelarium.Core.UI
 			free_camera = new Voxels.UI.Camera();
 			active_camera = free_camera; // default to freecam;
 			free_camera.MoveTo( 0, 4, 0 );
+			free_camera.MoveTo( 1799, 4, 0 );
 			debug_cube_transform = btTransform.Identity;
 
 		}
@@ -335,6 +338,8 @@ namespace Voxelarium.Core.UI
 			sw.Start();
 #if !USE_GLES2
 			max_texture_size = GL.GetInteger( GetPName.MaxTextureSize );
+			GL.GetInteger( GetPName.MaxTextureImageUnits, out max_texture_units );
+
 			CheckErr();
 			GL.Hint( HintTarget.PerspectiveCorrectionHint, HintMode.Nicest );
 			CheckErr();
@@ -390,8 +395,14 @@ namespace Voxelarium.Core.UI
 
 		private void Shutdown()
 		{
-			VoxelGlobalSettings.Exiting = true;
-			Exit();
+			if( !VoxelGlobalSettings.Exiting )
+			{
+				VoxelGlobalSettings.Exiting = true;
+				if( AtExit != null )
+					AtExit();
+
+				Exit();
+			}
 		}
 
 		public void Display_SetExit( object o, MethodInfo mi )
@@ -419,7 +430,6 @@ namespace Voxelarium.Core.UI
 			{
 				if( !game.DoUpdate( e.Time ) )
 				{
-					VoxelGlobalSettings.Exiting = true;
 					Shutdown();
 				}
 			}
@@ -429,7 +439,6 @@ namespace Voxelarium.Core.UI
 				return;
 			if( keyboard[Key.AltLeft] && keyboard[Key.F4] )
 			{
-				VoxelGlobalSettings.Exiting = true;
 				Shutdown();
 			}
 			if( keyboard[Key.Escape] )
@@ -499,7 +508,7 @@ namespace Voxelarium.Core.UI
 				initialized = true;
 			}
 			if( game.VoxelProcessor != null )
-				game.VoxelProcessor.SetPlayerPosition( ref free_camera.location.m_origin );
+				game.VoxelProcessor.SetPlayerPosition( game.World, ref free_camera.location.m_origin );
         }
 
 		static bool blending_enabled;
@@ -520,11 +529,13 @@ namespace Voxelarium.Core.UI
 			VoxelGameEnvironment game = o as VoxelGameEnvironment;
 			if( !game.Init() )
 			{
-				VoxelGlobalSettings.Exiting = true;
-				Exit();
+				Shutdown();
 			}
-			game.Basic_Renderer.Camera = free_camera;
-			game_loaded = true;
+			else
+			{
+				game.Basic_Renderer.Camera = free_camera;
+				game_loaded = true;
+			}
 
 		}
 
@@ -713,7 +724,7 @@ namespace Voxelarium.Core.UI
 			//Log.log( " Origin is " + free_camera.location.m_origin );
 			Display.CheckErr();
 
-			BulletDebugDrawer.DrawSpace( this, game.Engine );
+			BEPUDebugDrawer.DrawSpace( this, game.Engine );
 #if !USE_GLES2
 			GL.MatrixMode( MatrixMode.Projection );
 			GL.LoadMatrix( ref projection );

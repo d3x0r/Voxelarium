@@ -28,15 +28,16 @@ using System.Collections.Generic;
 using System.Text;
 using Voxelarium.Core.Game;
 using Voxelarium.Core.Voxels.Types;
+using Voxelarium.Common;
 
 namespace Voxelarium.Core.Voxels
 {
-	class VoxelReactor
+	public class VoxelReactor
 	{
 
 		//public static ZLightSpeedRandom Random;
 
-		public static SaltyRandomGenerator Random2;
+		public static SaltyRandomGenerator Random;
 
 		public static VoxelSector DummySector;
 
@@ -96,10 +97,10 @@ namespace Voxelarium.Core.Voxels
 		{
 			int i;
 
-			if( Random2 == null )
+			if( Random == null )
 			{
 				// one-time inits for static members.
-				Random2 = new SaltyRandomGenerator();
+				Random = new SaltyRandomGenerator();
 				//Random.Init( 0 );
 				// Dummy Sector
 
@@ -142,7 +143,6 @@ namespace Voxelarium.Core.Voxels
 			this.PlayerPosition = PlayerPosition;
 		}
 
-
 #if asdfasdf
 		void LightTransmitter_FindEndPoints( ZVector3L* Location, ZVector3L* NewCommingDirection );
 		void LightTransmitter_FollowTransmitter( ZVector3L* Location, ZVector3L* FollowingDirection );
@@ -150,7 +150,6 @@ namespace Voxelarium.Core.Voxels
 		void VoxelFluid_ComputeVolumePressure_Recurse( ZVector3L* Location, ZonePressure* Pr );
 		void VoxelFluid_SetVolumePressure_Recurse( ZVector3L* Location, ZonePressure* Pr );
 #endif
-		VoxelSector[] SectorTable = new VoxelSector[64];
 
 		internal void ProcessSectors( float LastLoopTime )
 		{
@@ -163,7 +162,9 @@ namespace Voxelarium.Core.Voxels
 			Actor SelectedActor;
 
 			btVector3 PlayerLocation;
-
+			Log.log( "Begin Reaction Processing" );
+			int Sectors_processed = 0;
+			int Voxels_Processed = 0;
 			// FireMine
 			if( FireMineTime > 0 ) FireMineTime--;
 
@@ -172,7 +173,8 @@ namespace Voxelarium.Core.Voxels
 			//do
 			//{
 			SelectedActor = GameEnv.GetActiveActor();
-			PlayerLocation = SelectedActor.ViewDirection.m_origin;
+			if( SelectedActor != null )
+				PlayerLocation = SelectedActor.ViewDirection.m_origin;
 			//} while( PlayerLocation != GameEnv.PhysicEngine.GetSelectedActor().ViewDirection.origin() );
 
 			// Cycle Counter is incremented at each MVI's cycle. This is used in cycle dependent operations.
@@ -184,33 +186,26 @@ namespace Voxelarium.Core.Voxels
 			//
 
 			Sector = World.SectorList;
-			int Sx, Sy, Sz;
+
 
 			while( ( Sector ) != null )
 			{
+				Sectors_processed++;
+
 				LowActivityTrigger = Sector.Flag_IsActiveLowRefresh
 					&& ( ( ( CycleNum ) & Sector.LowRefresh_Mask ) == 0 );
+				Sector.ModifTracker.SetActualCycleNum( CycleNum );
 				if( Sector.Flag_IsActiveVoxels | LowActivityTrigger )
 				{
-					// Find All the
-					Sx = Sector.Pos_x - 1;
-					Sy = Sector.Pos_y - 1;
-					Sz = Sector.Pos_z - 1;
+					for( x = 0; x <= 6; x++ )
+					{
+						if( Sector.near_sectors[x] != null )
+							Sector.near_sectors[x].ModifTracker.SetActualCycleNum( CycleNum );
+					}
 
-					for( x = 0; x <= 2; x++ )
-						for( y = 0; y <= 2; y++ )
-							for( z = 0; z <= 2; z++ )
-							{
-								MainOffset = (uint)( x + ( y << 2 ) + ( z << 4 ) );
-								if( null == ( SectorTable[MainOffset] = World.FindSector( Sx + x, Sy + y, Sz + z ) ) )
-									SectorTable[MainOffset] = DummySector;
-								SectorTable[MainOffset].ModifTracker.SetActualCycleNum( CycleNum );
-							}
-
-					// Make the sector table
 					VoxelExtension[] Extension = Sector.Data.OtherInfos;
 					ushort[] VoxelP = Sector.Data.Data;
-					FastBit_Array_64k ActiveTable = VoxelTypeManager.ActiveTable;
+					int zofs, xofs;
 					bool IsActiveVoxels = false;
 					MainOffset = 0;
 					int RSx = Sector.Pos_x << VoxelSector.ZVOXELBLOCSHIFT_X;
@@ -220,38 +215,41 @@ namespace Voxelarium.Core.Voxels
 					vref.World = World;
 					vref.VoxelTypeManager = VoxelTypeManager;
 					vref.Sector = Sector;
-					for( z = 0; z < VoxelSector.ZVOXELBLOCSIZE_Z; z++ )
-						for( x = 0; x < VoxelSector.ZVOXELBLOCSIZE_X; x++ )
+					for( z = 0, zofs = 0; z < VoxelSector.ZVOXELBLOCSIZE_Z; z++, zofs += (int)(Sector.Size_x*Sector.Size_y) )
+						for( xofs = 0, x = 0; x < VoxelSector.ZVOXELBLOCSIZE_X; x++, xofs += (int)Sector.Size_y )
 							for( y = 0; y < VoxelSector.ZVOXELBLOCSIZE_Y; y++ )
 							{
-								VoxelType = VoxelP[MainOffset];
-								if( ActiveTable.Get( VoxelType ) )
+								MainOffset = (uint)(zofs + xofs + y);
+                                VoxelType = VoxelP[MainOffset];
+								if( VoxelTypeManager[VoxelType].properties.Is_Active )
 								{
 									if( !Sector.ModifTracker.Get( MainOffset ) ) // If voxel is already processed, don't process it once more in the same cycle.
 									{
-										switch( VoxelType )
+										Voxels_Processed++;
+										vref.wx = RSx + ( vref.x = (byte)x );
+										vref.wy = RSy + ( vref.y = (byte)y );
+										vref.wz = RSz + ( vref.z = (byte)z );
+										vref.Offset = If_x[x + 1] + If_y[y + 1] + If_z[z + 1];
+										vref.Type = VoxelTypeManager.VoxelTable[VoxelType];
+
+										IsActiveVoxels = true;
+										vref.VoxelExtension = Extension[MainOffset];
+										//St[i].ModifTracker.Set(SecondaryOffset[i]);
+										try
 										{
-											case 0:
-												break;
-											default:
-												vref.wx = RSx + ( vref.x = (byte)x );
-												vref.wy = RSy + ( vref.y = (byte)y );
-												vref.wz = RSz + ( vref.z = (byte)z );
-												vref.Offset = MainOffset;
-												vref.Type = VoxelType;
-
-												IsActiveVoxels = true;
-												vref.VoxelExtension = Extension[MainOffset];
-												//St[i].ModifTracker.Set(SecondaryOffset[i]);
-												IsActiveVoxels = VoxelTypeManager.VoxelTable[VoxelType].React( ref vref, LastLoopTime );
-												break;
+											IsActiveVoxels = vref.Type.React( ref vref, LastLoopTime );
 										}
-
+										catch( Exception e )
+										{
+											Log.log( "Voxel Reaction Exception : {0}", e.Message );
+										}
 									}
 								}
 							}
 				}
+				Sector = Sector.GlobalList_Next;
 			}
+			Log.log( "Finish Reaction Processing {0} {1} ", Sectors_processed, Voxels_Processed );
 		}
 	}
 }

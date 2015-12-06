@@ -63,6 +63,17 @@ namespace Voxelarium.Core.UI.Shaders
 			Display.OnInvalidate += Display_OnInvalidate;
 		}
 
+		static Shader()
+		{
+			Display.OnInvalidate += Display_OnInvalidateStatic;
+		}
+
+		private static void Display_OnInvalidateStatic()
+		{
+			cache_used = 0;
+			TextureCache.Clear();
+		}
+
 		void Display_OnInvalidate ()
 		{
 			loaded = false;
@@ -253,7 +264,7 @@ namespace Voxelarium.Core.UI.Shaders
 			return true;
 		}
 
-		internal static void BindTexture( int texture_unit, int ID )
+		static void BindTexture( int texture_unit, int ID )
 		{
 			if( loaded_texture[texture_unit] != ID )
 			{
@@ -262,9 +273,58 @@ namespace Voxelarium.Core.UI.Shaders
 				loaded_texture[texture_unit] = ID;
 			}
 		}
+
+		internal struct TextureCacheEntry
+		{
+			internal int ID;
+			internal int texture_unit;
+		}
+		static int cache_used;
+		static LinkedList<TextureCacheEntry> TextureCache = new LinkedList<TextureCacheEntry>();
+
+		/// <summary>
+		/// returns texture unit to use for specified texture
+		/// </summary>
+		/// <param name="ID">Texture to make sure is loaded, if not, replace oldest texture</param>
+		/// <returns></returns>
+		internal static int BindTexture( int textureID )
+		{
+			LinkedListNode<TextureCacheEntry> entry;
+			for( entry = TextureCache.First; entry != null; entry = entry.Next )
+			{
+				if( entry.Value.ID == textureID )
+				{
+					TextureCache.Remove( entry );
+					TextureCache.AddFirst( entry );
+					// already bound, but this makes it active for updating/uploading
+					GL.ActiveTexture( TextureUnit.Texture0 + entry.Value.texture_unit );
+					return entry.Value.texture_unit;
+				}
+			}
+			if( cache_used >= Display.max_texture_units )
+			{
+				entry = TextureCache.Last;
+				entry.Value = new TextureCacheEntry { ID = textureID, texture_unit = entry.Value.texture_unit };
+
+				TextureCache.Remove( entry );
+				TextureCache.AddFirst( entry );
+			}
+			else
+			{
+				entry = new LinkedListNode<TextureCacheEntry>( new TextureCacheEntry { ID = textureID, texture_unit = cache_used } );
+				TextureCache.AddFirst( entry );
+				cache_used++;
+			}
+			GL.ActiveTexture( TextureUnit.Texture0 + entry.Value.texture_unit );
+			Display.CheckErr();
+			GL.BindTexture( TextureTarget.Texture2D, entry.Value.ID );
+			Display.CheckErr();
+			return entry.Value.texture_unit;
+		}
+
 		public void Dispose()
 		{
-			throw new NotImplementedException();
+			GL.DeleteProgram( Program );
 		}
 
 	}

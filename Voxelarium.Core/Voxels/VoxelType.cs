@@ -40,6 +40,7 @@ namespace Voxelarium.Core.Voxels
 	public class VoxelType
 	{
 		protected VoxelGameEnvironment GameEnv;
+		protected VoxelWorld World { get { return GameEnv.World; } }
 		internal VoxelTypeManager VoxelTypeManager;
 
 		internal protected Bitmap MainTexture;

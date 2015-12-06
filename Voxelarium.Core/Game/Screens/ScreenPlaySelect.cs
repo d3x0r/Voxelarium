@@ -67,7 +67,7 @@ namespace Voxelarium.Core.Game.Screens
 
 
 
-				Title_Size.X = 0.55f; Title_Size.X = 0.1f;
+				Title_Size.X = 1.8f; Title_Size.X = 0.1f;
 				Title.SetPosition( ( screen_x - Title_Size.X ) / 2.0f, screen_y - 1 / 8.0f );
 				Title.SetSize( Title_Size.X, Title_Size.Y );
 				Title.SetTexture( TextureID.TitleBanner );

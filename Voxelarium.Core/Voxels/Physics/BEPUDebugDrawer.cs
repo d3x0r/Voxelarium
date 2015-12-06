@@ -16,17 +16,21 @@ using BEPUphysics.Entities;
 using BEPUphysics.Entities.Prefabs;
 using Voxelarium.Core.Support;
 using Voxelarium.Core.UI;
+using Voxelarium.Core.UI.Shaders;
 
 namespace Voxelarium.Core.Voxels.Physics
 {
-	public class BulletDebugDrawer 
+	public class BEPUDebugDrawer 
 	{
-		public BulletDebugDrawer()
+		static SimpleGeometry geometry = new SimpleGeometry();
+
+		public BEPUDebugDrawer()
 		{
 		}
 
-		public  void draw3dText( ref Vector3 location, string textString )
+		public  void draw3dText( ref Vector3 location, FontRenderer fontRenderer, string textString )
 		{
+			//fontRenderer.RenderFont( 
 			Console.WriteLine( "Draw GL Text : " + textString );
 		}
 
@@ -35,25 +39,28 @@ namespace Voxelarium.Core.Voxels.Physics
 			Vector3 tmpD;
 			PointOnB.Add( ref normalOnB, out tmpD );
 			drawLine( render, ref PointOnB, ref tmpD, ref color, ref color );
-
 		}
 
 		public static void drawLine( Display render, ref Vector3 from, ref Vector3 to, ref Vector3 fromColor, ref Vector3 toColor )
 		{
 			OpenTK.Vector3[] v = new OpenTK.Vector3[2];
 			OpenTK.Vector4 c;
+			OpenTK.Vector4 c2;
 			c.X = fromColor.X;
 			c.Y = fromColor.Y;
 			c.Z = fromColor.Z;
 			c.W = 1;
+			c2.X = toColor.X;
+			c2.Y = toColor.Y;
+			c2.Z = toColor.Z;
+			c2.W = 1;
 			v[0].X = from.X;
 			v[0].Y = from.Y;
 			v[0].Z = from.Z;
 			v[1].X = to.X;
 			v[1].Y = to.Y;
 			v[1].Z = to.Z;
-			render.simple.Activate();
-			render.simple.DrawLine( v, ref c );
+			geometry.AddLine( v, ref c );
 		}
 
 		public  void reportErrorWarning( string warningString )
@@ -145,6 +152,8 @@ namespace Voxelarium.Core.Voxels.Physics
 		{
 			if( engine != null )
 			{
+				geometry.Clear();
+
 				foreach( Entity e in engine.test_entitites )
 				{
 					Box box = e as Box;
@@ -152,10 +161,14 @@ namespace Voxelarium.Core.Voxels.Physics
 				}
 				lock( engine.active_sectors )
 				{
-					/*
+					//if( false )
+
 					foreach( PhysicsEngine.Sector s in engine.active_sectors )
 					{
 						int n = 0;
+						if( s.Empty )
+							continue;
+						if( false )
 						foreach( VoxelShape shp in s.content )
 						{
 							if( shp != VoxelShape.Empty )
@@ -173,14 +186,18 @@ namespace Voxelarium.Core.Voxels.Physics
 								bb.Max.X = bb.Min.X + 1;
 								bb.Max.Y = bb.Min.Y + 1;
 								bb.Max.Z = bb.Min.Z + 1;
-								DrawBoundingBox( bb );
+								DrawBoundingBox( render, bb );
+								//if( n > 2000 )
+								//		break;
 							}
 							n++;
 						}
-						DrawBoundingBox( s.grid.BoundingBox );
+
+						DrawBoundingBox( render, s.grid.BoundingBox );
 					}
-					*/
+
 				}
+				geometry.DrawBuffer( PrimitiveType.Lines );
 			}
 		}
 	}

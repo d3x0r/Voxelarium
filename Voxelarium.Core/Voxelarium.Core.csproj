@@ -18,7 +18,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;USE_EXTERNAL_COMPILER</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -29,7 +29,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;USE_EXTERNAL_COMPILER</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
@@ -81,6 +81,7 @@
     <Compile Include="Game\Settings_Hardware.cs" />
     <Compile Include="Game\VoxelGameEngine.cs" />
     <Compile Include="Game\VoxelGameEnvironment.cs" />
+    <Compile Include="NeuralNetwork\UI\SizableFrame.cs" />
     <Compile Include="Types\FastRandom.cs" />
     <Compile Include="Types\LightSpeedRandom.cs" />
     <Compile Include="Types\Random_LFSR.cs" />
@@ -99,10 +100,11 @@
     <Compile Include="UI\FontRenderer.cs" />
     <Compile Include="UI\FrameBufferObject.cs" />
     <Compile Include="UI\GraphicUserManager.cs" />
-    <Compile Include="UI\GuiGeometry.cs" />
     <Compile Include="UI\Shaders\FXAAShader.cs" />
+    <Compile Include="UI\Shaders\SimpleGeometry.cs" />
     <Compile Include="UI\Shaders\GuiGeometryShader.cs" />
     <Compile Include="UI\Shaders\SimpleInstanceShader.cs" />
+    <Compile Include="UI\Shaders\SimpleVertShader.cs" />
     <Compile Include="Voxels\IO\FileSectorLoader.cs" />
     <Compile Include="Voxels\IO\NetworkSectorLoader.cs" />
     <Compile Include="Voxels\IO\SectorLoader.cs" />
@@ -159,7 +161,6 @@
     <Compile Include="Voxels\Utils\VoxelGfx_Tree_Giant.cs" />
     <Compile Include="Voxels\Utils\VoxelGfx_Tree_Straight.cs" />
     <Compile Include="Voxels\VoxelExtension.cs" />
-    <Compile Include="Voxels\UI\VoxelGeometry_old.cs" />
     <Compile Include="Voxels\VoxelGlobalSettings.cs" />
     <Compile Include="Voxels\VoxelProperties.cs" />
     <Compile Include="Voxels\VoxelReactor.cs" />

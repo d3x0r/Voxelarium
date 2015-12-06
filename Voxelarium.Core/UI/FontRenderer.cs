@@ -87,7 +87,7 @@ namespace Voxelarium.Core.UI
 					GL.ActiveTexture( TextureUnit.Texture0 );
 					Display.CheckErr();
 
-					Voxelarium.Core.UI.Shaders.Shader.BindTexture( 0, _OpenGl_TextureRef );
+					int texture_unit = Voxelarium.Core.UI.Shaders.Shader.BindTexture( _OpenGl_TextureRef );
 					Display.CheckErr();
 					// if (i & 1) glTexParameteri(GL_TEXTURE_2D, 0x84FE /*TEXTURE_MAX_ANISOTROPY_EXT*/, 8);
 					//GL.TexParameterI( TextureTarget.Texture2D, TextureParameterName. 0x84FE /*TEXTURE_MAX_ANISOTROPY_EXT*/, 8 );

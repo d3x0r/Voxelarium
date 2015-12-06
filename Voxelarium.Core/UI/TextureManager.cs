@@ -89,7 +89,7 @@ namespace Voxelarium.Core.UI
 					if( dirty)
 					{
 						dirty = false;
-						Voxelarium.Core.UI.Shaders.Shader.BindTexture( 0, _OpenGl_TextureRef );
+						Voxelarium.Core.UI.Shaders.Shader.BindTexture( _OpenGl_TextureRef );
 						Display.CheckErr();
 						// if (i & 1) glTexParameteri(GL_TEXTURE_2D, 0x84FE /*TEXTURE_MAX_ANISOTROPY_EXT*/, 8);
 						//GL.TexParameterI( TextureTarget.Texture2D, TextureParameterName. 0x84FE /*TEXTURE_MAX_ANISOTROPY_EXT*/, 8 );

@@ -142,7 +142,7 @@ namespace Voxelarium.Core.Voxels.IO
 			{
 				if( SectorRecycling.Count > 0 )
 				{
-					Console.WriteLine( "Have something to recycle..." );
+					//Log.log( "Have something to recycle..." );
 					NewSector = SectorRecycling.Pop(); // Try recycling some old used sector.
 					NewSector.SetPos( x, y, z );
 				}

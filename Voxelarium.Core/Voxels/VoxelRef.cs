@@ -28,7 +28,7 @@ namespace Voxelarium.Core.Voxels
 		public uint Offset;
 		public byte x, y, z;
 		public int wx, wy, wz;
-		public ushort Type;
+		public VoxelType Type;
 		public VoxelWorld World;
 		internal VoxelTypeManager VoxelTypeManager;
 		public VoxelExtension VoxelExtension;
@@ -44,7 +44,7 @@ namespace Voxelarium.Core.Voxels
 			this.Sector = Sector;
 			this.Offset = ( (uint)x << VoxelSector.ZVOXELBLOCSHIFT_Y )  + y + ((uint)z << ( VoxelSector.ZVOXELBLOCSHIFT_X+VoxelSector.ZVOXELBLOCSHIFT_Y));
 			this.World = world;
-			this.Type = VoxelType;
+			this.Type = vtm[VoxelType];
 			VoxelTypeManager = vtm;
 			VoxelExtension = null;
 		}
@@ -472,6 +472,149 @@ namespace Voxelarium.Core.Voxels
 			GetVoxelRefs( ResultSectors, ResultOffsets, nearOnly );
 		}
 
+		public static void GetNearVoxelRef( out VoxelRef that, ref VoxelRef self, VoxelSector.RelativeVoxelOrds direction )
+		{
+			that = self;
+			switch( direction )
+			{
+			default:
+				throw new NotImplementedException( "Creating voxel ref " + direction + " is not implemented " );
+				break;
+			case VoxelSector.RelativeVoxelOrds.LEFT:
+				that.wx--;
+				if( that.x > 0 )
+				{
+					that.x--;
+					that.Offset -= that.Sector.Size_y;
+				}
+				else
+				{
+					that.Sector = self.Sector.near_sectors[(int)direction - 1];
+					if( that.Sector != null )
+					{
+						that.x = (byte)( that.Sector.Size_x - 1 );
+						that.Offset += that.Sector.Size_y * ( that.Sector.Size_x - 2 );
+					}
+				}
+				break;
+			case VoxelSector.RelativeVoxelOrds.RIGHT:
+				that.wx++;
+				if( that.x < (that.Sector.Size_x-1 ) )
+				{
+					that.x++;
+					that.Offset += that.Sector.Size_y;
+				}
+				else
+				{
+					that.Sector = self.Sector.near_sectors[(int)direction - 1];
+					if( that.Sector != null )
+					{
+						that.x = 0;
+						that.Offset -= that.Sector.Size_y * ( that.Sector.Size_x - 2 );
+					}
+				}
+				break;
+			case VoxelSector.RelativeVoxelOrds.BEHIND:
+				that.wz--;
+				if( that.z > 0 )
+				{
+					that.z--;
+					that.Offset -= that.Sector.Size_y*that.Sector.Size_x;
+				}
+				else
+				{
+					that.Sector = self.Sector.near_sectors[(int)direction - 1];
+					if( that.Sector != null )
+					{
+						that.z = (byte)( that.Sector.Size_z - 1 );
+						that.Offset += ( that.Sector.Size_x * that.Sector.Size_y * ( that.Sector.Size_z - 2 ) );
+					}
+				}
+				break;
+			case VoxelSector.RelativeVoxelOrds.AHEAD:
+				that.wz++;
+				if( that.z < ( that.Sector.Size_z - 1 ) )
+				{
+					that.z++;
+					that.Offset += that.Sector.Size_y*that.Sector.Size_x;
+				}
+				else
+				{
+					that.Sector = self.Sector.near_sectors[(int)direction - 1];
+					if( that.Sector != null )
+					{
+						that.z = 0;
+						that.Offset -= ( that.Sector.Size_x * that.Sector.Size_y * ( that.Sector.Size_z - 2 ) );
+					}
+				}
+				break;
+			case VoxelSector.RelativeVoxelOrds.BELOW:
+				that.wy--;
+				if( that.y > 0 )
+				{
+					that.y--;
+					that.Offset--;
+				}
+				else
+				{
+					that.Sector = self.Sector.near_sectors[(int)direction - 1];
+					if( that.Sector != null )
+					{
+						that.y = (byte)( that.Sector.Size_y - 1 );
+						that.Offset += ( that.Sector.Size_y - 2 );
+					}
+				}
+				break;
+			case VoxelSector.RelativeVoxelOrds.ABOVE:
+				that.wy++;
+				if( that.y < ( that.Sector.Size_y - 1 ) )
+				{
+					that.y++;
+					that.Offset++;
+				}
+				else
+				{
+					that.Sector = self.Sector.near_sectors[(int)direction - 1];
+					if( that.Sector != null )
+					{
+						that.y = 0;
+						that.Offset -= ( that.Sector.Size_y - 2 );
+					}
+				}
+				break;
+			}
+			if( that.Sector != null )
+			{
+				that.Type = that.VoxelTypeManager[that.Sector.Data.Data[that.Offset]];
+				that.VoxelExtension = that.Sector.Data.OtherInfos[that.Offset];
+			}
+			else
+			{
+				that.Type = null;
+				that.VoxelExtension = null;
+			}
+		}
+
+		internal void GetVoxelRefs( out VoxelRef[] result, bool nearOnly = true )
+		{
+			if( nearOnly )
+			{
+				result = new VoxelRef[7];
+				//result[0] = this;
+				GetNearVoxelRef( out result[(int)VoxelSector.RelativeVoxelOrds.LEFT]   ,ref this, VoxelSector.RelativeVoxelOrds.LEFT );
+				GetNearVoxelRef( out result[(int)VoxelSector.RelativeVoxelOrds.RIGHT]  ,ref this, VoxelSector.RelativeVoxelOrds.RIGHT );
+				GetNearVoxelRef( out result[(int)VoxelSector.RelativeVoxelOrds.AHEAD]  ,ref this, VoxelSector.RelativeVoxelOrds.AHEAD );
+				GetNearVoxelRef( out result[(int)VoxelSector.RelativeVoxelOrds.BEHIND] ,ref this, VoxelSector.RelativeVoxelOrds.BEHIND );
+				GetNearVoxelRef( out result[(int)VoxelSector.RelativeVoxelOrds.ABOVE]  ,ref this, VoxelSector.RelativeVoxelOrds.ABOVE );
+				GetNearVoxelRef( out result[(int)VoxelSector.RelativeVoxelOrds.BELOW]  ,ref this, VoxelSector.RelativeVoxelOrds.BELOW );
+			}
+			else
+			{
+				result = new VoxelRef[27];
+			}
+			
+		}
+
 		internal void GetVoxelRefs( VoxelSector[] ResultSectors, uint[] ResultOffsets, bool nearOnly = false )
 		{
 			//ResultSectors = new VoxelSector[nearOnly ? 7 : 19];
@@ -489,7 +632,7 @@ namespace Voxelarium.Core.Voxels
 				ResultOffsets[idx] = origin + input[idx]; idx++; //3
 				ResultOffsets[idx] = origin + input[idx]; idx++; //4
 				ResultOffsets[idx] = origin + input[idx]; idx++; //5
-				ResultOffsets[idx] = origin + input[idx]; idx++;//6
+				ResultOffsets[idx] = origin + input[idx]; idx++; //6
 				if( !nearOnly ) for( n = 0; n < 20; n++ ) { ResultOffsets[idx] = origin + input[idx]; idx++; }
 
 				if( this.x == 0 )
