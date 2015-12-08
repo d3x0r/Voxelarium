@@ -449,6 +449,7 @@ namespace Voxelarium.Core.Voxels
 
 			self.Sector.Culler.CullSingleVoxel( self.Sector, self.Offset );
 			other.Sector.Culler.CullSingleVoxel( other.Sector, other.Offset );
+
 			self.Sector.Flag_IsModified |= importance;
 			other.Sector.Flag_IsModified |= importance;
 		}

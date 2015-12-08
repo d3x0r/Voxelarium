@@ -882,6 +882,8 @@ namespace Voxelarium.Core.Voxels
 			VoxelExtension Infos;
 
 			physics.Empty = true;
+			for( i = 0; i < 1024; i++ )
+				Data.SleepState.Storage[i] = 0;
 			for( i = 0; i < DataSize; i++ )
 			{
 				if( ( Infos = Data.OtherInfos[i] ) != null )

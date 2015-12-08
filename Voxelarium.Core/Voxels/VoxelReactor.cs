@@ -92,7 +92,7 @@ namespace Voxelarium.Core.Voxels
 		void VoxelFluid_SetVolumePressure_Recurse( ZVector3L* Location, ZonePressure* Pr );
 #endif
 
-		internal static bool StepOne;
+		internal static bool StepOne = true;
 
 		internal void ProcessSectors( float LastLoopTime )
 		{
@@ -167,19 +167,14 @@ namespace Voxelarium.Core.Voxels
 							{
 								MainOffset = (uint)(zofs + xofs + y);
 
-								vref.VoxelExtension = Extension[MainOffset];
-
-								VoxelType = VoxelP[MainOffset];
-								/*
-								if( ( VoxelType & 0x8000 ) != 0 )
+								if( sleep.Get( (ushort)MainOffset ) )
 									continue;
-								VoxelType &= 0x7FFF;
-								*/
+
+								vref.VoxelExtension = Extension[MainOffset];
+								VoxelType = VoxelP[MainOffset];
 
 								if( ( vref.Type = VoxelTable[VoxelType] ).properties.Is_Active )
 								{
-									//if( sleep.Get( (ushort)MainOffset ) )
-									//	continue;
 
 									if( !Sector.ModifTracker.Get( MainOffset ) ) // If voxel is already processed, don't process it once more in the same cycle.
 									{
@@ -191,7 +186,11 @@ namespace Voxelarium.Core.Voxels
 										//St[i].ModifTracker.Set(SecondaryOffset[i]);
 										try
 										{
-											IsActiveVoxels = vref.Type.React( ref vref, LastLoopTime );
+											if( vref.Type.React( ref vref, LastLoopTime ) )
+												IsActiveVoxels = true;
+											else
+												vref.Sector.Data.SleepState.Set( (int)vref.Offset, true );
+
 										}
 										catch( Exception e )
 										{
@@ -199,11 +198,14 @@ namespace Voxelarium.Core.Voxels
 										}
 									}
 								}
+								else
+									sleep.Set( (ushort)MainOffset, true );
 							}
+					Sector.Flag_IsActiveVoxels = IsActiveVoxels;
 				}
 				Sector = Sector.GlobalList_Next;
 			}
-			StepOne = false;
+			//StepOne = false;
 			Log.log( "Finish Reaction Processing {0} {1} ", Sectors_processed, Voxels_Processed );
 		}
 	}

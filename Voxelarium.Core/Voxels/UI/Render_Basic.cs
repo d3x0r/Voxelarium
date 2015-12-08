@@ -176,6 +176,8 @@ namespace Voxelarium.Core.Voxels.UI
 				// Computing absolute memory pointer of blocks
 				for( int i = 0; i < 7; i++ )
 				{
+					Sector[i].Data.SleepState.Set( (ushort)Offset[i], false );
+					Sector[i].Flag_IsActiveVoxels = true;
 					//Voxel_Address[i] = Sector[i].Data.Data[Offset[i]];
 					Voxel = ( Sector[i].Data.Data[Offset[i]] ); VoxelType = VoxelTypeTable[Voxel];
 					if( ( VoxelType.properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_DRAWFULLVOXELOPACITY ) != 0 )

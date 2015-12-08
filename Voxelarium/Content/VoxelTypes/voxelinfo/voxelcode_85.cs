@@ -188,7 +188,6 @@ namespace Voxelarium.Core.Voxels
 					}
 				}
 			}
-			//self.Sector.Data.SleepState.Set( (int)self.Offset, true );
 			return false;
 		}
 	}
