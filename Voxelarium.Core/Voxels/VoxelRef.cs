@@ -16,12 +16,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#define ALLOW_INLINE
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Voxelarium.Core.Voxels
 {
+	public struct NearVoxelRef
+	{
+		public VoxelSector Sector;
+		public VoxelType Type;
+		public uint Offset;
+		public VoxelExtension VoxelExtension;
+	}
+
 	public struct VoxelRef
 	{
 		public VoxelSector Sector;
@@ -585,7 +595,540 @@ namespace Voxelarium.Core.Voxels
 			}
 			if( that.Sector != null )
 			{
-				that.Type = that.VoxelTypeManager[that.Sector.Data.Data[that.Offset]];
+				that.Type = that.VoxelTypeManager.VoxelTable[that.Sector.Data.Data[that.Offset]];
+				that.VoxelExtension = that.Sector.Data.OtherInfos[that.Offset];
+			}
+			else
+			{
+				that.Type = null;
+				that.VoxelExtension = null;
+			}
+		}
+
+#if ALLOW_INLINE
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+#endif
+		public static void GetNearVoxelRef( out NearVoxelRef that, ref VoxelRef self, VoxelSector.RelativeVoxelOrds direction )
+		{
+			that.Sector = self.Sector;
+			that.Offset = self.Offset;
+			switch( direction )
+			{
+			default:
+				throw new NotImplementedException( "Creating voxel ref " + direction + " is not implemented " );
+				break;
+			case VoxelSector.RelativeVoxelOrds.LEFT:
+				if( ( that.Offset & ( VoxelSector.ZVOXELBLOCMASK_X << VoxelSector.ZVOXELBLOCSHIFT_Y ) ) != 0 )
+					that.Offset -= that.Sector.Size_y;
+				else
+				{
+					that.Sector = self.Sector.near_sectors[(int)direction - 1];
+					if( that.Sector != null )
+						that.Offset += VoxelSector.ZVOXELBLOCSIZE_Y * ( VoxelSector.ZVOXELBLOCSIZE_X - 2 );
+				}
+				break;
+			case VoxelSector.RelativeVoxelOrds.RIGHT:
+				if( ( that.Offset & ( VoxelSector.ZVOXELBLOCMASK_X << VoxelSector.ZVOXELBLOCSHIFT_Y ) ) != VoxelSector.ZVOXELBLOCMASK_X << VoxelSector.ZVOXELBLOCSHIFT_Y )
+					that.Offset += VoxelSector.ZVOXELBLOCSIZE_Y;
+				else
+				{
+					that.Sector = self.Sector.near_sectors[(int)direction - 1];
+					if( that.Sector != null )
+						that.Offset -= VoxelSector.ZVOXELBLOCSIZE_Y * ( VoxelSector.ZVOXELBLOCSIZE_X - 2 );
+				}
+				break;
+			case VoxelSector.RelativeVoxelOrds.BEHIND:
+				if( ( that.Offset & ( VoxelSector.ZVOXELBLOCMASK_Z << ( VoxelSector.ZVOXELBLOCSHIFT_X + VoxelSector.ZVOXELBLOCSHIFT_Y ) ) ) != 0 )
+					that.Offset -= VoxelSector.ZVOXELBLOCSIZE_Y * VoxelSector.ZVOXELBLOCSIZE_X;
+				else
+				{
+					that.Sector = self.Sector.near_sectors[(int)direction - 1];
+					if( that.Sector != null )
+						that.Offset += ( VoxelSector.ZVOXELBLOCSIZE_X * VoxelSector.ZVOXELBLOCSIZE_Y * ( VoxelSector.ZVOXELBLOCSIZE_Z - 2 ) );
+				}
+				break;
+			case VoxelSector.RelativeVoxelOrds.AHEAD:
+				if( ( that.Offset & ( VoxelSector.ZVOXELBLOCMASK_Z << ( VoxelSector.ZVOXELBLOCSHIFT_X + VoxelSector.ZVOXELBLOCSHIFT_Y ) ) ) != ( VoxelSector.ZVOXELBLOCMASK_Z << ( VoxelSector.ZVOXELBLOCSHIFT_X + VoxelSector.ZVOXELBLOCSHIFT_Y ) ) )
+					that.Offset += VoxelSector.ZVOXELBLOCSIZE_Y * VoxelSector.ZVOXELBLOCSIZE_X;
+				else
+				{
+					that.Sector = self.Sector.near_sectors[(int)direction - 1];
+					if( that.Sector != null )
+						that.Offset -= ( VoxelSector.ZVOXELBLOCSIZE_X * VoxelSector.ZVOXELBLOCSIZE_Y * ( VoxelSector.ZVOXELBLOCSIZE_Z - 2 ) );
+				}
+				break;
+			case VoxelSector.RelativeVoxelOrds.BELOW:
+				if( ( that.Offset & ( VoxelSector.ZVOXELBLOCMASK_Y ) ) != 0 )
+					that.Offset--;
+				else
+				{
+					that.Sector = self.Sector.near_sectors[(int)direction - 1];
+					if( that.Sector != null )
+						that.Offset += ( VoxelSector.ZVOXELBLOCSIZE_Y - 2 );
+				}
+				break;
+			case VoxelSector.RelativeVoxelOrds.ABOVE:
+				if( ( that.Offset & ( VoxelSector.ZVOXELBLOCMASK_Y ) ) != VoxelSector.ZVOXELBLOCMASK_Y )
+					that.Offset++;
+				else
+				{
+					that.Sector = self.Sector.near_sectors[(int)direction - 1];
+					if( that.Sector != null )
+						that.Offset -= ( VoxelSector.ZVOXELBLOCSIZE_Y - 2 );
+				}
+				break;
+			}
+			if( that.Sector != null )
+			{
+				that.Type = self.VoxelTypeManager.VoxelTable[that.Sector.Data.Data[that.Offset]];
+				that.VoxelExtension = that.Sector.Data.OtherInfos[that.Offset];
+			}
+			else
+			{
+				that.Type = null;
+				that.VoxelExtension = null;
+			}
+		}
+
+
+#if ALLOW_INLINE
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+#endif
+		public static void GetNearLeftVoxelRef( out NearVoxelRef that, ref VoxelRef self )
+		{
+			that.Sector = self.Sector;
+			that.Offset = self.Offset;
+				if( ( that.Offset & ( VoxelSector.ZVOXELBLOCMASK_X << VoxelSector.ZVOXELBLOCSHIFT_Y ) ) != 0 )
+					that.Offset -= that.Sector.Size_y;
+				else
+				{
+					that.Sector = self.Sector.near_sectors[(int)VoxelSector.RelativeVoxelOrds.LEFT - 1];
+					if( that.Sector != null )
+						that.Offset += VoxelSector.ZVOXELBLOCSIZE_Y * ( VoxelSector.ZVOXELBLOCSIZE_X - 2 );
+				}
+			if( that.Sector != null )
+			{
+				that.Type = self.VoxelTypeManager.VoxelTable[that.Sector.Data.Data[that.Offset]];
+				that.VoxelExtension = that.Sector.Data.OtherInfos[that.Offset];
+			}
+			else
+			{
+				that.Type = null;
+				that.VoxelExtension = null;
+			}
+		}
+#if ALLOW_INLINE
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+#endif
+		public static void GetNearRightVoxelRef( out NearVoxelRef that, ref VoxelRef self )
+		{
+			that.Sector = self.Sector;
+			that.Offset = self.Offset;
+				if( ( that.Offset & ( VoxelSector.ZVOXELBLOCMASK_X << VoxelSector.ZVOXELBLOCSHIFT_Y ) ) != VoxelSector.ZVOXELBLOCMASK_X << VoxelSector.ZVOXELBLOCSHIFT_Y )
+					that.Offset += VoxelSector.ZVOXELBLOCSIZE_Y;
+				else
+				{
+					that.Sector = self.Sector.near_sectors[(int)VoxelSector.RelativeVoxelOrds.RIGHT - 1];
+					if( that.Sector != null )
+						that.Offset -= VoxelSector.ZVOXELBLOCSIZE_Y * ( VoxelSector.ZVOXELBLOCSIZE_X - 2 );
+				}
+			if( that.Sector != null )
+			{
+				that.Type = self.VoxelTypeManager.VoxelTable[that.Sector.Data.Data[that.Offset]];
+				that.VoxelExtension = that.Sector.Data.OtherInfos[that.Offset];
+			}
+			else
+			{
+				that.Type = null;
+				that.VoxelExtension = null;
+			}
+		}
+#if ALLOW_INLINE
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+#endif
+		public static void GetNearAheadVoxelRef( out NearVoxelRef that, ref VoxelRef self )
+		{
+			that.Sector = self.Sector;
+			that.Offset = self.Offset;
+				if( ( that.Offset & ( VoxelSector.ZVOXELBLOCMASK_Z << ( VoxelSector.ZVOXELBLOCSHIFT_X + VoxelSector.ZVOXELBLOCSHIFT_Y ) ) ) != ( VoxelSector.ZVOXELBLOCMASK_Z << ( VoxelSector.ZVOXELBLOCSHIFT_X + VoxelSector.ZVOXELBLOCSHIFT_Y ) ) )
+					that.Offset += VoxelSector.ZVOXELBLOCSIZE_Y * VoxelSector.ZVOXELBLOCSIZE_X;
+				else
+				{
+					that.Sector = self.Sector.near_sectors[(int)VoxelSector.RelativeVoxelOrds.AHEAD - 1];
+					if( that.Sector != null )
+						that.Offset -= ( VoxelSector.ZVOXELBLOCSIZE_X * VoxelSector.ZVOXELBLOCSIZE_Y * ( VoxelSector.ZVOXELBLOCSIZE_Z - 2 ) );
+				}
+			if( that.Sector != null )
+			{
+				that.Type = self.VoxelTypeManager.VoxelTable[that.Sector.Data.Data[that.Offset]];
+				that.VoxelExtension = that.Sector.Data.OtherInfos[that.Offset];
+			}
+			else
+			{
+				that.Type = null;
+				that.VoxelExtension = null;
+			}
+		}
+#if ALLOW_INLINE
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+#endif
+		public static void GetNearBehindVoxelRef( out NearVoxelRef that, ref VoxelRef self )
+		{
+			that.Sector = self.Sector;
+			that.Offset = self.Offset;
+				if( ( that.Offset & ( VoxelSector.ZVOXELBLOCMASK_Z << ( VoxelSector.ZVOXELBLOCSHIFT_X + VoxelSector.ZVOXELBLOCSHIFT_Y ) ) ) != 0 )
+					that.Offset -= VoxelSector.ZVOXELBLOCSIZE_Y * VoxelSector.ZVOXELBLOCSIZE_X;
+				else
+				{
+					that.Sector = self.Sector.near_sectors[(int)VoxelSector.RelativeVoxelOrds.BEHIND - 1];
+					if( that.Sector != null )
+						that.Offset += ( VoxelSector.ZVOXELBLOCSIZE_X * VoxelSector.ZVOXELBLOCSIZE_Y * ( VoxelSector.ZVOXELBLOCSIZE_Z - 2 ) );
+				}
+			if( that.Sector != null )
+			{
+				that.Type = self.VoxelTypeManager.VoxelTable[that.Sector.Data.Data[that.Offset]];
+				that.VoxelExtension = that.Sector.Data.OtherInfos[that.Offset];
+			}
+			else
+			{
+				that.Type = null;
+				that.VoxelExtension = null;
+			}
+		}
+#if ALLOW_INLINE
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+#endif
+		public static void GetNearAboveVoxelRef( out NearVoxelRef that, ref VoxelRef self )
+		{
+			that.Sector = self.Sector;
+			that.Offset = self.Offset;
+				if( ( that.Offset & ( VoxelSector.ZVOXELBLOCMASK_Y ) ) != VoxelSector.ZVOXELBLOCMASK_Y )
+					that.Offset++;
+				else
+				{
+					that.Sector = self.Sector.near_sectors[(int)VoxelSector.RelativeVoxelOrds.ABOVE - 1];
+					if( that.Sector != null )
+						that.Offset -= ( VoxelSector.ZVOXELBLOCSIZE_Y - 2 );
+				}
+			if( that.Sector != null )
+			{
+				that.Type = self.VoxelTypeManager.VoxelTable[that.Sector.Data.Data[that.Offset]];
+				that.VoxelExtension = that.Sector.Data.OtherInfos[that.Offset];
+			}
+			else
+			{
+				that.Type = null;
+				that.VoxelExtension = null;
+			}
+		}
+#if ALLOW_INLINE
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+#endif
+		public static void GetNearBelowVoxelRef( out NearVoxelRef that, ref VoxelRef self )
+		{
+			that.Sector = self.Sector;
+			that.Offset = self.Offset;
+				if( ( that.Offset & ( VoxelSector.ZVOXELBLOCMASK_Y ) ) != 0 )
+					that.Offset--;
+				else
+				{
+					that.Sector = self.Sector.near_sectors[(int)VoxelSector.RelativeVoxelOrds.BELOW - 1];
+					if( that.Sector != null )
+						that.Offset += ( VoxelSector.ZVOXELBLOCSIZE_Y - 2 );
+				}
+			if( that.Sector != null )
+			{
+				that.Type = self.VoxelTypeManager.VoxelTable[that.Sector.Data.Data[that.Offset]];
+				that.VoxelExtension = that.Sector.Data.OtherInfos[that.Offset];
+			}
+			else
+			{
+				that.Type = null;
+				that.VoxelExtension = null;
+			}
+		}
+
+
+#if ALLOW_INLINE
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+#endif
+		public static void GetNearVoxelRef( out NearVoxelRef that, ref NearVoxelRef self, VoxelSector.RelativeVoxelOrds direction )
+		{
+			that.Sector = self.Sector;
+			that.Offset = self.Offset;
+			switch( direction )
+			{
+			default:
+				throw new NotImplementedException( "Creating voxel ref " + direction + " is not implemented " );
+				break;
+			case VoxelSector.RelativeVoxelOrds.LEFT:
+				if( ( that.Offset & ( VoxelSector.ZVOXELBLOCMASK_X << VoxelSector.ZVOXELBLOCSHIFT_Y ) ) != 0 )
+				{
+					that.Offset -= VoxelSector.ZVOXELBLOCSIZE_Y;
+				}
+				else
+				{
+					that.Sector = self.Sector.near_sectors[(int)direction - 1];
+					if( that.Sector != null )
+					{
+						that.Offset += VoxelSector.ZVOXELBLOCSIZE_Y * ( VoxelSector.ZVOXELBLOCSIZE_X - 2 );
+					}
+				}
+				break;
+			case VoxelSector.RelativeVoxelOrds.RIGHT:
+				if( ( that.Offset & ( VoxelSector.ZVOXELBLOCMASK_X << VoxelSector.ZVOXELBLOCSHIFT_Y ) ) != VoxelSector.ZVOXELBLOCMASK_X << VoxelSector.ZVOXELBLOCSHIFT_Y )
+				{
+					that.Offset += VoxelSector.ZVOXELBLOCSIZE_Y;
+				}
+				else
+				{
+					that.Sector = self.Sector.near_sectors[(int)direction - 1];
+					if( that.Sector != null )
+					{
+						that.Offset -= VoxelSector.ZVOXELBLOCSIZE_Y * ( VoxelSector.ZVOXELBLOCSIZE_X - 2 );
+					}
+				}
+				break;
+			case VoxelSector.RelativeVoxelOrds.BEHIND:
+				if( ( that.Offset & ( VoxelSector.ZVOXELBLOCMASK_Z << ( VoxelSector.ZVOXELBLOCSHIFT_X + VoxelSector.ZVOXELBLOCSHIFT_Y ) ) ) != 0 )
+				{
+					that.Offset -= VoxelSector.ZVOXELBLOCSIZE_Y * VoxelSector.ZVOXELBLOCSIZE_X;
+				}
+				else
+				{
+					that.Sector = self.Sector.near_sectors[(int)direction - 1];
+					if( that.Sector != null )
+					{
+						that.Offset += ( VoxelSector.ZVOXELBLOCSIZE_X * VoxelSector.ZVOXELBLOCSIZE_Y * ( VoxelSector.ZVOXELBLOCSIZE_Z - 2 ) );
+					}
+				}
+				break;
+			case VoxelSector.RelativeVoxelOrds.AHEAD:
+				if( ( that.Offset & ( VoxelSector.ZVOXELBLOCMASK_Z << ( VoxelSector.ZVOXELBLOCSHIFT_X + VoxelSector.ZVOXELBLOCSHIFT_Y ) ) ) != ( VoxelSector.ZVOXELBLOCMASK_Z << ( VoxelSector.ZVOXELBLOCSHIFT_X + VoxelSector.ZVOXELBLOCSHIFT_Y ) ) )
+				{
+					that.Offset += VoxelSector.ZVOXELBLOCSIZE_Y * VoxelSector.ZVOXELBLOCSIZE_X;
+				}
+				else
+				{
+					that.Sector = self.Sector.near_sectors[(int)direction - 1];
+					if( that.Sector != null )
+					{
+						that.Offset -= ( VoxelSector.ZVOXELBLOCSIZE_X * VoxelSector.ZVOXELBLOCSIZE_Y * ( VoxelSector.ZVOXELBLOCSIZE_Z - 2 ) );
+					}
+				}
+				break;
+			case VoxelSector.RelativeVoxelOrds.BELOW:
+				if( ( that.Offset & ( VoxelSector.ZVOXELBLOCMASK_Y ) ) != 0 )
+				{
+					that.Offset--;
+				}
+				else
+				{
+					that.Sector = self.Sector.near_sectors[(int)direction - 1];
+					if( that.Sector != null )
+					{
+						that.Offset += ( VoxelSector.ZVOXELBLOCSIZE_Y - 2 );
+					}
+				}
+				break;
+			case VoxelSector.RelativeVoxelOrds.ABOVE:
+				if( ( that.Offset & ( VoxelSector.ZVOXELBLOCMASK_Y ) ) != VoxelSector.ZVOXELBLOCMASK_Y )
+				{
+					that.Offset++;
+				}
+				else
+				{
+					that.Sector = self.Sector.near_sectors[(int)direction - 1];
+					if( that.Sector != null )
+					{
+						that.Offset -= ( VoxelSector.ZVOXELBLOCSIZE_Y - 2 );
+					}
+				}
+				break;
+			}
+			if( that.Sector != null )
+			{
+				that.Type = self.Sector.VoxelTypeManager.VoxelTable[that.Sector.Data.Data[that.Offset]];
+				that.VoxelExtension = that.Sector.Data.OtherInfos[that.Offset];
+			}
+			else
+			{
+				that.Type = null;
+				that.VoxelExtension = null;
+			}
+		}
+#if ALLOW_INLINE
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+#endif
+		public static void GetNearLeftVoxelRef( out NearVoxelRef that, ref NearVoxelRef self )
+		{
+			that.Sector = self.Sector;
+			that.Offset = self.Offset;
+				if( ( that.Offset & ( VoxelSector.ZVOXELBLOCMASK_X << VoxelSector.ZVOXELBLOCSHIFT_Y ) ) != 0 )
+				{
+					that.Offset -= VoxelSector.ZVOXELBLOCSIZE_Y;
+				}
+				else
+				{
+					that.Sector = self.Sector.near_sectors[(int)VoxelSector.RelativeVoxelOrds.LEFT - 1];
+					if( that.Sector != null )
+					{
+						that.Offset += VoxelSector.ZVOXELBLOCSIZE_Y * ( VoxelSector.ZVOXELBLOCSIZE_X - 2 );
+					}
+				}
+			if( that.Sector != null )
+			{
+				that.Type = self.Sector.VoxelTypeManager.VoxelTable[that.Sector.Data.Data[that.Offset]];
+				that.VoxelExtension = that.Sector.Data.OtherInfos[that.Offset];
+			}
+			else
+			{
+				that.Type = null;
+				that.VoxelExtension = null;
+			}
+		}
+#if ALLOW_INLINE
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+#endif
+		public static void GetNearRightVoxelRef( out NearVoxelRef that, ref NearVoxelRef self )
+		{
+			that.Sector = self.Sector;
+			that.Offset = self.Offset;
+				if( ( that.Offset & ( VoxelSector.ZVOXELBLOCMASK_X << VoxelSector.ZVOXELBLOCSHIFT_Y ) ) != VoxelSector.ZVOXELBLOCMASK_X << VoxelSector.ZVOXELBLOCSHIFT_Y )
+				{
+					that.Offset += VoxelSector.ZVOXELBLOCSIZE_Y;
+				}
+				else
+				{
+					that.Sector = self.Sector.near_sectors[(int)VoxelSector.RelativeVoxelOrds.RIGHT - 1];
+					if( that.Sector != null )
+					{
+						that.Offset -= VoxelSector.ZVOXELBLOCSIZE_Y * ( VoxelSector.ZVOXELBLOCSIZE_X - 2 );
+					}
+				}
+			if( that.Sector != null )
+			{
+				that.Type = self.Sector.VoxelTypeManager.VoxelTable[that.Sector.Data.Data[that.Offset]];
+				that.VoxelExtension = that.Sector.Data.OtherInfos[that.Offset];
+			}
+			else
+			{
+				that.Type = null;
+				that.VoxelExtension = null;
+			}
+		}
+#if ALLOW_INLINE
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+#endif
+		public static void GetNearAheadVoxelRef( out NearVoxelRef that, ref NearVoxelRef self )
+		{
+			that.Sector = self.Sector;
+			that.Offset = self.Offset;
+				if( ( that.Offset & ( VoxelSector.ZVOXELBLOCMASK_Z << ( VoxelSector.ZVOXELBLOCSHIFT_X + VoxelSector.ZVOXELBLOCSHIFT_Y ) ) ) != ( VoxelSector.ZVOXELBLOCMASK_Z << ( VoxelSector.ZVOXELBLOCSHIFT_X + VoxelSector.ZVOXELBLOCSHIFT_Y ) ) )
+				{
+					that.Offset += VoxelSector.ZVOXELBLOCSIZE_Y * VoxelSector.ZVOXELBLOCSIZE_X;
+				}
+				else
+				{
+					that.Sector = self.Sector.near_sectors[(int)VoxelSector.RelativeVoxelOrds.AHEAD - 1];
+					if( that.Sector != null )
+					{
+						that.Offset -= ( VoxelSector.ZVOXELBLOCSIZE_X * VoxelSector.ZVOXELBLOCSIZE_Y * ( VoxelSector.ZVOXELBLOCSIZE_Z - 2 ) );
+					}
+				}
+			if( that.Sector != null )
+			{
+				that.Type = self.Sector.VoxelTypeManager.VoxelTable[that.Sector.Data.Data[that.Offset]];
+				that.VoxelExtension = that.Sector.Data.OtherInfos[that.Offset];
+			}
+			else
+			{
+				that.Type = null;
+				that.VoxelExtension = null;
+			}
+		}
+#if ALLOW_INLINE
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+#endif
+		public static void GetNearBehindVoxelRef( out NearVoxelRef that, ref NearVoxelRef self )
+		{
+			that.Sector = self.Sector;
+			that.Offset = self.Offset;
+				if( ( that.Offset & ( VoxelSector.ZVOXELBLOCMASK_Z << ( VoxelSector.ZVOXELBLOCSHIFT_X + VoxelSector.ZVOXELBLOCSHIFT_Y ) ) ) != 0 )
+				{
+					that.Offset -= VoxelSector.ZVOXELBLOCSIZE_Y * VoxelSector.ZVOXELBLOCSIZE_X;
+				}
+				else
+				{
+					that.Sector = self.Sector.near_sectors[(int)VoxelSector.RelativeVoxelOrds.BEHIND - 1];
+					if( that.Sector != null )
+					{
+						that.Offset += ( VoxelSector.ZVOXELBLOCSIZE_X * VoxelSector.ZVOXELBLOCSIZE_Y * ( VoxelSector.ZVOXELBLOCSIZE_Z - 2 ) );
+					}
+				}
+			if( that.Sector != null )
+			{
+				that.Type = self.Sector.VoxelTypeManager.VoxelTable[that.Sector.Data.Data[that.Offset]];
+				that.VoxelExtension = that.Sector.Data.OtherInfos[that.Offset];
+			}
+			else
+			{
+				that.Type = null;
+				that.VoxelExtension = null;
+			}
+		}
+#if ALLOW_INLINE
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+#endif
+		public static void GetNearAboveVoxelRef( out NearVoxelRef that, ref NearVoxelRef self )
+		{
+			that.Sector = self.Sector;
+			that.Offset = self.Offset;
+				if( ( that.Offset & ( VoxelSector.ZVOXELBLOCMASK_Y ) ) != VoxelSector.ZVOXELBLOCMASK_Y )
+				{
+					that.Offset++;
+				}
+				else
+				{
+					that.Sector = self.Sector.near_sectors[(int)VoxelSector.RelativeVoxelOrds.ABOVE - 1];
+					if( that.Sector != null )
+					{
+						that.Offset -= ( VoxelSector.ZVOXELBLOCSIZE_Y - 2 );
+					}
+				}
+			if( that.Sector != null )
+			{
+				that.Type = self.Sector.VoxelTypeManager.VoxelTable[that.Sector.Data.Data[that.Offset]];
+				that.VoxelExtension = that.Sector.Data.OtherInfos[that.Offset];
+			}
+			else
+			{
+				that.Type = null;
+				that.VoxelExtension = null;
+			}
+		}
+#if ALLOW_INLINE
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+#endif
+		public static void GetNearBelowVoxelRef( out NearVoxelRef that, ref NearVoxelRef self )
+		{
+			that.Sector = self.Sector;
+			that.Offset = self.Offset;
+				if( ( that.Offset & ( VoxelSector.ZVOXELBLOCMASK_Y ) ) != 0 )
+				{
+					that.Offset--;
+				}
+				else
+				{
+					that.Sector = self.Sector.near_sectors[(int)VoxelSector.RelativeVoxelOrds.BELOW - 1];
+					if( that.Sector != null )
+					{
+						that.Offset += ( VoxelSector.ZVOXELBLOCSIZE_Y - 2 );
+					}
+				}
+			if( that.Sector != null )
+			{
+				that.Type = self.Sector.VoxelTypeManager.VoxelTable[that.Sector.Data.Data[that.Offset]];
 				that.VoxelExtension = that.Sector.Data.OtherInfos[that.Offset];
 			}
 			else

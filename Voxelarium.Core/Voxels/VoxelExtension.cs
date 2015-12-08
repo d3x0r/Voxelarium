@@ -28,10 +28,16 @@ using System.Text;
 
 namespace Voxelarium.Core.Voxels
 {
+	public interface IVoxelExtension
+	{
+		bool IsSleeping();
+		ushort Tempurature { get; set; }
+	}
 	public abstract class VoxelExtension : IDisposable
 	{
 		public ExtensionTypes ExtensionType;
-
+		public ushort tempurature;
+		public bool sleeping;
 		public enum ExtensionTypes
 		{
 			Extension_None = 0
@@ -80,7 +86,6 @@ namespace Voxelarium.Core.Voxels
 			return true;
 		}
 
-
 		public static uint[] ExtensionCharCodes = {
 			 0
 			, VoxelUtils.MulticharConst( 'S', 'T', 'O', 'R' )
@@ -101,5 +106,5 @@ namespace Voxelarium.Core.Voxels
 		//, // count unused
 	};
 
-}
+	}
 }

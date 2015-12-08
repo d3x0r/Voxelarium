@@ -13,7 +13,7 @@ namespace Voxelarium.Core.Voxels
 
 		public override bool React( ref VoxelRef self, double tick )
 		{
-			VoxelRef near_below; VoxelRef.GetNearVoxelRef( out near_below, ref self, VoxelSector.RelativeVoxelOrds.BELOW );
+			NearVoxelRef near_below; VoxelRef.GetNearBelowVoxelRef( out near_below, ref self );
 			//Log.log( "Reacting water... {0} {1} {2} {3} {4} {5} {6}"
 			//	, self.x, self.y, self.z 
 			//	, self.Offset, near_below.Offset
@@ -26,16 +26,17 @@ namespace Voxelarium.Core.Voxels
 				//Log.log( "Swap below..." );
 				World.Swap( ref self, ref near_below, VoxelSector.ModifiedFieldFlags.UNIMPORTANT );
 				near_below.Sector.ModifTracker.Set( near_below.Offset );
+
 				return true;
 			}
 
 			// Eau qui coule. Flowing water.
 			{
-				VoxelRef near_left, near_right, near_ahead, near_behind;
-                VoxelRef.GetNearVoxelRef( out near_left  , ref self, VoxelSector.RelativeVoxelOrds.LEFT );
-				VoxelRef.GetNearVoxelRef( out near_right, ref self, VoxelSector.RelativeVoxelOrds.RIGHT );
-				VoxelRef.GetNearVoxelRef( out near_ahead, ref self, VoxelSector.RelativeVoxelOrds.AHEAD );
-				VoxelRef.GetNearVoxelRef( out near_behind, ref self, VoxelSector.RelativeVoxelOrds.BEHIND );
+				NearVoxelRef near_left, near_right, near_ahead, near_behind;
+				VoxelRef.GetNearLeftVoxelRef( out near_left  , ref self );
+				VoxelRef.GetNearRightVoxelRef( out near_right, ref self );
+				VoxelRef.GetNearAheadVoxelRef( out near_ahead, ref self );
+				VoxelRef.GetNearBehindVoxelRef( out near_behind, ref self );
 
 				int vCount = 0, WaveCount = 0;
 				int j;
@@ -53,7 +54,7 @@ namespace Voxelarium.Core.Voxels
 				if( near_left.Sector != null &&
 					near_left.Type.properties.Is_CanBeReplacedBy_Water )
 				{
-					VoxelRef.GetNearVoxelRef( out near_below, ref near_left, VoxelSector.RelativeVoxelOrds.BELOW );
+					VoxelRef.GetNearBelowVoxelRef( out near_below, ref near_left );
 					if( near_below.Type != null && near_below.Type.properties.Is_CanBeReplacedBy_Water )
 					{ DirEn0 = true; vCount++; }
 					else DirEn0 = false;
@@ -64,7 +65,7 @@ namespace Voxelarium.Core.Voxels
 				if( near_right.Sector != null &&
 					near_right.Type.properties.Is_CanBeReplacedBy_Water )
 				{
-					VoxelRef.GetNearVoxelRef( out near_below, ref near_right, VoxelSector.RelativeVoxelOrds.BELOW );
+					VoxelRef.GetNearBelowVoxelRef( out near_below, ref near_right );
 					if( near_below.Type != null && near_below.Type.properties.Is_CanBeReplacedBy_Water )
 					{ DirEn1 = true; vCount++; }
 					else DirEn1 = false;
@@ -75,7 +76,7 @@ namespace Voxelarium.Core.Voxels
 				if( near_ahead.Sector != null &&
 					near_ahead.Type.properties.Is_CanBeReplacedBy_Water )
 				{
-					VoxelRef.GetNearVoxelRef( out near_below, ref near_ahead, VoxelSector.RelativeVoxelOrds.BELOW );
+					VoxelRef.GetNearBelowVoxelRef( out near_below, ref near_ahead );
 					if( near_below.Type != null && near_below.Type.properties.Is_CanBeReplacedBy_Water )
 					{ DirEn2 = true; vCount++; }
 					else DirEn2 = false;
@@ -86,7 +87,7 @@ namespace Voxelarium.Core.Voxels
 				if( near_behind.Sector != null &&
 					near_behind.Type.properties.Is_CanBeReplacedBy_Water )
 				{
-					VoxelRef.GetNearVoxelRef( out near_below, ref near_behind, VoxelSector.RelativeVoxelOrds.BELOW );
+					VoxelRef.GetNearBelowVoxelRef( out near_below, ref near_behind );
 					if( near_below.Type != null && near_below.Type.properties.Is_CanBeReplacedBy_Water )
 					{ DirEn3 = true; vCount++; }
 					else DirEn3 = false;
@@ -181,21 +182,23 @@ namespace Voxelarium.Core.Voxels
 						j--; if( j == 0 )
 						{
 							World.Swap( ref self, ref near_behind, VoxelSector.ModifiedFieldFlags.UNIMPORTANT );
-							near_behind.Sector.ModifTracker.Set( near_behind.Offset );
+							near_behind.Sector.ModifTracker.Set( near_behind.Offset );							
 							return true;
 						}
 					}
 				}
 			}
+			//self.Sector.Data.SleepState.Set( (int)self.Offset, true );
 			return false;
 		}
 	}
-
+	/*
 	public class WaterExtension : VoxelExtension
 	{
-		WaterExtension()
+		public WaterExtension()
 		{
 		}
 	}
+	*/
 }
 

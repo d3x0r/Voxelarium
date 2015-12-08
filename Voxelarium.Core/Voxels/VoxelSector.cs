@@ -209,7 +209,6 @@ namespace Voxelarium.Core.Voxels
 		   , BEHIND_RIGHT_ABOVE = RIGHT_BEHIND_ABOVE // 24
 		   , BEHIND_LEFT_BELOW = LEFT_BEHIND_BELOW  // 25 
 		   , BEHIND_RIGHT_BELOW = RIGHT_BEHIND_BELOW // 26
-
 		};
 
 
@@ -257,7 +256,7 @@ namespace Voxelarium.Core.Voxels
 			, RelativeVoxelOrds.RIGHT_ABOVE_AHEAD
 			, 0
 			, 0, 0, 0, 0}; // for debugging purposes... map reactor maps to physical 27 3x3x3 maps
-		public static RelativeVoxelOrds[,] VoxelFaceGroups = new RelativeVoxelOrds[6, 9] { {  RelativeVoxelOrds.LEFT,
+		public static RelativeVoxelOrds[,] VoxelFaceGroups = { {  RelativeVoxelOrds.LEFT,
 			RelativeVoxelOrds.LEFT_ABOVE,
 			RelativeVoxelOrds.LEFT_BELOW,
 			RelativeVoxelOrds.LEFT_AHEAD,
@@ -324,7 +323,7 @@ namespace Voxelarium.Core.Voxels
 		public VoxelSector GlobalList_Next;
 		public VoxelSector GlobalList_Pred;
 
-		public VoxelSector[] near_sectors = new VoxelSector[27];
+		public VoxelSector[] near_sectors = new VoxelSector[27]; // can index with relativeOrds-1 (self is not in this array)
 
 		public short Handle_x, Handle_y, Handle_z; // used in Genesis templates
 		public int Pos_x, Pos_y, Pos_z;
@@ -372,27 +371,27 @@ namespace Voxelarium.Core.Voxels
 		public bool Flag_IsSlowGeneration;   // This sector was generated using a very slow algorithm. Based on processer power, it may be a good idea to save it to disk rather than redoing the generation.
 		public bool Flag_IsActiveVoxels;     // Active voxels in this sector needs voxel processor attention.
 		public bool Flag_IsActiveLowRefresh; // Voxel processor will get activity in low frequency mode. Use LowRefresh_Mask to specify frequency;
-		public bool Flag_IsDebug;            // Debug flag
+
 		public bool Flag_NotStandardSize;
 		public bool Flag_NeedSortedRendering; // Activate new rendering code for better speed in some zones.
 
-		//bool Flag_NeedPartialCulling;
-		//byte PartialCulling;
 		public FACEDRAW_Operations PartialCulling;
 
 		// Data stored by block
 		public uint DataSize;
 		public struct VoxelData : IDisposable
 		{
-			static int data_created;
 			public VoxelData( uint initialSize ) {
-				data_created++;
 				Data = new ushort[initialSize];
 				OtherInfos = new VoxelExtension[initialSize];
+				SleepState = new FastBit_Array_32k();
 			}
 			public ushort[] Data;  // voxel type index
+			// tempurature is rare enough that it should be in an extension instead of stock.
+			// VoxelExtension should probably supply it as a default property.
 			//public ushort[] TempInfos = new ushort[ZVOXELBLOCSIZE_X * ZVOXELBLOCSIZE_Y * ZVOXELBLOCSIZE_Z];// TempÃ©rature des voxels
 			public VoxelExtension[] OtherInfos; // Informations autres
+			public FastBit_Array_32k SleepState;
 
 			public void Dispose()
 			{
@@ -405,7 +404,6 @@ namespace Voxelarium.Core.Voxels
 
 		internal VoxelCuller Culler;
 
-		//public VObject DisplayData;
 		internal VoxelGeometry solid_geometry;
 		internal VoxelGeometry transparent_geometry;
 		internal VoxelGeometry custom_geometry;
@@ -519,7 +517,12 @@ namespace Voxelarium.Core.Voxels
 				+ ( ( x & (int)ZVOXELBLOCMASK_X ) * (int)ZVOXELBLOCSIZE_Y )
 				+ ( ( z & (int)ZVOXELBLOCMASK_Z ) * ( (int)ZVOXELBLOCSIZE_Y * (int)ZVOXELBLOCSIZE_X ) );
 			Data.Data[Offset] = (ushort)CubeValue;
-			Data.OtherInfos[Offset] = null;
+			
+			if( VoxelTypeManager.VoxelTable[CubeValue].ExtensionType != null )
+				Data.OtherInfos[Offset] = (VoxelExtension)Activator.CreateInstance( VoxelTypeManager.VoxelTable[CubeValue].ExtensionType );
+			else
+			
+				Data.OtherInfos[Offset] = null;
 		}
 
 #if ALLOW_INLINE
@@ -823,7 +826,6 @@ namespace Voxelarium.Core.Voxels
 			Flag_IsSlowGeneration = Sector.Flag_IsSlowGeneration;
 			Flag_IsActiveVoxels = Sector.Flag_IsActiveVoxels;
 			Flag_IsActiveLowRefresh = Sector.Flag_IsActiveLowRefresh;
-			Flag_IsDebug = Sector.Flag_IsDebug;
 			Flag_NotStandardSize = Sector.Flag_NotStandardSize;
 			Flag_NeedSortedRendering = Sector.Flag_NeedSortedRendering;
 			PartialCulling = Sector.PartialCulling;
@@ -868,8 +870,6 @@ namespace Voxelarium.Core.Voxels
 			Flag_IsSlowGeneration = false;
 			Flag_IsActiveVoxels = false;
 			Flag_IsActiveLowRefresh = false;
-			Flag_IsDebug = false;
-			Flag_NotStandardSize = false;
 			Flag_NeedSortedRendering = false;
 			PartialCulling = 0;
 			RefreshWaitCount = 0;

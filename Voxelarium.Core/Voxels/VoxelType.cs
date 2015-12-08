@@ -131,14 +131,19 @@ namespace Voxelarium.Core.Voxels
 			return ( true );
 		}
 
+		public Type ExtensionType;
+
 		// Voxel Extensions;
-		public virtual VoxelExtension CreateVoxelExtension( bool IsLoadingPhase = false ) { return null; }
+		public virtual VoxelExtension CreateVoxelExtension( bool IsLoadingPhase = false ) {
+			object o = Activator.CreateInstance( ExtensionType );
+			return ( VoxelExtension )o;
+		}
 		public virtual void DeleteVoxelExtension( VoxelExtension VoxelExtension, bool IsUnloadingPhase = false )
 		{
 			if( properties.Is_HasAllocatedMemoryExtension && VoxelExtension != null )
 			{
 				VoxelExtension.Dispose();
-				VoxelExtension = null;
+				//VoxelExtension = null;
 			}
 		}
 

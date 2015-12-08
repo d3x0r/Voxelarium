@@ -14,11 +14,11 @@ public class BlackRockType : VoxelType {
         	return false;
         }
 }
-
+	/*
 public class BlackRockExtension: VoxelExtension {
 	BlackRockExtension()
         {
         }
 }
-
+*/
 }

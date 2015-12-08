@@ -133,11 +133,17 @@ namespace Voxelarium.Core.Voxels
 			{
 				VoxelProperties props = VoxelProperties.Load( i );
 				if( Compiler.LoadVoxelCode( props, props.Type ) )
+				{
 					VoxelType = Compiler.LoadExtendedVoxelType( props, props.Type );
+					VoxelType.ExtensionType = Compiler.LoadExtendedVoxelExtension( props.Type );
+					if( VoxelType.ExtensionType != null )
+						props.Is_HasAllocatedMemoryExtension = true;
+				}
 				else
 					VoxelType = null;
 				if( VoxelType == null )
 					VoxelType = new VoxelType();
+
 				VoxelType.SetProperties( props );
 
 				VoxelType.SetGameEnv( GameEnv );

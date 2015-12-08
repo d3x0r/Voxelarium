@@ -445,7 +445,8 @@ namespace Voxelarium.Core.UI
 			{
 				Shutdown();
 			}
-
+			if( keyboard[Key.G] )
+				VoxelReactor.StepOne = true;
 			if( keyboard[Key.X] && !keyboard[Key.ShiftLeft] )
 				debug_cube_transform.m_origin.x += 0.2f;
 			if( keyboard[Key.X] && keyboard[Key.ShiftLeft] )

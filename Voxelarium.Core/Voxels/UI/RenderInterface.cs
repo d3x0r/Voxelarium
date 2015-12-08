@@ -35,221 +35,60 @@ namespace Voxelarium.Core.Voxels.UI
 {
 	internal abstract class RenderInterface
 	{
-		int[] TextureName = new int[1024];
 		internal static VoxelSector.FACEDRAW_Operations[][] IntFaceStateTable =
 				{
 				  new VoxelSector.FACEDRAW_Operations[]{ // State 0: Clear = no FullOpaque = no TranspRend = no
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 0 TranspRend = 0
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 1 FullOpaque = 0 TranspRend = 0
-
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 1 TranspRend = 0
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 1 FullOpaque = 1 TranspRend = 0
-
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 0 TranspRend = 1
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 1 FullOpaque = 0 TranspRend = 1
-
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 1 TranspRend = 1
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 1 FullOpaque = 1 TranspRend = 1
-				  },
-				  new VoxelSector.FACEDRAW_Operations[]{ // State 1: Clear = yes FullOpaque = no TranspRend = no
-					0   , // Clear = 0 FullOpaque = 0 TranspRend = 0
-					0   , // Clear = 1 FullOpaque = 0 TranspRend = 0
-
-					0   , // Clear = 0 FullOpaque = 1 TranspRend = 0
-					0   , // Clear = 1 FullOpaque = 1 TranspRend = 0
-
-					0   , // Clear = 0 FullOpaque = 0 TranspRend = 1
-					0   , // Clear = 1 FullOpaque = 0 TranspRend = 1
-
-					0   , // Clear = 0 FullOpaque = 1 TranspRend = 1
-					0   , // Clear = 1 FullOpaque = 1 TranspRend = 1
-				  },
+					0 , // Clear = 1 FullOpaque = 0 TranspRend = 0
+					0 , // Clear = 0 FullOpaque = 1 TranspRend = 0
+					0 , // Clear = 0 FullOpaque = 0 TranspRend = 1
+					0 , // Clear = 0 FullOpaque = 1 TranspRend = 1
+				  } ,
 				  new VoxelSector.FACEDRAW_Operations[]{ // State 2: Clear = no FullOpaque = yes TranspRend = no
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 0 TranspRend = 0
 					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 1 FullOpaque = 0 TranspRend = 0
-
-					0   , // Clear = 0 FullOpaque = 1 TranspRend = 0
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 1 FullOpaque = 1 TranspRend = 0
-
+					0 , // Clear = 0 FullOpaque = 1 TranspRend = 0
 					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 0 TranspRend = 1
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 1 FullOpaque = 0 TranspRend = 1
-
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 1 TranspRend = 1
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 1 FullOpaque = 1 TranspRend = 1
-				  },
-				  new VoxelSector.FACEDRAW_Operations[]{ // State 3 : Clear = yes FullOpaque = yes TranspRend = no
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 0 TranspRend = 0
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 1 FullOpaque = 0 TranspRend = 0
-
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 1 TranspRend = 0
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 1 FullOpaque = 1 TranspRend = 0
-
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 0 TranspRend = 1
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 1 FullOpaque = 0 TranspRend = 1
-
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 1 TranspRend = 1
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 1 FullOpaque = 1 TranspRend = 1
+					0 , // Clear = 0 FullOpaque = 1 TranspRend = 1
 				  },
 				  new VoxelSector.FACEDRAW_Operations[]{ // State 4 : Clear = no FullOpaque = no TranspRend = yes
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 0 TranspRend = 0
 					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 1 FullOpaque = 0 TranspRend = 0
-
-					0   , // Clear = 0 FullOpaque = 1 TranspRend = 0
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 1 FullOpaque = 1 TranspRend = 0
-
-					0   , // Clear = 0 FullOpaque = 0 TranspRend = 1
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 1 FullOpaque = 0 TranspRend = 1
-
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 1 TranspRend = 1
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 1 FullOpaque = 1 TranspRend = 1
+					0  , // Clear = 0 FullOpaque = 1 TranspRend = 0
+					0 , // Clear = 0 FullOpaque = 0 TranspRend = 1
+					0 , // Clear = 0 FullOpaque = 1 TranspRend = 1
 				  },
-				  new VoxelSector.FACEDRAW_Operations[]{ // State 5: Clear = yes FullOpaque = no TranspRend = yes
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 0 TranspRend = 0
+				  null/*new VoxelSector.FACEDRAW_Operations[]{ // State 5: Clear = yes FullOpaque = yes TranspRend = yes
 					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 1 FullOpaque = 0 TranspRend = 0
-
 					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 1 TranspRend = 0
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 1 FullOpaque = 1 TranspRend = 0
-
 					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 0 TranspRend = 1
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 1 FullOpaque = 0 TranspRend = 1
-
 					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 1 TranspRend = 1
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 1 FullOpaque = 1 TranspRend = 1
-				  },
-				  new VoxelSector.FACEDRAW_Operations[]{ // State 6: Clear = no FullOpaque = yes TranspRend = yes
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 0 TranspRend = 0
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 1 FullOpaque = 0 TranspRend = 0
-
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 1 TranspRend = 0
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 1 FullOpaque = 1 TranspRend = 0
-
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 0 TranspRend = 1
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 1 FullOpaque = 0 TranspRend = 1
-
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 1 TranspRend = 1
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 1 FullOpaque = 1 TranspRend = 1
-				  },
-				  new VoxelSector.FACEDRAW_Operations[]{ // State 7: Clear = yes FullOpaque = yes TranspRend = yes
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 0 TranspRend = 0
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 1 FullOpaque = 0 TranspRend = 0
-
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 1 TranspRend = 0
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 1 FullOpaque = 1 TranspRend = 0
-
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 0 TranspRend = 1
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 1 FullOpaque = 0 TranspRend = 1
-
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 1 TranspRend = 1
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 1 FullOpaque = 1 TranspRend = 1
-				  }
+				  }*/,
 				};
 
 		internal static VoxelSector.FACEDRAW_Operations[][] ExtFaceStateTable =
 				{
-				  new VoxelSector.FACEDRAW_Operations[8]{ // State 0: Clear = no FullOpaque = no TranspRend = no
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 0 TranspRend = 0
-					0   , // Clear = 1 FullOpaque = 0 TranspRend = 0
-
+				  new VoxelSector.FACEDRAW_Operations[4]{ // State 0: Clear = no FullOpaque = no TranspRend = no
+					0 , // Clear = 1 FullOpaque = 0 TranspRend = 0
 					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 1 TranspRend = 0
-					0   , // Clear = 1 FullOpaque = 1 TranspRend = 0
-
 					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 0 TranspRend = 1
-					0   , // Clear = 1 FullOpaque = 0 TranspRend = 1
-
 					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 1 TranspRend = 1
-					0   , // Clear = 1 FullOpaque = 1 TranspRend = 1
 				  },
-				  new VoxelSector.FACEDRAW_Operations[8]{ // State 1: Clear = yes FullOpaque = no TranspRend = no
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 0 TranspRend = 0
+				  new VoxelSector.FACEDRAW_Operations[4]{ // State 2: Clear = no FullOpaque = yes TranspRend = no
+					0  , // Clear = 0 FullOpaque = 0 TranspRend = 0
+					0  , // Clear = 0 FullOpaque = 1 TranspRend = 0
+					0  , // Clear = 0 FullOpaque = 0 TranspRend = 1
+					0  , // Clear = 1 FullOpaque = 1 TranspRend = 1
+				  },
+				  new VoxelSector.FACEDRAW_Operations[4] { // State 4 : Clear = no FullOpaque = no TranspRend = yes
+					0 , // Clear = 1
+					VoxelSector.FACEDRAW_Operations.ALL_BITS  , // Clear = 0 FullOpaque = 1 TranspRend = 0
+					0  , // FullOpaque = 0 TranspRend = 1
+					0  , // FullOpaque = 1 TranspRend = 1
+				  },
+				 null/* new VoxelSector.FACEDRAW_Operations[8]{ // State 7: Clear = yes FullOpaque = yes TranspRend = yes
 					0   , // Clear = 1 FullOpaque = 0 TranspRend = 0
-
 					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 1 TranspRend = 0
-					0   , // Clear = 1 FullOpaque = 1 TranspRend = 0
-
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 0 TranspRend =  int Sector_x,Sector_y,Sector_z; 1
-					0   , // Clear = 1 FullOpaque = 0 TranspRend = 1
-
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 1 TranspRend = 1
-					0   , // Clear = 1 FullOpaque = 1 TranspRend = 1
-				  },
-				  new VoxelSector.FACEDRAW_Operations[8]{ // State 2: Clear = no FullOpaque = yes TranspRend = no
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 0 TranspRend = 0
-					0   , // Clear = 1 FullOpaque = 0 TranspRend = 0
-
-					0   , // Clear = 0 FullOpaque = 1 TranspRend = 0
-					0   , // Clear = 1 FullOpaque = 1 TranspRend = 0
-
-					0   , // Clear = 0 FullOpaque = 0 TranspRend = 1
-					0   , // Clear = 1 FullOpaque = 0 TranspRend = 1
-
-					0   , // Clear = 0 FullOpaque = 1 TranspRend = 1
-					0   , // Clear = 1 FullOpaque = 1 TranspRend = 1
-				  },
-				  new VoxelSector.FACEDRAW_Operations[8]{ // State 3 : Clear = yes FullOpaque = yes TranspRend = no
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 0 TranspRend = 0
-					0   , // Clear = 1 FullOpaque = 0 TranspRend = 0
-
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 1 TranspRend = 0
-					0   , // Clear = 1 FullOpaque = 1 TranspRend = 0
-
 					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 0 TranspRend = 1
-					0   , // Clear = 1 FullOpaque = 0 TranspRend = 1
-
 					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 1 TranspRend = 1
-					0   , // Clear = 1 FullOpaque = 1 TranspRend = 1
-				  },
-				  new VoxelSector.FACEDRAW_Operations[8] { // State 4 : Clear = no FullOpaque = no TranspRend = yes
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 0 TranspRend = 0
-					0   , // Clear = 1 FullOpaque = 0 TranspRend = 0
-
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 1 TranspRend = 0
-					0   , // Clear = 1 FullOpaque = 1 TranspRend = 0
-
-					0   , // Clear = 0 FullOpaque = 0 TranspRend = 1
-					0   , // Clear = 1 FullOpaque = 0 TranspRend = 1
-
-					0   , // Clear = 0 FullOpaque = 1 TranspRend = 1
-					0   , // Clear = 1 FullOpaque = 1 TranspRend = 1
-				  },
-				 new VoxelSector.FACEDRAW_Operations[8] { // State 5: Clear = yes FullOpaque = no TranspRend = yes
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 0 TranspRend = 0
-					0   , // Clear = 1 FullOpaque = 0 TranspRend = 0
-
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 1 TranspRend = 0
-					0   , // Clear = 1 FullOpaque = 1 TranspRend = 0
-
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 0 TranspRend = 1
-					0   , // Clear = 1 FullOpaque = 0 TranspRend = 1
-
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 1 TranspRend = 1
-					0   , // Clear = 1 FullOpaque = 1 TranspRend = 1
-				  },
-				  new VoxelSector.FACEDRAW_Operations[8]{ // State 6: Clear = no FullOpaque = yes TranspRend = yes
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 0 TranspRend = 0
-					0   , // Clear = 1 FullOpaque = 0 TranspRend = 0
-
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 1 TranspRend = 0
-					0   , // Clear = 1 FullOpaque = 1 TranspRend = 0
-
-					0   , // Clear = 0 FullOpaque = 0 TranspRend = 1
-					0   , // Clear = 1 FullOpaque = 0 TranspRend = 1
-
-					0   , // Clear = 0 FullOpaque = 1 TranspRend = 1
-					0   , // Clear = 1 FullOpaque = 1 TranspRend = 1
-				  },
-				  new VoxelSector.FACEDRAW_Operations[8]{ // State 7: Clear = yes FullOpaque = yes TranspRend = yes
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 0 TranspRend = 0
-					0   , // Clear = 1 FullOpaque = 0 TranspRend = 0
-
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 1 TranspRend = 0
-					0   , // Clear = 1 FullOpaque = 1 TranspRend = 0
-
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 0 TranspRend = 1
-					0   , // Clear = 1 FullOpaque = 0 TranspRend = 1
-
-					VoxelSector.FACEDRAW_Operations.ALL_BITS , // Clear = 0 FullOpaque = 1 TranspRend = 1
-					0   , // Clear = 1 FullOpaque = 1 TranspRend = 1
-				  }
+				  }*/
 				};
 
 
@@ -393,7 +232,7 @@ namespace Voxelarium.Core.Voxels.UI
 			SectorSphere.Init( Horizontal, Vertical );
 		}
 
-		internal abstract bool SetVoxel_WithCullingUpdate( VoxelWorld world, ushort VoxelValue
+		internal abstract bool SetVoxel_WithCullingUpdate( ushort VoxelValue
 							, VoxelSector.ModifiedFieldFlags ImportanceFactor
 							, bool CreateExtension
 							, ref VoxelRef Location );
@@ -540,46 +379,7 @@ namespace Voxelarium.Core.Voxels.UI
 						display.simple.DrawBox( sector_verts, ref c );
 				}
 			}
-#if false
-	CheckErr();
-
-              glDisable(GL_TEXTURE_2D);
-              glColor3f(r,g,b);
-              glEnable(GL_LINE_SMOOTH);
-	CheckErr();
-
-              glEnable (GL_LINE_SMOOTH);
-              glEnable (GL_BLEND);
-	CheckErr();
-              glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-              glHint (GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
-	CheckErr();
-              glLineWidth (3.5);
-    //glLineWidth(0.001f);
-    //glPointSize(0.001f);
-			  	CheckErr();
-                glBegin(GL_LINES);
-                  glVertex3f(P1.x,P1.y,P1.z);glVertex3f(P2.x,P2.y,P2.z);
-                  glVertex3f(P2.x,P2.y,P2.z);glVertex3f(P3.x,P3.y,P3.z);
-                  glVertex3f(P3.x,P3.y,P3.z);glVertex3f(P4.x,P4.y,P4.z);
-                  glVertex3f(P4.x,P4.y,P4.z);glVertex3f(P1.x,P1.y,P1.z);
-
-                  glVertex3f(P5.x,P5.y,P5.z);glVertex3f(P6.x,P6.y,P6.z);
-                  glVertex3f(P6.x,P6.y,P6.z);glVertex3f(P7.x,P7.y,P7.z);
-                  glVertex3f(P7.x,P7.y,P7.z);glVertex3f(P8.x,P8.y,P8.z);
-                  glVertex3f(P8.x,P8.y,P8.z);glVertex3f(P5.x,P5.y,P5.z);
-
-                  glVertex3f(P1.x,P1.y,P1.z);glVertex3f(P5.x,P5.y,P5.z);
-                  glVertex3f(P2.x,P2.y,P2.z);glVertex3f(P6.x,P6.y,P6.z);
-                  glVertex3f(P3.x,P3.y,P3.z);glVertex3f(P7.x,P7.y,P7.z);
-                  glVertex3f(P4.x,P4.y,P4.z);glVertex3f(P8.x,P8.y,P8.z);
-                glEnd();
-              glColor3f(1.0,1.0,1.0);
-              glEnable(GL_TEXTURE_2D);
-#endif
-
 		}
-
 	}
 }
 

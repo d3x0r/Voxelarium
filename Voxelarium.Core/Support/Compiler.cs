@@ -255,13 +255,9 @@ namespace Voxelarium.Core.Support
 			return false;
 		}
 
-		internal static VoxelExtension LoadExtendedVoxelExtension( VoxelProperties props, int type )
+		internal static Type LoadExtendedVoxelExtension( int type )
 		{
 			Assembly a = loaded_objects[type];
-			if( a == null )
-				if( LoadVoxelCode( props, type ) )
-					a = loaded_objects[type];
-
 			if( a != null )
 			{
 				Type[] types = a.GetTypes();
@@ -269,8 +265,9 @@ namespace Voxelarium.Core.Support
 				{
 					if( t.BaseType.Name == "VoxelExtension" )
 					{
-						object o = Activator.CreateInstance( t, new object[] { type }, null );
-						return o as VoxelExtension;
+						return t;
+						//object o = Activator.CreateInstance( t, new object[] { type }, null );
+						//return o as VoxelExtension;
 					}
 				}
 			}

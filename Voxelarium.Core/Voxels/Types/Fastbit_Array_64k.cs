@@ -21,18 +21,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#define ALLOW_UNSAFE
+//#define ALLOW_UNSAFE
+#define ALLOW_INLINE
 using System;
 using System.Collections.Generic;
+#if ALLOW_INLINE
+using System.Runtime.CompilerServices;
+#endif
 using System.Text;
 
 namespace Voxelarium.Core.Voxels.Types
 {
-	public class FastBit_Array_64k
+	public class FastBit_Array_32k
 	{
-		internal uint[] Storage = new uint[2048];
+		internal uint[] Storage = new uint[1024];
 
-		~FastBit_Array_64k()
+		~FastBit_Array_32k()
 		{
 			Storage = null;
 		}
@@ -43,19 +47,19 @@ namespace Voxelarium.Core.Voxels.Types
 		internal void Clear()
 		{
 			ushort i;
-			for( i = 0; i < 2048; i++ ) Storage[i] = 0;
+			for( i = 0; i < 1024; i++ ) Storage[i] = 0;
 		}
 
 #if ALLOW_INLINE
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 #endif
-		 void Set( int Index, bool Data )
+		public void Set( int Index, bool Data )
 		{
 			int Remain;
 			int Offset;
-			Remain = Index;
+			Remain = (ushort)(Index & 0x1f);
 			Offset = Index >> 5;
-			Remain &= 0x1f;
+			//Remain &= 0x1f;
 			if( Data ) Storage[Offset] |= (uint)1 << Remain;
 			else Storage[Offset] &= ~( (uint)1 << Remain );
 		}
@@ -63,21 +67,20 @@ namespace Voxelarium.Core.Voxels.Types
 #if ALLOW_INLINE
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 #endif
-		 bool Get( ushort Index )
+		 public bool Get( ushort Index )
 		{
 			ushort Remain;
 			int Offset;
-			Remain = Index;
+			Remain = (ushort)(Index & 0x1f);
 			Offset = Index >> 5;
-			Remain &= 0x1f;
 #if ALLOW_UNSAFE
 			unsafe
 			{
 				fixed( uint*pStorage = Storage )
 				{
-					return ( pStorage[Offset] & ( (uint)1 << Remain ) ) != 0;
+					return ( *( pStorage + Offset ) & ( (uint)1 << Remain ) ) != 0;
 				}
-            }
+			}
 #else
 			return ( Storage[Offset] & ( (uint)1 << Remain ) ) != 0;
 #endif

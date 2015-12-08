@@ -45,6 +45,7 @@ namespace Voxelarium.Core.Voxels.UI
 	internal class Render_Basic : RenderInterface
 	{
 
+
 		internal class BasicVoxelCuller : VoxelCuller
 		{
 			internal byte[] FaceCulling;
@@ -52,11 +53,11 @@ namespace Voxelarium.Core.Voxels.UI
 
 			internal override int getFaceCulling( VoxelSector Sector, int offset )
 			{
-				return FaceCulling[offset];
+				return Sector.Culler.GetData()[offset];
 			}
 			internal override void setFaceCulling( VoxelSector Sector, int offset, VoxelSector.FACEDRAW_Operations value )
 			{
-				FaceCulling[offset] = (byte)value;
+				Sector.Culler.GetData()[offset] = (byte)value;
 			}
 
 			internal override void InitFaceCullData( VoxelSector Sector )
@@ -112,7 +113,7 @@ namespace Voxelarium.Core.Voxels.UI
 
 				Offset[(int)VoxelSector.RelativeVoxelOrds.LEFT] = offset - ( 1 * VoxelSector.ZVOXELBLOCSIZE_Y );
 				Offset[(int)VoxelSector.RelativeVoxelOrds.RIGHT] = offset + ( 1 * VoxelSector.ZVOXELBLOCSIZE_Y );
-				Offset[(int)VoxelSector.RelativeVoxelOrds.INFRONT] = offset + ( 1 * VoxelSector.ZVOXELBLOCSIZE_X * VoxelSector.ZVOXELBLOCSIZE_Y );
+				Offset[(int)VoxelSector.RelativeVoxelOrds.AHEAD] = offset + ( 1 * VoxelSector.ZVOXELBLOCSIZE_X * VoxelSector.ZVOXELBLOCSIZE_Y );
 				Offset[(int)VoxelSector.RelativeVoxelOrds.BEHIND] = offset - ( 1 * VoxelSector.ZVOXELBLOCSIZE_X * VoxelSector.ZVOXELBLOCSIZE_Y );
 				Offset[(int)VoxelSector.RelativeVoxelOrds.ABOVE] = offset + ( 1 );
 				Offset[(int)VoxelSector.RelativeVoxelOrds.BELOW] = offset - ( 1 );
@@ -135,14 +136,15 @@ namespace Voxelarium.Core.Voxels.UI
 				else
 					Sector[(int)VoxelSector.RelativeVoxelOrds.RIGHT] = _Sector;
 
-				if( 0 == ( ( offset & ( VoxelSector.ZVOXELBLOCMASK_Z << ( VoxelSector.ZVOXELBLOCSHIFT_X + VoxelSector.ZVOXELBLOCSHIFT_Y ) ) ^ ( VoxelSector.ZVOXELBLOCMASK_Z << ( VoxelSector.ZVOXELBLOCSHIFT_X + VoxelSector.ZVOXELBLOCSHIFT_Y ) ) ) ) )
+				if( 0 == ( ( offset & ( VoxelSector.ZVOXELBLOCMASK_Z << ( VoxelSector.ZVOXELBLOCSHIFT_X + VoxelSector.ZVOXELBLOCSHIFT_Y ) ) 
+							        ^ ( VoxelSector.ZVOXELBLOCMASK_Z << ( VoxelSector.ZVOXELBLOCSHIFT_X + VoxelSector.ZVOXELBLOCSHIFT_Y ) ) ) ) )
 				{
-					if( null == ( Sector[(int)VoxelSector.RelativeVoxelOrds.INFRONT] = _Sector.near_sectors[(int)VoxelSector.RelativeVoxelOrds.INFRONT - 1] ) )
-						Sector[(int)VoxelSector.RelativeVoxelOrds.INFRONT] = VoxelWorld.WorkingFullSector;
-					Offset[(int)VoxelSector.RelativeVoxelOrds.INFRONT] -= ( VoxelSector.ZVOXELBLOCSIZE_X * VoxelSector.ZVOXELBLOCSIZE_Y * VoxelSector.ZVOXELBLOCSIZE_Z );
+					if( null == ( Sector[(int)VoxelSector.RelativeVoxelOrds.AHEAD] = _Sector.near_sectors[(int)VoxelSector.RelativeVoxelOrds.INFRONT - 1] ) )
+						Sector[(int)VoxelSector.RelativeVoxelOrds.AHEAD] = VoxelWorld.WorkingFullSector;
+					Offset[(int)VoxelSector.RelativeVoxelOrds.AHEAD] -= ( VoxelSector.ZVOXELBLOCSIZE_X * VoxelSector.ZVOXELBLOCSIZE_Y * VoxelSector.ZVOXELBLOCSIZE_Z );
 				}
 				else
-					Sector[(int)VoxelSector.RelativeVoxelOrds.INFRONT] = _Sector;
+					Sector[(int)VoxelSector.RelativeVoxelOrds.AHEAD] = _Sector;
 
 				if( 0 == ( offset & ( VoxelSector.ZVOXELBLOCMASK_Z << ( VoxelSector.ZVOXELBLOCSHIFT_X + VoxelSector.ZVOXELBLOCSHIFT_Y ) ) ) )
 				{
@@ -176,29 +178,26 @@ namespace Voxelarium.Core.Voxels.UI
 				{
 					//Voxel_Address[i] = Sector[i].Data.Data[Offset[i]];
 					Voxel = ( Sector[i].Data.Data[Offset[i]] ); VoxelType = VoxelTypeTable[Voxel];
-					VoxelState[i] = (ushort)( ( ( Voxel == 0 ) ? 1 : 0 )
-						   | ( VoxelType.properties.Draw_FullVoxelOpacity ? 2 : 0 )
-						   | ( VoxelType.properties.Draw_TransparentRendering ? 4 : 0 ) );
+					if( ( VoxelType.properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_DRAWFULLVOXELOPACITY ) != 0 )
+						Sector[i].Flag_Render_Dirty = true;
+					if( ( VoxelType.properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_DRAWTRANSPARENTRENDERING ) != 0 )
+						Sector[i].Flag_Render_Dirty_Transparent = true;
+					VoxelState[i] = (ushort)( VoxelType.properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS );
 				}
 
-				Voxel = Sector[(int)VoxelSector.RelativeVoxelOrds.INCENTER].Data.Data[Offset[(int)VoxelSector.RelativeVoxelOrds.INCENTER]];
-
-				// Storing Extension
+				Voxel = _Sector.Data.Data[Offset[(int)VoxelSector.RelativeVoxelOrds.INCENTER]];
 
 				VoxelType = VoxelTypeTable[Voxel];
 
-				// Storing Voxel
-
-				if( VoxelType.properties.Is_Active ) Sector[(int)VoxelSector.RelativeVoxelOrds.INCENTER].Flag_IsActiveVoxels = true;
-
 				// Getting case subtables.
 
-				ExtFaceState = ExtFaceStateTable[VoxelState[(int)VoxelSector.RelativeVoxelOrds.INCENTER]];
-				IntFaceState = IntFaceStateTable[VoxelState[(int)VoxelSector.RelativeVoxelOrds.INCENTER]];
+				ExtFaceState = ExtFaceStateTable[VoxelType.properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS];
+				IntFaceState = IntFaceStateTable[VoxelType.properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS];
 
 				// Computing face culling for center main stored voxel.
 
-				FaceCulling[Offset[(int)VoxelSector.RelativeVoxelOrds.INCENTER]] = (byte)(( IntFaceState[VoxelState[(int)VoxelSector.RelativeVoxelOrds.LEFT]] & VoxelSector.FACEDRAW_Operations.LEFT )
+				FaceCulling[Offset[(int)VoxelSector.RelativeVoxelOrds.INCENTER]] 
+												= (byte)(( IntFaceState[VoxelState[(int)VoxelSector.RelativeVoxelOrds.LEFT]] & VoxelSector.FACEDRAW_Operations.LEFT )
 													   | ( IntFaceState[VoxelState[(int)VoxelSector.RelativeVoxelOrds.RIGHT]] & VoxelSector.FACEDRAW_Operations.RIGHT )
 													   | ( IntFaceState[VoxelState[(int)VoxelSector.RelativeVoxelOrds.INFRONT]] & VoxelSector.FACEDRAW_Operations.AHEAD )
 													   | ( IntFaceState[VoxelState[(int)VoxelSector.RelativeVoxelOrds.BEHIND]] & VoxelSector.FACEDRAW_Operations.BEHIND )
@@ -209,26 +208,60 @@ namespace Voxelarium.Core.Voxels.UI
 				// Computing face culling for nearboring voxels faces touching center voxel.
 				unchecked
 				{
-					FaceCulling[Offset[(int)VoxelSector.RelativeVoxelOrds.LEFT]] &= (byte)( VoxelSector.FACEDRAW_Operations.ALL_BITS ^ VoxelSector.FACEDRAW_Operations.RIGHT );
-					FaceCulling[Offset[(int)VoxelSector.RelativeVoxelOrds.LEFT]] |= (byte)(ExtFaceState[VoxelState[(int)VoxelSector.RelativeVoxelOrds.LEFT]] & VoxelSector.FACEDRAW_Operations.RIGHT );
-					FaceCulling[Offset[(int)VoxelSector.RelativeVoxelOrds.RIGHT]] &= (byte)( VoxelSector.FACEDRAW_Operations.ALL_BITS ^ VoxelSector.FACEDRAW_Operations.LEFT );
-					FaceCulling[Offset[(int)VoxelSector.RelativeVoxelOrds.RIGHT]] |= (byte)( ExtFaceState[VoxelState[(int)VoxelSector.RelativeVoxelOrds.RIGHT]] & VoxelSector.FACEDRAW_Operations.LEFT );
-					FaceCulling[Offset[(int)VoxelSector.RelativeVoxelOrds.INFRONT]] &= (byte)( VoxelSector.FACEDRAW_Operations.ALL_BITS ^ VoxelSector.FACEDRAW_Operations.BEHIND );
-					FaceCulling[Offset[(int)VoxelSector.RelativeVoxelOrds.INFRONT]] |= (byte)( ExtFaceState[VoxelState[(int)VoxelSector.RelativeVoxelOrds.INFRONT]] & VoxelSector.FACEDRAW_Operations.BEHIND );
-					FaceCulling[Offset[(int)VoxelSector.RelativeVoxelOrds.BEHIND]] &= (byte)( VoxelSector.FACEDRAW_Operations.ALL_BITS ^ VoxelSector.FACEDRAW_Operations.AHEAD );
-					FaceCulling[Offset[(int)VoxelSector.RelativeVoxelOrds.BEHIND]] |= (byte)( ExtFaceState[VoxelState[(int)VoxelSector.RelativeVoxelOrds.BEHIND]] & VoxelSector.FACEDRAW_Operations.AHEAD );
-					FaceCulling[Offset[(int)VoxelSector.RelativeVoxelOrds.ABOVE]] &= (byte)( VoxelSector.FACEDRAW_Operations.ALL_BITS ^ VoxelSector.FACEDRAW_Operations.BELOW );
-					FaceCulling[Offset[(int)VoxelSector.RelativeVoxelOrds.ABOVE]] |= (byte)( ExtFaceState[VoxelState[(int)VoxelSector.RelativeVoxelOrds.ABOVE]] & VoxelSector.FACEDRAW_Operations.BELOW );
-					FaceCulling[Offset[(int)VoxelSector.RelativeVoxelOrds.BELOW]] &= (byte)( VoxelSector.FACEDRAW_Operations.ALL_BITS ^ VoxelSector.FACEDRAW_Operations.ABOVE );
-					FaceCulling[Offset[(int)VoxelSector.RelativeVoxelOrds.BELOW]] |= (byte)( ExtFaceState[VoxelState[(int)VoxelSector.RelativeVoxelOrds.BELOW]] & VoxelSector.FACEDRAW_Operations.ABOVE);
+					BasicVoxelCuller Culler;
+					byte[] Culling;
+					if( ( Culler = (BasicVoxelCuller)Sector[(int)VoxelSector.RelativeVoxelOrds.LEFT].Culler ) != null )
+					{
+						Culling = Culler.FaceCulling;
+						
+						uint ofs = Offset[(int)VoxelSector.RelativeVoxelOrds.LEFT];
+						byte val = (byte)( ( Culling[ofs] & ( ~(byte)VoxelSector.FACEDRAW_Operations.RIGHT ) )
+							| ( (byte)ExtFaceState[VoxelState[(int)VoxelSector.RelativeVoxelOrds.LEFT]] & (byte)VoxelSector.FACEDRAW_Operations.RIGHT ) );
+						Culling[ofs] = val;
+						
+					}
+					if( ( Culler = (BasicVoxelCuller)Sector[(int)VoxelSector.RelativeVoxelOrds.RIGHT].Culler ) != null )
+					{
+						Culling = Culler.FaceCulling;
+						uint ofs = Offset[(int)VoxelSector.RelativeVoxelOrds.RIGHT];
+						byte val = (byte)( ( Culling[ofs] & ( ~(byte)VoxelSector.FACEDRAW_Operations.LEFT ) )
+							| ( (byte)ExtFaceState[VoxelState[(int)VoxelSector.RelativeVoxelOrds.RIGHT]] & (byte)VoxelSector.FACEDRAW_Operations.LEFT ) );
+						Culling[ofs] = val;
+					}
+					if( ( Culler = (BasicVoxelCuller)Sector[(int)VoxelSector.RelativeVoxelOrds.AHEAD].Culler ) != null )
+					{
+						Culling = Culler.FaceCulling;
+						uint ofs = Offset[(int)VoxelSector.RelativeVoxelOrds.AHEAD];
+						byte val = (byte)( ( Culling[ofs] & ( ~(byte)VoxelSector.FACEDRAW_Operations.BEHIND ) )
+							| ( (byte)ExtFaceState[VoxelState[(int)VoxelSector.RelativeVoxelOrds.AHEAD]] & (byte)VoxelSector.FACEDRAW_Operations.BEHIND ) );
+						Culling[ofs] = val;
+					}
+					if( ( Culler = (BasicVoxelCuller)Sector[(int)VoxelSector.RelativeVoxelOrds.BEHIND].Culler ) != null )
+					{
+						Culling = Culler.FaceCulling;
+						uint ofs = Offset[(int)VoxelSector.RelativeVoxelOrds.BEHIND];
+						byte val = (byte)( ( Culling[ofs] & ( ~(byte)VoxelSector.FACEDRAW_Operations.AHEAD ) )
+							| ( (byte)ExtFaceState[VoxelState[(int)VoxelSector.RelativeVoxelOrds.BEHIND]] & (byte)VoxelSector.FACEDRAW_Operations.AHEAD ) );
+						Culling[ofs] = val;
+					}
+					if( ( Culler = (BasicVoxelCuller)Sector[(int)VoxelSector.RelativeVoxelOrds.ABOVE].Culler ) != null )
+					{
+						Culling = Culler.FaceCulling;
+						uint ofs = Offset[(int)VoxelSector.RelativeVoxelOrds.ABOVE];
+						byte val = (byte)( ( Culling[ofs] & ( ~(byte)VoxelSector.FACEDRAW_Operations.BELOW ) )
+							| ( (byte)ExtFaceState[VoxelState[(int)VoxelSector.RelativeVoxelOrds.ABOVE]] & (byte)VoxelSector.FACEDRAW_Operations.BELOW ) );
+						Culling[ofs] = val;
+					}
+					if( ( Culler = (BasicVoxelCuller)Sector[(int)VoxelSector.RelativeVoxelOrds.BELOW].Culler ) != null )
+					{
+						Culling = Culler.FaceCulling;
+						uint ofs = Offset[(int)VoxelSector.RelativeVoxelOrds.BELOW];
+						byte val = (byte)( ( Culling[ofs] & ( ~(byte)VoxelSector.FACEDRAW_Operations.ABOVE ) )
+							| ( (byte)ExtFaceState[VoxelState[(int)VoxelSector.RelativeVoxelOrds.BELOW]] & (byte)VoxelSector.FACEDRAW_Operations.ABOVE ) );
+						Culling[ofs] = val;
+					}
 				}
 				// printf("State[Center]:%x [Left]%x [Right]%x [INFRONT]%x [BEHIND]%x [ABOVE]%x [BELOW]%x\n",VoxelState[VoxelSector.RelativeVoxelOrds.INCENTER],VoxelState[VoxelSector.RelativeVoxelOrds.LEFT],VoxelState[VoxelSector.RelativeVoxelOrds.RIGHT],VoxelState[VoxelSector.RelativeVoxelOrds.INFRONT],VoxelState[VoxelSector.RelativeVoxelOrds.BEHIND],VoxelState[VoxelSector.RelativeVoxelOrds.ABOVE],VoxelState[VoxelSector.RelativeVoxelOrds.BELOW]);
-
-				// Updating sector status rendering flag status
-				for( int i = 0; i < 7; i++ )
-				{
-					Sector[i].Flag_Render_Dirty = true;
-				}
 
 			}
 
@@ -267,13 +300,6 @@ namespace Voxelarium.Core.Voxels.UI
 
 			if( Isolated ) MissingSector = VoxelWorld.WorkingEmptySector;
 			else MissingSector = VoxelWorld.WorkingFullSector;
-
-			/*
-			  if (x==0 && y== 0 && z==0)
-			  {
-				printf("Entering..");
-			  }
-			*/
 
 			// (VoxelSector.FACEDRAW_Operations.ABOVE | VoxelSector.FACEDRAW_Operations.BELOW | VoxelSector.FACEDRAW_Operations.LEFT | VoxelSector.FACEDRAW_Operations.RIGHT | VoxelSector.FACEDRAW_Operations.AHEAD | VoxelSector.FACEDRAW_Operations.BEHIND);
 			for( i = 0; i < 27; i++ ) SectorTable[i] = MissingSector;
@@ -361,8 +387,8 @@ namespace Voxelarium.Core.Voxels.UI
 							MainVoxelDrawInfo = VoxelTypeTable[BlocMatrix[1][4]].properties.DrawInfo;
 							VoxelSector.FACEDRAW_Operations[] SubTable = IntFaceStateTable[MainVoxelDrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS];
 
-							info |= ( ( SubTable[VoxelTypeTable[BlocMatrix[1][1]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS] ) & VoxelSector.FACEDRAW_Operations.AHEAD );
-							info |= ( ( SubTable[VoxelTypeTable[BlocMatrix[1][7]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS] ) & VoxelSector.FACEDRAW_Operations.BEHIND );
+							info |= ( ( SubTable[VoxelTypeTable[BlocMatrix[1][1]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS] ) & VoxelSector.FACEDRAW_Operations.BEHIND );
+							info |= ( ( SubTable[VoxelTypeTable[BlocMatrix[1][7]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS] ) & VoxelSector.FACEDRAW_Operations.AHEAD );
 							info |= ( ( SubTable[VoxelTypeTable[BlocMatrix[1][3]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS] ) & VoxelSector.FACEDRAW_Operations.LEFT );
 							info |= ( ( SubTable[VoxelTypeTable[BlocMatrix[1][5]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS] ) & VoxelSector.FACEDRAW_Operations.RIGHT );
 							info |= ( ( SubTable[VoxelTypeTable[BlocMatrix[0][4]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS] ) & VoxelSector.FACEDRAW_Operations.BELOW );
@@ -371,8 +397,7 @@ namespace Voxelarium.Core.Voxels.UI
 
 						// Write face culling info to face culling table
 
-						Sector.Culler.setFaceCulling( Sector
-									, OfTableX[xp] + OfTableY[yp] + OfTableZ[zp], info );
+						Sector.Culler.setFaceCulling( Sector, OfTableX[xp] + OfTableY[yp] + OfTableZ[zp], info );
 
 					}
 				}
@@ -543,11 +568,11 @@ namespace Voxelarium.Core.Voxels.UI
 							Off_In = Off_Ip + Off_Aux;
 							Off_Out = Off_Op + Off_Aux;
 							FaceState = IntFaceStateTable[VoxelTypeTable[VoxelData_In.Data[Off_In]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS][VoxelTypeTable[VoxelData_Out.Data[Off_Out]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS];
-							if( FaceState != 0 ) VoxelFC_In[Off_In] |= (byte)VoxelSector.FACEDRAW_Operations.BEHIND;
-							else VoxelFC_In[Off_In] &= (byte)( (int)~VoxelSector.FACEDRAW_Operations.BEHIND & 0xFF );
+							if( FaceState != 0 ) VoxelFC_In[Off_In] |= (byte)VoxelSector.FACEDRAW_Operations.AHEAD;
+							else VoxelFC_In[Off_In] &= (byte)( (int)~VoxelSector.FACEDRAW_Operations.AHEAD & 0xFF );
 						}
 					}
-					CuledFaces |= VoxelSector.FACEDRAW_Operations.BEHIND;
+					CuledFaces |= VoxelSector.FACEDRAW_Operations.AHEAD;
 				}
 
 			// Back Side
@@ -567,10 +592,10 @@ namespace Voxelarium.Core.Voxels.UI
 									Off_In = Off_Ip + Off_Aux;
 									Off_Out = Off_Op + Off_Aux;
 									FaceState = IntFaceStateTable[VoxelTypeTable[VoxelData_In.Data[Off_In]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS][VoxelTypeTable[VoxelData_Out.Data[Off_Out]].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_CULLINGBITS];
-									if( FaceState != 0 ) VoxelFC_In[Off_In] |= (byte)VoxelSector.FACEDRAW_Operations.AHEAD; else VoxelFC_In[Off_In] &= (byte)( (int)~VoxelSector.FACEDRAW_Operations.AHEAD & 0xFF );
+									if( FaceState != 0 ) VoxelFC_In[Off_In] |= (byte)VoxelSector.FACEDRAW_Operations.BEHIND; else VoxelFC_In[Off_In] &= (byte)( (int)~VoxelSector.FACEDRAW_Operations.BEHIND & 0xFF );
 								}
 							}
-							CuledFaces |= VoxelSector.FACEDRAW_Operations.AHEAD;
+							CuledFaces |= VoxelSector.FACEDRAW_Operations.BEHIND;
 						}
 
 			//Sector.PartialCulling ^= CuledFaces & ( VoxelSector.FACEDRAW_Operations.ABOVE | VoxelSector.FACEDRAW_Operations.BELOW | VoxelSector.FACEDRAW_Operations.LEFT | VoxelSector.FACEDRAW_Operations.RIGHT | VoxelSector.FACEDRAW_Operations.AHEAD | VoxelSector.FACEDRAW_Operations.BEHIND );
@@ -594,98 +619,11 @@ namespace Voxelarium.Core.Voxels.UI
 				return;
 			}
 			Location.Sector.Culler.CullSingleVoxel( Location.Sector, Location.Offset );
-			//ushort[] Voxel_Address[19];
-			uint[] Offset;
-			VoxelSector[] Sector;
-			byte[][] FaceCulling_Address = new byte[7][];
-			int[] VoxelState = new int[7];
-			ushort Voxel;
-			VoxelType[] VoxelTypeTable;
-			VoxelType VoxelType;
-			//Location = new VoxelRef( world, null, x, y, z, sector, 0 );
-			Location.GetVoxelRefs( out Sector, out Offset, true );
 
-			VoxelSector.FACEDRAW_Operations[] ExtFaceState;
-			VoxelSector.FACEDRAW_Operations[] IntFaceState;
-			VoxelExtension OtherInfos;
-
-			// Fetching sectors
-
-			if( null == ( Sector[(int)VoxelSector.RelativeVoxelOrds.INCENTER] ) ) return;
-			if( null == ( Sector[(int)VoxelSector.RelativeVoxelOrds.LEFT] ) ) Sector[(int)VoxelSector.RelativeVoxelOrds.LEFT] = VoxelWorld.WorkingFullSector;
-			if( null == ( Sector[(int)VoxelSector.RelativeVoxelOrds.RIGHT] ) ) Sector[(int)VoxelSector.RelativeVoxelOrds.RIGHT] = VoxelWorld.WorkingFullSector;
-			if( null == ( Sector[(int)VoxelSector.RelativeVoxelOrds.INFRONT] ) ) Sector[(int)VoxelSector.RelativeVoxelOrds.INFRONT] = VoxelWorld.WorkingFullSector;
-			if( null == ( Sector[(int)VoxelSector.RelativeVoxelOrds.BEHIND] ) ) Sector[(int)VoxelSector.RelativeVoxelOrds.BEHIND] = VoxelWorld.WorkingFullSector;
-			if( null == ( Sector[(int)VoxelSector.RelativeVoxelOrds.ABOVE] ) ) Sector[(int)VoxelSector.RelativeVoxelOrds.ABOVE] = VoxelWorld.WorkingFullSector;
-			if( null == ( Sector[(int)VoxelSector.RelativeVoxelOrds.BELOW] ) ) Sector[(int)VoxelSector.RelativeVoxelOrds.BELOW] = VoxelWorld.WorkingFullSector;
-
-			FaceCulling_Address[0] = Location.Sector.Culler.GetData();
-			// Computing absolute memory pointer of blocks
-			for( int i = 1; i < 7; i++ )
-			{
-				FaceCulling_Address[i] = Sector[i].Culler.GetData();
-				Voxel = Sector[i].Data.Data[Offset[i]];
-				//VoxelType = ;
-				VoxelState[i] = ( ( Voxel == 0 ) ? 1 : 0 )
-					   | ( Location.Type.properties.Draw_FullVoxelOpacity ? 2 : 0 )
-					   | ( Location.Type.properties.Draw_TransparentRendering ? 4 : 0 );
-			}
-
-			// Storing Voxel
-
-			VoxelState[(int)VoxelSector.RelativeVoxelOrds.INCENTER] = 
-					( ( Location.Type.properties.Type == 0 ) ? 1 : 0 )
-					| ( Location.Type.properties.Draw_FullVoxelOpacity ? 2 : 0 ) 
-					| ( Location.Type.properties.Draw_TransparentRendering ? 4 : 0 );
-
-			if( Location.Type.properties.Is_Active )
-				Sector[(int)VoxelSector.RelativeVoxelOrds.INCENTER].Flag_IsActiveVoxels = true;
-
-			// Getting case subtables.
-
-			ExtFaceState = ExtFaceStateTable[VoxelState[(int)VoxelSector.RelativeVoxelOrds.INCENTER]];
-			IntFaceState = IntFaceStateTable[VoxelState[(int)VoxelSector.RelativeVoxelOrds.INCENTER]];
-
-			// Computing face culling for center main stored voxel.
-
-			FaceCulling_Address[(int)VoxelSector.RelativeVoxelOrds.INCENTER][Offset[(int)VoxelSector.RelativeVoxelOrds.INCENTER]]
-				= (byte)( ( IntFaceState[VoxelState[(int)VoxelSector.RelativeVoxelOrds.LEFT]] & VoxelSector.FACEDRAW_Operations.LEFT )
-						| ( IntFaceState[VoxelState[(int)VoxelSector.RelativeVoxelOrds.RIGHT]] & VoxelSector.FACEDRAW_Operations.RIGHT )
-						| ( IntFaceState[VoxelState[(int)VoxelSector.RelativeVoxelOrds.INFRONT]] & VoxelSector.FACEDRAW_Operations.AHEAD )
-						| ( IntFaceState[VoxelState[(int)VoxelSector.RelativeVoxelOrds.BEHIND]] & VoxelSector.FACEDRAW_Operations.BEHIND )
-						| ( IntFaceState[VoxelState[(int)VoxelSector.RelativeVoxelOrds.ABOVE]] & VoxelSector.FACEDRAW_Operations.ABOVE )
-						| ( IntFaceState[VoxelState[(int)VoxelSector.RelativeVoxelOrds.BELOW]] & VoxelSector.FACEDRAW_Operations.BELOW ) )
-						;
-
-			// Computing face culling for nearboring voxels faces touching center voxel.
-			unchecked
-			{
-				FaceCulling_Address[(int)VoxelSector.RelativeVoxelOrds.LEFT][Offset[(int)VoxelSector.RelativeVoxelOrds.LEFT]] &= (byte)VoxelSector.FACEDRAW_Operations.ALL_BITS ^ (byte)VoxelSector.FACEDRAW_Operations.RIGHT;
-				FaceCulling_Address[(int)VoxelSector.RelativeVoxelOrds.LEFT][Offset[(int)VoxelSector.RelativeVoxelOrds.LEFT]] |= (byte)( ExtFaceState[VoxelState[(int)VoxelSector.RelativeVoxelOrds.LEFT]] & VoxelSector.FACEDRAW_Operations.RIGHT );
-				FaceCulling_Address[(int)VoxelSector.RelativeVoxelOrds.RIGHT][Offset[(int)VoxelSector.RelativeVoxelOrds.RIGHT]] &= (byte)VoxelSector.FACEDRAW_Operations.ALL_BITS ^ (byte)VoxelSector.FACEDRAW_Operations.LEFT;
-				FaceCulling_Address[(int)VoxelSector.RelativeVoxelOrds.RIGHT][Offset[(int)VoxelSector.RelativeVoxelOrds.RIGHT]] |= (byte)( ExtFaceState[VoxelState[(int)VoxelSector.RelativeVoxelOrds.RIGHT]] & VoxelSector.FACEDRAW_Operations.LEFT );
-				FaceCulling_Address[(int)VoxelSector.RelativeVoxelOrds.INFRONT][Offset[(int)VoxelSector.RelativeVoxelOrds.INFRONT]] &= (byte)VoxelSector.FACEDRAW_Operations.ALL_BITS ^ (byte)VoxelSector.FACEDRAW_Operations.BEHIND;
-				FaceCulling_Address[(int)VoxelSector.RelativeVoxelOrds.INFRONT][Offset[(int)VoxelSector.RelativeVoxelOrds.INFRONT]] |= (byte)( ExtFaceState[VoxelState[(int)VoxelSector.RelativeVoxelOrds.INFRONT]] & VoxelSector.FACEDRAW_Operations.BEHIND );
-				FaceCulling_Address[(int)VoxelSector.RelativeVoxelOrds.BEHIND][Offset[(int)VoxelSector.RelativeVoxelOrds.BEHIND]] &= (byte)VoxelSector.FACEDRAW_Operations.ALL_BITS ^ (byte)VoxelSector.FACEDRAW_Operations.AHEAD;
-				FaceCulling_Address[(int)VoxelSector.RelativeVoxelOrds.BEHIND][Offset[(int)VoxelSector.RelativeVoxelOrds.BEHIND]] |= (byte)( ExtFaceState[VoxelState[(int)VoxelSector.RelativeVoxelOrds.BEHIND]] & VoxelSector.FACEDRAW_Operations.AHEAD );
-				FaceCulling_Address[(int)VoxelSector.RelativeVoxelOrds.ABOVE][Offset[(int)VoxelSector.RelativeVoxelOrds.ABOVE]] &= (byte)VoxelSector.FACEDRAW_Operations.ALL_BITS ^ (byte)VoxelSector.FACEDRAW_Operations.BELOW;
-				FaceCulling_Address[(int)VoxelSector.RelativeVoxelOrds.ABOVE][Offset[(int)VoxelSector.RelativeVoxelOrds.ABOVE]] |= (byte)( ExtFaceState[VoxelState[(int)VoxelSector.RelativeVoxelOrds.ABOVE]] & VoxelSector.FACEDRAW_Operations.BELOW );
-				FaceCulling_Address[(int)VoxelSector.RelativeVoxelOrds.BELOW][Offset[(int)VoxelSector.RelativeVoxelOrds.BELOW]] &= (byte)VoxelSector.FACEDRAW_Operations.ALL_BITS ^ (byte)VoxelSector.FACEDRAW_Operations.ABOVE;
-				FaceCulling_Address[(int)VoxelSector.RelativeVoxelOrds.BELOW][Offset[(int)VoxelSector.RelativeVoxelOrds.BELOW]] |= (byte)( ExtFaceState[VoxelState[(int)VoxelSector.RelativeVoxelOrds.BELOW]] & VoxelSector.FACEDRAW_Operations.ABOVE );
-			}
-
-			// printf("State[Center]:%x [Left]%x [Right]%x [INFRONT]%x [BEHIND]%x [ABOVE]%x [BELOW]%x\n",VoxelState[VoxelSector.RelativeVoxelOrds.INCENTER],VoxelState[VoxelSector.RelativeVoxelOrds.LEFT],VoxelState[VoxelSector.RelativeVoxelOrds.RIGHT],VoxelState[VoxelSector.RelativeVoxelOrds.INFRONT],VoxelState[VoxelSector.RelativeVoxelOrds.BEHIND],VoxelState[VoxelSector.RelativeVoxelOrds.ABOVE],VoxelState[VoxelSector.RelativeVoxelOrds.BELOW]);
-
-			// Updating sector status rendering flag status
-			for( int i = 0; i < 7; i++ )
-			{
-				Sector[i].Flag_Render_Dirty = true;
-			}
-
-			Sector[(int)VoxelSector.RelativeVoxelOrds.INCENTER].Flag_IsModified |= ImportanceFactor;
+			Location.Sector.Flag_IsModified |= ImportanceFactor;
 		}
 
-		internal override bool SetVoxel_WithCullingUpdate( VoxelWorld world, ushort VoxelValue
+		internal override bool SetVoxel_WithCullingUpdate( ushort VoxelValue
 							, VoxelSector.ModifiedFieldFlags ImportanceFactor
 							, bool CreateExtension
 							, ref VoxelRef Location )
@@ -694,47 +632,12 @@ namespace Voxelarium.Core.Voxels.UI
 			{
 				return false;
 			}
-			//ushort[] Voxel_Address[19];
-			uint[] Offset;
-			VoxelSector[] Sector;
-			byte[][] FaceCulling_Address = new byte[7][];
-			int[] VoxelState = new int[7];
-			ushort Voxel;
-			VoxelType[] VoxelTypeTable;
-			VoxelType VoxelType;
-			//Location = new VoxelRef( world, null, x, y, z, sector, 0 );
-			Location.GetVoxelRefs( out Sector, out Offset, true );
 
-			VoxelSector.FACEDRAW_Operations[] ExtFaceState;
-			VoxelSector.FACEDRAW_Operations[] IntFaceState;
-			VoxelExtension OtherInfos;
-			VoxelTypeTable = world.VoxelTypeManager.VoxelTable;
-
-			// Fetching sectors
-
-			if( null == ( Sector[(int)VoxelSector.RelativeVoxelOrds.INCENTER] ) ) return ( false );
-			if( null == ( Sector[(int)VoxelSector.RelativeVoxelOrds.LEFT] ) ) Sector[(int)VoxelSector.RelativeVoxelOrds.LEFT] = VoxelWorld.WorkingFullSector;
-			if( null == ( Sector[(int)VoxelSector.RelativeVoxelOrds.RIGHT] ) ) Sector[(int)VoxelSector.RelativeVoxelOrds.RIGHT] = VoxelWorld.WorkingFullSector;
-			if( null == ( Sector[(int)VoxelSector.RelativeVoxelOrds.INFRONT] ) ) Sector[(int)VoxelSector.RelativeVoxelOrds.INFRONT] = VoxelWorld.WorkingFullSector;
-			if( null == ( Sector[(int)VoxelSector.RelativeVoxelOrds.BEHIND] ) ) Sector[(int)VoxelSector.RelativeVoxelOrds.BEHIND] = VoxelWorld.WorkingFullSector;
-			if( null == ( Sector[(int)VoxelSector.RelativeVoxelOrds.ABOVE] ) ) Sector[(int)VoxelSector.RelativeVoxelOrds.ABOVE] = VoxelWorld.WorkingFullSector;
-			if( null == ( Sector[(int)VoxelSector.RelativeVoxelOrds.BELOW] ) ) Sector[(int)VoxelSector.RelativeVoxelOrds.BELOW] = VoxelWorld.WorkingFullSector;
-
-			FaceCulling_Address[0] = Location.Sector.Culler.GetData();
-			// Computing absolute memory pointer of blocks
-			for( int i = 1; i < 7; i++ )
-			{
-				FaceCulling_Address[i] = Sector[i].Culler.GetData();
-				Voxel = Sector[i].Data.Data[Offset[i]];
-				VoxelType = VoxelTypeTable[Voxel];
-				VoxelState[i] = ( ( Voxel == 0 ) ? 1 : 0 )
-					   | ( VoxelType.properties.Draw_FullVoxelOpacity ? 2 : 0 )
-					   | ( VoxelType.properties.Draw_TransparentRendering ? 4 : 0 );
-			}
 			// Delete Old voxel extended informations if any
-
-			Voxel = Sector[(int)VoxelSector.RelativeVoxelOrds.INCENTER].Data.Data[Offset[(int)VoxelSector.RelativeVoxelOrds.INCENTER]];
-			OtherInfos = Sector[(int)VoxelSector.RelativeVoxelOrds.INCENTER].Data.OtherInfos[Offset[(int)VoxelSector.RelativeVoxelOrds.INCENTER]];
+			VoxelType VoxelType;
+			VoxelType[] VoxelTypeTable = Location.VoxelTypeManager.VoxelTable;
+			ushort Voxel = Location.Sector.Data.Data[Location.Offset];
+			VoxelExtension OtherInfos = Location.Sector.Data.OtherInfos[Location.Offset];
 
 			if( OtherInfos != null )
 			{
@@ -748,62 +651,17 @@ namespace Voxelarium.Core.Voxels.UI
 			if( CreateExtension )
 			{
 				//Sector[(int)VoxelSector.RelativeVoxelOrds.INCENTER].Data.Data[Offset[(int)VoxelSector.RelativeVoxelOrds.INCENTER]] = 0; // Temporary set to 0 to prevent VoxelReactor for crashing while loading the wrong extension.
-				Sector[(int)VoxelSector.RelativeVoxelOrds.INCENTER].Data.OtherInfos[Offset[(int)VoxelSector.RelativeVoxelOrds.INCENTER]] = VoxelType.CreateVoxelExtension();
+				Location.Sector.Data.OtherInfos[Location.Offset] = VoxelType.CreateVoxelExtension();
 			}
 
 			// Storing Voxel
 
-			Sector[(int)VoxelSector.RelativeVoxelOrds.INCENTER].Data.Data[Offset[(int)VoxelSector.RelativeVoxelOrds.INCENTER]] = VoxelValue;
-			VoxelState[(int)VoxelSector.RelativeVoxelOrds.INCENTER] = ( ( VoxelValue == 0 ) ? 1 : 0 ) 
-					| ( VoxelType.properties.Draw_FullVoxelOpacity ? 2 : 0 ) | ( VoxelType.properties.Draw_TransparentRendering ? 4 : 0 );
-
+			Location.Sector.Data.Data[Location.Offset] = VoxelValue;
 
 			if( VoxelTypeTable[VoxelValue].properties.Is_Active )
-				Sector[(int)VoxelSector.RelativeVoxelOrds.INCENTER].Flag_IsActiveVoxels = true;
+				Location.Sector.Flag_IsActiveVoxels = true;
 
-			// Getting case subtables.
-
-			ExtFaceState = ExtFaceStateTable[VoxelState[(int)VoxelSector.RelativeVoxelOrds.INCENTER]];
-			IntFaceState = IntFaceStateTable[VoxelState[(int)VoxelSector.RelativeVoxelOrds.INCENTER]];
-
-			// Computing face culling for center main stored voxel.
-
-			FaceCulling_Address[(int)VoxelSector.RelativeVoxelOrds.INCENTER][Offset[(int)VoxelSector.RelativeVoxelOrds.INCENTER]]
-				= (byte)( ( IntFaceState[VoxelState[(int)VoxelSector.RelativeVoxelOrds.LEFT]] & VoxelSector.FACEDRAW_Operations.LEFT )
-						| ( IntFaceState[VoxelState[(int)VoxelSector.RelativeVoxelOrds.RIGHT]] & VoxelSector.FACEDRAW_Operations.RIGHT )
-						| ( IntFaceState[VoxelState[(int)VoxelSector.RelativeVoxelOrds.INFRONT]] & VoxelSector.FACEDRAW_Operations.AHEAD )
-						| ( IntFaceState[VoxelState[(int)VoxelSector.RelativeVoxelOrds.BEHIND]] & VoxelSector.FACEDRAW_Operations.BEHIND )
-						| ( IntFaceState[VoxelState[(int)VoxelSector.RelativeVoxelOrds.ABOVE]] & VoxelSector.FACEDRAW_Operations.ABOVE )
-						| ( IntFaceState[VoxelState[(int)VoxelSector.RelativeVoxelOrds.BELOW]] & VoxelSector.FACEDRAW_Operations.BELOW ) )
-						;
-
-			// Computing face culling for nearboring voxels faces touching center voxel.
-			unchecked
-			{
-				FaceCulling_Address[(int)VoxelSector.RelativeVoxelOrds.LEFT][Offset[(int)VoxelSector.RelativeVoxelOrds.LEFT]] &= (byte)VoxelSector.FACEDRAW_Operations.ALL_BITS ^ (byte)VoxelSector.FACEDRAW_Operations.RIGHT;
-				FaceCulling_Address[(int)VoxelSector.RelativeVoxelOrds.LEFT][Offset[(int)VoxelSector.RelativeVoxelOrds.LEFT]] |= (byte)(ExtFaceState[VoxelState[(int)VoxelSector.RelativeVoxelOrds.LEFT]] & VoxelSector.FACEDRAW_Operations.RIGHT );
-				FaceCulling_Address[(int)VoxelSector.RelativeVoxelOrds.RIGHT][Offset[(int)VoxelSector.RelativeVoxelOrds.RIGHT]] &= (byte)VoxelSector.FACEDRAW_Operations.ALL_BITS ^ (byte)VoxelSector.FACEDRAW_Operations.LEFT;
-				FaceCulling_Address[(int)VoxelSector.RelativeVoxelOrds.RIGHT][Offset[(int)VoxelSector.RelativeVoxelOrds.RIGHT]] |= (byte)( ExtFaceState[VoxelState[(int)VoxelSector.RelativeVoxelOrds.RIGHT]] & VoxelSector.FACEDRAW_Operations.LEFT );
-				FaceCulling_Address[(int)VoxelSector.RelativeVoxelOrds.INFRONT][Offset[(int)VoxelSector.RelativeVoxelOrds.INFRONT]] &= (byte)VoxelSector.FACEDRAW_Operations.ALL_BITS ^ (byte)VoxelSector.FACEDRAW_Operations.BEHIND;
-				FaceCulling_Address[(int)VoxelSector.RelativeVoxelOrds.INFRONT][Offset[(int)VoxelSector.RelativeVoxelOrds.INFRONT]] |= (byte)( ExtFaceState[VoxelState[(int)VoxelSector.RelativeVoxelOrds.INFRONT]] & VoxelSector.FACEDRAW_Operations.BEHIND );
-				FaceCulling_Address[(int)VoxelSector.RelativeVoxelOrds.BEHIND][Offset[(int)VoxelSector.RelativeVoxelOrds.BEHIND]] &= (byte)VoxelSector.FACEDRAW_Operations.ALL_BITS ^ (byte)VoxelSector.FACEDRAW_Operations.AHEAD;
-				FaceCulling_Address[(int)VoxelSector.RelativeVoxelOrds.BEHIND][Offset[(int)VoxelSector.RelativeVoxelOrds.BEHIND]] |= (byte)( ExtFaceState[VoxelState[(int)VoxelSector.RelativeVoxelOrds.BEHIND]] & VoxelSector.FACEDRAW_Operations.AHEAD );
-				FaceCulling_Address[(int)VoxelSector.RelativeVoxelOrds.ABOVE][Offset[(int)VoxelSector.RelativeVoxelOrds.ABOVE]] &= (byte)VoxelSector.FACEDRAW_Operations.ALL_BITS ^ (byte)VoxelSector.FACEDRAW_Operations.BELOW;
-				FaceCulling_Address[(int)VoxelSector.RelativeVoxelOrds.ABOVE][Offset[(int)VoxelSector.RelativeVoxelOrds.ABOVE]] |= (byte)( ExtFaceState[VoxelState[(int)VoxelSector.RelativeVoxelOrds.ABOVE]] & VoxelSector.FACEDRAW_Operations.BELOW );
-				FaceCulling_Address[(int)VoxelSector.RelativeVoxelOrds.BELOW][Offset[(int)VoxelSector.RelativeVoxelOrds.BELOW]] &= (byte)VoxelSector.FACEDRAW_Operations.ALL_BITS ^ (byte)VoxelSector.FACEDRAW_Operations.ABOVE;
-				FaceCulling_Address[(int)VoxelSector.RelativeVoxelOrds.BELOW][Offset[(int)VoxelSector.RelativeVoxelOrds.BELOW]] |= (byte)( ExtFaceState[VoxelState[(int)VoxelSector.RelativeVoxelOrds.BELOW]] & VoxelSector.FACEDRAW_Operations.ABOVE );
-			}
-
-			// printf("State[Center]:%x [Left]%x [Right]%x [INFRONT]%x [BEHIND]%x [ABOVE]%x [BELOW]%x\n",VoxelState[VoxelSector.RelativeVoxelOrds.INCENTER],VoxelState[VoxelSector.RelativeVoxelOrds.LEFT],VoxelState[VoxelSector.RelativeVoxelOrds.RIGHT],VoxelState[VoxelSector.RelativeVoxelOrds.INFRONT],VoxelState[VoxelSector.RelativeVoxelOrds.BEHIND],VoxelState[VoxelSector.RelativeVoxelOrds.ABOVE],VoxelState[VoxelSector.RelativeVoxelOrds.BELOW]);
-
-			// Updating sector status rendering flag status
-			for( int i = 0; i < 7; i++ )
-			{
-				for( int r = 0; r < 6; r++ )
-					Sector[i].Flag_Render_Dirty = true;
-			}
-
-			Sector[(int)VoxelSector.RelativeVoxelOrds.INCENTER].Flag_IsModified |= ImportanceFactor;
+			UpdateCulling( ref Location, ImportanceFactor );
 			return ( true );
 		}
 
@@ -950,15 +808,29 @@ namespace Voxelarium.Core.Voxels.UI
 
 				if( Sector != null )
 				{
+					if( Sector.transparent_geometry.transparent_render_sorting != SectorSphereEntry.relative_pos )
+					{
+						Sector.transparent_geometry.transparent_render_sorting = SectorSphereEntry.relative_pos;
+						Sector.Flag_Render_Dirty_Transparent = true;
+						Sector.transparent_geometry.sortedX = -1;
+					}
+					if( SectorSphereEntry.relative_pos == VoxelSector.RelativeVoxelOrds.INCENTER )
+					{
+						if( center_sorted_x != in_centerX
+							|| center_sorted_y != in_centerY
+							|| center_sorted_z != in_centerZ )
+						{
+							Sector.Flag_Render_Dirty_Transparent = true;
+							BuildSortListInSector( in_centerX, in_centerY, in_centerZ );
+						}
+					}
+
+
 					Sector.Flag_IsVisibleAtLastRendering = SectorVisible || Priority >= 3;
 					// Display lists preparation
-					if( Sector.Flag_Render_Dirty && GameEnv.Enable_NewSectorRendering )
+					if( ( Sector.Flag_Render_Dirty  || Sector.Flag_Render_Dirty_Transparent )
+						&& GameEnv.Enable_NewSectorRendering )
 					{
-						if( Sector.Flag_IsDebug )
-						{
-							//printf( "Debug\n" );
-							//Sector.Flag_IsDebug = false;
-						}
 
 						// if (Sector_Refresh_Count < 5 || Priority==4)
 						if( ( RefreshToDo[Sector.RefreshWaitCount] != 0 ) || Sector.Flag_HighPriorityRefresh )
@@ -1106,7 +978,6 @@ namespace Voxelarium.Core.Voxels.UI
 			uint Offset;
 			float cubx, cuby, cubz;
 			int Sector_Display_x, Sector_Display_y, Sector_Display_z;
-			uint Pass;
 			bool Draw;
 			VoxelTypeManager VoxelTypeManager = Sector.VoxelTypeManager;
 			VoxelType[] VoxelTypeTable = VoxelTypeManager.VoxelTable;
@@ -1129,8 +1000,6 @@ namespace Voxelarium.Core.Voxels.UI
 				Sector.physics.Empty = true;
 				Sector.Flag_Void_Transparent = true;
 				Sector.Flag_Void_Custom = true;
-				//for( Pass = 0; Pass < 2; Pass++ )
-				Pass = 0;
 				{
 					geometry.Clear();
 					/*
@@ -1232,10 +1101,10 @@ namespace Voxelarium.Core.Voxels.UI
 											geometry.AddQuad( ref P1, ref P5, ref P2, ref P6, ref VoxelTypeTable[cube].TextureCoords );
 									}
 									//Front
-									if( ( info & VoxelSector.FACEDRAW_Operations.AHEAD ) != 0 )
+									if( ( info & VoxelSector.FACEDRAW_Operations.BEHIND ) != 0 )
 									{
 										Stat_RenderDrawFaces++;
-										Stat_FaceFront++;
+										Stat_FaceBack++;
 										//Log.log( "Add {0} {1} {2} {3}", P0, P4, P5, P1 );
 										if( face_is_shaded )
 											geometry.AddQuad( ref P0, ref P4, ref P1, ref P5, face, edge, power );
@@ -1244,10 +1113,10 @@ namespace Voxelarium.Core.Voxels.UI
 									}
 
 									//Back
-									if( ( info & VoxelSector.FACEDRAW_Operations.BEHIND ) != 0 )
+									if( ( info & VoxelSector.FACEDRAW_Operations.AHEAD ) != 0 )
 									{
 										Stat_RenderDrawFaces++;
-										Stat_FaceBack++;
+										Stat_FaceFront++;
 										//Log.log( "Add {0} {1} {2} {3}", P2, P6, P3, P7 );
 										if( face_is_shaded )
 											geometry.AddQuad( ref P2, ref P6, ref P3, ref P7, face, edge, power );
@@ -1291,13 +1160,80 @@ namespace Voxelarium.Core.Voxels.UI
 			}
 		}
 
+		VoxelSector.RelativeVoxelOrds[][] OrderedFaces = new VoxelSector.RelativeVoxelOrds[][]{ 
+			// CENTER
+				  null
+			// LEFT 1
+				, null
+			// RIGHT 2
+				, null
+			// AHEAD 3
+				, null
+			// BEHIND 4
+				, null
+			// ABOVE 5
+				, null
+			// BELOW 6
+				, null
+			// LEFT_ABOVE  7
+				, null
+			// RIGHT_ABOVE 8
+				, null
+			// AHEAD_ABOVE 9
+				, null
+			// BEHIND_ABOVE  10
+				, null
+			// LEFT_AHEAD 11
+				, null
+			// RIGHT_AHEAD 12
+				, null
+			// LEFT_BELOW 13
+				, null
+			//RIGHT_BELOW //14
+				, null
+            //INFRONT_BELOW //15
+				, null
+            //BEHIND_BELOW  //16
+				, null
+			//LEFT_BEHIND   //17
+				, null
+            //BEHIND_RIGHT   //18
+				, null
+			// LEFT_AHEAD_ABOVE   // 19
+				, new VoxelSector.RelativeVoxelOrds[6]{ VoxelSector.RelativeVoxelOrds.LEFT, VoxelSector.RelativeVoxelOrds.AHEAD,VoxelSector.RelativeVoxelOrds.ABOVE,VoxelSector.RelativeVoxelOrds.BELOW,VoxelSector.RelativeVoxelOrds.BEHIND, VoxelSector.RelativeVoxelOrds.RIGHT }
+			// RIGHT_AHEAD_ABOVE  // 20
+				, new VoxelSector.RelativeVoxelOrds[6]{ VoxelSector.RelativeVoxelOrds.RIGHT, VoxelSector.RelativeVoxelOrds.AHEAD, VoxelSector.RelativeVoxelOrds.ABOVE, VoxelSector.RelativeVoxelOrds.BELOW, VoxelSector.RelativeVoxelOrds.BEHIND, VoxelSector.RelativeVoxelOrds.LEFT }
+            // LEFT_AHEAD_BELOW   // 21
+				, new VoxelSector.RelativeVoxelOrds[6]{ VoxelSector.RelativeVoxelOrds.LEFT, VoxelSector.RelativeVoxelOrds.AHEAD, VoxelSector.RelativeVoxelOrds.BELOW, VoxelSector.RelativeVoxelOrds.ABOVE, VoxelSector.RelativeVoxelOrds.BEHIND, VoxelSector.RelativeVoxelOrds.RIGHT }
+            // RIGHT_AHEAD_BELOW  // 22
+				, new VoxelSector.RelativeVoxelOrds[6]{ VoxelSector.RelativeVoxelOrds.RIGHT, VoxelSector.RelativeVoxelOrds.AHEAD, VoxelSector.RelativeVoxelOrds.BELOW, VoxelSector.RelativeVoxelOrds.ABOVE, VoxelSector.RelativeVoxelOrds.BEHIND, VoxelSector.RelativeVoxelOrds.LEFT }
+            // LEFT_BEHIND_ABOVE  // 23
+				, new VoxelSector.RelativeVoxelOrds[6]{ VoxelSector.RelativeVoxelOrds.LEFT, VoxelSector.RelativeVoxelOrds.BEHIND, VoxelSector.RelativeVoxelOrds.ABOVE, VoxelSector.RelativeVoxelOrds.BELOW, VoxelSector.RelativeVoxelOrds.AHEAD, VoxelSector.RelativeVoxelOrds.RIGHT }
+            // RIGHT_BEHIND_ABOVE // 24
+				, new VoxelSector.RelativeVoxelOrds[6]{ VoxelSector.RelativeVoxelOrds.RIGHT, VoxelSector.RelativeVoxelOrds.BEHIND, VoxelSector.RelativeVoxelOrds.ABOVE, VoxelSector.RelativeVoxelOrds.BELOW, VoxelSector.RelativeVoxelOrds.AHEAD, VoxelSector.RelativeVoxelOrds.LEFT }
+            // LEFT_BEHIND_BELOW  // 25
+				, new VoxelSector.RelativeVoxelOrds[6]{ VoxelSector.RelativeVoxelOrds.LEFT, VoxelSector.RelativeVoxelOrds.BEHIND, VoxelSector.RelativeVoxelOrds.BELOW, VoxelSector.RelativeVoxelOrds.ABOVE, VoxelSector.RelativeVoxelOrds.AHEAD, VoxelSector.RelativeVoxelOrds.RIGHT }
+            // RIGHT_BEHIND_BELOW // 26
+				, new VoxelSector.RelativeVoxelOrds[6]{ VoxelSector.RelativeVoxelOrds.RIGHT, VoxelSector.RelativeVoxelOrds.BEHIND, VoxelSector.RelativeVoxelOrds.BELOW, VoxelSector.RelativeVoxelOrds.ABOVE, VoxelSector.RelativeVoxelOrds.AHEAD, VoxelSector.RelativeVoxelOrds.LEFT }
+			}
+				;
+
+		static bool fixed_lists;
 
 		void MakeSectorRenderingData_Sorted( VoxelSector Sector, VoxelSector.RelativeVoxelOrds viewed_as
-					, int centerX, int centerY, int centerZ )
+											, int centerX, int centerY, int centerZ )
 		{
 			if( Sector.Flag_Void_Transparent )
 				return;
-
+/*
+			if( !fixed_lists )
+			{
+				for( int n = 19; n < 27; n++ )
+					for( int m = 0; m < 3; m++ )
+						OrderedFaces[n][m] = 0;
+				fixed_lists = true;
+			}
+			*/
             Color face = Color.Red, edge = Color.Black;
 			short power = 400;
 			int x, y, z;
@@ -1324,6 +1260,7 @@ namespace Voxelarium.Core.Voxels.UI
 			Sector_Display_z = (int)( Sector.Pos_z * Sector.Size_z * voxelSize );
 
 			ushort[] SectorIndexes = SortedSectorIndexes[(int)viewed_as];
+			/*
 			if( geometry.transparent_render_sorting != viewed_as )
 			{
 				geometry.transparent_render_sorting = viewed_as;
@@ -1340,11 +1277,13 @@ namespace Voxelarium.Core.Voxels.UI
 					BuildSortListInSector( centerX, centerY, centerZ );
 				}
 			}
-
+			*/
 			if( Sector.Flag_Render_Dirty_Transparent )
 			{
 				//Log.log( "Regnerate Alpha Geometry {0} {1} {2}", Sector.Pos_x, Sector.Pos_y, Sector.Pos_z );
 				{
+					bool face_is_shaded = true;
+					VoxelSector.RelativeVoxelOrds[] view_order_list = null;
 					geometry.Clear();
 
 					prevcube = 0;
@@ -1355,7 +1294,8 @@ namespace Voxelarium.Core.Voxels.UI
 								Offset = SectorIndexes[OffsetIndex];
 
 								cube = Sector.Data.Data[Offset];
-								info = (VoxelSector.FACEDRAW_Operations)FaceCulling[Offset] & sorted_draw_info;
+								info = (VoxelSector.FACEDRAW_Operations)FaceCulling[Offset];// & (VoxelSector.FACEDRAW_Operations.ALL_BITS);// sorted_draw_info;
+								//info = (VoxelSector.FACEDRAW_Operations)FaceCulling[Offset] & sorted_draw_info;
 
 								if( cube > 0 && ( info )!= VoxelSector.FACEDRAW_Operations.NONE )
 								{
@@ -1366,17 +1306,20 @@ namespace Voxelarium.Core.Voxels.UI
 
 								if( Draw )
 								{
-									Box2D box = VoxelTypeTable[cube].TextureCoords;
-									bool face_is_shaded;
-									if( ( VoxelTypeTable[cube].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_SHADER ) != 0 )
+									Box2D box;
+									if( prevcube != cube )
 									{
-										face = VoxelTypeTable[cube].properties.FaceColor;
-										edge = VoxelTypeTable[cube].properties.EdgeColor;
-										power = VoxelTypeTable[cube].properties.EdgePower;
-										face_is_shaded = true;
+										box = VoxelTypeTable[cube].TextureCoords;
+										if( ( VoxelTypeTable[cube].properties.DrawInfo & VoxelGlobalSettings.ZVOXEL_DRAWINFO_SHADER ) != 0 )
+										{
+											face = VoxelTypeTable[cube].properties.FaceColor;
+											edge = VoxelTypeTable[cube].properties.EdgeColor;
+											power = VoxelTypeTable[cube].properties.EdgePower;
+											face_is_shaded = true;
+										}
+										else
+											face_is_shaded = false;
 									}
-									else
-										face_is_shaded = false;
 									prevcube = cube;
 
 									cubx = (float)( ( ( Offset >> VoxelSector.ZVOXELBLOCSHIFT_Y ) & VoxelSector.ZVOXELBLOCMASK_X) * voxelSize + Sector_Display_x );
@@ -1392,75 +1335,274 @@ namespace Voxelarium.Core.Voxels.UI
 									P6.X = cubx + voxelSize; P6.Y = cuby + voxelSize; P6.Z = cubz + voxelSize;
 									P7.X = cubx; P7.Y = cuby + voxelSize; P7.Z = cubz + voxelSize;
 
-									//Left
-									if( ( info & VoxelSector.FACEDRAW_Operations.LEFT ) != 0 )
-									{
-										Stat_RenderDrawFaces++;
-										Stat_FaceLeft++;
-										//Log.log( "Add {0} {1} {2} {3}", P4 , P0, P3, P7 );
-										if( face_is_shaded )
-											geometry.AddQuad( ref P3, ref P7, ref P0, ref P4, face, edge, power );
-										else
-											geometry.AddQuad( ref P3, ref P7, ref P0, ref P4, ref VoxelTypeTable[cube].TextureCoords );
-									}
 
-									// Right
-									if( ( info & VoxelSector.FACEDRAW_Operations.RIGHT ) != 0 )
+									if( (int)viewed_as < 1 )
 									{
-										Stat_RenderDrawFaces++;
-										Stat_FaceRight++;
-										//Log.log( "Add {0} {1} {2} {3}", P5, P6, P2, P1 );
-										if( face_is_shaded )
-											geometry.AddQuad( ref P1, ref P5, ref P2, ref P6, face, edge, power );
+										if( cubx < centerX )
+											if( cuby < centerY )
+												if( cubz < centerZ )
+													view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.LEFT_BELOW_BEHIND];
+												else
+													view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.LEFT_BELOW_AHEAD];
+											else
+												if( cubz < centerZ )
+												view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.LEFT_ABOVE_BEHIND];
+											else
+												view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.LEFT_ABOVE_AHEAD];
 										else
-											geometry.AddQuad( ref P1, ref P5, ref P2, ref P6, ref VoxelTypeTable[cube].TextureCoords );
+											if( cuby < centerY )
+											if( cubz < centerZ )
+												view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.RIGHT_BELOW_BEHIND];
+											else
+												view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.RIGHT_BELOW_AHEAD];
+										else
+												if( cubz < centerZ )
+											view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.RIGHT_ABOVE_BEHIND];
+										else
+											view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.RIGHT_ABOVE_AHEAD];
 									}
-									//Front
-									if( ( info & VoxelSector.FACEDRAW_Operations.AHEAD ) != 0 )
+									else if( (int)viewed_as < 7 )
 									{
-										Stat_RenderDrawFaces++;
-										Stat_FaceFront++;
-										//Log.log( "Add {0} {1} {2} {3}", P0, P4, P5, P1 );
-										if( face_is_shaded )
-											geometry.AddQuad( ref P0, ref P4, ref P1, ref P5, face, edge, power );
-										else
-											geometry.AddQuad( ref P0, ref P4, ref P1, ref P5, ref VoxelTypeTable[cube].TextureCoords );
+										switch( viewed_as )
+										{
+										case VoxelSector.RelativeVoxelOrds.LEFT:
+											if( cuby < centerY )
+												if( cubz < centerZ )
+													view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.LEFT_BELOW_BEHIND];
+												else
+													view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.LEFT_BELOW_AHEAD];
+											else
+												if( cubz < centerZ )
+												view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.LEFT_BELOW_BEHIND];
+											else
+												view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.LEFT_BELOW_AHEAD];
+											break;
+										case VoxelSector.RelativeVoxelOrds.RIGHT:
+											if( cuby < centerY )
+												if( cubz < centerZ )
+													view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.RIGHT_BELOW_BEHIND];
+												else
+													view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.RIGHT_BELOW_AHEAD];
+											else
+												if( cubz < centerZ )
+												view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.RIGHT_BELOW_BEHIND];
+											else
+												view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.RIGHT_BELOW_AHEAD];
+											break;
+										case VoxelSector.RelativeVoxelOrds.AHEAD:
+											if( cuby < centerY )
+												if( cubx < centerX )
+													view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.LEFT_BELOW_AHEAD];
+												else
+													view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.RIGHT_BELOW_AHEAD];
+											else
+												if( cubx < centerX )
+													view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.LEFT_ABOVE_AHEAD];
+												else
+													view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.RIGHT_ABOVE_AHEAD];
+											break;
+										case VoxelSector.RelativeVoxelOrds.BEHIND:
+											if( cuby < centerY )
+												if( cubz < centerX )
+													view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.LEFT_BELOW_BEHIND];
+												else
+													view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.RIGHT_BELOW_BEHIND];
+											else
+												if( cubx < centerX )
+													view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.LEFT_ABOVE_BEHIND];
+												else
+													view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.RIGHT_ABOVE_BEHIND];
+											break;
+										case VoxelSector.RelativeVoxelOrds.ABOVE:
+											if( cubz < centerZ )
+												if( cubx < centerX )
+													view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.LEFT_ABOVE_BEHIND];
+												else
+													view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.RIGHT_ABOVE_BEHIND];
+											else
+												if( cubx < centerX )
+													view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.LEFT_ABOVE_AHEAD];
+												else
+													view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.RIGHT_ABOVE_AHEAD];
+											break;
+										case VoxelSector.RelativeVoxelOrds.BELOW:
+											if( cubz < centerZ )
+												if( cubz < centerX )
+													view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.LEFT_BELOW_BEHIND];
+												else
+													view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.RIGHT_BELOW_BEHIND];
+											else
+												if( cubx < centerX )
+													view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.LEFT_BELOW_AHEAD];
+												else
+													view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.RIGHT_BELOW_AHEAD];
+											break;
+										}
 									}
+									else if( (int)viewed_as < 19 )
+									{
+										switch( viewed_as )
+										{
+										case VoxelSector.RelativeVoxelOrds.LEFT_AHEAD:
+											if( cuby < centerY )
+												view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.LEFT_AHEAD_BELOW];
+											else
+												view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.LEFT_AHEAD_ABOVE];
+											break;
+										case VoxelSector.RelativeVoxelOrds.RIGHT_AHEAD:
+											if( cuby < centerY )
+												view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.RIGHT_AHEAD_BELOW];
+											else
+												view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.RIGHT_AHEAD_ABOVE];
+											break;
+										case VoxelSector.RelativeVoxelOrds.LEFT_BEHIND:
+											if( cuby < centerY )
+												view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.LEFT_BEHIND_BELOW];
+											else
+												view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.LEFT_BEHIND_ABOVE];
+											break;
+										case VoxelSector.RelativeVoxelOrds.RIGHT_BEHIND:
+											if( cuby < centerY )
+												view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.RIGHT_BEHIND_BELOW];
+											else
+												view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.RIGHT_BEHIND_ABOVE];
+											break;
+										case VoxelSector.RelativeVoxelOrds.ABOVE_AHEAD:
+											if( cubx < centerX )
+												view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.LEFT_AHEAD_ABOVE];
+											else
+												view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.RIGHT_AHEAD_ABOVE];
+											break;
+										case VoxelSector.RelativeVoxelOrds.BELOW_AHEAD:
+											if( cubx < centerX )
+												view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.LEFT_AHEAD_BELOW];
+											else
+												view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.RIGHT_AHEAD_BELOW];
+											break;
+										case VoxelSector.RelativeVoxelOrds.ABOVE_BEHIND:
+											if( cubx < centerX )
+												view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.LEFT_BEHIND_ABOVE];
+											else
+												view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.RIGHT_BEHIND_ABOVE];
+											break;
+										case VoxelSector.RelativeVoxelOrds.BELOW_BEHIND:
+											if( cubx < centerX )
+												view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.LEFT_BEHIND_BELOW];
+											else
+												view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.RIGHT_BEHIND_BELOW];
+											break;
+										case VoxelSector.RelativeVoxelOrds.LEFT_ABOVE:
+											if( cubz < centerZ )
+												view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.LEFT_BEHIND_ABOVE];
+											else
+												view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.LEFT_AHEAD_ABOVE];
+											break;
+										case VoxelSector.RelativeVoxelOrds.LEFT_BELOW:
+											if( cubz < centerZ )
+												view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.LEFT_BEHIND_BELOW];
+											else
+												view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.LEFT_AHEAD_BELOW];
+											break;
+										case VoxelSector.RelativeVoxelOrds.RIGHT_ABOVE:
+											if( cubz < centerZ )
+												view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.RIGHT_BEHIND_ABOVE];
+											else
+												view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.RIGHT_AHEAD_ABOVE];
+											break;
+										case VoxelSector.RelativeVoxelOrds.RIGHT_BELOW:
+											if( cubz < centerZ )
+												view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.RIGHT_BEHIND_BELOW];
+											else
+												view_order_list = OrderedFaces[(int)VoxelSector.RelativeVoxelOrds.RIGHT_AHEAD_BELOW];
+											break;
+										}
+									}
+									else
+										view_order_list = OrderedFaces[(int)viewed_as];
+									for( int f = 0; f < 6; f++ )
+									{
+										switch( view_order_list[f] )
+										{
+										case VoxelSector.RelativeVoxelOrds.LEFT:
+											//Left
+											if( ( info & VoxelSector.FACEDRAW_Operations.LEFT ) != 0 )
+											{
+												Stat_RenderDrawFaces++;
+												Stat_FaceLeft++;
+												//Log.log( "Add {0} {1} {2} {3}", P4 , P0, P3, P7 );
+												if( face_is_shaded )
+													geometry.AddQuad( ref P3, ref P7, ref P0, ref P4, face, edge, power );
+												else
+													geometry.AddQuad( ref P3, ref P7, ref P0, ref P4, ref VoxelTypeTable[cube].TextureCoords );
+											}
+											break;
+										case VoxelSector.RelativeVoxelOrds.RIGHT:
 
-									//Back
-									if( ( info & VoxelSector.FACEDRAW_Operations.BEHIND ) != 0 )
-									{
-										Stat_RenderDrawFaces++;
-										Stat_FaceBack++;
-										//Log.log( "Add {0} {1} {2} {3}", P2, P6, P3, P7 );
-										if( face_is_shaded )
-											geometry.AddQuad( ref P2, ref P6, ref P3, ref P7, face, edge, power );
-										else
-											geometry.AddQuad( ref P2, ref P6, ref P3, ref P7, ref VoxelTypeTable[cube].TextureCoords );
-									}
-
-									// Top
-									if( ( info & VoxelSector.FACEDRAW_Operations.ABOVE ) != 0 )
-									{
-										Stat_RenderDrawFaces++;
-										Stat_FaceTop++;
-										//Log.log( "Add {0} {1} {2} {3}", P4, P7, P5, P6 );
-										if( face_is_shaded )
-											geometry.AddQuad( ref P4, ref P7, ref P5, ref P6, face, edge, power );
-										else
-											geometry.AddQuad( ref P4, ref P7, ref P5, ref P6, ref VoxelTypeTable[cube].TextureCoords );
-									}
-
-									// Bottom
-									if( ( info & VoxelSector.FACEDRAW_Operations.BELOW ) != 0 )
-									{
-										Stat_RenderDrawFaces++;
-										Stat_FaceBottom++;
-										//Log.log( "Add {0} {1} {2} {3}", P0, P1, P3, P2 );
-										if( face_is_shaded )
-											geometry.AddQuad( ref P3, ref P0, ref P2, ref P1, face, edge, power );
-										else
-											geometry.AddQuad( ref P3, ref P0, ref P2, ref P1, ref VoxelTypeTable[cube].TextureCoords );
+											// Right
+											if( ( info & VoxelSector.FACEDRAW_Operations.RIGHT ) != 0 )
+											{
+												Stat_RenderDrawFaces++;
+												Stat_FaceRight++;
+												//Log.log( "Add {0} {1} {2} {3}", P5, P6, P2, P1 );
+												if( face_is_shaded )
+													geometry.AddQuad( ref P1, ref P5, ref P2, ref P6, face, edge, power );
+												else
+													geometry.AddQuad( ref P1, ref P5, ref P2, ref P6, ref VoxelTypeTable[cube].TextureCoords );
+											}
+											break;
+										case VoxelSector.RelativeVoxelOrds.BEHIND:
+											//Front
+											if( ( info & VoxelSector.FACEDRAW_Operations.BEHIND ) != 0 )
+											{
+												Stat_RenderDrawFaces++;
+												Stat_FaceFront++;
+												//Log.log( "Add {0} {1} {2} {3}", P0, P4, P5, P1 );
+												if( face_is_shaded )
+													geometry.AddQuad( ref P0, ref P4, ref P1, ref P5, face, edge, power );
+												else
+													geometry.AddQuad( ref P0, ref P4, ref P1, ref P5, ref VoxelTypeTable[cube].TextureCoords );
+											}
+											break;
+										case VoxelSector.RelativeVoxelOrds.AHEAD:
+											//Back
+											if( ( info & VoxelSector.FACEDRAW_Operations.AHEAD ) != 0 )
+											{
+												Stat_RenderDrawFaces++;
+												Stat_FaceBack++;
+												//Log.log( "Add {0} {1} {2} {3}", P2, P6, P3, P7 );
+												if( face_is_shaded )
+													geometry.AddQuad( ref P2, ref P6, ref P3, ref P7, face, edge, power );
+												else
+													geometry.AddQuad( ref P2, ref P6, ref P3, ref P7, ref VoxelTypeTable[cube].TextureCoords );
+											}
+											break;
+										case VoxelSector.RelativeVoxelOrds.ABOVE:
+											// Top
+											if( ( info & VoxelSector.FACEDRAW_Operations.ABOVE ) != 0 )
+											{
+												Stat_RenderDrawFaces++;
+												Stat_FaceTop++;
+												//Log.log( "Add {0} {1} {2} {3}", P4, P7, P5, P6 );
+												if( face_is_shaded )
+													geometry.AddQuad( ref P4, ref P7, ref P5, ref P6, face, edge, power );
+												else
+													geometry.AddQuad( ref P4, ref P7, ref P5, ref P6, ref VoxelTypeTable[cube].TextureCoords );
+											}
+											break;
+										case VoxelSector.RelativeVoxelOrds.BELOW:
+											// Bottom
+											if( ( info & VoxelSector.FACEDRAW_Operations.BELOW ) != 0 )
+											{
+												Stat_RenderDrawFaces++;
+												Stat_FaceBottom++;
+												//Log.log( "Add {0} {1} {2} {3}", P0, P1, P3, P2 );
+												if( face_is_shaded )
+													geometry.AddQuad( ref P3, ref P0, ref P2, ref P1, face, edge, power );
+												else
+													geometry.AddQuad( ref P3, ref P0, ref P2, ref P1, ref VoxelTypeTable[cube].TextureCoords );
+											}
+											break;
+										}
 									}
 								}
 							}
@@ -1521,467 +1663,6 @@ namespace Voxelarium.Core.Voxels.UI
 			}
 		}
 
-		#if FOUND_OPTIMAL_SORTING
-		struct BinaryQueueNode {
-			internal int minx, maxx, midx;
-			internal int miny, maxy, midy;
-			internal int minz, maxz, midz;
-		}
-
-
-		static void BuildBinaryListIndexes( ushort[] list, ref int index )
-		{
-			Queue<BinaryQueueNode> values = new Queue<BinaryQueueNode>( VoxelSector.ZVOXELBLOCKCOUNT );
-			BinaryQueueNode bqn;
-			BinaryQueueNode bqn_add;
-
-			bool[] used = new bool[VoxelSector.ZVOXELBLOCKCOUNT];
-			int next_ofs;
-            bqn.minx = 0;
-			bqn.maxx = VoxelSector.ZVOXELBLOCSIZE_X - 1;
-			bqn.midx = ( bqn.maxx + bqn.minx ) / 2;
-			bqn.miny = 0;
-			bqn.maxy = VoxelSector.ZVOXELBLOCSIZE_Y - 1;
-			bqn.midy = ( bqn.maxy + bqn.miny ) / 2;
-			bqn.minz = 0;
-			bqn.maxz = VoxelSector.ZVOXELBLOCSIZE_Z - 1;
-			bqn.midz = ( bqn.maxz + bqn.minz ) / 2;
-			values.Enqueue( bqn );
-			while( values.Count > 0 )
-			{
-				bqn = values.Dequeue();
-				list[index++] = (ushort)( bqn.midx * VoxelSector.ZVOXELBLOCSIZE_Y + bqn.midy + bqn.midz * VoxelSector.ZVOXELBLOCSIZE_Y * VoxelSector.ZVOXELBLOCSIZE_X );
-
-				if( bqn.midx > bqn.minx )
-				{
-					if( bqn.midy > bqn.miny )
-					{
-						if( bqn.midz > bqn.minz )
-						{
-							bqn_add.minx = bqn.minx;
-							bqn_add.maxx = bqn.midx - 1;
-							bqn_add.midx = ( bqn_add.maxx + bqn_add.minx ) / 2;
-							bqn_add.miny = bqn.miny;
-							bqn_add.maxy = bqn.midy - 1;
-							bqn_add.midy = ( bqn_add.maxy + bqn_add.miny ) / 2;
-							bqn_add.minz = bqn.minz;
-							bqn_add.maxz = bqn.midz - 1;
-							bqn_add.midz = ( bqn_add.maxz + bqn_add.minz ) / 2;
-				
-							next_ofs = (ushort)(bqn_add.midx * VoxelSector.ZVOXELBLOCSIZE_Y + bqn_add.midy + bqn_add.midz * VoxelSector.ZVOXELBLOCSIZE_Y * VoxelSector.ZVOXELBLOCSIZE_X);
-							if (!used[next_ofs])
-							{
-								used[next_ofs] = true;
-								//Log.log("Added {0} {1} {2}", bqn_add.midx, bqn_add.midy, bqn_add.midz);
-								values.Enqueue(bqn_add);
-							}
-						}
-						if( bqn.maxz > bqn.midz )
-						{
-							bqn_add.minx = bqn.minx;
-							bqn_add.maxx = bqn.midx - 1;
-							bqn_add.midx = ( bqn_add.maxx + bqn_add.minx ) / 2;
-							bqn_add.miny = bqn.miny;
-							bqn_add.maxy = bqn.midy - 1;
-							bqn_add.midy = ( bqn_add.maxy + bqn_add.miny ) / 2;
-							bqn_add.minz = bqn.midz + 1;
-							bqn_add.maxz = bqn.maxz;
-							bqn_add.midz = ( bqn_add.maxz + bqn_add.minz ) / 2;
-							next_ofs = (ushort)(bqn_add.midx * VoxelSector.ZVOXELBLOCSIZE_Y + bqn_add.midy + bqn_add.midz * VoxelSector.ZVOXELBLOCSIZE_Y * VoxelSector.ZVOXELBLOCSIZE_X);
-							if (!used[next_ofs])
-							{
-								used[next_ofs] = true;
-								//Log.log("Added {0} {1} {2}", bqn_add.midx, bqn_add.midy, bqn_add.midz);
-								values.Enqueue(bqn_add);
-							}
-						}
-						bqn_add.minx = bqn.minx;
-						bqn_add.maxx = bqn.midx - 1;
-						bqn_add.midx = ( bqn_add.maxx + bqn_add.minx ) / 2;
-						bqn_add.miny = bqn.miny;
-						bqn_add.maxy = bqn.midy - 1;
-						bqn_add.midy = ( bqn_add.maxy + bqn_add.miny ) / 2;
-						bqn_add.minz = bqn.minz;
-						bqn_add.maxz = bqn.maxz;
-						bqn_add.midz = bqn.midz;
-						next_ofs = (ushort)(bqn_add.midx * VoxelSector.ZVOXELBLOCSIZE_Y + bqn_add.midy + bqn_add.midz * VoxelSector.ZVOXELBLOCSIZE_Y * VoxelSector.ZVOXELBLOCSIZE_X);
-						if (!used[next_ofs])
-						{
-							used[next_ofs] = true;
-							//Log.log("Added {0} {1} {2}", bqn_add.midx, bqn_add.midy, bqn_add.midz);
-							values.Enqueue(bqn_add);
-						}
-					}
-					if ( bqn.maxy > bqn.midy )
-					{
-						if( bqn.midz > bqn.minz )
-						{
-							bqn_add.minx = bqn.minx;
-							bqn_add.maxx = bqn.midx - 1;
-							bqn_add.midx = ( bqn_add.maxx + bqn_add.minx ) / 2;
-							bqn_add.miny = bqn.midy + 1;
-							bqn_add.maxy = bqn.maxy;
-							bqn_add.midy = ( bqn_add.maxy + bqn_add.miny ) / 2;
-							bqn_add.minz = bqn.minz;
-							bqn_add.maxz = bqn.midz - 1;
-							bqn_add.midz = ( bqn_add.maxz + bqn_add.minz ) / 2;
-							next_ofs = (ushort)(bqn_add.midx * VoxelSector.ZVOXELBLOCSIZE_Y + bqn_add.midy + bqn_add.midz * VoxelSector.ZVOXELBLOCSIZE_Y * VoxelSector.ZVOXELBLOCSIZE_X);
-							if (!used[next_ofs])
-							{
-								used[next_ofs] = true;
-								//Log.log("Added {0} {1} {2}", bqn_add.midx, bqn_add.midy, bqn_add.midz);
-								values.Enqueue(bqn_add);
-							}
-						}
-						if ( bqn.maxz > bqn.midz )
-						{
-							bqn_add.minx = bqn.minx;
-							bqn_add.maxx = bqn.midx - 1;
-							bqn_add.midx = ( bqn_add.maxx + bqn_add.minx ) / 2;
-							bqn_add.miny = bqn.midy + 1;
-							bqn_add.maxy = bqn.maxy;
-							bqn_add.midy = ( bqn_add.maxy + bqn_add.miny ) / 2;
-							bqn_add.minz = bqn.midz + 1;
-							bqn_add.maxz = bqn.maxz;
-							bqn_add.midz = ( bqn_add.maxz + bqn_add.minz ) / 2;
-							next_ofs = (ushort)(bqn_add.midx * VoxelSector.ZVOXELBLOCSIZE_Y + bqn_add.midy + bqn_add.midz * VoxelSector.ZVOXELBLOCSIZE_Y * VoxelSector.ZVOXELBLOCSIZE_X);
-							if (!used[next_ofs])
-							{
-								used[next_ofs] = true;
-								//Log.log("Added {0} {1} {2}", bqn_add.midx, bqn_add.midy, bqn_add.midz);
-								values.Enqueue(bqn_add);
-							}
-						}
-						bqn_add.minx = bqn.minx;
-						bqn_add.maxx = bqn.midx - 1;
-						bqn_add.midx = ( bqn_add.maxx + bqn_add.minx ) / 2;
-						bqn_add.miny = bqn.miny;
-						bqn_add.maxy = bqn.midy - 1;
-						bqn_add.midy = ( bqn_add.maxy + bqn_add.miny ) / 2;
-						bqn_add.minz = bqn.minz;
-						bqn_add.maxz = bqn.maxz;
-						bqn_add.midz = bqn.midz;
-						next_ofs = (ushort)(bqn_add.midx * VoxelSector.ZVOXELBLOCSIZE_Y + bqn_add.midy + bqn_add.midz * VoxelSector.ZVOXELBLOCSIZE_Y * VoxelSector.ZVOXELBLOCSIZE_X);
-						if (!used[next_ofs])
-						{
-							used[next_ofs] = true;
-							//Log.log("Added {0} {1} {2}", bqn_add.midx, bqn_add.midy, bqn_add.midz);
-							values.Enqueue(bqn_add);
-						}
-					}
-				}
-				if( bqn.maxx > bqn.midx )
-				{
-					if( bqn.midy > bqn.miny )
-					{
-						if( bqn.midz > bqn.minz )
-						{
-							bqn_add.minx = bqn.midx + 1;
-							bqn_add.maxx = bqn.maxx;
-							bqn_add.midx = ( bqn_add.maxx + bqn_add.minx ) / 2;
-							bqn_add.miny = bqn.miny;
-							bqn_add.maxy = bqn.midy - 1;
-							bqn_add.midy = ( bqn_add.maxy + bqn_add.miny ) / 2;
-							bqn_add.minz = bqn.minz;
-							bqn_add.maxz = bqn.midz - 1;
-							bqn_add.midz = ( bqn_add.maxz + bqn_add.minz ) / 2;
-							next_ofs = (ushort)(bqn_add.midx * VoxelSector.ZVOXELBLOCSIZE_Y + bqn_add.midy + bqn_add.midz * VoxelSector.ZVOXELBLOCSIZE_Y * VoxelSector.ZVOXELBLOCSIZE_X);
-							if (!used[next_ofs])
-							{
-								used[next_ofs] = true;
-								//Log.log("Added {0} {1} {2}", bqn_add.midx, bqn_add.midy, bqn_add.midz);
-								values.Enqueue(bqn_add);
-							}
-						}
-						if ( bqn.maxz > bqn.midz )
-						{
-							bqn_add.minx = bqn.midx + 1;
-							bqn_add.maxx = bqn.maxx;
-							bqn_add.midx = ( bqn_add.maxx + bqn_add.minx ) / 2;
-							bqn_add.miny = bqn.miny;
-							bqn_add.maxy = bqn.midy - 1;
-							bqn_add.midy = ( bqn_add.maxy + bqn_add.miny ) / 2;
-							bqn_add.minz = bqn.midz + 1;
-							bqn_add.maxz = bqn.maxz;
-							bqn_add.midz = ( bqn_add.maxz + bqn_add.minz ) / 2;
-							next_ofs = (ushort)(bqn_add.midx * VoxelSector.ZVOXELBLOCSIZE_Y + bqn_add.midy + bqn_add.midz * VoxelSector.ZVOXELBLOCSIZE_Y * VoxelSector.ZVOXELBLOCSIZE_X);
-							if (!used[next_ofs])
-							{
-								used[next_ofs] = true;
-								//Log.log("Added {0} {1} {2}", bqn_add.midx, bqn_add.midy, bqn_add.midz);
-								values.Enqueue(bqn_add);
-							}
-						}
-						bqn_add.minx = bqn.midx + 1;
-						bqn_add.maxx = bqn.maxx;
-						bqn_add.midx = ( bqn_add.maxx + bqn_add.minx ) / 2;
-						bqn_add.miny = bqn.miny;
-						bqn_add.maxy = bqn.midy - 1;
-						bqn_add.midy = ( bqn_add.maxy + bqn_add.miny ) / 2;
-						bqn_add.minz = bqn.minz;
-						bqn_add.maxz = bqn.maxz;
-						bqn_add.midz = bqn.midz;
-						next_ofs = (ushort)(bqn_add.midx * VoxelSector.ZVOXELBLOCSIZE_Y + bqn_add.midy + bqn_add.midz * VoxelSector.ZVOXELBLOCSIZE_Y * VoxelSector.ZVOXELBLOCSIZE_X);
-						if (!used[next_ofs])
-						{
-							used[next_ofs] = true;
-							//Log.log("Added {0} {1} {2}", bqn_add.midx, bqn_add.midy, bqn_add.midz);
-							values.Enqueue(bqn_add);
-						}
-					}
-					if ( bqn.maxy > bqn.midy )
-					{
-						if( bqn.midz > bqn.minz )
-						{
-							bqn_add.minx = bqn.midx + 1;
-							bqn_add.maxx = bqn.maxx;
-							bqn_add.midx = ( bqn_add.maxx + bqn_add.minx ) / 2;
-							bqn_add.miny = bqn.midy + 1;
-							bqn_add.maxy = bqn.maxy;
-							bqn_add.midy = ( bqn_add.maxy + bqn_add.miny ) / 2;
-							bqn_add.minz = bqn.minz;
-							bqn_add.maxz = bqn.midz - 1;
-							bqn_add.midz = ( bqn_add.maxz + bqn_add.minz ) / 2;
-							next_ofs = (ushort)(bqn_add.midx * VoxelSector.ZVOXELBLOCSIZE_Y + bqn_add.midy + bqn_add.midz * VoxelSector.ZVOXELBLOCSIZE_Y * VoxelSector.ZVOXELBLOCSIZE_X);
-							if (!used[next_ofs])
-							{
-								used[next_ofs] = true;
-								//Log.log("Added {0} {1} {2}", bqn_add.midx, bqn_add.midy, bqn_add.midz);
-								values.Enqueue(bqn_add);
-							}
-						}
-						if ( bqn.maxz > bqn.midz )
-						{
-							bqn_add.minx = bqn.midx + 1;
-							bqn_add.maxx = bqn.maxx;
-							bqn_add.midx = ( bqn_add.maxx + bqn_add.minx ) / 2;
-							bqn_add.miny = bqn.midy + 1;
-							bqn_add.maxy = bqn.maxy;
-							bqn_add.midy = ( bqn_add.maxy + bqn_add.miny ) / 2;
-							bqn_add.minz = bqn.midz + 1;
-							bqn_add.maxz = bqn.maxz;
-							bqn_add.midz = ( bqn_add.maxz + bqn_add.minz ) / 2;
-							next_ofs = (ushort)(bqn_add.midx * VoxelSector.ZVOXELBLOCSIZE_Y + bqn_add.midy + bqn_add.midz * VoxelSector.ZVOXELBLOCSIZE_Y * VoxelSector.ZVOXELBLOCSIZE_X);
-							if (!used[next_ofs])
-							{
-								used[next_ofs] = true;
-								//Log.log("Added {0} {1} {2}", bqn_add.midx, bqn_add.midy, bqn_add.midz);
-								values.Enqueue(bqn_add);
-							}
-						}
-						bqn_add.minx = bqn.midx + 1;
-						bqn_add.maxx = bqn.maxx;
-						bqn_add.midx = ( bqn_add.maxx + bqn_add.minx ) / 2;
-						bqn_add.miny = bqn.midy + 1;
-						bqn_add.maxy = bqn.maxy;
-						bqn_add.midy = ( bqn_add.maxy + bqn_add.miny ) / 2;
-						bqn_add.minz = bqn.minz;
-						bqn_add.maxz = bqn.maxz;
-						bqn_add.midz = bqn.midz;
-						next_ofs = (ushort)(bqn_add.midx * VoxelSector.ZVOXELBLOCSIZE_Y + bqn_add.midy + bqn_add.midz * VoxelSector.ZVOXELBLOCSIZE_Y * VoxelSector.ZVOXELBLOCSIZE_X);
-						if (!used[next_ofs])
-						{
-							used[next_ofs] = true;
-							//Log.log("Added {0} {1} {2}", bqn_add.midx, bqn_add.midy, bqn_add.midz);
-							values.Enqueue(bqn_add);
-						}
-					}
-				}
-
-				if( bqn.midy > bqn.miny )
-				{
-					if( bqn.midz > bqn.minz )
-					{
-						bqn_add.minx = bqn.minx;
-						bqn_add.maxx = bqn.maxx;
-						bqn_add.midx = bqn.midx;
-						bqn_add.miny = bqn.miny;
-						bqn_add.maxy = bqn.midy - 1;
-						bqn_add.midy = ( bqn_add.maxy + bqn_add.miny ) / 2;
-						bqn_add.minz = bqn.minz;
-						bqn_add.maxz = bqn.midz - 1;
-						bqn_add.midz = ( bqn_add.maxz + bqn_add.minz ) / 2;
-						next_ofs = (ushort)(bqn_add.midx * VoxelSector.ZVOXELBLOCSIZE_Y + bqn_add.midy + bqn_add.midz * VoxelSector.ZVOXELBLOCSIZE_Y * VoxelSector.ZVOXELBLOCSIZE_X);
-						if (!used[next_ofs])
-						{
-							used[next_ofs] = true;
-							//Log.log("Added {0} {1} {2}", bqn_add.midx, bqn_add.midy, bqn_add.midz);
-							values.Enqueue(bqn_add);
-						}
-					}
-					if ( bqn.maxz > bqn.midz )
-					{
-						bqn_add.minx = bqn.minx;
-						bqn_add.maxx = bqn.maxx;
-						bqn_add.midx = bqn.midx;
-						bqn_add.miny = bqn.miny;
-						bqn_add.maxy = bqn.midy - 1;
-						bqn_add.midy = ( bqn_add.maxy + bqn_add.miny ) / 2;
-						bqn_add.minz = bqn.midz + 1;
-						bqn_add.maxz = bqn.maxz;
-						bqn_add.midz = ( bqn_add.maxz + bqn_add.minz ) / 2;
-						next_ofs = (ushort)(bqn_add.midx * VoxelSector.ZVOXELBLOCSIZE_Y + bqn_add.midy + bqn_add.midz * VoxelSector.ZVOXELBLOCSIZE_Y * VoxelSector.ZVOXELBLOCSIZE_X);
-						if (!used[next_ofs])
-						{
-							used[next_ofs] = true;
-							//Log.log("Added {0} {1} {2}", bqn_add.midx, bqn_add.midy, bqn_add.midz);
-							values.Enqueue(bqn_add);
-						}
-					}
-					bqn_add.minx = bqn.minx;
-					bqn_add.maxx = bqn.maxx;
-					bqn_add.midx = bqn.midx;
-					bqn_add.miny = bqn.miny;
-					bqn_add.maxy = bqn.midy - 1;
-					bqn_add.midy = ( bqn_add.maxy + bqn_add.miny ) / 2;
-					bqn_add.minz = bqn.minz;
-					bqn_add.maxz = bqn.maxz;
-					bqn_add.midz = bqn.midz;
-					next_ofs = (ushort)(bqn_add.midx * VoxelSector.ZVOXELBLOCSIZE_Y + bqn_add.midy + bqn_add.midz * VoxelSector.ZVOXELBLOCSIZE_Y * VoxelSector.ZVOXELBLOCSIZE_X);
-					if (!used[next_ofs])
-					{
-						used[next_ofs] = true;
-						//Log.log("Added {0} {1} {2}", bqn_add.midx, bqn_add.midy, bqn_add.midz);
-						values.Enqueue(bqn_add);
-					}
-				}
-				if ( bqn.maxy > bqn.midy )
-				{
-					if( bqn.midz > bqn.minz )
-					{
-						bqn_add.minx = bqn.minx;
-						bqn_add.maxx = bqn.maxx;
-						bqn_add.midx = bqn.midx;
-						bqn_add.miny = bqn.midy + 1;
-						bqn_add.maxy = bqn.maxy;
-						bqn_add.midy = ( bqn_add.maxy + bqn_add.miny ) / 2;
-						bqn_add.minz = bqn.minz;
-						bqn_add.maxz = bqn.midz - 1;
-						bqn_add.midz = ( bqn_add.maxz + bqn_add.minz ) / 2;
-						next_ofs = (ushort)(bqn_add.midx * VoxelSector.ZVOXELBLOCSIZE_Y + bqn_add.midy + bqn_add.midz * VoxelSector.ZVOXELBLOCSIZE_Y * VoxelSector.ZVOXELBLOCSIZE_X);
-						if (!used[next_ofs])
-						{
-							used[next_ofs] = true;
-							//Log.log("Added {0} {1} {2}", bqn_add.midx, bqn_add.midy, bqn_add.midz);
-							values.Enqueue(bqn_add);
-						}
-					}
-					if ( bqn.maxz > bqn.midz )
-					{
-						bqn_add.minx = bqn.minx;
-						bqn_add.maxx = bqn.maxx;
-						bqn_add.midx = bqn.midx;
-						bqn_add.miny = bqn.midy + 1;
-						bqn_add.maxy = bqn.maxy;
-						bqn_add.midy = ( bqn_add.maxy + bqn_add.miny ) / 2;
-						bqn_add.minz = bqn.midz + 1;
-						bqn_add.maxz = bqn.maxz;
-						bqn_add.midz = ( bqn_add.maxz + bqn_add.minz ) / 2;
-						next_ofs = (ushort)(bqn_add.midx * VoxelSector.ZVOXELBLOCSIZE_Y + bqn_add.midy + bqn_add.midz * VoxelSector.ZVOXELBLOCSIZE_Y * VoxelSector.ZVOXELBLOCSIZE_X);
-						if (!used[next_ofs])
-						{
-							used[next_ofs] = true;
-							//Log.log("Added {0} {1} {2}", bqn_add.midx, bqn_add.midy, bqn_add.midz);
-							values.Enqueue(bqn_add);
-						}
-					}
-					bqn_add.minx = bqn.minx;
-					bqn_add.maxx = bqn.maxx;
-					bqn_add.midx = bqn.midx;
-					bqn_add.miny = bqn.midy + 1;
-					bqn_add.maxy = bqn.maxy;
-					bqn_add.midy = ( bqn_add.maxy + bqn_add.miny ) / 2;
-					bqn_add.minz = bqn.minz;
-					bqn_add.maxz = bqn.maxz;
-					bqn_add.midz = bqn.midz;
-					next_ofs = (ushort)(bqn_add.midx * VoxelSector.ZVOXELBLOCSIZE_Y + bqn_add.midy + bqn_add.midz * VoxelSector.ZVOXELBLOCSIZE_Y * VoxelSector.ZVOXELBLOCSIZE_X);
-					if (!used[next_ofs])
-					{
-						used[next_ofs] = true;
-						//Log.log("Added {0} {1} {2}", bqn_add.midx, bqn_add.midy, bqn_add.midz);
-						values.Enqueue(bqn_add);
-					}
-				}
-				if ( bqn.midx > bqn.minx )
-				{
-					bqn_add.minx = bqn.minx;
-					bqn_add.maxx = bqn.midx - 1;
-					bqn_add.midx = ( bqn_add.maxx + bqn_add.minx ) / 2;
-					bqn_add.miny = bqn.miny;
-					bqn_add.maxy = bqn.maxy;
-					bqn_add.midy = bqn.midy;
-					bqn_add.minz = bqn.minz;
-					bqn_add.maxz = bqn.maxz;
-					bqn_add.midz = bqn.midz;
-					next_ofs = (ushort)(bqn_add.midx * VoxelSector.ZVOXELBLOCSIZE_Y + bqn_add.midy + bqn_add.midz * VoxelSector.ZVOXELBLOCSIZE_Y * VoxelSector.ZVOXELBLOCSIZE_X);
-					if (!used[next_ofs])
-					{
-						used[next_ofs] = true;
-						//Log.log("Added {0} {1} {2}", bqn_add.midx, bqn_add.midy, bqn_add.midz);
-						values.Enqueue(bqn_add);
-					}
-				}
-				if ( bqn.maxx > bqn.midx )
-				{
-					bqn_add.minx = bqn.midx + 1;
-					bqn_add.maxx = bqn.maxx;
-					bqn_add.midx = ( bqn_add.maxx + bqn_add.minx ) / 2;
-					bqn_add.miny = bqn.miny;
-					bqn_add.maxy = bqn.maxy;
-					bqn_add.midy = bqn.midy;
-					bqn_add.minz = bqn.minz;
-					bqn_add.maxz = bqn.maxz;
-					bqn_add.midz = bqn.midz;
-					next_ofs = (ushort)(bqn_add.midx * VoxelSector.ZVOXELBLOCSIZE_Y + bqn_add.midy + bqn_add.midz * VoxelSector.ZVOXELBLOCSIZE_Y * VoxelSector.ZVOXELBLOCSIZE_X);
-					if (!used[next_ofs])
-					{
-						used[next_ofs] = true;
-						//Log.log("Added {0} {1} {2}", bqn_add.midx, bqn_add.midy, bqn_add.midz);
-						values.Enqueue(bqn_add);
-					}
-				}
-
-				if ( bqn.midz > bqn.minz )
-				{
-					bqn_add.minx = bqn.minx;
-					bqn_add.maxx = bqn.maxx;
-					bqn_add.midx = bqn.midx;
-					bqn_add.miny = bqn.miny;
-					bqn_add.maxy = bqn.maxy;
-					bqn_add.midy = bqn.midy;
-					bqn_add.minz = bqn.minz;
-					bqn_add.maxz = bqn.midz - 1;
-					bqn_add.midz = ( bqn_add.maxz + bqn_add.minz ) / 2;
-					next_ofs = (ushort)(bqn_add.midx * VoxelSector.ZVOXELBLOCSIZE_Y + bqn_add.midy + bqn_add.midz * VoxelSector.ZVOXELBLOCSIZE_Y * VoxelSector.ZVOXELBLOCSIZE_X);
-					if (!used[next_ofs])
-					{
-						used[next_ofs] = true;
-						//Log.log("Added {0} {1} {2}", bqn_add.midx, bqn_add.midy, bqn_add.midz);
-						values.Enqueue(bqn_add);
-					}
-				}
-				if ( bqn.maxz > bqn.midz )
-				{
-					bqn_add.minx = bqn.minx;
-					bqn_add.maxx = bqn.maxx;
-					bqn_add.midx = bqn.midx;
-					bqn_add.miny = bqn.miny;
-					bqn_add.maxy = bqn.maxy;
-					bqn_add.midy = bqn.midy;
-					bqn_add.minz = bqn.midz + 1;
-					bqn_add.maxz = bqn.maxz;
-					bqn_add.midz = ( bqn_add.maxz + bqn_add.minz ) / 2;
-					next_ofs = (ushort)(bqn_add.midx * VoxelSector.ZVOXELBLOCSIZE_Y + bqn_add.midy + bqn_add.midz * VoxelSector.ZVOXELBLOCSIZE_Y * VoxelSector.ZVOXELBLOCSIZE_X);
-					if (!used[next_ofs])
-					{
-						used[next_ofs] = true;
-						//Log.log("Added {0} {1} {2}", bqn_add.midx, bqn_add.midy, bqn_add.midz);
-						values.Enqueue(bqn_add);
-					}
-				}
-			}
-		}
-		#endif
 
 		internal static void BuildSortList( ref int start_percent, ref int start_step, ref int start_steps )
 		{
@@ -1993,36 +1674,6 @@ namespace Voxelarium.Core.Voxels.UI
 			int binaryOutputIndex = 0;
 			start_steps += 27;
 			sorter.AutoBalance = true;
-			/*
-			for (int n = 0; n < VoxelSector.ZVOXELBLOCKCOUNT; n++)
-			{
-				tmpx = ( n >> VoxelSector.ZVOXELBLOCSHIFT_Y ) & VoxelSector.ZVOXELBLOCMASK_X;
-				tmpx -= VoxelSector.ZVOXELBLOCSIZE_X;
-				tmpy = ( n >> 0 ) & VoxelSector.ZVOXELBLOCMASK_Y;
-				tmpy -= VoxelSector.ZVOXELBLOCSIZE_Y;
-				tmpz = ( n >> ( VoxelSector.ZVOXELBLOCSHIFT_X + VoxelSector.ZVOXELBLOCSHIFT_Y ) ) & VoxelSector.ZVOXELBLOCMASK_Z;
-				tmpz -= VoxelSector.ZVOXELBLOCSIZE_Z;
-
-				d = ( tmpx * tmpx ) + ( tmpy * tmpy ) + ( tmpz * tmpz );
-				sorter.Add(d, (ushort)n);
-			}
-			//BuildBinaryListIndexes( binaryOutput, ref binaryOutputIndex );
-			sorter.FillBinaryLiteral(binaryOutput, ref binaryOutputIndex, -1);
-			*/
-			/*
-			int ofs, check;
-			for( ofs = 0; ofs < VoxelSector.ZVOXELBLOCKCOUNT; ofs++ )
-			{
-				for( check = 0; check < VoxelSector.ZVOXELBLOCKCOUNT; check++ )
-				{
-					if( binaryOutput[check] == ofs )
-						break;
-				}
-				if( check == VoxelSector.ZVOXELBLOCKCOUNT )
-					Debugger.Break();
-			}
-			*/
-			//sorter.AutoBalance = false;
 
 			VoxelSector.RelativeVoxelOrds i;
 			for( i = VoxelSector.RelativeVoxelOrds.INCENTER;
@@ -2606,16 +2257,6 @@ namespace Voxelarium.Core.Voxels.UI
 					}
 				}
 				*/
-			}
-		}
-
-		void DetermineStaticGridBoundaries( Camera camera
-										  , VoxelSector.RelativeVoxelOrds relpos
-										  , VoxelSector sector )
-		{
-			switch( relpos )
-			{
-
 			}
 		}
 

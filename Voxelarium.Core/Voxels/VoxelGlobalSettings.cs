@@ -80,13 +80,13 @@ namespace Voxelarium.Core.Voxels
 
 
 		public const int ZVOXEL_DRAWINFO_VOID = 0;
-		public const int ZVOXEL_DRAWINFO_NOTVOID = 1;
-		public const int ZVOXEL_DRAWINFO_DRAWFULLVOXELOPACITY = 2;
-		public const int ZVOXEL_DRAWINFO_DRAWTRANSPARENTRENDERING = 4;
+		//public const int ZVOXEL_DRAWINFO_NOTVOID = 1;
+		public const int ZVOXEL_DRAWINFO_DRAWFULLVOXELOPACITY = 1;
+		public const int ZVOXEL_DRAWINFO_DRAWTRANSPARENTRENDERING = 2;
 		public const int ZVOXEL_DRAWINFO_SPECIALRENDERING = 8;
 		public const int ZVOXEL_DRAWINFO_SHADER = 16;
 		public const int ZVOXEL_DRAWINFO_DECAL = 32;  // image is used over shader output
-		public const int ZVOXEL_DRAWINFO_CULLINGBITS = ( ZVOXEL_DRAWINFO_NOTVOID | ZVOXEL_DRAWINFO_DRAWFULLVOXELOPACITY | ZVOXEL_DRAWINFO_DRAWTRANSPARENTRENDERING );
+		public const int ZVOXEL_DRAWINFO_CULLINGBITS = ( /*ZVOXEL_DRAWINFO_NOTVOID |*/ ZVOXEL_DRAWINFO_DRAWFULLVOXELOPACITY | ZVOXEL_DRAWINFO_DRAWTRANSPARENTRENDERING );
         public const int WorldVoxelBlockSizeBits = 5;
 		public const int WorldVoxelBlockSize = 1 << WorldVoxelBlockSizeBits;
 

@@ -26,6 +26,7 @@ using OpenTK;
 using System;
 using Voxelarium.Core.Game;
 using Voxelarium.Common;
+using Voxelarium.Core.Voxels.Types;
 
 namespace Voxelarium.Core.Voxels
 {
@@ -91,6 +92,8 @@ namespace Voxelarium.Core.Voxels
 		void VoxelFluid_SetVolumePressure_Recurse( ZVector3L* Location, ZonePressure* Pr );
 #endif
 
+		internal static bool StepOne;
+
 		internal void ProcessSectors( float LastLoopTime )
 		{
 			int x, y, z;
@@ -102,7 +105,7 @@ namespace Voxelarium.Core.Voxels
 			Actor SelectedActor;
 
 			btVector3 PlayerLocation;
-			//Log.log( "Begin Reaction Processing" );
+			Log.log( "Begin Reaction Processing" );
 			int Sectors_processed = 0;
 			int Voxels_Processed = 0;
 			// FireMine
@@ -127,7 +130,8 @@ namespace Voxelarium.Core.Voxels
 
 			Sector = World.SectorList;
 
-
+			if( !StepOne )
+				return;
 			while( ( Sector ) != null )
 			{
 				Sectors_processed++;
@@ -145,6 +149,7 @@ namespace Voxelarium.Core.Voxels
 
 					VoxelExtension[] Extension = Sector.Data.OtherInfos;
 					ushort[] VoxelP = Sector.Data.Data;
+					VoxelType[] VoxelTable = VoxelTypeManager.VoxelTable;
 					int zofs, xofs;
 					bool IsActiveVoxels = false;
 					MainOffset = 0;
@@ -152,7 +157,8 @@ namespace Voxelarium.Core.Voxels
 					int RSy = Sector.Pos_y << VoxelSector.ZVOXELBLOCSHIFT_Y;
 					int RSz = Sector.Pos_z << VoxelSector.ZVOXELBLOCSHIFT_Z;
 					VoxelRef vref;
-					vref.World = World;
+					FastBit_Array_32k sleep = Sector.Data.SleepState;
+                    vref.World = World;
 					vref.VoxelTypeManager = VoxelTypeManager;
 					vref.Sector = Sector;
 					for( z = 0, zofs = 0; z < VoxelSector.ZVOXELBLOCSIZE_Z; z++, zofs += (int)(Sector.Size_x*Sector.Size_y) )
@@ -160,9 +166,21 @@ namespace Voxelarium.Core.Voxels
 							for( y = 0; y < VoxelSector.ZVOXELBLOCSIZE_Y; y++ )
 							{
 								MainOffset = (uint)(zofs + xofs + y);
-                                VoxelType = VoxelP[MainOffset];
-								if( ( vref.Type = VoxelTypeManager[VoxelType] ).properties.Is_Active )
+
+								vref.VoxelExtension = Extension[MainOffset];
+
+								VoxelType = VoxelP[MainOffset];
+								/*
+								if( ( VoxelType & 0x8000 ) != 0 )
+									continue;
+								VoxelType &= 0x7FFF;
+								*/
+
+								if( ( vref.Type = VoxelTable[VoxelType] ).properties.Is_Active )
 								{
+									//if( sleep.Get( (ushort)MainOffset ) )
+									//	continue;
+
 									if( !Sector.ModifTracker.Get( MainOffset ) ) // If voxel is already processed, don't process it once more in the same cycle.
 									{
 										Voxels_Processed++;
@@ -170,9 +188,6 @@ namespace Voxelarium.Core.Voxels
 										vref.wy = RSy + ( vref.y = (byte)y );
 										vref.wz = RSz + ( vref.z = (byte)z );
 										vref.Offset = MainOffset;
-
-										IsActiveVoxels = true;
-										vref.VoxelExtension = Extension[MainOffset];
 										//St[i].ModifTracker.Set(SecondaryOffset[i]);
 										try
 										{
@@ -188,7 +203,8 @@ namespace Voxelarium.Core.Voxels
 				}
 				Sector = Sector.GlobalList_Next;
 			}
-			//Log.log( "Finish Reaction Processing {0} {1} ", Sectors_processed, Voxels_Processed );
+			StepOne = false;
+			Log.log( "Finish Reaction Processing {0} {1} ", Sectors_processed, Voxels_Processed );
 		}
 	}
 }

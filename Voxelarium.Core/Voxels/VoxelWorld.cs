@@ -442,17 +442,29 @@ namespace Voxelarium.Core.Voxels
 			ushort otherType = other.Type.properties.Type;//Sector.Data.Data[other.Offset];
 			VoxelExtension otherOtherInfo = other.VoxelExtension;//.Sector.Data.OtherInfos[other.Offset];
 
+			self.Sector.Data.Data[self.Offset] = otherType;
+			self.Sector.Data.OtherInfos[self.Offset] = otherOtherInfo;
+			other.Sector.Data.Data[other.Offset] = selfType;
+			other.Sector.Data.OtherInfos[other.Offset] = selfOtherInfo;
+
+			self.Sector.Culler.CullSingleVoxel( self.Sector, self.Offset );
+			other.Sector.Culler.CullSingleVoxel( other.Sector, other.Offset );
+			self.Sector.Flag_IsModified |= importance;
+			other.Sector.Flag_IsModified |= importance;
+		}
+
+		public void Swap( ref VoxelRef self, ref NearVoxelRef other, VoxelSector.ModifiedFieldFlags importance )
+		{
+			ushort selfType = self.Type.properties.Type;// Sector.Data.Data[self.Offset];
+			VoxelExtension selfOtherInfo = self.VoxelExtension;//Sector.Data.OtherInfos[self.Offset];
+			ushort otherType = other.Type.properties.Type;//Sector.Data.Data[other.Offset];
+			VoxelExtension otherOtherInfo = other.VoxelExtension;//.Sector.Data.OtherInfos[other.Offset];
 
 			self.Sector.Data.Data[self.Offset] = otherType;
 			self.Sector.Data.OtherInfos[self.Offset] = otherOtherInfo;
 			other.Sector.Data.Data[other.Offset] = selfType;
 			other.Sector.Data.OtherInfos[other.Offset] = selfOtherInfo;
 
-			/* someday we should figure out if it's a transparent or a solid pixel that moved */
-			self.Sector.Flag_Render_Dirty |= true;
-			self.Sector.Flag_Render_Dirty_Transparent |= true;
-			other.Sector.Flag_Render_Dirty |= true;
-			other.Sector.Flag_Render_Dirty_Transparent |= true;
 			self.Sector.Culler.CullSingleVoxel( self.Sector, self.Offset );
 			other.Sector.Culler.CullSingleVoxel( other.Sector, other.Offset );
 			self.Sector.Flag_IsModified |= importance;
@@ -464,7 +476,5 @@ namespace Voxelarium.Core.Voxels
 			VoxelRef other; VoxelRef.GetNearVoxelRef( out other, ref self, direction );
 			Swap( ref self, ref other, importance );
 		}
-
-
 	}
 }

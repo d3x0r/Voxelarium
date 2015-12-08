@@ -33,7 +33,7 @@ namespace Voxelarium.Core.Voxels
 		public struct SphereEntry
 		{
 			public int x, y, z;
-			public float SectorDistance;
+			public int SectorDistance;
 			public VoxelSector.RelativeVoxelOrds relative_pos;
 		};
 
@@ -98,7 +98,7 @@ namespace Voxelarium.Core.Voxels
 			int x, y, z;
 			ulong Offset;
 
-			float dist_x, dist_y, dist_z;
+			int dist_x, dist_y, dist_z;
 
 			nSlots = ( Render_Distance_h * 2 + 1 ) * ( Render_Distance_h * 2 + 1 ) * ( Render_Distance_v * 2 + 1 );
 
@@ -112,10 +112,10 @@ namespace Voxelarium.Core.Voxels
 						SectorList[Offset].x = x;
 						SectorList[Offset].y = y;
 						SectorList[Offset].z = z;
-						dist_x = ( (float)( ( ( (long)x ) << ( VoxelGlobalSettings.WorldVoxelBlockSizeBits + VoxelSector.ZVOXELBLOCSHIFT_X ) ) ) );
-						dist_y = ( (float)( ( ( (long)y ) << ( VoxelGlobalSettings.WorldVoxelBlockSizeBits + VoxelSector.ZVOXELBLOCSHIFT_Y ) ) ) );
-						dist_z = ( (float)( ( ( (long)z ) << ( VoxelGlobalSettings.WorldVoxelBlockSizeBits + VoxelSector.ZVOXELBLOCSHIFT_Z ) ) ) );
-						SectorList[Offset].SectorDistance = (float)Math.Sqrt( dist_x * dist_x + dist_y * dist_y + dist_z * dist_z );
+						dist_x = ( ( ( ( x ) << ( VoxelGlobalSettings.WorldVoxelBlockSizeBits + VoxelSector.ZVOXELBLOCSHIFT_X ) ) ) );
+						dist_y = ( ( ( ( y ) << ( VoxelGlobalSettings.WorldVoxelBlockSizeBits + VoxelSector.ZVOXELBLOCSHIFT_Y ) ) ) );
+						dist_z = ( ( ( ( z ) << ( VoxelGlobalSettings.WorldVoxelBlockSizeBits + VoxelSector.ZVOXELBLOCSHIFT_Z ) ) ) );
+						SectorList[Offset].SectorDistance = (int)(dist_x * dist_x + dist_y * dist_y + dist_z * dist_z);
 						if( x < 0 )
 							if( y < 0 )
 								if( z < 0 )      SectorList[Offset].relative_pos = VoxelSector.RelativeVoxelOrds.BEHIND_BELOW_LEFT;

@@ -14,11 +14,11 @@ public class OrangeRock : VoxelType {
         	return false;
         }
 }
-
+	/*
 public class OrangeRockExtension: VoxelExtension {
 	OrangeRockExtension()
         {
         }
 }
-
+*/
 }
