@@ -148,7 +148,7 @@ namespace Voxelarium.Core.Voxels
 		}
 
 		//
-		public virtual void UserAction_Activate( uint VoxelInfo, int x, int y, int z ) { }
+		public virtual void UserAction_Activate( VoxelExtension VoxelInfo, int x, int y, int z ) { }
 
 		public virtual bool Interface_StoreBlock_Store( ushort VoxelType, uint Count ) { return ( false ); }
 		//internal virtual uint Interface_PushBlock_Push( VoxelLocation DestLocation, ushort VoxelType, uint Count ) { return ( 0 ); }

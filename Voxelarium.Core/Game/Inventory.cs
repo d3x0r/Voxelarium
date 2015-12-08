@@ -31,23 +31,23 @@ using System.IO;
 
 namespace Voxelarium.Core.Game
 {
-	class Inventory
+	public class Inventory
 	{
 		
 		[ProtoContract]
-		internal struct Entry
+		public class Entry
 		{
 			[ProtoMember( 1 )]
-			internal ushort VoxelType;
+			public ushort VoxelType;
 			[ProtoMember( 2 )]
-			internal int Quantity;
+			public int Quantity;
 		};
 
 		internal int SlotCount;
 		internal Entry[] SlotTable;
 
 		internal int ActualItem;
-		internal int ActualTool;
+		internal Entry ActualTool;
 
 		internal enum SlotType {
 			Inventory_StartSlot = 0,
@@ -65,7 +65,7 @@ namespace Voxelarium.Core.Game
 			SlotCount = 60;
 
 			ActualItem = (int)SlotType.Inventory_StartSlot;
-			ActualTool = (int)SlotType.Tools_StartSlot;
+			ActualTool = null;
 
 			SlotTable = new Entry[SlotCount];
 
@@ -89,17 +89,17 @@ namespace Voxelarium.Core.Game
 			SlotTable[SlotNum].Quantity = Quantity;
 		}
 
-		internal int GetSlotRef( int SlotNum ) { return SlotNum; }
+		internal Entry GetSlotRef( int SlotNum ) { return SlotTable[SlotNum]; }
 
-		internal int GetActualItemSlot() { return ActualItem; }
-		internal int GetActualToolSlot() { return ActualTool; }
+		internal Entry GetActualItemSlot() { return SlotTable[ActualItem]; }
+		internal Entry GetActualToolSlot() { return ActualTool; }
 
 		internal Inventory( int SlotCount )
 		{
 			int i;
 
 			ActualItem = 0;
-			ActualTool = 0;
+			ActualTool = null;
 
 			this.SlotCount = SlotCount;
 			SlotTable = new Entry[SlotCount];
@@ -173,11 +173,11 @@ namespace Voxelarium.Core.Game
 			return ( UnstoredCount );
 		}
 
-		void Select_NextItem() { ActualItem++; if( ActualItem > (int)SlotType.Inventory_EndSlot ) ActualItem = (int)SlotType.Inventory_StartSlot; }
-		void Select_PreviousItem() { if( ActualItem == (int)SlotType.Inventory_StartSlot ) ActualItem = (int)SlotType.Inventory_EndSlot; else ActualItem--; }
-		int GetActualItemSlotNum() { return ( ActualItem ); }
-		void SetActualItemSlotNum( int SlotNum ) { ActualItem = SlotNum; }
-		int GetActualToolSlotNum() { return ( ActualTool ); }
+		internal void Select_NextItem() { ActualItem++; if( ActualItem > (int)SlotType.Inventory_EndSlot ) ActualItem = (int)SlotType.Inventory_StartSlot; }
+		internal void Select_PreviousItem() { if( ActualItem == (int)SlotType.Inventory_StartSlot ) ActualItem = (int)SlotType.Inventory_EndSlot; else ActualItem--; }
+		internal int GetActualItemSlotNum() { return ( ActualItem ); }
+		internal void SetActualItemSlotNum( int SlotNum ) { ActualItem = SlotNum; }
+		internal Entry GetActualToolSlotNum() { return ( ActualTool ); }
 
 		int GetNextUsedItemSlotNum( int SlotNum )
 		{

@@ -25,6 +25,7 @@ using OpenTK;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Voxelarium.LinearMath;
 
 namespace Voxelarium.Core.Voxels.Types
 {
@@ -77,5 +78,21 @@ namespace Voxelarium.Core.Voxels.Types
 		internal Vector2 Position; // Size.Z too
 		internal Vector2 Size;
 	}
-
+	public struct VoxelCoords
+	{
+		public int X, Y, Z;
+		internal void GetVoxelCenterCoords( out btVector3 result )
+		{
+			result.x = X + 0.5f;
+			result.y = Y + 0.5f;
+			result.z = Z + 0.5f;
+			result.w = 0;
+		}
+		internal bool Equals( ref VoxelCoords b )
+		{
+			if( X == b.X && Y == b.Y && Z == b.Z )
+				return true;
+			return false;
+		}
+	}
 }

@@ -30,6 +30,8 @@ using Voxelarium.Core.Support;
 using Voxelarium.Core.Voxels;
 using Voxelarium.Core.Voxels.Types;
 using Voxelarium.Common;
+using Voxelarium.Core.Voxels.Utils;
+using Voxelarium.Core.Voxels.UI;
 
 namespace Voxelarium.Core.Game
 {
@@ -44,7 +46,9 @@ namespace Voxelarium.Core.Game
 		btVector3 Location_Old;    // The old player position.
 		btVector3 Velocity;        // Player velocity
 		btVector3 Deplacement;     // Deplacement is legs movement speed.
+		Camera Camera;
 		internal btTransform ViewDirection;   // Player viewing and displacement Direction.
+
 		btVector3 EyesPosition;    // Player Eyes relative to the foot center.
 		double DammageThreshold;
 		double LifePoints;
@@ -54,15 +58,15 @@ namespace Voxelarium.Core.Game
 		bool KeepControlOnJumping;
 		bool IsDead;
 		int VoxelSelectDistance;
-		bool IsOnGround;
+		internal bool IsOnGround;
 		bool TakesGravity;
 		uint JumpDebounce;
 		bool order;
 		double DeathChronometer;
 
-		//Camera Camera;
-		//RayCast_out PointedVoxel;
-		bool[] MouseButtonMatrix = new bool[8];
+		internal VoxelWorld.RayCast_out PointedVoxel;
+		// this should be MouseDevice from OpenTK
+		//bool[] MouseButtonMatrix = new bool[8];
 
 		internal Inventory Inventory = new Inventory();
 
@@ -91,7 +95,7 @@ namespace Voxelarium.Core.Game
 			LifePoints = 1000;
 			JumpDebounce = 0;
 			BuildingMaterial = 1;
-			for( i = 0; i < 8; i++ ) MouseButtonMatrix[i] = false;
+			//for( i = 0; i < 8; i++ ) MouseButtonMatrix[i] = false;
 #if FINISH_PORTING
 			Inventory = null;
 			Camera.ColoredVision.Activate = false;

@@ -29,6 +29,7 @@ using Voxelarium.Core.Game.Screens;
 using Voxelarium.Core.Support;
 using Voxelarium.Core.UI;
 using Voxelarium.Common;
+using OpenTK.Input;
 
 namespace Voxelarium.Core
 {
@@ -99,11 +100,14 @@ namespace Voxelarium.Core
 		event OnUpdate Update;
 
 		// return false to Exit()
-		internal bool DoUpdate( double timeDelta )
+		internal bool DoUpdate( KeyboardDevice keyboard, double timeDelta )
 		{
 			//Timer.Start();
 			if( Update != null )
 				Update( timeDelta );
+
+			if( Game_Events != null )
+				Game_Events.Process_StillEvents( keyboard ); // Process repeating checked events.
 
 			if( _active_screen != null )
 			{
@@ -224,7 +228,6 @@ namespace Voxelarium.Core
 					// this is handeld from callbacks
 					//EventManager.ProcessEvents();       // Process incoming events.
 
-					Game_Events.Process_StillEvents(); // Process repeating checked events.
 
 					// Process incoming sectors from the make/load working thread
 					World.ProcessNewLoadedSectors( );

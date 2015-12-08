@@ -428,7 +428,7 @@ namespace Voxelarium.Core.UI
 			}
 			if( game_loaded ) // basic initialization done.
 			{
-				if( !game.DoUpdate( e.Time ) )
+				if( !game.DoUpdate( keyboard, e.Time ) )
 				{
 					Shutdown();
 				}

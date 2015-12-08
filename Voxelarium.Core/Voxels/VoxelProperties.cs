@@ -92,7 +92,7 @@ namespace Voxelarium.Core.Voxels
 
 		// Material Caracteristics
 
-		public double MiningHardness;
+		public float MiningHardness;
 		public uint MiningType;
 		public double FrictionCoef;
 		public double HarmingLifePointsPerSecond;
@@ -123,7 +123,7 @@ namespace Voxelarium.Core.Voxels
 			ExtensionType = 0;
 			Is_VoxelExtension = false;
 			Is_HasAllocatedMemoryExtension = false;
-			MiningHardness = 1000.0;
+			MiningHardness = 1000.0f;
 			MiningType = 2;
 			Is_NoType = false;
 			Is_UserTypeTransformable = true;
@@ -226,7 +226,7 @@ namespace Voxelarium.Core.Voxels
 						if( Token == "VoxelTypeName" ) VoxelTypeName = sValue;
 
 						if( Token == "ExtensionType" ) { ExtensionType = (uint)intValue; }
-						if( Token == "MiningHardness" ) { MiningHardness = (double)intValue; }
+						if( Token == "MiningHardness" ) { MiningHardness = (float)dblValue; }
 						if( Token == "MiningType" ) { MiningType = (uint)intValue; }
 						if( Token == "BvProp_PlayerCanPassThrough" ) { Is_PlayerCanPassThrough = ( intValue != 0 ) ? true : false; }
 						if( Token == "BvProp_Harming" ) { Is_Harming = ( intValue != 0 ) ? true : false; }

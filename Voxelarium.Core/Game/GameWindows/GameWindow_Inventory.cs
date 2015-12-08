@@ -90,7 +90,7 @@ namespace Voxelarium.Core.Game.GameWindows
 
 			// Running position computing
 
-			Ip.X = 32.0f * 2 / 1024; Ip.Y = 25.0f * 2/768;
+			Ip.X = Display.SclX( 32.0f * 2 ) ; Ip.Y = Display.SclY( 25.0f * 2 );
 			Rp.X = Ip.X; Rp.Y = Ip.Y;
 
 			// Main Window
@@ -134,13 +134,12 @@ namespace Voxelarium.Core.Game.GameWindows
 			for( x = 0; x < 10; x++ )
 			{
 				int Indice = (int)Inventory.SlotType.Tools_StartSlot + x;
-				int Entry = Actor.Inventory.GetSlotRef( Indice );
+				Inventory.Entry Entry = Actor.Inventory.GetSlotRef( Indice );
 				MainInventory[Indice].SetVoxelTypeManager( GameEnv.VoxelTypeManager );
 				MainInventory[Indice].SetPosition( 32.0f + x * 70.0f, Rp.Y );
 				MainInventory[Indice].SetSize( 64.0f, 64.0f );
 				MainInventory[Indice].SetTileStyle( GameEnv.TileSetStyles.GetStyle( 3 ) );
-				MainInventory[Indice].SetVoxelType( Actor.Inventory.SlotTable[Entry].VoxelType );
-				MainInventory[Indice].SetQuantity( Actor.Inventory.SlotTable[Entry].Quantity );
+				MainInventory[Indice].SetEntry( Entry );
 				MainInventory[Indice].SetColor( 255.0f, 255.0f, 255.0f );
 				MainWindow.AddFrame( MainInventory[Indice] );
 			}
@@ -166,13 +165,12 @@ namespace Voxelarium.Core.Game.GameWindows
 				for( x = 0; x < 10; x++ )
 				{
 					int Indice = (int)Inventory.SlotType.Inventory_StartSlot + x + y * 10;
-					int Entry = Actor.Inventory.GetSlotRef( Indice );
+					Inventory.Entry Entry = Actor.Inventory.GetSlotRef( Indice );
 					MainInventory[Indice].SetVoxelTypeManager( GameEnv.VoxelTypeManager );
 					MainInventory[Indice].SetPosition( 32.0f + x * 70.0f, Rp.Y );
 					MainInventory[Indice].SetSize( 64.0f, 64.0f );
 					MainInventory[Indice].SetTileStyle( GameEnv.TileSetStyles.GetStyle( 3 ) );
-					MainInventory[Indice].SetVoxelType( Actor.Inventory.SlotTable[Entry].VoxelType );
-					MainInventory[Indice].SetQuantity( Actor.Inventory.SlotTable[Entry].Quantity );
+					MainInventory[Indice].SetEntry( Entry );
 					MainInventory[Indice].SetColor( 128.0f, 128.0f, 128.0f );
 					MainWindow.AddFrame( MainInventory[Indice] );
 				}
@@ -196,13 +194,12 @@ namespace Voxelarium.Core.Game.GameWindows
 			for( x = 0; x < 10; x++ )
 			{
 				int Indice = (int)Inventory.SlotType.Powers_StartSlot + x;
-				int Entry = Actor.Inventory.GetSlotRef( Indice );
+				Inventory.Entry Entry = Actor.Inventory.GetSlotRef( Indice );
 				MainInventory[Indice].SetVoxelTypeManager( GameEnv.VoxelTypeManager );
 				MainInventory[Indice].SetPosition( 32.0f + x * 70.0f, Rp.Y );
 				MainInventory[Indice].SetSize( 64.0f, 64.0f );
 				MainInventory[Indice].SetTileStyle( GameEnv.TileSetStyles.GetStyle( 3 ) );
-				MainInventory[Indice].SetVoxelType( Actor.Inventory.SlotTable[Entry].VoxelType );
-				MainInventory[Indice].SetQuantity( Actor.Inventory.SlotTable[Entry].Quantity );
+				MainInventory[Indice].SetEntry( Entry  );
 				MainInventory[Indice].SetColor( 255.0f, 255.0f, 255.0f );
 				MainWindow.AddFrame( MainInventory[Indice] );
 			}

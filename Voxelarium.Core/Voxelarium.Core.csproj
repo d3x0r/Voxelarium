@@ -54,6 +54,8 @@
     <Compile Include="Game\DroneBody.cs" />
     <Compile Include="Game\GameWindows\GameWindow_Inventory.cs" />
     <Compile Include="Game\GameWindows\Controls\InventoryBox.cs" />
+    <Compile Include="Game\GameWindows\GameWindow_Storage.cs" />
+    <Compile Include="Game\GameWindows\GameWindow_VoxelTypeBar.cs" />
     <Compile Include="Game\Inventory.cs" />
     <Compile Include="Game\Screens\ScreenConnecting.cs" />
     <Compile Include="Game\Screens\ScreenPlaySelect.cs" />
@@ -116,6 +118,7 @@
     <Compile Include="Voxels\Types\GenericCanvas.cs" />
     <Compile Include="Voxels\Types\GenericCharCanvas.cs" />
     <Compile Include="Voxels\Types\InclusionProbabilizer.cs" />
+    <Compile Include="Voxels\Types\IVoxelExtension_Storage.cs" />
     <Compile Include="Voxels\Types\LinearInterpolator.cs" />
     <Compile Include="Voxels\Types\SortingTree.cs" />
     <Compile Include="Voxels\UI\Camera.cs" />

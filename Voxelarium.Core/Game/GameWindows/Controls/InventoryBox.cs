@@ -40,24 +40,26 @@ namespace Voxelarium.Core.Game.GameWindows
 {
 	internal class InventoryBox : Frame
 	{
-		ushort VoxelType;
-		int Quantity;
+		//ushort VoxelType;
+		//int Quantity;
 		VoxelTypeManager VoxelTypeManager;
 		TileSet.TileStyle TileStyle;
-
+		Inventory.Entry activeEntry;
 
 		internal InventoryBox()
 		{
 			FrameType = VoxelUtils.MulticharConst( 'I', 'B', 'O', 'X' ); // = InventoryBox;
 			Flag_Cap_Dragable = true;
-			VoxelType = 0;
+			//VoxelType = 0;
 		}
 
-		internal virtual void SetVoxelType( ushort VoxelType ) { this.VoxelType = VoxelType; }
-		internal virtual void SetQuantity( int Quantity ) { this.Quantity = Quantity; }
+		internal virtual void SetEntry( Inventory.Entry entry ) { this.activeEntry = entry; }
+		//internal virtual void SetVoxelType( ushort VoxelType ) { this.VoxelType = VoxelType; }
+		//internal virtual void SetQuantity( int Quantity ) { this.Quantity = Quantity; }
 		internal virtual void SetTileStyle( TileSet.TileStyle Style ) { this.TileStyle = Style; }
-		internal virtual ushort GetVoxelType() { return ( VoxelType ); }
-		internal virtual int GetQuantity() { return ( Quantity ); }
+		internal virtual Inventory.Entry GetEntry() { return this.activeEntry; }
+		//internal virtual ushort GetVoxelType() { return ( activeEntry.VoxelType ); }
+		//internal virtual int GetQuantity() { return ( activeEntry.Quantity ); }
 		internal virtual void SetVoxelTypeManager( VoxelTypeManager VoxelTypeManager ) { this.VoxelTypeManager = VoxelTypeManager; }
 
 		internal override void Render( Display render, ref Box ParentPosition )
@@ -101,14 +103,14 @@ namespace Voxelarium.Core.Game.GameWindows
 					Vector4 color;
 					// Render
 					float[] uvs = new float[2 * 4];
-					if( VoxelType != 0 )
+					if( activeEntry != null )
 					{
 						texture = render.game.World.TextureAtlas.OpenGl_TextureRef;
-						uvs = VoxelTypeManager.VoxelTable[VoxelType].TextureUVs;
+						uvs = VoxelTypeManager.VoxelTable[activeEntry.VoxelType].TextureUVs;
 					}
 					else
 						texture = 0;
-					if( VoxelType != 0 ) color = Vector4.One;
+					if( activeEntry != null ) color = Vector4.One;
 					else color = new Vector4( 0.4f, 0.4f, 0.4f, 0.6f ); //  glColor4f(0.7f, 0.7f, 0.7f, 0.9f);
 					float[] verts = new float[3 * 4];
 					verts[0 * 3 + 0] = P1.X;
@@ -127,11 +129,11 @@ namespace Voxelarium.Core.Game.GameWindows
 					// Rendering Quantity
 
 
-					if( Quantity > 1 )
+					if( activeEntry.Quantity > 1 )
 					{
 						String QuantityText;
 
-						QuantityText = Quantity.ToString();
+						QuantityText = activeEntry.Quantity.ToString();
 
 						Box FontBox;
 						Vector2 Dim;
@@ -183,31 +185,31 @@ namespace Voxelarium.Core.Game.GameWindows
 				int In_Quantity, Temp_Quantity;
 
 				IbItem = (InventoryBox)Item;
+				Inventory.Entry entry = IbItem.GetEntry();
+				In_VoxelType = entry.VoxelType;
+				In_Quantity = entry.Quantity;
 
-				In_VoxelType = IbItem.GetVoxelType();
-				In_Quantity = IbItem.GetQuantity();
-
-				if( In_VoxelType != VoxelType && Quantity > 0 )
+				if( In_VoxelType != activeEntry.VoxelType && entry.Quantity > 0 )
 				{
 					if( nButton == 1 )
 					{
 						Temp_VoxelType = In_VoxelType;
 						Temp_Quantity = In_Quantity;
-						IbItem.SetVoxelType( VoxelType );
-						IbItem.SetQuantity( Quantity );
-						VoxelType = Temp_VoxelType;
-						Quantity = Temp_Quantity;
+						entry.VoxelType = activeEntry.VoxelType;
+						entry.Quantity = activeEntry.Quantity;
+						activeEntry.VoxelType = Temp_VoxelType;
+						activeEntry.Quantity = Temp_Quantity;
 					}
 				}
 
-				else if( In_VoxelType == VoxelType || Quantity == 0 )
+				else if( In_VoxelType == activeEntry.VoxelType || activeEntry.Quantity == 0 )
 				{
 					if( nButton == 1 )
 					{
-						Quantity += In_Quantity;
-						VoxelType = In_VoxelType;
-						IbItem.SetVoxelType( 0 );
-						IbItem.SetQuantity( 0 );
+						activeEntry.Quantity += In_Quantity;
+						activeEntry.VoxelType = In_VoxelType;
+						entry.Quantity = 0;
+						entry.VoxelType = 0;
 					}
 					if( nButton == 3 )
 					{
@@ -224,9 +226,9 @@ namespace Voxelarium.Core.Game.GameWindows
 						if( TransfertQuantity > In_Quantity ) TransfertQuantity = In_Quantity;
 						if( In_Quantity > 0 )
 						{
-							( Quantity ) += TransfertQuantity;
-							IbItem.SetQuantity( In_Quantity - TransfertQuantity );
-							VoxelType = In_VoxelType;
+							( activeEntry.Quantity ) += TransfertQuantity;
+							entry.Quantity = In_Quantity - TransfertQuantity;
+							activeEntry.VoxelType = In_VoxelType;
 						}
 					}
 				}

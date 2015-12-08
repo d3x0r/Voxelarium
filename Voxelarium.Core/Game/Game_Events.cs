@@ -334,8 +334,30 @@ namespace Voxelarium.Core.Game
 			return ( true );
 		}
 
-		internal void Process_StillEvents()
+		List<Key> keydown = new List<Key>();
+
+		internal void Process_StillEvents( KeyboardDevice keyboard )
 		{
+			if( !GameEnv.Game_Run )
+				return;
+
+			if( keyboard[Key.I] && !keydown.Contains( Key.I ) )
+			{
+				keydown.Add( Key.I );
+				if( GameEnv.GameWindow_Storage.Is_Shown() ) { GameEnv.GameWindow_Storage.Hide(); }
+				//else if( GameEnv.GameWindow_Programmable.Is_Shown() ) { GameEnv.GameWindow_Programmable.Hide(); }
+				//else if( GameEnv.GameWindow_UserTextureTransformer.Is_Shown() ) { GameEnv.GameWindow_UserTextureTransformer.Hide(); }
+				//else if( GameEnv.GameWindow_Sequencer.Is_Shown() ) { GameEnv.GameWindow_Sequencer.Hide(); }
+				else
+				{
+					GameEnv.GameWindow_Inventory.SetGameEnv( GameEnv );
+					if( GameEnv.GameWindow_Inventory.Is_Shown() ) GameEnv.GameWindow_Inventory.Hide();
+					else GameEnv.GameWindow_Inventory.Show();
+				}
+			}
+			else
+				keydown.Remove( Key.I );
+
 #if asdsadf
 			Actor Actor;
 			ZSettings_Hardware* Settings_Hardware;
@@ -916,23 +938,6 @@ namespace Voxelarium.Core.Game
 
 
 
-				if( Keyboard_Matrix[SDLK_i] )
-				{
-
-					Keyboard_Matrix[SDLK_i] = 0;
-
-
-					if( GameEnv.GameWindow_Storage.Is_Shown() ) { GameEnv.GameWindow_Storage.Hide(); }
-					else if( GameEnv.GameWindow_Programmable.Is_Shown() ) { GameEnv.GameWindow_Programmable.Hide(); }
-					else if( GameEnv.GameWindow_UserTextureTransformer.Is_Shown() ) { GameEnv.GameWindow_UserTextureTransformer.Hide(); }
-					else if( GameEnv.GameWindow_Sequencer.Is_Shown() ) { GameEnv.GameWindow_Sequencer.Hide(); }
-					else
-					{
-						GameEnv.GameWindow_Inventory.SetGameEnv( GameEnv );
-						if( GameEnv.GameWindow_Inventory.Is_Shown() ) GameEnv.GameWindow_Inventory.Hide();
-						else GameEnv.GameWindow_Inventory.Show();
-					}
-				}
 
 				if( Keyboard_Matrix[SDLK_F12] )
 				{

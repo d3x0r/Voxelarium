@@ -212,20 +212,20 @@ namespace Voxelarium.Core
 			// Jeu proprement dit
 
 			ZActorPhysicEngine PhysicEngine;
-			ZToolManager ToolManager;
 			ZWorldInfo WorldInfo;
 
 			// Game Windows
-			ZGameWindow_VoxelTypeBar VoxelTypeBar;
-			ZGameWindow_Storage GameWindow_Storage;
 			ZGameWindow_Programmable GameWindow_Programmable;
 			ZGameWindow_UserTextureTransformer GameWindow_UserTextureTransformer;
-			ZGameWindow_ProgressBar GameProgressBar;
 			ZGameWindow_DisplayInfos GameWindow_DisplayInfos;
 			ZGameWindow_Sequencer GameWindow_Sequencer;
 #endif
-		GameWindow_Inventory GameWindow_Inventory;
-		GameWindow_Advertising GameWindow_Advertising;
+		internal GameWindow_ProgressBar GameProgressBar;
+		internal Tool_Manager ToolManager;
+		internal GameWindow_Storage GameWindow_Storage;
+		internal GameWindow_VoxelTypeBar VoxelTypeBar;
+		internal GameWindow_Inventory GameWindow_Inventory;
+		internal GameWindow_Advertising GameWindow_Advertising;
 
 		bool Initialized_UserDataStorage;
 		bool Initialized_Settings;
@@ -729,8 +729,8 @@ namespace Voxelarium.Core
 		bool Start_GameWindows()
 		{
 			GameWindow_Inventory = new GameWindow_Inventory(); GameWindow_Inventory.SetGameEnv( this );
-			//VoxelTypeBar = new ZGameWindow_VoxelTypeBar; VoxelTypeBar.SetGameEnv( this );
-			//GameWindow_Storage = new ZGameWindow_Storage; GameWindow_Storage.SetGameEnv( this );
+			VoxelTypeBar = new GameWindow_VoxelTypeBar(); VoxelTypeBar.SetGameEnv( this );
+			GameWindow_Storage = new GameWindow_Storage(); GameWindow_Storage.SetGameEnv( this );
 			//GameWindow_Programmable = new ZGameWindow_Programmable; GameWindow_Programmable.SetGameEnv( this );
 			//GameProgressBar = new ZGameWindow_ProgressBar; GameProgressBar.SetGameEnv( this );
 			GameWindow_Advertising = new GameWindow_Advertising(); GameWindow_Advertising.SetGameEnv( this );
