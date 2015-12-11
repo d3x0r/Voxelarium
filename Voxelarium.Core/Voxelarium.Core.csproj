@@ -54,12 +54,15 @@
     <Compile Include="Game\DroneBody.cs" />
     <Compile Include="Game\GameWindows\GameWindow_Inventory.cs" />
     <Compile Include="Game\GameWindows\Controls\InventoryBox.cs" />
+    <Compile Include="Game\GameWindows\GameWindow_ProgressBar.cs" />
     <Compile Include="Game\GameWindows\GameWindow_Storage.cs" />
     <Compile Include="Game\GameWindows\GameWindow_VoxelTypeBar.cs" />
     <Compile Include="Game\Inventory.cs" />
     <Compile Include="Game\Screens\ScreenConnecting.cs" />
     <Compile Include="Game\Screens\ScreenPlaySelect.cs" />
     <Compile Include="Game\Screens\ScreenSelectServer.cs" />
+    <Compile Include="Game\Tool_Constructor.cs" />
+    <Compile Include="Game\Tool_Manager.cs" />
     <Compile Include="Networking\ClientConnection.cs" />
     <Compile Include="Networking\MasterServerConnection.cs" />
     <Compile Include="NeuralNetwork\Brain.cs" />
@@ -84,6 +87,7 @@
     <Compile Include="Game\VoxelGameEngine.cs" />
     <Compile Include="Game\VoxelGameEnvironment.cs" />
     <Compile Include="NeuralNetwork\UI\SizableFrame.cs" />
+    <Compile Include="Types\BitStream.cs" />
     <Compile Include="Types\FastRandom.cs" />
     <Compile Include="Types\LightSpeedRandom.cs" />
     <Compile Include="Types\Random_LFSR.cs" />
@@ -121,6 +125,7 @@
     <Compile Include="Voxels\Types\IVoxelExtension_Storage.cs" />
     <Compile Include="Voxels\Types\LinearInterpolator.cs" />
     <Compile Include="Voxels\Types\SortingTree.cs" />
+    <Compile Include="Voxels\Types\VoxelDataCompressor.cs" />
     <Compile Include="Voxels\UI\Camera.cs" />
     <Compile Include="Voxels\UI\Radius_Zoning.cs" />
     <Compile Include="Voxels\UI\RenderInterface.cs" />
@@ -153,8 +158,6 @@
     <Compile Include="Voxels\Types\Fastbit_Array_64k.cs" />
     <Compile Include="Voxels\Types\PooledType.cs" />
     <Compile Include="Voxels\Types\VSimpleTypes.cs" />
-    <Compile Include="Voxels\Types\VStream.cs" />
-    <Compile Include="Voxels\Types\VStreamFile.cs" />
     <Compile Include="Voxels\UI\Render_Basic.cs" />
     <Compile Include="Voxels\UI\Render_Smooth.cs" />
     <Compile Include="Voxels\UI\VoxelCuller.cs" />
@@ -192,6 +195,10 @@
     <ProjectReference Include="..\Voxelarium.Common\Voxelarium.Common.csproj">
       <Project>{b7386855-1a65-4b04-b79b-95f49cf7f61a}</Project>
       <Name>Voxelarium.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Voxelarium.Protocol\Voxelarium.Protocol.csproj">
+      <Project>{cada7443-ef7e-4d9a-9877-99c51631cdd8}</Project>
+      <Name>Voxelarium.Protocol</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

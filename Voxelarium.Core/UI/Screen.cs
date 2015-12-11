@@ -37,7 +37,10 @@ namespace Voxelarium.Core.UI
 			QUIT,
 			OPTIONS,
 			PLAYGAME,
-			NONE // no action, stay on this screen
+			PLAYLOCAL,
+			PLAYREMOTE,
+			SELECT_SERVER,
+            NONE // no action, stay on this screen
 				, SlotChoice1
 				, SlotChoice2
 				, SlotChoice3

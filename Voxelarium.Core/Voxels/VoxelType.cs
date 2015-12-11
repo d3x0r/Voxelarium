@@ -100,7 +100,7 @@ namespace Voxelarium.Core.Voxels
 				else
 				{
 					FileName = "voxeltexture_" + ( properties.Type - 32767 ) + ( attempt == 1 ? ".bmp" : ".png" );
-					FileSpec = VStreamFile.Get_Directory_UserData();
+					FileSpec = VoxelGlobalSettings.USERDATA_DIRECTORY;
 					FileSpec += "/" +  VoxelGlobalSettings.COMPILEOPTION_SAVEFOLDERNAME;
 					FileSpec += "/UserTextures/" + FileName;
 				}

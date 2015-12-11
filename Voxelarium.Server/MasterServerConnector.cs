@@ -55,6 +55,15 @@ namespace Voxelarium.Server
 				client.Client.BeginReceive( buffer.GetBuffer(), 0, 4, SocketFlags.None, ReadComplete, client );
 			}
 
+			void ConnectToClient( Protocol.ConnectToClient client )
+			{
+				TcpClient connection = new TcpClient();
+				client.SetupAddresses();
+
+				//IPEndPoint local = new IPEndPoint( client.AddressV4
+				//connection.Client.Bind( 
+			}
+
 			void ReadComplete( IAsyncResult iar )
 			{
 				int toread = 4;
@@ -83,6 +92,10 @@ namespace Voxelarium.Server
 					case Message.Ping:
 						Log.log( "Received Ping." );
 						socket.Send( ping_reply_message, 8, SocketFlags.None );
+						break;
+					case Protocol.Message.ConnectToClient:
+						Protocol.ConnectToClient client = Serializer.Deserialize<Protocol.ConnectToClient>( buffer );
+						ConnectToClient( client );
 						break;
 					default:
 						Log.log( "Received unhandled message: {0}", msgId );

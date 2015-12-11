@@ -216,10 +216,8 @@ namespace Voxelarium.Core.UI
 		{
 			int new_count = available * 2;
 			VertexType[] new_buffer = new VertexType[new_count];
-			for( int n = 0; n < used; n++ )
-			{
-				new_buffer[n] = buffer[n];
-			}
+			Array.Copy( buffer, new_buffer, used );
+
 			available = new_count;
 			buffer = new_buffer;
 		}

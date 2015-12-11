@@ -57,7 +57,6 @@ namespace Voxelarium.Core.Game.Screens
 				float screen_x = GameEnv.GuiManager.FirstFrame.Dimensions.Size.X;
 				float screen_y = GameEnv.GuiManager.FirstFrame.Dimensions.Size.Y;
 				GameEnv.page_up = page_id;
-				GameEnv.active_screen = this;
 				GameEnv.GuiManager.RemoveAllFrames();
 
 				TitleBackground.SetPosition( 0, 0 );

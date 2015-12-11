@@ -1,0 +1,22 @@
+Master Server
+		Must be behind a firewall that has forwarded port
+		-or- must not be behind a firewall
+		
+
+Server Connection Sequence
+
+Server connects to master server; 
+		provides 
+			Server Name 
+			unique ServerID.
+			Hosting Address
+			Maximum client connections
+
+Client Connects to Master Server
+		Requests list of servers
+		
+Client tries to connect to game server at specified address[es]
+	on failure(?) Maybe in parallel eventually...
+	Client Requests connection to game server from master server
+		client provides 
+		Master server forwards client request to Game Server

@@ -36,7 +36,7 @@ namespace Voxelarium.Core.Game.Screens
 
 		internal override ScreenChoices ProcessScreen( VoxelGameEnvironment GameEnv )
 		{
-            if( GameEnv.page_up != page_id )
+			if( GameEnv.page_up != page_id )
 			{
 				GameEnv.page_up = page_id;
 				GameEnv.GuiManager.RemoveAllFrames();
@@ -45,7 +45,7 @@ namespace Voxelarium.Core.Game.Screens
 				{
 					Frame_Loading = new FontFrame();
 					Frame_Loading.SetDisplayText( "LOADING..." );
-					Frame_Loading.Font = GameEnv.default_font;// SetStyle( GameEnv.TileSetStyles.GetStyle( 1 ) );
+					Frame_Loading.Font = GameEnv.menu_font;// SetStyle( GameEnv.TileSetStyles.GetStyle( 1 ) );
 					Frame_Loading.FontSize = ( 2.0f / 10 );
 					Vector2 Loading_Size;
 					Frame_Loading.GetTextDisplaySize( out Loading_Size );

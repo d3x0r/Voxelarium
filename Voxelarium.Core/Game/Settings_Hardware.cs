@@ -33,6 +33,8 @@ namespace Voxelarium.Core.Game
 		// unique identifier for this client
 		// determines Identity for network play.
 		internal static Guid ClientID;
+		internal static string MasterServerHostname;
+		internal static int MasterServerPort;
 
 		// Resolution and screen
 		internal static uint Setting_Resolution_h;
@@ -107,6 +109,8 @@ namespace Voxelarium.Core.Game
 		internal static bool Load()
 		{
 			ClientID = Settings.Read( "Client ID", ClientID );
+			MasterServerHostname = Settings.Read( "Master Server Address", "d3x0r.org" );
+			MasterServerPort = Settings.Read( "Master Server Port", 31732 );
 
 			//Settings.Read( "Setting_Resolution_h" ) Setting_Resolution_h = Line.GetULong();
 			//			Settings.Read( "Setting_Resolution_v" ) Setting_Resolution_v = Line.GetULong();

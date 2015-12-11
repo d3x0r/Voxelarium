@@ -32,14 +32,14 @@ namespace Voxelarium.Core.Game.Screens
 {
 	internal class ScreenPlaySelect : Screen
 	{
-		Frame TitleBackground = new Frame();
+		Frame TitleBackground;
 		Frame Title = new Frame();
 		Vector2 Title_Size;
 		FontFrame Frame_Version = new FontFrame();
 		Vector2 Version_Size;
-		FontFrame Frame_PlayGame = new FontFrame();
+		FontFrame Frame_PlayLocal = new FontFrame();
 		Vector2 PlayGame_Size;
-		FontFrame Frame_Options = new FontFrame();
+		FontFrame Frame_PlayRemote = new FontFrame();
 		Vector2 Options_Size;
 		FontFrame Frame_Quit = new FontFrame();
 		Vector2 Quit_Size;
@@ -57,12 +57,15 @@ namespace Voxelarium.Core.Game.Screens
 				float screen_x = GameEnv.GuiManager.FirstFrame.Dimensions.Size.X;
 				float screen_y = GameEnv.GuiManager.FirstFrame.Dimensions.Size.Y;
 				GameEnv.page_up = page_id;
-				GameEnv.active_screen = this;
 				GameEnv.GuiManager.RemoveAllFrames();
 
-				TitleBackground.SetPosition( 0, 0 );
-				TitleBackground.SetSize( screen_x, screen_y );
-				TitleBackground.SetTexture( 0 );
+				if( TitleBackground == null )
+				{
+					TitleBackground = new Frame();
+					TitleBackground.SetPosition( 0, 0 );
+					TitleBackground.SetSize( screen_x, screen_y );
+					TitleBackground.SetTexture( TextureID.MainMenuBackground );
+				}
 				GameEnv.GuiManager.AddFrame( TitleBackground );
 
 
@@ -84,39 +87,39 @@ namespace Voxelarium.Core.Game.Screens
 				TitleBackground.AddFrame( Frame_Version );
 
 
-				Frame_PlayGame.Text = "Single Player";
-				Frame_PlayGame.Font = GameEnv.menu_font;// .SetStyle( GameEnv.TileSetStyles.GetStyle( 1 ) );
-				Frame_PlayGame.FontSize = ( 2.0f / 10 );
-				Frame_PlayGame.GetTextDisplaySize( out PlayGame_Size );
-				Frame_PlayGame.SetPosition( screen_x / 2.0f - PlayGame_Size.X / 2.0f
+				Frame_PlayLocal.Text = "Single Player";
+				Frame_PlayLocal.Font = GameEnv.menu_font;// .SetStyle( GameEnv.TileSetStyles.GetStyle( 1 ) );
+				Frame_PlayLocal.FontSize = ( 2.0f / 10 );
+				Frame_PlayLocal.GetTextDisplaySize( out PlayGame_Size );
+				Frame_PlayLocal.SetPosition( screen_x / 2.0f - PlayGame_Size.X / 2.0f
 											, screen_y *3f/ 4f );
-				Frame_PlayGame.SetSize( PlayGame_Size.X + SclX( 128.0f ), PlayGame_Size.Y );
+				Frame_PlayLocal.SetSize( PlayGame_Size.X + SclX( 128.0f ), PlayGame_Size.Y );
 				//Frame_PlayGame.TextureNum = TextureID.OldFont;
-				TitleBackground.AddFrame( Frame_PlayGame );
+				TitleBackground.AddFrame( Frame_PlayLocal );
 
-				Frame_Options.SetDisplayText( "Multiplayer" );
-				Frame_Options.Font = GameEnv.menu_font;// .SetStyle( GameEnv.TileSetStyles.GetStyle( 1 ) );
-				Frame_Options.FontSize = ( 2.0f / 10 );
-				Frame_Options.GetTextDisplaySize( out Options_Size );
-				Frame_Options.SetPosition( screen_x / 2.0f - Options_Size.X / 2.0f
+				Frame_PlayRemote.SetDisplayText( "Multiplayer" );
+				Frame_PlayRemote.Font = GameEnv.menu_font;// .SetStyle( GameEnv.TileSetStyles.GetStyle( 1 ) );
+				Frame_PlayRemote.FontSize = ( 2.0f / 10 );
+				Frame_PlayRemote.GetTextDisplaySize( out Options_Size );
+				Frame_PlayRemote.SetPosition( screen_x / 2.0f - Options_Size.X / 2.0f
 									,  screen_y *3f/4f - PlayGame_Size.Y );
-				Frame_Options.SetSize( Options_Size.X + 1.0f, Options_Size.Y );
+				Frame_PlayRemote.SetSize( Options_Size.X + 1.0f, Options_Size.Y );
 				//Frame_Options.TextureNum = TextureID.OldFont;
-				TitleBackground.AddFrame( Frame_Options );
-
-
+				TitleBackground.AddFrame( Frame_PlayRemote );
 				TitleBackground.AddFrame( Frame_Quit );
 				//printf("FrameAdress : %lx\n",(unsigned int)&Frame_PlayGame);
 			}
 			{
-				if( Frame_PlayGame.Is_MouseIn() ) { Frame_PlayGame.SetColor( 0.5f, 0.5f, 1.0f ); }
-				if( Frame_PlayGame.Is_MouseOut() ) { Frame_PlayGame.SetColor( 1.0f, 1.0f, 1.0f ); }
-				if( Frame_Options.Is_MouseIn() ) { Frame_Options.SetColor( 0.5f, 0.5f, 1.0f ); }
-				if( Frame_Options.Is_MouseOut() ) { Frame_Options.SetColor( 1.0f, 1.0f, 1.0f ); }
+				if( Frame_PlayLocal.Is_MouseIn() ) { Frame_PlayLocal.SetColor( 0.5f, 0.5f, 1.0f ); }
+				if( Frame_PlayLocal.Is_MouseOut() ) { Frame_PlayLocal.SetColor( 1.0f, 1.0f, 1.0f ); }
+				if( Frame_PlayRemote.Is_MouseIn() ) { Frame_PlayRemote.SetColor( 0.5f, 0.5f, 1.0f ); }
+				if( Frame_PlayRemote.Is_MouseOut() ) { Frame_PlayRemote.SetColor( 1.0f, 1.0f, 1.0f ); }
 				//if( Frame_Quit.Is_MouseIn() ) { Frame_Quit.SetColor( 0.5f, 0.5f, 1.0f ); }
 				//if( Frame_Quit.Is_MouseOut() ) { Frame_Quit.SetColor( 1.0f, 1.0f, 1.0f ); }
-				if( Frame_PlayGame.Is_MouseClick() ) { ResultCode = ScreenChoices.PLAYGAME; }
-				if( Frame_Options.Is_MouseClick() ) { ResultCode = ScreenChoices.OPTIONS; }
+
+				if( Frame_PlayLocal.Is_MouseClick() ) { ResultCode = ScreenChoices.PLAYLOCAL; }
+				if( Frame_PlayRemote.Is_MouseClick() ) { ResultCode = ScreenChoices.PLAYREMOTE; }
+				if( Frame_Quit.Is_MouseClick() ) { ResultCode = ScreenChoices.QUIT; }
 				//if( Frame_Quit.Is_MouseClick() ) { ResultCode = ScreenChoices.QUIT; }
 			}
 

@@ -38,6 +38,7 @@ namespace Voxelarium.Core.Voxels
 #else
 		public const string COMPILEOPTION_DATAFILESPATH = "./Content/"; // "/usr/share/Voxelarium"
 #endif
+		public static string USERDATA_DIRECTORY = Environment.GetFolderPath( Environment.SpecialFolder.MyDocuments ) + "/Games";
 
 		public const bool COMPILEOPTION_ALLOWSTARTINGSTORAGE = false; // Allow starting storage to be present. Never introduced in the game.
 		public const bool COMPILEOPTION_ALLOWJUMPANDBUILD = true; // Jump and build allow building when floating in the air (Like when jumping).

@@ -922,7 +922,7 @@ namespace Voxelarium.Core.Voxels
 		{
 			if( VoxelGlobalSettings.COMPILEOPTION_USEHOMEDIRSTORAGE )
 			{
-				OutDirectory = VStreamFile.Get_Directory_UserData() + "/" + VoxelGlobalSettings.COMPILEOPTION_SAVEFOLDERNAME;
+				OutDirectory = VoxelGlobalSettings.USERDATA_DIRECTORY + "/" + VoxelGlobalSettings.COMPILEOPTION_SAVEFOLDERNAME;
 			}
 			else
 				OutDirectory = ".";

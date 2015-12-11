@@ -29,6 +29,7 @@ namespace Voxelarium.Core.Game.Screens
 	internal class ScreenConnecting : Screen
 	{
 		FontFrame Frame_Connecting;
+		ProgressBar Frame_ProgressBar;
 
 		internal ScreenConnecting( VoxelGameEnvironment.Pages page_id ) : base( page_id )
 		{
@@ -41,16 +42,34 @@ namespace Voxelarium.Core.Game.Screens
 			{
 				GameEnv.page_up = page_id;
 				GameEnv.GuiManager.RemoveAllFrames();
-				if( Frame_Connecting != null )
+				if( Frame_Connecting == null )
 				{
 					Frame_Connecting = new FontFrame();
 					Frame_Connecting.Text = "Connecting...";
-					Frame_Connecting.Font = GameEnv.default_font;
+					Frame_Connecting.Font = GameEnv.menu_font;
 					Frame_Connecting.FontSize = ( 2.0f / 10 );
 					Frame_Connecting.SetPosition( 1 - Frame_Connecting.Dimensions.Size.X / 2.0f
 												, 1 - Frame_Connecting.Dimensions.Size.Y / 2.0f );
 				}
+
+				if( Frame_ProgressBar == null )
+				{
+					Frame_ProgressBar = new ProgressBar();
+					Frame_ProgressBar.SetPosition( 0.5f, 0.5f );
+					Frame_ProgressBar.SetSize( 1.0f, 0.2f );
+					Frame_ProgressBar.SetCompletion( 50 );
+				}
+
+				GameEnv.GuiManager.AddFrame( Frame_Connecting );
+				Frame_Connecting.AddFrame( Frame_ProgressBar );
+
 			}
+			if( GameEnv.Master_Server_Connection.PercentToFail == 100 )
+				return ScreenChoices.CHOICE_RETURN;
+			if( GameEnv.Master_Server_Connection.Connected )
+				return ScreenChoices.SELECT_SERVER;
+            Frame_ProgressBar.SetCompletion( GameEnv.Master_Server_Connection.PercentToFail );
+
 			return ResultCode;
 		}
 	}

@@ -180,7 +180,7 @@ namespace Voxelarium.Core.Voxels
 			}
 			else
 			{
-				FileName = VStreamFile.Get_Directory_UserData()
+				FileName = VoxelGlobalSettings.USERDATA_DIRECTORY
 					+ "/" + VoxelGlobalSettings.COMPILEOPTION_SAVEFOLDERNAME
 					+ "/VoxelTypes/voxelinfo/" + String.Format( "voxelinfo_" + (ulong)Type + ".txt" );
 			}

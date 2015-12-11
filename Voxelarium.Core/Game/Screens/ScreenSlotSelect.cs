@@ -101,8 +101,8 @@ namespace Voxelarium.Core.Game.Screens
 
 				// RÃ©cupÃ©ration du chemin du rÃ©pertoire de stockage des univers
 
-				Directory = VStreamFile.Get_Directory_UserData();
-				Directory += "/" + VoxelGlobalSettings.COMPILEOPTION_SAVEFOLDERNAME;
+				Directory = VoxelGlobalSettings.USERDATA_DIRECTORY;
+                Directory += "/" + VoxelGlobalSettings.COMPILEOPTION_SAVEFOLDERNAME;
 				Directory += "/Universes";
 
 				// Boucle de rÃ©glages des boites de choix d'univers

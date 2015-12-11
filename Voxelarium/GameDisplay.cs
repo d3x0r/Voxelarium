@@ -53,7 +53,7 @@ namespace Voxelarium
 		private void GameDisplay_RenderFrame( object sender, FrameEventArgs e )
 		{
 			SwapBuffers();
-        }
+		}
 
 		private void GameDisplay_Move( object sender, EventArgs e )
 		{

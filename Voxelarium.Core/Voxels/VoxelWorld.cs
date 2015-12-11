@@ -221,7 +221,6 @@ namespace Voxelarium.Core.Voxels
 
 			while( ( Sector = SectorLoader.GetRequested() ) != null )
 			{
-
 				if( FindSector( Sector.Pos_x, Sector.Pos_y, Sector.Pos_z ) == null )
 				{
 					AddSector( Sector );

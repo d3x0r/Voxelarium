@@ -307,6 +307,8 @@ namespace Voxelarium.Core
 			Screen_Main = new ScreenMain( Pages.MAIN_MENU );
 			Screen_SlotSelection = new ScreenSlotSelect( Pages.SELECT_UNIVERSE );
 			Screen_Loading = new ScreenLoading( Pages.LOADING_SCREEN );
+			Screen_Play_Select = new ScreenPlaySelect( Pages.SELECT_PLAY_TYPE );
+			Screen_Connecting = new ScreenConnecting( Pages.CONNECTING_TO_MASTER_SERVER );
 			//Screen_ChooseOption = new ;
 			//Screen_SlotSelection Screen_SlotSelection;
 			//Screen_Loading Screen_Loading;
@@ -484,7 +486,7 @@ namespace Voxelarium.Core
 
 			if( VoxelGlobalSettings.COMPILEOPTION_USEHOMEDIRSTORAGE )
 			{
-				Path_UserData = VStreamFile.Get_Directory_UserData();
+				Path_UserData = VoxelGlobalSettings.USERDATA_DIRECTORY;
 			}
 			else
 				Path_UserData = ".";

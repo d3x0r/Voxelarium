@@ -30,6 +30,7 @@ using Voxelarium.Core.Support;
 using Voxelarium.Core.UI;
 using Voxelarium.Common;
 using OpenTK.Input;
+using Voxelarium.Core.Networking;
 
 namespace Voxelarium.Core
 {
@@ -48,6 +49,7 @@ namespace Voxelarium.Core
 			, SETTINGS_KEYMAP
 			, GAME_WORLD_1
 			, SAVE_GAME
+			, SELECT_PLAY_TYPE
 			, CONNECTING_TO_MASTER_SERVER
 			, SELECT_SERVER
 		};
@@ -68,7 +70,9 @@ namespace Voxelarium.Core
 		//Screen_Options_Keymap Screen_Options_Keymap;
 		ScreenLoading Screen_Loading;
 		ScreenMain Screen_Main;
+		ScreenPlaySelect Screen_Play_Select;
 		ScreenConnecting Screen_Connecting;
+		internal MasterServerConnection Master_Server_Connection;
 		ScreenSelectServer Screen_Select_Server;
 		internal ScreenSlotSelect Screen_SlotSelection; 
 
@@ -125,7 +129,14 @@ namespace Voxelarium.Core
 						_active_screen = prior_active_screen;
 						break;
 					case Screen.ScreenChoices.PLAYGAME:
+						active_screen = Screen_Play_Select;
+						break;
+					case Screen.ScreenChoices.PLAYLOCAL:
 						active_screen = Screen_SlotSelection;
+						break;
+					case Screen.ScreenChoices.PLAYREMOTE:
+						Master_Server_Connection = new MasterServerConnection();
+						active_screen = Screen_Connecting;
 						break;
 					case Screen.ScreenChoices.NONE:
 						break;
