@@ -138,7 +138,10 @@ namespace Voxelarium.Core
 						Master_Server_Connection = new MasterServerConnection();
 						active_screen = Screen_Connecting;
 						break;
-					case Screen.ScreenChoices.NONE:
+					case Screen.ScreenChoices.SELECT_SERVER:
+						active_screen = Screen_Select_Server;
+						break;
+                    case Screen.ScreenChoices.NONE:
 						break;
 					case Screen.ScreenChoices.QUIT:
 						return false; // return false to Exit();

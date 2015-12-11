@@ -68,7 +68,7 @@ namespace Voxelarium.Core.Game.Screens
 				return ScreenChoices.CHOICE_RETURN;
 			if( GameEnv.Master_Server_Connection.Connected )
 				return ScreenChoices.SELECT_SERVER;
-            Frame_ProgressBar.SetCompletion( GameEnv.Master_Server_Connection.PercentToFail );
+			Frame_ProgressBar.SetCompletion( GameEnv.Master_Server_Connection.PercentToFail );
 
 			return ResultCode;
 		}

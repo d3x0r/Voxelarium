@@ -51,7 +51,10 @@ namespace Voxelarium.Core.Networking
 				TimeSpan ts = ( DateTime.Now - begin_connect_time );
 				int time = ts.Seconds * 1000 + ts.Milliseconds;
 				if( !connecting && v6TimeoutTimer == null && v4TimeoutTimer == null )
+				{
+					Log.log( "Both timers have expired..." );
 					total_time = time;
+				}
 				if( time > total_time )
 					time = total_time; // keep at 100%
 				return ( time * 100 ) / total_time;
@@ -73,6 +76,11 @@ namespace Voxelarium.Core.Networking
 				TcpClient client = new TcpClient();
 				try
 				{
+					if( client == null )
+					{
+						Log.log( "Failed to make v4 client..." );
+						return false;
+					}
 					v4Client = client;
 					client.BeginConnect( v4Addresses[v4Address_attempt++], Settings_Hardware.MasterServerPort, ConnectionComplete, client );
 				}
@@ -94,6 +102,11 @@ namespace Voxelarium.Core.Networking
 				TcpClient client = new TcpClient( AddressFamily.InterNetworkV6 );
 				try
 				{
+					if( client == null )
+					{
+						Log.log( "Failed to make v6 client..." );
+						return false;
+					}
 					//client.Client.SetSocketOption( SocketOptionLevel.Socket, SocketOptionName.
 					v6Client = client;
 					client.BeginConnect( v6Addresses[v6Address_attempt++], Settings_Hardware.MasterServerPort, ConnectionComplete, client );
@@ -131,6 +144,11 @@ namespace Voxelarium.Core.Networking
 			try
 			{
 				bytes = socket.EndReceive( iar );
+			}
+			catch( ObjectDisposedException )
+			{
+				Log.log( "Already closed and disposed. {0} ", socket.GetHashCode(), 0 );
+				return;
 			}
 			catch( Exception e )
 			{
@@ -171,13 +189,22 @@ namespace Voxelarium.Core.Networking
 		void ConnectionComplete( IAsyncResult iar )
 		{
 			TcpClient client = iar.AsyncState as TcpClient;
+			if( client.Client == null )
+			{
+				// closed by external forces.
+				// v6 .close will set socket=NULL
+				// v4 .close will .Dispose itself.
+				client.Dispose();
+				return;
+			}
 			try
 			{
 				client.EndConnect( iar );
 			}
 			catch( Exception e )
 			{
-				Log.log( "failed to connect: {0}", e.Message );
+				Log.log( "failed to connect: {0} {1} {2}", e.Message, client.GetHashCode()
+								, client.Client==null?0:client.Client.GetHashCode() );
 				if( client == v4Client )
 				{
 					client.Dispose();
@@ -205,16 +232,21 @@ namespace Voxelarium.Core.Networking
 					return;
 				}
 			}
-
+			if( client == v4Client )
+				v4TimeoutTimer.Dispose();
+			if( client == v6Client )
+				v6TimeoutTimer.Dispose();
 			if( socket != null )
 			{
 				// nevermind, already had a good connection.
+				Log.log( "Closing socket {0} {1}", client.GetHashCode(), client.Client.GetHashCode(), 0 );
 				client.Close();
 				client.Dispose();
 				return;
 			}
 
 			connected = true;
+			Log.log( "Setting 'socket' to {0} {1}", client.GetHashCode(), client.Client.GetHashCode() );
 			socket = client.Client;
 
 			buffer = new MemoryStream( 4096 );
@@ -227,7 +259,10 @@ namespace Voxelarium.Core.Networking
 		void v4ConnectionTimeout( object unused )
 		{
 			if( v4Client != null )
+			{
+				Log.log( "V4 Timeout Closing socket {0} {1}", v4Client.GetHashCode(), v4Client.Client.GetHashCode(), 0 );
 				v4Client.Close();
+			}
 			if( NewV4Connect() )
 				v4TimeoutTimer.Change( 4000, 0 );
 			else
@@ -237,7 +272,10 @@ namespace Voxelarium.Core.Networking
 		void v6ConnectionTimeout( object unused )
 		{
 			if( v6Client != null )
+			{
+				Log.log( "V6 Timeout Closing socket {0} {1}", v6Client.GetHashCode(), v6Client.Client.GetHashCode(), 0 );
 				v6Client.Close();
+			}
 			if( NewV6Connect() )
 				v6TimeoutTimer.Change( 4000, 0 );
 			else
