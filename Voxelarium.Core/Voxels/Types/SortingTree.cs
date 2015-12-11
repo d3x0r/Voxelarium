@@ -227,7 +227,9 @@ namespace Voxelarium.Core.Voxels.Types
 			if( !AutoBalance ) return;
             int left_children = node.lesser == -1 ? 0 : ( storage[node.lesser].children + 1 );
 			int right_children = node.greater == -1 ? 0 : ( storage[node.greater].children + 1 );
+#if USE_REFS_ROTATE
 			int parent = node.parent;
+#endif
 			if( left_children == 0 )
 			{
 				if( right_children > 1 )

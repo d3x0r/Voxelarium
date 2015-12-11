@@ -66,8 +66,6 @@ namespace Voxelarium.Core.Game.GameWindows
 		{
 
 			Vector3 TopLeft, BottomRight;
-			//ListItem Item;
-			Frame Frame;
 
 			// Frame Position Computing
 			if( Flag_Show_Master )

@@ -452,7 +452,7 @@ public static uint? stbtt_FindGlyphIndexOrNull(ref stbtt_fontinfo info, uint uni
       ushort searchRange = (ushort)(ttUSHORT(data+index_map+8) >> 1);
       ushort entrySelector = ttUSHORT(data+index_map+10);
       ushort rangeShift = (ushort)(ttUSHORT(data+index_map+12) >> 1);
-      ushort item, offset, start, end;
+	  ushort item, offset, start;//, end;
 
       // do a binary search of the segments
       uint endCount = index_map + 14;
@@ -469,11 +469,12 @@ public static uint? stbtt_FindGlyphIndexOrNull(ref stbtt_fontinfo info, uint uni
       // now decrement to bias correctly to find smallest
       search -= 2;
       while (entrySelector != 0) {
-         ushort start_, end_;
+					//ushort start_;
+					ushort end_;
          searchRange >>= 1;
-         start_ = ttUSHORT(data + search + 2 + segcount*2 + 2);
+         //start_ = ttUSHORT(data + search + 2 + segcount*2 + 2);
          end_ = ttUSHORT(data + search + 2);
-         start_ = ttUSHORT(data + search + searchRange*2 + segcount*2 + 2);
+         //start_ = ttUSHORT(data + search + searchRange*2 + segcount*2 + 2);
          end_ = ttUSHORT(data + search + searchRange*2);
          if (unicode_codepoint > end_)
             search += (uint)searchRange*2;
@@ -485,7 +486,7 @@ public static uint? stbtt_FindGlyphIndexOrNull(ref stbtt_fontinfo info, uint uni
 
       STBTT_assert(unicode_codepoint <= ttUSHORT(data + endCount + 2*item));
       start = ttUSHORT(data + index_map + 14 + segcount*2 + 2 + 2*item);
-      end = ttUSHORT(data + index_map + 14 + 2 + 2*item);
+      //end = ttUSHORT(data + index_map + 14 + 2 + 2*item);
       if (unicode_codepoint < start)
          return null;
 

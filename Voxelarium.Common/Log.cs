@@ -107,7 +107,6 @@ namespace Voxelarium.Common
 
 		public static void log( string s, System.Diagnostics.StackFrame sf )
 		{
-			String time = "";
 			String file = sf.GetFileName();
 			if( file == null )
 				file = "";
@@ -121,7 +120,7 @@ namespace Voxelarium.Common
 					if( LogTimeDelta )
 					{
 						TimeSpan delta = DateTime.Now.Subtract( then );
-						sw.WriteLine( ( time = delta.ToString() )
+						sw.WriteLine( ( delta.ToString() )
 							//DateTime.Now.ToString("hh.mm.ss.fff")
 							+ "@" + file + "(" + sf.GetFileLineNumber() + "):" + s );
 						then = DateTime.Now;

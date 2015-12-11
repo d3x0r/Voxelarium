@@ -11,7 +11,7 @@ cp ./Voxelarium.Bullet/Voxelarium.Bullet.csproj                  ./Voxelarium.Bu
 cp ./Voxelarium.sln                                              ./Voxelarium.mono.sln
 cp ./Voxelarium.Core/Voxelarium.Core.csproj                      ./Voxelarium.Core/Voxelarium.Core.mono.csproj
 cp ./BEPU/BEPUphysics/BEPUphysics.csproj                         ./BEPU/BEPUphysics/BEPUphysics.mono.csproj
-
+cp ./ProtoBuf-Minimal/protobuf-net.csproj                        ./ProtoBuf-Minimal/protobuf-net.mono.csproj
 
 sed -i 's/\.csproj/.mono.csproj/g' ./Voxelarium.Protocol/Voxelarium.Protocol.mono.csproj
 sed -i 's/\.csproj/.mono.csproj/g' ./Bullet.UnitTests/Bullet.UnitTests.mono.csproj
@@ -26,3 +26,19 @@ sed -i 's/\.csproj/.mono.csproj/g' ./Voxelarium.Bullet/Voxelarium.Bullet.mono.cs
 sed -i 's/\.csproj/.mono.csproj/g' ./Voxelarium.mono.sln
 sed -i 's/\.csproj/.mono.csproj/g' ./Voxelarium.Core/Voxelarium.Core.mono.csproj
 sed -i 's/\.csproj/.mono.csproj/g' ./BEPU/BEPUphysics/BEPUphysics.mono.csproj
+sed -i 's/\.csproj/.mono.csproj/g' ./ProtoBuf-Minimal/protobuf-net.mono.csproj
+
+sed -i 's/<TargetFrameworkVersion>[^\<]*<\/TargetFrameworkVersion>/<TargetFrameworkVersion>v4.5<\/TargetFrameworkVersion>/g;s/ToolsVersion=\"[^\"]*\"/ToolsVersion=\"4.0\"/g'  \
+./Voxelarium.Protocol/Voxelarium.Protocol.mono.csproj \
+./Bullet.UnitTests/Bullet.UnitTests.mono.csproj \
+./Voxelarium.Common/Voxelarium.Common.mono.csproj \
+./Bullet.OpenTK.OpenGL2/Bullet.OpenTK.OpenGL2.mono.csproj \
+./Voxelarium.Server/Voxelarium.Server.mono.csproj \
+./TrueTypeSharp/TrueTypeSharp/TrueTypeSharp.mono.csproj \
+./Voxelarium/Voxelarium.mono.csproj \
+./TestTexture/TestTexture.mono.csproj \
+./Voxelarium.MasterServer/Voxelarium.MasterServer.mono.csproj \
+./Voxelarium.Bullet/Voxelarium.Bullet.mono.csproj \
+./Voxelarium.Core/Voxelarium.Core.mono.csproj \
+./BEPU/BEPUphysics/BEPUphysics.mono.csproj \
+./ProtoBuf-Minimal/protobuf-net.mono.csproj

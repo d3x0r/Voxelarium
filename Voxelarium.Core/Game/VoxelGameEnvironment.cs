@@ -86,13 +86,13 @@ namespace Voxelarium.Core
 			{
 				menu_font = new FontRenderer( "Roboto-Regular.ttf", 64, 64 );
 			}
-			catch( Exception e )
+			catch( Exception )
 			{
 				try
 				{
 					menu_font = new FontRenderer( "DroidSans.ttf", 32, 32 );
 				}
-				catch( Exception e2 )
+				catch( Exception )
 				{
 				}
 			}
@@ -510,7 +510,6 @@ namespace Voxelarium.Core
 
 		bool Init_VoxelTypeManager( bool nogui )
 		{
-			string Msg;
 			//Log.log( "Starting : VoxelTypeManager Init" );
 			//if (!Initialized_GraphicMode)    {ZString Err ="Can't init VoxelTypeManager : GraphicMode init not completed"; InitLog.Log(3, ZLog::FAIL, Err); return(false);}
 			//if (!Initialized_Glew)           {ZString Err ="Can't init VoxelTypeManager : Glew init not completed"; InitLog.Log(4, ZLog::FAIL, Err); return(false);}

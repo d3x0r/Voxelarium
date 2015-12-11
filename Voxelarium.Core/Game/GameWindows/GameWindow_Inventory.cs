@@ -56,10 +56,6 @@ namespace Voxelarium.Core.Game.GameWindows
 		string Text_InventoryTitle;
 		string Text_PowerTitle;
 
-
-		ushort i1, i2, i3;
-		ulong Q1, Q2, Q3;
-		
 		internal GameWindow_Inventory()
 		{
 			MainInventory = new InventoryBox[128];

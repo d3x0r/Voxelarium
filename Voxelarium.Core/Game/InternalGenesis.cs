@@ -535,7 +535,7 @@ namespace Voxelarium.Core.Voxels
 					default:
 					case 2: //GenerateZone_MathStruct_1( VoxelSector, x,y,z ); break;
 					case 3: //GenerateZone_RandomStickSea( VoxelSector, x,y,z ); break;
-					case 0: return ( 0 ); break;
+					case 0: return ( 0 ); 
 					case 1:
 					case 4: //GenerateZone_BlackWoods( VoxelSector, x,y,z ); break;
 					case 5:
@@ -554,7 +554,7 @@ namespace Voxelarium.Core.Voxels
 							int height = (int)Interpolation_2d( P1, P2, P3, P4, Coef1, Coef2 ) - 15 + BlackWoods_Level;
 							return ( height );
 						}
-						break;
+						//break;
 					case 6:
 						{
 							int height;
@@ -578,12 +578,12 @@ namespace Voxelarium.Core.Voxels
 							height = height2;
 							return ( height );
 						}
-						break;
+						//break;
 					case 13:
 						{
 							return ( Canva_3_1.GetPoint_Fast( 1023 - ( ( x + 512 ) & 1023 ), ( z + 512 ) & 1023 ) );
 						}
-						break;
+						//break;
 
 				}
 			}
@@ -1805,7 +1805,7 @@ namespace Voxelarium.Core.Voxels
 					*/
 			}
 
-			uint FenceBound = Probabilizer.ComputeProbabilities( 1.0f );
+			//uint FenceBound = Probabilizer.ComputeProbabilities( 1.0f );
 
 
 			// Layers of ground.
@@ -1966,7 +1966,7 @@ namespace Voxelarium.Core.Voxels
 					break;
 			}
 
-			uint FenceBound = Probabilizer.ComputeProbabilities( 1.0f );
+			//uint FenceBound = Probabilizer.ComputeProbabilities( 1.0f );
 
 			// Random Seed for that particular sector.
 			SaltyRandomGen.Reset();
@@ -2083,7 +2083,7 @@ namespace Voxelarium.Core.Voxels
 		{
 			int x, z, xs, ys, zs, GenerationRadius;
 			//ZLightSpeedRandom Random;
-			VoxelGfx_Tree TreeMaker = new VoxelGfx_Tree();
+			//VoxelGfx_Tree TreeMaker = new VoxelGfx_Tree();
 			//int Seed;
 			ushort ZoneType = 0;
 			// uint RandNum;
@@ -2142,7 +2142,7 @@ namespace Voxelarium.Core.Voxels
 		void Generate_Generic_PlaceVoxel( VoxelSector Sector, ushort VoxelType, GenericCharCanvas LocationMap, int Offset, int RelativeHeight, bool SetActiveSector )
 		{
 			int x, z, xs, ys, zs, GenerationRadius;
-			SaltyRandomGenerator Random = new SaltyRandomGenerator();
+			//SaltyRandomGenerator Random = new SaltyRandomGenerator();
 			//int Seed;
 			ushort ZoneType = 0;
 			// uint RandNum, Ratio;
@@ -2189,7 +2189,7 @@ namespace Voxelarium.Core.Voxels
 			SaltyRandomGenerator Random = new SaltyRandomGenerator();
 			//int Seed;
 			ushort ZoneType = 0;
-			uint RandNum, Ratio;
+			uint Ratio;
 
 
 			xs = Sector.Pos_x;
@@ -2209,7 +2209,7 @@ namespace Voxelarium.Core.Voxels
 			for( x = xs - GenerationRadius; x < ( xs + 16 + GenerationRadius ); x++ )
 				for( z = zs - GenerationRadius; z < ( zs + 16 + GenerationRadius ); z++ )
 				{
-					if( ( RandNum = (uint)SaltyRandomGen.GetEntropy( 10, false ) ) < ( Ratio ) ) // 6
+					if( ( (uint)SaltyRandomGen.GetEntropy( 10, false ) ) < ( Ratio ) ) // 6
 																								 // if ( (((x & 31) == 0) && ((z & 31) == 0)) )
 																								 // if ( Canva_4.GetPoint_Fast( x & 255, z & 255 ) != 0)
 					{

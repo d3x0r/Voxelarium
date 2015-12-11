@@ -163,7 +163,6 @@ namespace Voxelarium.Core.Types
 		{
 			//lock( Preload )
 			{
-				XStringSeg seg;
 				ParenStack paren_stack = parenthize ? new ParenStack() : null;
 				StringBuilder sb = new StringBuilder( s.Length );
 				int spaces = 0;
@@ -246,7 +245,7 @@ namespace Voxelarium.Core.Types
 					{
 						case '\n':
 							CollapseStringBuilder( sb, outdata, ref tabs, ref spaces );
-							outdata.Add( seg = new XStringSeg( 0, 0, "" ) );
+							outdata.Add( new XStringSeg( 0, 0, "" ) );
 							break;
 						case ' ':
 							CollapseStringBuilder( sb, outdata, ref tabs, ref spaces );
@@ -398,7 +397,7 @@ namespace Voxelarium.Core.Types
 							{
 								if( sb.Length > 0 )
 								{
-									outdata.Append( seg = new XStringSeg( tabs, spaces, sb.ToString() ) );
+									outdata.Append( new XStringSeg( tabs, spaces, sb.ToString() ) );
 									sb.Length = 0;
 									tabs = 0;
 									spaces = 0;
@@ -412,7 +411,7 @@ namespace Voxelarium.Core.Types
 				// here at the end I have collection without a push.
 				if( sb.Length > 0 )
 				{
-					outdata.Append( seg = new XStringSeg( tabs, spaces, sb.ToString() ) );
+					outdata.Append( new XStringSeg( tabs, spaces, sb.ToString() ) );
 					sb.Length = 0;
 					tabs = 0;
 					spaces = 0;

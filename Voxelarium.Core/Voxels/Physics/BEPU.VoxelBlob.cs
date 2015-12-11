@@ -175,11 +175,11 @@ namespace Voxelarium.Core.Voxels.Physics
 
 		//For simplicity, the event manager is read only. The other collidables like StaticMesh and InstancedMesh have a setter, but it complicates things
 		//and doesn't add a lot. For example implementations of setters, check those classes out.
-		protected internal ContactEventManager<VoxelBlob> events;
+		new protected internal ContactEventManager<VoxelBlob> events;
 		///<summary>
 		/// Gets the event manager of the mesh.
 		///</summary>
-		public ContactEventManager<VoxelBlob> Events
+		new public ContactEventManager<VoxelBlob> Events
 		{
 			get { return events; }
 		}

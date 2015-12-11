@@ -16,10 +16,8 @@ namespace Voxelarium.Core.Networking
 	class MasterServerConnection
 	{
 		Thread connect_thread;
-		Timer connect_timeout;
 		DateTime begin_connect_time;
 		int total_time = 10000;
-		int try_time;
 		bool connected;
 		bool connecting; // initial connecting state.. haven't started doing connections yet
 
@@ -78,7 +76,7 @@ namespace Voxelarium.Core.Networking
 				}
 				catch( SocketException )
 				{
-					client.Dispose();
+					client.Close();
 					v4Client = null;
 					Log.log( "Failed to begin connecting." );
 				}
@@ -101,7 +99,7 @@ namespace Voxelarium.Core.Networking
 				}
 				catch( SocketException )
 				{
-					client.Dispose();
+					client.Close();
 					v6Client = null;
 					Log.log( "Failed to begin connecting." );
 				}
@@ -127,10 +125,9 @@ namespace Voxelarium.Core.Networking
 		void ReadComplete( IAsyncResult iar )
 		{
 			int toread = 4;
-			int bytes = 0;
 			try
 			{
-				bytes = socket.EndReceive( iar );
+				socket.EndReceive( iar );
 			}
 			catch( Exception e )
 			{
@@ -180,7 +177,7 @@ namespace Voxelarium.Core.Networking
 				Log.log( "failed to connect: {0}", e.Message );
 				if( client == v4Client )
 				{
-					client.Dispose();
+					client.Close();
 					v4Client = null;
 					if( NewV4Connect() )
 						v4TimeoutTimer.Change( 4000, 0 );
@@ -193,7 +190,7 @@ namespace Voxelarium.Core.Networking
 				}
 				if( client == v6Client )
 				{
-					client.Dispose();
+					client.Close();
 					v6Client = null;
 					if( NewV6Connect() )
 						v6TimeoutTimer.Change( 4000, 0 );
@@ -210,7 +207,6 @@ namespace Voxelarium.Core.Networking
 			{
 				// nevermind, already had a good connection.
 				client.Close();
-				client.Dispose();
 				return;
 			}
 
@@ -271,7 +267,7 @@ namespace Voxelarium.Core.Networking
 						v6TimeoutTimer = new Timer( v6ConnectionTimeout, null, 4000, Timeout.Infinite );
 				}
 			}
-			catch( SocketException e )
+			catch( SocketException )
 			{
 				Log.log( "Bad Address {0}", Settings_Hardware.MasterServerHostname );
 			}
