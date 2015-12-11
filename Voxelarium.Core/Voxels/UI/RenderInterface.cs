@@ -277,7 +277,6 @@ namespace Voxelarium.Core.Voxels.UI
 		internal void Render_EmptySector( Display display, VoxelWorld world, int x, int y, int z, float r, float g, float b )
 		{
 			Vector4 c;
-			int p = 0;
 			int sx = (int)(VoxelSector.ZVOXELBLOCSIZE_X * world.VoxelBlockSize );
 			int sy = (int)(VoxelSector.ZVOXELBLOCSIZE_Y * world.VoxelBlockSize );
 			int sz = (int)(VoxelSector.ZVOXELBLOCSIZE_Z * world.VoxelBlockSize );

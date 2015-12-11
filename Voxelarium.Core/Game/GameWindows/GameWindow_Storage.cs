@@ -67,9 +67,6 @@ namespace Voxelarium.Core.Game.GameWindows
 
 		IVoxelExtension_Storage VoxelExtension_Storage;
 
-		ushort i1, i2, i3;
-		uint Q1, Q2, Q3;
-
 		public GameWindow_Storage()
 		{
 			MainStorage = new InventoryBox[128];

@@ -118,7 +118,6 @@ namespace Voxelarium.Core.UI.Shaders
 
 		internal void AddLine( Vector3[] verts, ref Vector4 color )
 		{
-			int n;
 			if( ( used + 2 ) >= available )
 				expand();
 			dirty = true;
@@ -144,7 +143,6 @@ namespace Voxelarium.Core.UI.Shaders
 
 		internal void AddLine( ref Vector3 from, ref Vector3 to, Color colorFrom, Color colorTo )
 		{
-			int n;
 			if( ( used + 2 ) >= available )
 				expand();
 			dirty = true;

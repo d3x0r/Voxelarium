@@ -67,7 +67,7 @@ namespace BEPUutilities
         /// <summary>
         /// Matrix containing zeroes for every element.
         /// </summary>
-        //public static Matrix ZeroMatrix = new Matrix(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+       public static Matrix ZeroMatrix = new Matrix(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
         /// <summary>
         /// Reference for a vector with dimensions (0,0,0).

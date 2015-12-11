@@ -676,7 +676,6 @@ namespace Voxelarium.Core.UI
 			GL.UseProgram( 0 );
 			DrawDebugCube();
 			if( game.TileSetStyles != null ) {
-				TileSet.TileStyle style = game.TileSetStyles.GetStyle( 2 );
 				Box box = new Box();
 				Vector4 DrawColor = new Vector4( 1 );
 				box.Size.X = 1;

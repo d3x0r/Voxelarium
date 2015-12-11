@@ -333,7 +333,6 @@ namespace Voxelarium.Core.UI
 		public void GetFontRenderSize( string text, float scale, out Vector2 size )
 		{
 			int c;
-			char ch;
 			uint rune;
 			int line_width = 0;
 			size.X = 0;
@@ -377,7 +376,6 @@ namespace Voxelarium.Core.UI
 			render.simple_gui_texture.Activate();
 			render.simple_gui_texture.SetUniforms( OpenGl_TextureRef, ref color );
 			float[] quad = new float[12];
-			float[] uvs = new float[8];
 			float x_left, y_bottom;
 			float x = EffectivePosition.Position.X;
 			float y = EffectivePosition.Position.Y;
@@ -434,7 +432,6 @@ namespace Voxelarium.Core.UI
 			render.simple_texture.SetUniforms( OpenGl_TextureRef, ref color );
 
 			float[] quad = new float[12];
-			float[] uvs = new float[8];
 			float x_left, y_bottom;
 			Vector3 o = EffectivePosition.Position;
 			Vector3 topleft;
@@ -500,18 +497,6 @@ namespace Voxelarium.Core.UI
 					}
 					x_del += ( ch.advanceWidth * scale / line_height );
 				}
-			}
-		}
-		void RenderFont( Display render, ref Vector3 normal, ref Vector3 anchor, string text
-			, float scale
-			, ref Vector4 color )
-		{
-			int c;
-			uint rune;
-			for( c = 0; c < text.Length; c++ )
-			{
-				rune = GetUnicode( ref c, text );
-
 			}
 		}
 	}

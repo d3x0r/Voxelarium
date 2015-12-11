@@ -133,7 +133,7 @@ namespace BEPUutilities
 		/// <param name="a">First vector in the product.</param>
 		/// <param name="d">subtrace from a</param>
 		/// <param name="b">Second vector in the product.</param>
-		/// <param name="product">Resulting dot product.</param>
+		/// <returns>Resulting dot product.</returns>
 		public static float DotDiff1( ref Vector3 a, ref Vector3 d, ref Vector3 b )
 		{
 			return (a.X-d.X ) * b.X + (a.Y-d.Y ) * b.Y + (a.Z-d.Z ) * b.Z;
@@ -165,7 +165,7 @@ namespace BEPUutilities
 		/// <summary>
 		/// Adds this to another vector.
 		/// </summary>
-		/// <param name="a">vector to scale and add.</param>
+		/// <param name="b">vector to scale and add.</param>
 		/// <param name="d">distance to scale it with.</param>
 		/// <param name="sum">Sum of the two vectors.</param>
 		public void AddScaled( ref Vector3 b, float d, out Vector3 sum )
@@ -622,16 +622,6 @@ namespace BEPUutilities
 			result.Y =  ( a.Z - b.Z ) * ( c.X - d.X ) - ( a.X - b.Y ) * ( c.Z - d.Z );
 			result.Z =  ( a.X - b.X ) * ( c.Y - d.Y ) - ( a.Y - b.Y ) * ( c.X - d.X );
 		}
-		/// <summary>
-		/// Normalizes the given vector.
-		/// </summary>
-		/// <param name="v">Vector to normalize.</param>
-		/// <returns>Normalized vector.</returns>
-		//public static void Normalize( ref Vector3 v )
-		//{
-		//	Vector3.Normalize( ref v, out v );
-		//	
-		//}
 
 		/// <summary>
 		/// Normalizes the given vector.

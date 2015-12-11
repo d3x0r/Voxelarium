@@ -48,8 +48,9 @@ namespace Voxelarium.Core.Networking
 			{
 				bytes = socket.EndReceive( iar );
 			}
-			catch( Exception e )
+			catch( Exception )
 			{
+				socket.Close();
 				disconnected = true;
 				return;
 			}
