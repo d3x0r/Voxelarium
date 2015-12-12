@@ -7,7 +7,6 @@ using Voxelarium.Protocol;
 
 namespace Voxelarium.MasterServer
 {
-	[ProtoContract]
 	internal class RegisteredServer:  Protocol.RegisteredGameServer
 	{
 

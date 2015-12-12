@@ -65,26 +65,36 @@ namespace Voxelarium.MasterServer
 				send_buffer = new MemoryStream( 1024 );
 			}
 
+			void Dispose()
+			{
+				idle_tick.Dispose();
+				socket.Close();
+				// disconnected.
+				if( registered_server != null ) {
+					registered_server.RemoveAddress( host_address );
+					if( registered_server.Addresses.Count == 0 ) {
+						servers.Remove( registered_server );
+					}
+				}
+			}
 
 			internal void Received( IAsyncResult result )
 			{
+				int bytes;
 				//Socket socket = result.AsyncState as Socket;
 				try
 				{
-					socket.EndReceive( result );
+					bytes = socket.EndReceive( result );
+					if( bytes == 0 )
+					{
+						Dispose();
+						return;
+					}
 				}
 				catch( Exception e )
 				{
 					Log.log( "Socket Closed? {0}", e.Message );
-					idle_tick.Dispose();
-					socket.Close();
-					// disconnected.
-					if( registered_server != null ) {
-						registered_server.RemoveAddress( host_address );
-						if( registered_server.Addresses.Count == 0 ) {
-							servers.Remove( registered_server );
-						}
-					}
+					Dispose();
 					return;
 				}
 				switch( readstate )
@@ -128,14 +138,10 @@ namespace Voxelarium.MasterServer
 						send_buffer.SetLength( 8 );
 						send_buffer.Seek( 8, SeekOrigin.Begin );
 						lock( servers ) {
-							Protocol.RegisteredGameServer[] this_segment;
+							List<Protocol.RegisteredGameServer> this_segment = new List<Protocol.RegisteredGameServer>();
 							for( n = listcmd.start_offset; count < 10 && n < servers.Count; n++ ) {
-								count++;
-							}
-							this_segment = new Protocol.RegisteredGameServer[count];
-							count  = 0;
-							for( n = listcmd.start_offset; count < 10 && n < servers.Count; n++ ) {
-								this_segment[count] = servers [n];
+								Serializer.Serialize( send_buffer, servers[n] );
+								this_segment.Add( servers [n] );
 								count++;
 							}
 							Serializer.Serialize( send_buffer, this_segment);
