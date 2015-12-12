@@ -94,7 +94,7 @@ namespace Voxelarium.Protocol
 	public class ConnectionUpdate
 	{
 		[ProtoMember( 1 )]
-		internal int Connections { get; set; }
+		public int Connections { get; set; }
 		public ConnectionUpdate() { }
 	}
 
@@ -121,23 +121,23 @@ namespace Voxelarium.Protocol
 	/// Received by clients from master server
 	/// </summary>
 	[ProtoContract]
-	public class GameServer
+	public class RegisteredGameServer
 	{
 		[ProtoMember( 1 )]
-		public string ServerName { get; set; }
-		[ProtoMember( 6 )]
-		public List<byte[]> addresses;
-		[ProtoMember( 5 )]
-		public int Port { get; set; }
+		public string name { get; set; }
 		[ProtoMember( 2 )]
-		public int Connections { get; set; }
+		public List<byte[]> AddressBytes { get; set; }
+		public List<IPAddress> Addresses;
 		[ProtoMember( 3 )]
-		public int MaxConnections { get; set; }
+		public int max_connections { get; set; }
 		[ProtoMember( 4 )]
-		public int PendingConnections { get; set; }
-
-		public GameServer()
-		{
-		}
+		public int pending_connections { get; set; }
+		[ProtoMember( 5 )]
+		public int active_connections { get; set; }
+		[ProtoMember( 6 )]
+		public Guid ID;
+		[ProtoMember( 7 )]
+		public int Port;
+		public RegisteredGameServer(){}
 	}
 }

@@ -49,7 +49,7 @@ namespace Voxelarium.MasterServer
 				if( ( protocol_timeout.Ticks > 0 ) 
 					&& ( now - protocol_timeout > new TimeSpan( 0, 0, 5 ) ) )
 					socket.Close();
-				else if( ( now - last_receive ) > new TimeSpan( 0, 0, 5 ) ) // one minute
+				else if( ( now - last_receive ) > new TimeSpan( 0, 1, 0 ) ) // one minute
 				{
 					Log.log( "No Traffic, send ping" );
 					socket.Send( ping_message, 8, SocketFlags.None );
@@ -94,7 +94,6 @@ namespace Voxelarium.MasterServer
 					readstate = ReadState.getData;
 					protocol_timeout = DateTime.Now;
 					Log.log( "Received length {0}", toread, 0 );
-					idle_tick.Change( 500, 500 );
 					break;
 				case ReadState.getData:
 					readstate = ReadState.getLength;
@@ -103,7 +102,7 @@ namespace Voxelarium.MasterServer
 					byte[] msg_id = new byte[4];
 					buffer.Read( msg_id, 0, 4 );  // use 4 bytes before deserializing content.
 					last_receive = DateTime.Now;
-					idle_tick.Change( 3000, 3000 );
+					idle_tick.Change( 30000, 30000 );
 
 					Protocol.Message message = (Protocol.Message)BitConverter.ToInt32( msg_id, 0 );
 					switch( message )
@@ -118,7 +117,9 @@ namespace Voxelarium.MasterServer
 					case Protocol.Message.ServerHello:
 						Protocol.ServerHello msg = Serializer.Deserialize<Protocol.ServerHello>( buffer );
 						Log.log( "Received ServerHello {0} {1}", msg.ServerID, msg.ServerName );
-						registered_server = servers.AddServer( msg, host_address );
+						lock( servers ) {
+							registered_server = servers.AddServer( msg, host_address );
+						}
 						break;
 					case Protocol.Message.ListServers:
 						Protocol.ListServers listcmd = Serializer.Deserialize<Protocol.ListServers>( buffer );
@@ -126,10 +127,18 @@ namespace Voxelarium.MasterServer
 						int count = 0;
 						send_buffer.SetLength( 8 );
 						send_buffer.Seek( 8, SeekOrigin.Begin );
-						for( n = listcmd.start_offset; count < 10 && n < servers.Count; n++ )
-						{
-							Serializer.Serialize<RegisteredServer>( send_buffer, servers[n] );
-							count++;
+						lock( servers ) {
+							Protocol.RegisteredGameServer[] this_segment;
+							for( n = listcmd.start_offset; count < 10 && n < servers.Count; n++ ) {
+								count++;
+							}
+							this_segment = new Protocol.RegisteredGameServer[count];
+							count  = 0;
+							for( n = listcmd.start_offset; count < 10 && n < servers.Count; n++ ) {
+								this_segment[count] = servers [n];
+								count++;
+							}
+							Serializer.Serialize( send_buffer, this_segment);
 						}
 						byte[] output = send_buffer.GetBuffer();
 						byte[] msg_len = BitConverter.GetBytes( (int)(send_buffer.Length - 4) );

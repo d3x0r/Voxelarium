@@ -8,23 +8,8 @@ using Voxelarium.Protocol;
 namespace Voxelarium.MasterServer
 {
 	[ProtoContract]
-	internal class RegisteredServer
+	internal class RegisteredServer:  Protocol.RegisteredGameServer
 	{
-		[ProtoMember( 1 )]
-		internal string name { get; set; }
-		[ProtoMember( 2 )]
-		internal List<byte[]> AddressBytes { get; set; }
-		internal List<IPAddress> Addresses;
-		[ProtoMember( 3 )]
-		internal int max_connections { get; set; }
-		[ProtoMember( 4 )]
-		internal int pending_connections { get; set; }
-		[ProtoMember( 5 )]
-		internal int active_connections { get; set; }
-		[ProtoMember( 6 )]
-		internal Guid ID;
-		[ProtoMember( 7 )]
-		internal int Port;
 
 		internal void RemoveAddress( IPAddress host_address )
 		{
@@ -62,6 +47,7 @@ namespace Voxelarium.MasterServer
 			}
 			RegisteredServer new_server = new RegisteredServer();
 			new_server.name = hello.ServerName;
+			new_server.ID = hello.ServerID;
 			new_server.AddAddress( address );
 			new_server.max_connections = hello.Connections;
 			new_server.pending_connections = 0;
