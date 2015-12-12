@@ -20,6 +20,7 @@ namespace Voxelarium.Core.Networking
 		int total_time = 10000;
 		bool connected;
 		bool connecting; // initial connecting state.. haven't started doing connections yet
+		static byte[] ping_reply_message = { 4, 0, 0, 0, (byte)Protocol.Message.PingReply, 0, 0, 0 };
 
 		int v4Address_attempt;
 		List<IPAddress> v4Addresses = new List<IPAddress>();
@@ -31,6 +32,7 @@ namespace Voxelarium.Core.Networking
 		TcpClient v6Client;
 		Timer v6TimeoutTimer;
 		MemoryStream buffer;
+		MemoryStream send_buffer;
 
 		Socket socket;
 
@@ -122,17 +124,19 @@ namespace Voxelarium.Core.Networking
 
 		void RequestServers( int start )
 		{
-			buffer.SetLength( 8 );
-			buffer.Seek( 8, SeekOrigin.Begin );
+			if( start == 0 )
+				ServerList.Clear();
+			send_buffer.SetLength( 8 );
+			send_buffer.Seek( 8, SeekOrigin.Begin );
 			ListServers request_list = new ListServers();
 			request_list.start_offset = 0;
-			Serializer.Serialize( buffer, request_list );
-			byte[] len = BitConverter.GetBytes( buffer.Length - 4 );
+			Serializer.Serialize( send_buffer, request_list );
+			byte[] len = BitConverter.GetBytes( (int)( send_buffer.Length - 4) );
 			byte[] msgId = BitConverter.GetBytes( (int)Protocol.Message.ListServers );
-			byte[] sendbuf = buffer.GetBuffer();
+			byte[] sendbuf = send_buffer.GetBuffer();
 			for( int n = 0; n < 4; n++ ) sendbuf[n] = len[n];
 			for( int n = 0; n < 4; n++ ) sendbuf[4 + n] = msgId[n];
-			socket.Send( sendbuf, (int)buffer.Length, SocketFlags.None );
+			socket.Send( sendbuf, (int)send_buffer.Length, SocketFlags.None );
 		}
 
 		void ReadComplete( IAsyncResult iar )
@@ -164,12 +168,27 @@ namespace Voxelarium.Core.Networking
 				Protocol.Message msgId = (Protocol.Message)BitConverter.ToInt32( buffer.GetBuffer(), 0 );
 				switch( msgId )
 				{
+				case Message.Ping:
+					socket.Send( ping_reply_message, 8, SocketFlags.None );
+					break;
 				case Message.Servers:
 					Protocol.Server[] server_list = Serializer.Deserialize<Protocol.Server[]>( buffer );
-					ServerList.AddRange( server_list );
-					if( server_list.Length < 10 )
+					if( server_list.Length > 0 )
 					{
-						RequestServers( ServerList.Count );
+						ServerList.AddRange( server_list );
+						if( server_list.Length < 10 )
+						{
+							RequestServers( ServerList.Count );
+						}
+					}
+					else
+					{
+						if( ServerList.Count == 0 )
+						{
+							Server NoServer = new Server();
+							NoServer.ServerName = "No Servers";
+							ServerList.Add( new Server() );
+						}
 					}
 					break;
 				default:
@@ -179,6 +198,7 @@ namespace Voxelarium.Core.Networking
 				}
 				break;
 			}
+			buffer.Position = 0;
 			buffer.SetLength( toread );
 			socket.BeginReceive( buffer.GetBuffer(), 0, toread, SocketFlags.None, ReadComplete, null );
 		}
@@ -246,6 +266,7 @@ namespace Voxelarium.Core.Networking
 			socket = client.Client;
 
 			buffer = new MemoryStream( 4096 );
+			send_buffer = new MemoryStream( 4096 );
 			state = ReadState.readLength;
 			client.Client.BeginReceive( buffer.GetBuffer(), 0, 4, SocketFlags.None, ReadComplete, null );
 

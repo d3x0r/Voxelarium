@@ -46,7 +46,7 @@ namespace Voxelarium
 			Resize += GameDisplay_Resize;
 			Move += GameDisplay_Move;
 
-			display.Exit = Exit;
+			Display.Exit = Exit;
 			//display.SwapBuffers = SwapBuffers;
 		}
 
