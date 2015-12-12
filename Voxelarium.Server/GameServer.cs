@@ -15,6 +15,8 @@ namespace Voxelarium.Server
 	{
 		internal static int serving_port;
 		internal static Guid ServerID;
+		internal static string ServerName;
+		internal static int MaxConnections;
 		static Voxelarium.Core.VoxelGameEnvironment game;
 
 		TcpListener listener;
@@ -23,7 +25,7 @@ namespace Voxelarium.Server
 		static byte[] ping_message = { 4, 0, 0, 0, (byte)Protocol.Message.Ping, 0, 0, 0 };
 		static byte[] ping_reply_message = { 4, 0, 0, 0, (byte)Protocol.Message.PingReply, 0, 0, 0 };
 
-		static internal List<Protocol.Server> servers;
+		static List<CommState> clients = new List<CommState>();
 
 		class CommState
 		{
@@ -48,7 +50,7 @@ namespace Voxelarium.Server
 			internal MemoryStream buffer;
 			int toread;
 			DateTime last_receive;
-			Timer idle_tick;
+			internal Timer idle_tick;
 			void CheckIdle( object state )
 			{
 				DateTime now = DateTime.Now;
@@ -66,7 +68,11 @@ namespace Voxelarium.Server
 				buffer = new MemoryStream( 1024 );
 			}
 
-
+			public void Dispose(){
+				GameServer.clients.Remove( this );
+				socket.Close();
+				idle_tick.Dispose();
+			}
 
 			internal void Received( IAsyncResult result )
 			{
@@ -75,10 +81,16 @@ namespace Voxelarium.Server
 				try
 				{
 					bytes = socket.EndReceive( result );
+					if( bytes == 0 )
+					{
+						Dispose();
+						return;
+					}
 				}
 				catch( Exception e )
 				{
 					Log.log( "Socket Closed? {0}", e.Message );
+					Dispose();
 					// disconnected.
 					return;
 				}
@@ -103,25 +115,6 @@ namespace Voxelarium.Server
 					case Protocol.Message.Ping:
 						socket.Send( ping_reply_message, 8, SocketFlags.None );
 						break;
-					case Protocol.Message.Servers:
-						Protocol.Server[] list = Serializer.Deserialize<Protocol.Server[]>( buffer );
-						int n;
-						for( n = 0; n < list.Length; n++ )
-						{
-							servers.Add( list[n] );
-						}
-						buffer.SetLength( 12 );
-						byte[] output = buffer.GetBuffer();
-						byte[] msg_len = BitConverter.GetBytes( buffer.Length - 4 );
-						byte[] next_block = BitConverter.GetBytes( servers.Count );
-						msg_id = BitConverter.GetBytes( (int)Protocol.Message.ListServers );
-						for( n = 0; n < 4; n++ )
-							output[n] = msg_len[n];
-						for( n = 0; n < 4; n++ )
-							output[4 + n] = msg_id[n];
-
-						socket.Send( buffer.GetBuffer(), (int)buffer.Length, SocketFlags.None );
-						break;
 					}
 					break;
 				}
@@ -136,13 +129,15 @@ namespace Voxelarium.Server
 		static GameServer()
 		{
 			ServerID = Settings.Read( "Server ID", Guid.NewGuid() );
+			ServerName = Settings.Read( "Server Name", "Change Me" );
+			MaxConnections = Settings.Read( "Max Connections", 16 );
+
 			serving_port = Settings.Read( "Serve on Port", 31733 );
 			game = new Core.VoxelGameEnvironment();
 			game.UniverseNum = Settings.Read( "Game Universe", 1 );
 			game.Init( true );
 			game.Start_Game( true );
 		}
-
 
 		void Accept( IAsyncResult result )
 		{
@@ -154,29 +149,49 @@ namespace Voxelarium.Server
 
 			commState.socket.BeginReceive( commState.buffer.GetBuffer(), 0, 4, SocketFlags.None
 						, commState.Received, commState );
-
+			clients.Add( commState );
 			// accept another connection
 			listener.BeginAcceptTcpClient( Accept, listener );
 		}
 
+
+
 		internal GameServer()
 		{
+			Program.AtExit += Program_AtExit;;;
+			byte[] raw_ipv6 = { 0,0,0,0
+				,0, 0, 0, 0
+				,0, 0, 0, 0
+				,0, 0, 0, 0 };
 			byte[] raw_ipv4 = { 0, 0, 0, 0 };
+			byte[] val = BitConverter.GetBytes( (Int32)1 );
+
 			IPAddress addr = new IPAddress( raw_ipv4 );
 			listener = new TcpListener( addr, Settings.Read( "Server Port", GameServer.serving_port ) );
+			Log.log( "Reuse is {0}", listener.Server.GetSocketOption( SocketOptionLevel.Socket, SocketOptionName.ReuseAddress ), 0 );
+			listener.Server.SetSocketOption( SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, val );
+			//listener.Server.SetSocketOption( SocketOptionLevel.Socket, (SocketOptionName)15/*SocketOptionName.ReusePort*/, val );
+ 			Log.log( "Reuse is {0}", listener.Server.GetSocketOption( SocketOptionLevel.Socket, SocketOptionName.ReuseAddress ), 0 );
 			listener.Start();
-			byte[] raw_ipv6 = { 0,0,0,0
-					,0, 0, 0, 0
-					,0, 0, 0, 0
-					,0, 0, 0, 0 };
+
 			IPAddress addr_v6 = new IPAddress( raw_ipv6 );
 			listener_v6 = new TcpListener( addr_v6, Settings.Read( "Server Port", GameServer.serving_port ) );
+			Log.log( "Reuse is {0}", listener_v6.Server.GetSocketOption( SocketOptionLevel.Socket, SocketOptionName.ReuseAddress ), 0 );
+			listener_v6.Server.SetSocketOption( SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, val );
+			//istener_v6.Server.SetSocketOption( SocketOptionLevel.Socket, (SocketOptionName)15/*SocketOptionName.ReusePort*/, val );
+			Log.log( "Reuse is {0}", listener_v6.Server.GetSocketOption( SocketOptionLevel.Socket, SocketOptionName.ReuseAddress ), 0 );
 			listener_v6.Start();
 
 			listener.BeginAcceptSocket( Accept, listener );
 			listener_v6.BeginAcceptSocket( Accept, listener_v6 );
+		}
 
-
+		void Program_AtExit ()
+		{
+			foreach( CommState client in clients ) {
+				client.Dispose();
+			}
+			clients.Clear();
 		}
 	}
 }

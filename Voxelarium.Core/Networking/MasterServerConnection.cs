@@ -191,7 +191,7 @@ namespace Voxelarium.Core.Networking
 				// closed by external forces.
 				// v6 .close will set socket=NULL
 				// v4 .close will .Dispose itself.
-				client.Dispose();
+				client.Close();
 				return;
 			}
 			try

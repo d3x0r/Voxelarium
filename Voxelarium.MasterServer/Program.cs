@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
+using Voxelarium.Common;
 
 namespace Voxelarium.MasterServer
 {
@@ -19,6 +20,7 @@ namespace Voxelarium.MasterServer
 
 		static void Main( string[] args )
 		{
+			Log.log( "Master Server Starting.." );
 			server = new RegistryServer();
 			sleep_event = new AutoResetEvent( false );
 			while( !done )

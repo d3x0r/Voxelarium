@@ -390,18 +390,18 @@ namespace Voxelarium.Core.UI
 		}
 
 		public delegate void SimpleMethod();
-		public SimpleMethod Exit;
+		public static SimpleMethod Exit;
 		//public SimpleMethod SwapBuffers;
 
-		private void Shutdown()
+		public static void Shutdown()
 		{
 			if( !VoxelGlobalSettings.Exiting )
 			{
 				VoxelGlobalSettings.Exiting = true;
 				if( AtExit != null )
 					AtExit();
-
-				Exit();
+				if( Exit != null )
+					Exit();
 			}
 		}
 

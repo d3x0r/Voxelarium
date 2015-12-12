@@ -105,7 +105,7 @@ namespace Voxelarium.Core.Voxels
 			Actor SelectedActor;
 
 			btVector3 PlayerLocation;
-			Log.log( "Begin Reaction Processing" );
+			//Log.log( "Begin Reaction Processing" );
 			int Sectors_processed = 0;
 			int Voxels_Processed = 0;
 			// FireMine
@@ -206,7 +206,7 @@ namespace Voxelarium.Core.Voxels
 				Sector = Sector.GlobalList_Next;
 			}
 			//StepOne = false;
-			Log.log( "Finish Reaction Processing {0} {1} ", Sectors_processed, Voxels_Processed );
+			//Log.log( "Finish Reaction Processing {0} {1} ", Sectors_processed, Voxels_Processed );
 		}
 	}
 }

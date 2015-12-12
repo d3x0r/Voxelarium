@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Text;
 using Voxelarium.Common;
 using Voxelarium.Protocol;
+using Voxelarium.Core.UI;
 
 namespace Voxelarium.Server
 {
@@ -21,10 +22,7 @@ namespace Voxelarium.Server
 		int v6Address_attempt;
 		List<IPAddress> v6Addresses = new List<IPAddress>();
 		TcpClient v6Client;
-		MemoryStream buffer = new MemoryStream( 2048 );
 		int host_port;
-
-		int connect_attempts;
 		int connections;
 
 		bool Connected
@@ -44,15 +42,37 @@ namespace Voxelarium.Server
 				readLength, readData
 			};
 			ReadState state;
-			MemoryStream buffer = new MemoryStream( 2048 );
+			MemoryStream buffer = new MemoryStream( 32 );
+			MemoryStream send_buffer = new MemoryStream( 32 );
 
 			internal MasterServerConnection( TcpClient client)
 			{
 				this.tcpClient = client;
 				socket = client.Client;
 				state = ReadState.readLength;
+				socket.NoDelay = true;
+				buffer.SetLength( 4 ); // makes ure buffer has a buffer
+				socket.BeginReceive( buffer.GetBuffer(), 0, 4, SocketFlags.None, ReadComplete, client );
+				SendHello();
+			}
 
-				client.Client.BeginReceive( buffer.GetBuffer(), 0, 4, SocketFlags.None, ReadComplete, client );
+			void SendHello()
+			{
+				send_buffer.SetLength( 8 );
+				send_buffer.Seek( 8, SeekOrigin.Begin );
+				ServerHello hello = new ServerHello();
+				hello.ServerName = GameServer.ServerName;
+				hello.Connections = GameServer.MaxConnections;
+				hello.ServerID = GameServer.ServerID;
+				//Log.log( "Sending Hello {0} {1}", GameServer.ServerID, GameServer.ServerName );
+				Serializer.Serialize( send_buffer, hello );
+				byte[] len = BitConverter.GetBytes( (int)(send_buffer.Length - 4) );
+				byte[] msgId = BitConverter.GetBytes( (int)Protocol.Message.ServerHello );
+				byte[] sendbuf = send_buffer.GetBuffer();
+				for( int n = 0; n < 4; n++ ) sendbuf[n] = len[n];
+				for( int n = 0; n < 4; n++ ) sendbuf[4+n] = msgId[n];
+				//Log.log( "Sending Server Hello {0}", send_buffer.Length );
+				socket.Send( sendbuf, (int)send_buffer.Length, SocketFlags.None );
 			}
 
 			void ConnectToClient( Protocol.ConnectToClient client )
@@ -71,6 +91,13 @@ namespace Voxelarium.Server
 				try
 				{
 					bytes = socket.EndReceive( iar );
+					if( bytes == 0 )
+					{
+						// socket is closed.
+						socket.Close();
+						Program.Exit();
+						return;
+					}
 				}
 				catch( Exception e )
 				{
@@ -82,6 +109,7 @@ namespace Voxelarium.Server
 				{
 				case ReadState.readLength:
 					toread = BitConverter.ToInt32( buffer.GetBuffer(), 0 );
+					//Log.log( "Received length of {0}", toread, 0 );
 					state = ReadState.readData;
 					break;
 				case ReadState.readData:
@@ -90,7 +118,7 @@ namespace Voxelarium.Server
 					switch( msgId )
 					{
 					case Message.Ping:
-						Log.log( "Received Ping." );
+						//Log.log( "Received Ping." );
 						socket.Send( ping_reply_message, 8, SocketFlags.None );
 						break;
 					case Protocol.Message.ConnectToClient:
@@ -103,6 +131,7 @@ namespace Voxelarium.Server
 					}
 					break;
 				}
+				buffer.Position = 0;
 				buffer.SetLength( toread );
 				socket.BeginReceive( buffer.GetBuffer(), 0, toread, SocketFlags.None, ReadComplete, null );
 
@@ -110,23 +139,29 @@ namespace Voxelarium.Server
 		}
 
 
-		void NewV4Connect()
+		bool NewV4Connect()
 		{
 			if( v4Address_attempt < v4Addresses.Count )
 			{
 				TcpClient client = new TcpClient();
+				v4Client = client;
 				client.BeginConnect( v4Addresses[v4Address_attempt++], host_port, ConnectionComplete, client );
+				return true;
 			}
+			return false;
 		}
 
-		void NewV6Connect()
+		bool NewV6Connect()
 		{
 			if( v6Address_attempt < v6Addresses.Count )
 			{
 				TcpClient client = new TcpClient( AddressFamily.InterNetworkV6 );
 				//client.Client.SetSocketOption( SocketOptionLevel.Socket, SocketOptionName.
+				v6Client = client;
 				client.BeginConnect( v6Addresses[v6Address_attempt++], host_port, ConnectionComplete, client );
+				return true;
 			}
+			return false;
 		}
 
 		void ConnectionComplete( IAsyncResult iar )
@@ -141,29 +176,33 @@ namespace Voxelarium.Server
 				Log.log( "failed to connect: {0}", e.Message );
 				if( client == v4Client )
 				{
-					NewV4Connect();
+					v4Client.Close();
+					v4Client = null;
+					if( !NewV4Connect() ) {
+						if( v6Client == null )
+						{
+							Log.log( "Master Server is not responding; no more connections to try" );
+							Program.Exit();
+						}
+					}
 					return;
 				}
 				if( client == v6Client )
 				{
-					NewV6Connect();
+					Log.log( "V6 failed... {0}", e.Message );
+					v6Client.Close();
+					v6Client = null;
+					if( !NewV6Connect() ){
+						if( v4Client == null )
+						{
+							Log.log( "Master Server is not responding; no more connections to try" );
+							Program.Exit();
+						}
+					}
 					return;
 				}
 			}
-
-			buffer.SetLength( 8 );
-			buffer.Seek( 8, SeekOrigin.Begin );
-			ServerHello hello = new ServerHello();
-			hello.ServerName = Settings.Read( "Server Name", "Change Me" );
-			hello.Connections = Settings.Read( "Max Connections", 16 );
-			hello.ServerID = GameServer.ServerID;
-			Serializer.Serialize( buffer, hello );
-			byte[] len = BitConverter.GetBytes( buffer.Length - 4 );
-			byte[] msgId = BitConverter.GetBytes( (int)Protocol.Message.ServerHello );
-			byte[] sendbuf = buffer.GetBuffer();
-			for( int n = 0; n < 4; n++ ) sendbuf[n] = len[n];
-			for( int n = 0; n < 4; n++ ) sendbuf[4+n] = msgId[n];
-			client.Client.Send( sendbuf, (int)buffer.Length, SocketFlags.None );
+			connections++;
 			new MasterServerConnection( client );
 		}
 
