@@ -32,6 +32,7 @@ namespace Voxelarium.Core.Networking
 		TcpClient v6Client;
 		Timer v6TimeoutTimer;
 		MemoryStream buffer;
+		MemoryStream send_buffer;
 
 		Socket socket;
 
@@ -125,17 +126,17 @@ namespace Voxelarium.Core.Networking
 		{
 			if( start == 0 )
 				ServerList.Clear();
-			buffer.SetLength( 8 );
-			buffer.Seek( 8, SeekOrigin.Begin );
+			send_buffer.SetLength( 8 );
+			send_buffer.Seek( 8, SeekOrigin.Begin );
 			ListServers request_list = new ListServers();
 			request_list.start_offset = 0;
-			Serializer.Serialize( buffer, request_list );
-			byte[] len = BitConverter.GetBytes( (int)(buffer.Length - 4) );
+			Serializer.Serialize( send_buffer, request_list );
+			byte[] len = BitConverter.GetBytes( (int)( send_buffer.Length - 4) );
 			byte[] msgId = BitConverter.GetBytes( (int)Protocol.Message.ListServers );
-			byte[] sendbuf = buffer.GetBuffer();
+			byte[] sendbuf = send_buffer.GetBuffer();
 			for( int n = 0; n < 4; n++ ) sendbuf[n] = len[n];
 			for( int n = 0; n < 4; n++ ) sendbuf[4 + n] = msgId[n];
-			socket.Send( sendbuf, (int)buffer.Length, SocketFlags.None );
+			socket.Send( sendbuf, (int)send_buffer.Length, SocketFlags.None );
 		}
 
 		void ReadComplete( IAsyncResult iar )
@@ -197,6 +198,7 @@ namespace Voxelarium.Core.Networking
 				}
 				break;
 			}
+			buffer.Position = 0;
 			buffer.SetLength( toread );
 			socket.BeginReceive( buffer.GetBuffer(), 0, toread, SocketFlags.None, ReadComplete, null );
 		}
@@ -209,7 +211,7 @@ namespace Voxelarium.Core.Networking
 				// closed by external forces.
 				// v6 .close will set socket=NULL
 				// v4 .close will .Dispose itself.
-				client.Dispose();
+				client.Close();
 				return;
 			}
 			try
@@ -264,6 +266,7 @@ namespace Voxelarium.Core.Networking
 			socket = client.Client;
 
 			buffer = new MemoryStream( 4096 );
+			send_buffer = new MemoryStream( 4096 );
 			state = ReadState.readLength;
 			client.Client.BeginReceive( buffer.GetBuffer(), 0, 4, SocketFlags.None, ReadComplete, null );
 

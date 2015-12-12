@@ -67,6 +67,7 @@ namespace Voxelarium.MasterServer
 			new_server.pending_connections = 0;
 			new_server.active_connections = 0;
 			new_server.Port = hello.Port;
+			this.Add( new_server );
 			return new_server;
 		}
 	}

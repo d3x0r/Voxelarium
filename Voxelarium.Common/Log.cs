@@ -117,6 +117,8 @@ namespace Voxelarium.Common
 			{
 				lock ( sw )
 				{
+					sw.Write( ApplicationName );
+					sw.Write( " : " ) ;
 					if( LogTimeDelta )
 					{
 						TimeSpan delta = DateTime.Now.Subtract( then );

@@ -40,10 +40,6 @@
       <HintPath>..\packages\OpenTK.1.1.1589.5942\lib\NET40\OpenTK.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="protobuf-net, Version=2.0.0.668, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
-      <HintPath>..\packages\protobuf-net.2.0.0.668\lib\net40\protobuf-net.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
@@ -187,6 +183,10 @@
     <ProjectReference Include="..\BEPU\BEPUphysics\BEPUphysics.csproj">
       <Project>{c0d52c9f-14b8-4008-8ddc-109c27561a5c}</Project>
       <Name>BEPUphysics</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ProtoBuf-Minimal\protobuf-net.csproj">
+      <Project>{8374e4d7-2a91-48f1-9360-09b09cf27c3f}</Project>
+      <Name>protobuf-net</Name>
     </ProjectReference>
     <ProjectReference Include="..\TrueTypeSharp\TrueTypeSharp\TrueTypeSharp.csproj">
       <Project>{b722113f-1252-4be1-9d43-6bc82b3e37d1}</Project>

@@ -374,7 +374,7 @@ namespace Voxelarium.Core
 			return ( true );
 		}
 
-		bool End_Game()
+		public bool End_Game()
 		{
 			if( Initialized_GameWindows ) End_GameWindows();
 
