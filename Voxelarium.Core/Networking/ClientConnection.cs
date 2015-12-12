@@ -109,9 +109,9 @@ namespace Voxelarium.Core.Networking
 			socket.BeginReceive( buffer.GetBuffer(), 0, 4, SocketFlags.None, ReadComplete, null );
 		}
 
-		internal void ConnectToGameServer( Protocol.GameServer server )
+		internal void ConnectToGameServer( Protocol.RegisteredGameServer server )
 		{
-			foreach( byte[] addr in server.addresses )
+			foreach( byte[] addr in server.AddressBytes )
 			{
 				IPAddress address = new IPAddress( addr );
 				IPEndPoint connect_to = new IPEndPoint( address, server.Port );

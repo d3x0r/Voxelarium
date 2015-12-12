@@ -36,7 +36,7 @@ namespace Voxelarium.Core.Networking
 
 		Socket socket;
 
-		List<Server> ServerList = new List<Server>();
+		List<RegisteredGameServer> ServerList = new List<RegisteredGameServer>();
 
 		enum ReadState
 		{
@@ -141,10 +141,17 @@ namespace Voxelarium.Core.Networking
 
 		void ReadComplete( IAsyncResult iar )
 		{
+			int bytes;
 			int toread = 4;
 			try
 			{
-				socket.EndReceive( iar );
+				bytes = socket.EndReceive( iar );
+				if( bytes == 0 )
+				{
+					// disconnected....
+					socket.Close();
+					return;
+				}
 			}
 			catch( ObjectDisposedException )
 			{
@@ -166,13 +173,14 @@ namespace Voxelarium.Core.Networking
 			case ReadState.readData:
 				state = ReadState.readLength;
 				Protocol.Message msgId = (Protocol.Message)BitConverter.ToInt32( buffer.GetBuffer(), 0 );
+				buffer.Position = 4;
 				switch( msgId )
 				{
 				case Message.Ping:
 					socket.Send( ping_reply_message, 8, SocketFlags.None );
 					break;
 				case Message.Servers:
-					Protocol.Server[] server_list = Serializer.Deserialize<Protocol.Server[]>( buffer );
+					Protocol.RegisteredGameServer[] server_list = Serializer.Deserialize<Protocol.RegisteredGameServer[]>( buffer );
 					if( server_list.Length > 0 )
 					{
 						ServerList.AddRange( server_list );
@@ -185,9 +193,9 @@ namespace Voxelarium.Core.Networking
 					{
 						if( ServerList.Count == 0 )
 						{
-							Server NoServer = new Server();
-							NoServer.ServerName = "No Servers";
-							ServerList.Add( new Server() );
+							RegisteredGameServer NoServer = new RegisteredGameServer();
+							NoServer.name = "No Servers";
+							ServerList.Add( new RegisteredGameServer() );
 						}
 					}
 					break;
@@ -249,22 +257,24 @@ namespace Voxelarium.Core.Networking
 					return;
 				}
 			}
-			if( client == v4Client )
-				v4TimeoutTimer.Dispose();
-			if( client == v6Client )
-				v6TimeoutTimer.Dispose();
-			if( socket != null )
+			lock( this )
 			{
-				// nevermind, already had a good connection.
-				Log.log( "Closing socket {0} {1}", client.GetHashCode(), client.Client.GetHashCode(), 0 );
-				client.Close();
-				return;
+				if( client == v4Client )
+					v4TimeoutTimer.Dispose();
+				if( client == v6Client )
+					v6TimeoutTimer.Dispose();
+				if( socket != null )
+				{
+					// nevermind, already had a good connection.
+					Log.log( "Closing socket {0} {1}", client.GetHashCode(), client.Client.GetHashCode(), 0 );
+					client.Close();
+					return;
+				}
+
+				connected = true;
+				Log.log( "Setting 'socket' to {0} {1}", client.GetHashCode(), client.Client.GetHashCode() );
+				socket = client.Client;
 			}
-
-			connected = true;
-			Log.log( "Setting 'socket' to {0} {1}", client.GetHashCode(), client.Client.GetHashCode() );
-			socket = client.Client;
-
 			buffer = new MemoryStream( 4096 );
 			send_buffer = new MemoryStream( 4096 );
 			state = ReadState.readLength;
