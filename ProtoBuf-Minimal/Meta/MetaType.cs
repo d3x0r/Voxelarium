@@ -92,6 +92,7 @@ namespace ProtoBuf.Meta
             return typeInfo.IsAssignableFrom(subType.GetTypeInfo());
 #else
             return type.IsAssignableFrom(subType);
+			//return subType.IsAssignableFrom(type);
 #endif
         }
         /// <summary>
@@ -522,9 +523,9 @@ namespace ProtoBuf.Meta
             }
             return false;
         }
-        internal void ApplyDefaultBehaviour()
+		internal void ApplyDefaultBehaviour( Type baseType )
         {
-            Type baseType = GetBaseType(this);
+            //Type baseType = GetBaseType(this);
             if (baseType != null && model.FindWithoutAdd(baseType) == null
                 && GetContractFamily(model, baseType, null) != MetaType.AttributeFamily.None)
             {

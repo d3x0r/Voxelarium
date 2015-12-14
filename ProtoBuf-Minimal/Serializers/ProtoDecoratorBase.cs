@@ -19,8 +19,8 @@ namespace ProtoBuf.Serializers
         public abstract bool ReturnsValue { get; }
         public abstract bool RequiresOldValue { get; }
 #if !FEAT_IKVM
-        public abstract void Write(object value, ProtoWriter dest);
-        public abstract object Read(object value, ProtoReader source);
+		public abstract void Write(Type useType, object value, ProtoWriter dest);
+		public abstract object Read(Type useType, object value, ProtoReader source);
 #endif
 
 #if FEAT_COMPILER

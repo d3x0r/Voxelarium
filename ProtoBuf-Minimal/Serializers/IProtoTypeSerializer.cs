@@ -1,5 +1,8 @@
 ﻿#if !NO_RUNTIME
 using ProtoBuf.Meta;
+using System;
+
+
 namespace ProtoBuf.Serializers
 {
     interface IProtoTypeSerializer : IProtoSerializer
@@ -8,7 +11,7 @@ namespace ProtoBuf.Serializers
         bool CanCreateInstance();
 #if !FEAT_IKVM
         object CreateInstance(ProtoReader source);
-        void Callback(object value, TypeModel.CallbackType callbackType, SerializationContext context);
+        void Callback(Type useType, object value, TypeModel.CallbackType callbackType, SerializationContext context);
 #endif
 #if FEAT_COMPILER
         void EmitCallback(Compiler.CompilerContext ctx, Compiler.Local valueFrom, TypeModel.CallbackType callbackType);

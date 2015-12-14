@@ -123,7 +123,7 @@ namespace ProtoBuf.ServiceModel
                     {
                         using (ProtoWriter protoWriter = new ProtoWriter(ms, model, null))
                         {
-                            model.Serialize(key, graph, protoWriter);
+							model.Serialize(key, type, graph, protoWriter);
                         }
                     }
                     byte[] buffer = ms.GetBuffer();

@@ -20,9 +20,9 @@ namespace ProtoBuf.Serializers
         {
             return head.CreateInstance(source);
         }
-        public void Callback(object value, TypeModel.CallbackType callbackType, SerializationContext context)
+		public void Callback(Type useType, object value, TypeModel.CallbackType callbackType, SerializationContext context)
         {
-            head.Callback(value, callbackType, context); // these routes only used when bits of the model not compiled
+            head.Callback(useType, value, callbackType, context); // these routes only used when bits of the model not compiled
         }
         public static CompiledSerializer Wrap(IProtoTypeSerializer head, TypeModel model)
         {
@@ -48,11 +48,11 @@ namespace ProtoBuf.Serializers
 
         Type IProtoSerializer.ExpectedType { get { return head.ExpectedType; } }
 
-        void IProtoSerializer.Write(object value, ProtoWriter dest)
+        void IProtoSerializer.Write(Type useType, object value, ProtoWriter dest)
         {
-            serializer(value, dest);
+            serializer(useType, value, dest);
         }
-        object IProtoSerializer.Read(object value, ProtoReader source)
+		object IProtoSerializer.Read(Type useType, object value, ProtoReader source)
         {
             return deserializer(value, source);
         }

@@ -30,16 +30,16 @@ namespace ProtoBuf.Serializers
             this.field = field;
         }
 #if !FEAT_IKVM
-        public override void Write(object value, ProtoWriter dest)
+		public override void Write(Type useType, object value, ProtoWriter dest)
         {
             Helpers.DebugAssert(value != null);
             value = field.GetValue(value);
-            if(value != null) Tail.Write(value, dest);
+            if(value != null) Tail.Write(useType, value, dest);
         }
-        public override object Read(object value, ProtoReader source)
+		public override object Read(Type useType, object value, ProtoReader source)
         {
             Helpers.DebugAssert(value != null);
-            object newValue = Tail.Read((Tail.RequiresOldValue ? field.GetValue(value) : null), source);
+            object newValue = Tail.Read(useType, (Tail.RequiresOldValue ? field.GetValue(value) : null), source);
             if(newValue != null) field.SetValue(value,newValue);
             return null;
         }

@@ -32,11 +32,11 @@ namespace ProtoBuf.Serializers
         }
         private readonly bool overwriteList;
 #if !FEAT_IKVM
-        public object Read(object value, ProtoReader source)
+		public object Read(Type useType, object value, ProtoReader source)
         {
             return ProtoReader.AppendBytes(overwriteList ? null : (byte[])value, source);
         }
-        public void Write(object value, ProtoWriter dest)
+        public void Write(Type useType, object value, ProtoWriter dest)
         {
             ProtoWriter.WriteBytes((byte[])value, dest);
         }

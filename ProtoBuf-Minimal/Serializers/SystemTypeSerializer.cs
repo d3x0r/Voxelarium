@@ -27,12 +27,12 @@ namespace ProtoBuf.Serializers
         public Type ExpectedType { get { return expectedType; } }
 
 #if !FEAT_IKVM
-        void IProtoSerializer.Write(object value, ProtoWriter dest)
+		void IProtoSerializer.Write(Type useType, object value, ProtoWriter dest)
         {
             ProtoWriter.WriteType((Type)value, dest);
         }
 
-        object IProtoSerializer.Read(object value, ProtoReader source)
+		object IProtoSerializer.Read(Type useType, object value, ProtoReader source)
         {
             Helpers.DebugAssert(value == null); // since replaces
             return source.ReadType();

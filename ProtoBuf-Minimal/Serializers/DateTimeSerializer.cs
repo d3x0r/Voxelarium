@@ -31,12 +31,12 @@ namespace ProtoBuf.Serializers
             includeKind = model != null && model.SerializeDateTimeKind();
         }
 #if !FEAT_IKVM
-        public object Read(object value, ProtoReader source)
+		public object Read(Type useType, object value, ProtoReader source)
         {
             Helpers.DebugAssert(value == null); // since replaces
             return BclHelpers.ReadDateTime(source);
         }
-        public void Write(object value, ProtoWriter dest)
+		public void Write(Type useType, object value, ProtoWriter dest)
         {
             if(includeKind)
                 BclHelpers.WriteDateTimeWithKind((DateTime)value, dest);

@@ -28,11 +28,11 @@ namespace ProtoBuf.Serializers
         bool IProtoSerializer.ReturnsValue { get { return true; } }
 
 #if !FEAT_IKVM
-        public void Write(object value, ProtoWriter dest)
+		public void Write(Type useType, object value, ProtoWriter dest)
         {
             BclHelpers.WriteGuid((Guid)value, dest);
         }
-        public object Read(object value, ProtoReader source)
+		public object Read(Type useType, object value, ProtoReader source)
         {
             Helpers.DebugAssert(value == null); // since replaces
             return BclHelpers.ReadGuid(source);

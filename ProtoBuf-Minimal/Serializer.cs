@@ -94,7 +94,7 @@ namespace ProtoBuf
         public static void Serialize<T>(Stream destination, T instance)
         {
             if(instance != null) {
-                RuntimeTypeModel.Default.Serialize(destination, instance);
+				RuntimeTypeModel.Default.Serialize(destination, typeof( T ), instance, null );
             }
         }
         /// <summary>

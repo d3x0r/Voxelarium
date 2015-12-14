@@ -134,7 +134,7 @@ namespace ProtoBuf.Serializers
         private bool SupportNull { get { return (options & OPTIONS_SupportNull) != 0; } }
 
 #if !FEAT_IKVM
-        public override void Write(object value, ProtoWriter dest)
+		public override void Write(Type useType, object value, ProtoWriter dest)
         {
             IList arr = (IList)value;
             int len = arr.Count;
@@ -155,14 +155,14 @@ namespace ProtoBuf.Serializers
             {
                 object obj = arr[i];
                 if (checkForNull && obj == null) { throw new NullReferenceException(); }
-                Tail.Write(obj, dest);
+                Tail.Write(useType, obj, dest);
             }
             if (writePacked)
             {
                 ProtoWriter.EndSubItem(token, dest);
             }            
         }
-        public override object Read(object value, ProtoReader source)
+		public override object Read(Type useType, object value, ProtoReader source)
         {
             int field = source.FieldNumber;
             BasicList list = new BasicList();
@@ -171,7 +171,7 @@ namespace ProtoBuf.Serializers
                 SubItemToken token = ProtoReader.StartSubItem(source);
                 while (ProtoReader.HasSubValue(packedWireType, source))
                 {
-                    list.Add(Tail.Read(null, source));
+                    list.Add(Tail.Read(null, null, source));
                 }
                 ProtoReader.EndSubItem(token, source);
             }
@@ -179,7 +179,7 @@ namespace ProtoBuf.Serializers
             { 
                 do
                 {
-                    list.Add(Tail.Read(null, source));
+                    list.Add(Tail.Read(null, null, source));
                 } while (source.TryReadFieldHeader(field));
             }
             int oldLen = AppendToCollection ? ((value == null ? 0 : ((Array)value).Length)) : 0;

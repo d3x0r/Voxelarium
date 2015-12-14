@@ -32,10 +32,10 @@ namespace ProtoBuf.Serializers
         {
             return ((IProtoTypeSerializer)Tail).CreateInstance(source);
         }
-        public void Callback(object value, TypeModel.CallbackType callbackType, SerializationContext context)
+        public void Callback(Type useType, object value, TypeModel.CallbackType callbackType, SerializationContext context)
         {
             IProtoTypeSerializer pts = Tail as IProtoTypeSerializer;
-            if (pts != null) pts.Callback(value, callbackType, context);
+			if (pts != null) pts.Callback(useType, value, callbackType, context);
         }
 #endif
 #if FEAT_COMPILER
@@ -72,17 +72,17 @@ namespace ProtoBuf.Serializers
             get { return ((int)wireType & ~7) != 0; }
         }
 #if !FEAT_IKVM
-        public override object Read(object value, ProtoReader source)
+        public override object Read(Type useType, object value, ProtoReader source)
         {
             Helpers.DebugAssert(fieldNumber == source.FieldNumber);
             if (strict) { source.Assert(wireType); }
             else if (NeedsHint) { source.Hint(wireType); }
-            return Tail.Read(value, source);
+			return Tail.Read(useType,value, source);
         }
-        public override void Write(object value, ProtoWriter dest)
+		public override void Write(Type useType, object value, ProtoWriter dest)
         {
             ProtoWriter.WriteFieldHeader(fieldNumber, wireType, dest);
-            Tail.Write(value, dest);
+			Tail.Write(useType,value, dest);
         }
 #endif
 

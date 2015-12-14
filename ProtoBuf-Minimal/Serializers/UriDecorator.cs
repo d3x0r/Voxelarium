@@ -29,14 +29,14 @@ namespace ProtoBuf.Serializers
         
 
 #if !FEAT_IKVM
-        public override void Write(object value, ProtoWriter dest)
+		public override void Write(Type useType, object value, ProtoWriter dest)
         {
-            Tail.Write(((Uri)value).AbsoluteUri, dest);
+			Tail.Write(useType, ((Uri)value).AbsoluteUri, dest);
         }
-        public override object Read(object value, ProtoReader source)
+		public override object Read(Type useType, object value, ProtoReader source)
         {
             Helpers.DebugAssert(value == null); // not expecting incoming
-            string s = (string)Tail.Read(null, source);
+            string s = (string)Tail.Read(null,null, source);
             return s.Length == 0 ? null : new Uri(s);
         }
 #endif

@@ -27,11 +27,11 @@ namespace ProtoBuf.Serializers
         public override Type ExpectedType { get { return expectedType; } }
 
 #if !FEAT_IKVM
-        public override void Write(object value, ProtoWriter dest)
+		public override void Write(Type useType, object value, ProtoWriter dest)
         {
             ProtoWriter.WriteUInt16((ushort)(char)value, dest);
         }
-        public override object Read(object value, ProtoReader source)
+		public override object Read(Type useType, object value, ProtoReader source)
         {
             Helpers.DebugAssert(value == null); // since replaces
             return (char)source.ReadUInt16();

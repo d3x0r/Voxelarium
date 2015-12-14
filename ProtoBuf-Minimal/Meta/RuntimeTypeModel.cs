@@ -566,7 +566,7 @@ namespace ProtoBuf.Meta
                     }
                     if (weAdded)
                     {
-                        metaType.ApplyDefaultBehaviour();
+						metaType.ApplyDefaultBehaviour( type/*GetBaseType(metaType)*/ );
                         metaType.Pending = false;
                     }
                 }
@@ -663,7 +663,7 @@ namespace ProtoBuf.Meta
                 if (FindWithoutAdd(type) != null) throw new ArgumentException("Duplicate type", "type");
                 ThrowIfFrozen();
                 types.Add(newType);
-                if (applyDefaultBehaviour) { newType.ApplyDefaultBehaviour(); }
+				if (applyDefaultBehaviour) { newType.ApplyDefaultBehaviour( type ); }
                 newType.Pending = false;
             }
             finally
@@ -760,13 +760,13 @@ namespace ProtoBuf.Meta
         /// <param name="key">Represents the type (including inheritance) to consider.</param>
         /// <param name="value">The existing instance to be serialized (cannot be null).</param>
         /// <param name="dest">The destination stream to write to.</param>
-        protected internal override void Serialize(int key, object value, ProtoWriter dest)
+        protected internal override void Serialize(int key, Type useType, object value, ProtoWriter dest)
         {
 #if FEAT_IKVM
             throw new NotSupportedException();
 #else
             //Helpers.DebugWriteLine("Serialize", value);
-            ((MetaType)types[key]).Serializer.Write(value, dest);
+			((MetaType)types[key]).Serializer.Write(useType, value, dest);
 #endif
         }
         /// <summary>
@@ -787,9 +787,9 @@ namespace ProtoBuf.Meta
             IProtoSerializer ser = ((MetaType)types[key]).Serializer;
             if (value == null && Helpers.IsValueType(ser.ExpectedType)) {
                 if(ser.RequiresOldValue) value = Activator.CreateInstance(ser.ExpectedType);
-                return ser.Read(value, source);
+				return ser.Read(value.GetType(), value, source);
             } else {
-                return ser.Read(value, source);
+				return ser.Read(value.GetType(), value, source);
             }
 #endif
         }

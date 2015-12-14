@@ -464,7 +464,7 @@ namespace ProtoBuf.Serializers
 #endif
 
 #if !FEAT_IKVM
-        public override void Write(object value, ProtoWriter dest)
+		public override void Write(Type useType, object value, ProtoWriter dest)
         {
             SubItemToken token;
             bool writePacked = WritePacked;
@@ -482,14 +482,14 @@ namespace ProtoBuf.Serializers
             foreach (object subItem in (IEnumerable)value)
             {
                 if (checkForNull && subItem == null) { throw new NullReferenceException(); }
-                Tail.Write(subItem, dest);
+                Tail.Write(useType,subItem, dest);
             }
             if (writePacked)
             {
                 ProtoWriter.EndSubItem(token, dest);
             }
         }
-        public override object Read(object value, ProtoReader source)
+        public override object Read(Type useType, object value, ProtoReader source)
         {
             int field = source.FieldNumber;
             object origValue = value;
@@ -503,14 +503,14 @@ namespace ProtoBuf.Serializers
                     IList list = (IList)value;
                     while (ProtoReader.HasSubValue(packedWireType, source))
                     {
-                        list.Add(Tail.Read(null, source));
+                        list.Add(Tail.Read(null,null, source));
                     }
                 }
                 else {
                     object[] args = new object[1];
                     while (ProtoReader.HasSubValue(packedWireType, source))
                     {
-                        args[0] = Tail.Read(null, source);
+                        args[0] = Tail.Read(null,null, source);
                         add.Invoke(value, args);
                     }
                 }
@@ -522,7 +522,7 @@ namespace ProtoBuf.Serializers
                     IList list = (IList)value;
                     do
                     {
-                        list.Add(Tail.Read(null, source));
+                        list.Add(Tail.Read(null, null, source));
                     } while (source.TryReadFieldHeader(field));
                 }
                 else
@@ -530,7 +530,7 @@ namespace ProtoBuf.Serializers
                     object[] args = new object[1];
                     do
                     {
-                        args[0] = Tail.Read(null, source);
+                        args[0] = Tail.Read(null, null, source);
                         add.Invoke(value, args);
                     } while (source.TryReadFieldHeader(field));
                 }

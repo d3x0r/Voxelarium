@@ -152,14 +152,14 @@ namespace ProtoBuf.Serializers
 #endif
 
 #if !FEAT_IKVM
-        public override object Read(object value, ProtoReader source)
+		public override object Read(Type useType, object value, ProtoReader source)
         {
             SubItemToken tok = ProtoReader.StartSubItem(source);
             int field;
             while((field = source.ReadFieldHeader()) > 0)
             {
                 if(field == Tag) {
-                    value = Tail.Read(value, source);
+                    value = Tail.Read(useType, value, source);
                 } else {
                     source.SkipField();
                 }
@@ -167,12 +167,12 @@ namespace ProtoBuf.Serializers
             ProtoReader.EndSubItem(tok, source);
             return value;
         }
-        public override void Write(object value, ProtoWriter dest)
+		public override void Write(Type useType, object value, ProtoWriter dest)
         {
             SubItemToken token = ProtoWriter.StartSubItem(null, dest);
             if(value != null)
             {
-                Tail.Write(value, dest);
+                Tail.Write(useType, value, dest);
             }
             ProtoWriter.EndSubItem(token, dest);
         }

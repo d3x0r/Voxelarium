@@ -28,16 +28,16 @@ namespace ProtoBuf.Serializers
             this.setSpecified = setSpecified;
         }
 #if !FEAT_IKVM
-        public override void Write(object value, ProtoWriter dest)
+		public override void Write(Type useType, object value, ProtoWriter dest)
         {
             if(getSpecified == null || (bool)getSpecified.Invoke(value, null))
             {
-                Tail.Write(value, dest);
+                Tail.Write(useType, value, dest);
             }
         }
-        public override object Read(object value, ProtoReader source)
+		public override object Read(Type useType, object value, ProtoReader source)
         {
-            object result = Tail.Read(value, source);
+            object result = Tail.Read(useType, value, source);
             if (setSpecified != null) setSpecified.Invoke(value, new object[] { true });
             return result;
         }

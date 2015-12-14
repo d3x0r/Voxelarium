@@ -34,9 +34,9 @@ namespace ProtoBuf.Serializers
         }
 #endif
 #if !FEAT_IKVM
-        void IProtoTypeSerializer.Callback(object value, TypeModel.CallbackType callbackType, SerializationContext context)
+		void IProtoTypeSerializer.Callback(Type useType, object value, TypeModel.CallbackType callbackType, SerializationContext context)
         {
-            ((IProtoTypeSerializer)proxy.Serializer).Callback(value, callbackType, context);
+            ((IProtoTypeSerializer)proxy.Serializer).Callback(useType, value, callbackType, context);
         }
         object IProtoTypeSerializer.CreateInstance(ProtoReader source)
         {
@@ -65,7 +65,7 @@ namespace ProtoBuf.Serializers
         bool IProtoSerializer.ReturnsValue { get { return true; } }
 
 #if !FEAT_IKVM
-        void IProtoSerializer.Write(object value, ProtoWriter dest)
+		void IProtoSerializer.Write(Type useType, object value, ProtoWriter dest)
         {
             if (recursionCheck)
             {
@@ -76,7 +76,7 @@ namespace ProtoBuf.Serializers
                 ProtoWriter.WriteRecursionSafeObject(value, key, dest);
             }
         }
-        object IProtoSerializer.Read(object value, ProtoReader source)
+		object IProtoSerializer.Read(Type useType, object value, ProtoReader source)
         {
             return ProtoReader.ReadObject(value, key, source);
         }

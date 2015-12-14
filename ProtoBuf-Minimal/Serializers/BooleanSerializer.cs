@@ -30,11 +30,11 @@ namespace ProtoBuf.Serializers
         public Type ExpectedType { get { return expectedType; } }
 
 #if !FEAT_IKVM
-        public void Write(object value, ProtoWriter dest)
+		public void Write(Type useType, object value, ProtoWriter dest)
         {
             ProtoWriter.WriteBoolean((bool)value, dest);
         }
-        public object Read(object value, ProtoReader source)
+		public object Read(Type useType, object value, ProtoReader source)
         {
             Helpers.DebugAssert(value == null); // since replaces
             return source.ReadBoolean();

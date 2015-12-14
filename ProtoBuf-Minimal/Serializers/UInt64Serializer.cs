@@ -29,12 +29,12 @@ namespace ProtoBuf.Serializers
         bool IProtoSerializer.ReturnsValue { get { return true; } }
 
 #if !FEAT_IKVM
-        public object Read(object value, ProtoReader source)
+		public object Read(Type useType, object value, ProtoReader source)
         {
             Helpers.DebugAssert(value == null); // since replaces
             return source.ReadUInt64();
         }
-        public void Write(object value, ProtoWriter dest)
+		public void Write(Type useType, object value, ProtoWriter dest)
         {
             ProtoWriter.WriteUInt64((ulong)value, dest);
         }

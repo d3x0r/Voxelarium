@@ -33,16 +33,16 @@ namespace ProtoBuf.Serializers
             this.defaultValue = defaultValue;
         }
 #if !FEAT_IKVM
-        public override void Write(object value, ProtoWriter dest)
+		public override void Write(Type useType, object value, ProtoWriter dest)
         {
             if (!object.Equals(value, defaultValue))
             {
-                Tail.Write(value, dest);
+                Tail.Write(useType, value, dest);
             }
         }
-        public override object Read(object value, ProtoReader source)
+		public override object Read(Type useType, object value, ProtoReader source)
         {
-            return Tail.Read(value, source);
+            return Tail.Read(useType, value, source);
         }
 #endif
 

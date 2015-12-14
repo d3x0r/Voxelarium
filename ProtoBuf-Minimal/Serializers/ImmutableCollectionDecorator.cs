@@ -146,7 +146,7 @@ namespace ProtoBuf.Serializers
             this.finish = finish;
         }
 #if !FEAT_IKVM
-        public override object Read(object value, ProtoReader source)
+		public override object Read(Type useType, object value, ProtoReader source)
         {
             object builderInstance = builderFactory.Invoke(null, null);
             int field = source.FieldNumber;
@@ -173,7 +173,7 @@ namespace ProtoBuf.Serializers
                 SubItemToken token = ProtoReader.StartSubItem(source);
                 while (ProtoReader.HasSubValue(packedWireType, source))
                 {
-                    args[0] = Tail.Read(null, source);
+                    args[0] = Tail.Read(null,null, source);
                     add.Invoke(builderInstance, args);
                 }
                 ProtoReader.EndSubItem(token, source);
@@ -182,7 +182,7 @@ namespace ProtoBuf.Serializers
             {
                 do
                 {
-                    args[0] = Tail.Read(null, source);
+                    args[0] = Tail.Read(null,null, source);
                     add.Invoke(builderInstance, args);
                 } while (source.TryReadFieldHeader(field));
             }

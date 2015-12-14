@@ -103,7 +103,7 @@ namespace ProtoBuf.Serializers
             }
         }
 
-        public object Read(object value, ProtoReader source)
+		public object Read(Type useType, object value, ProtoReader source)
         {
             Helpers.DebugAssert(value == null); // since replaces
             int wireValue = source.ReadInt32();
@@ -118,7 +118,7 @@ namespace ProtoBuf.Serializers
             source.ThrowEnumException(ExpectedType, wireValue);
             return null; // to make compiler happy
         }
-        public void Write(object value, ProtoWriter dest)
+		public void Write(Type useType, object value, ProtoWriter dest)
         {
             if (map == null)
             {

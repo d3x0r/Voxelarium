@@ -40,11 +40,11 @@ namespace ProtoBuf.Serializers
             get { return true; }
         }
 #if !FEAT_IKVM
-        public object Read(object value, ProtoReader source)
+		public object Read(Type useType, object value, ProtoReader source)
         {
             return BclHelpers.ReadNetObject(value, source, key, type == typeof(object) ? null : type, options);
         }
-        public void Write(object value, ProtoWriter dest)
+		public void Write(Type useType, object value, ProtoWriter dest)
         {
             BclHelpers.WriteNetObject(value, dest, key, options);
         }

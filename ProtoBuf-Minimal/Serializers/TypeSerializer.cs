@@ -136,16 +136,16 @@ namespace ProtoBuf.Serializers
         {
             return CreateInstance(source, false);
         }
-        public void Callback(object value, TypeModel.CallbackType callbackType, SerializationContext context)
+        public void Callback(Type useType, object value, TypeModel.CallbackType callbackType, SerializationContext context)
         {
             if (callbacks != null) InvokeCallback(callbacks[callbackType], value, context);
-            IProtoTypeSerializer ser = (IProtoTypeSerializer)GetMoreSpecificSerializer(value);
-            if (ser != null) ser.Callback(value, callbackType, context);
+            IProtoTypeSerializer ser = (IProtoTypeSerializer)GetMoreSpecificSerializer(useType,value);
+            if (ser != null) ser.Callback(useType,value, callbackType, context);
         }
-        private IProtoSerializer GetMoreSpecificSerializer(object value)
+        private IProtoSerializer GetMoreSpecificSerializer(Type useType, object value)
         {
             if (!CanHaveInheritance) return null;
-            Type actualType = value.GetType();
+			Type actualType = useType.IsAssignableFrom( value.GetType() )? useType:value.GetType() ;
             if (actualType == forType) return null;
            
             for (int i = 0; i < serializers.Length; i++)
@@ -161,12 +161,12 @@ namespace ProtoBuf.Serializers
             return null;
         }
 
-        public void Write(object value, ProtoWriter dest)
+        public void Write(Type useType, object value, ProtoWriter dest)
         {
-            if (isRootType) Callback(value, TypeModel.CallbackType.BeforeSerialize, dest.Context);
+            if (isRootType) Callback(useType, value, TypeModel.CallbackType.BeforeSerialize, dest.Context);
             // write inheritance first
-            IProtoSerializer next = GetMoreSpecificSerializer(value);
-            if (next != null) next.Write(value, dest);
+			IProtoSerializer next = GetMoreSpecificSerializer(useType, value);
+			if (next != null) next.Write(useType,value, dest);
 
             // write all actual fields
             //Helpers.DebugWriteLine(">> Writing fields for " + forType.FullName);
@@ -176,16 +176,16 @@ namespace ProtoBuf.Serializers
                 if (ser.ExpectedType == forType)
                 {
                     //Helpers.DebugWriteLine(": " + ser.ToString());
-                    ser.Write(value, dest);
+					ser.Write(useType,value, dest);
                 }
             }
             //Helpers.DebugWriteLine("<< Writing fields for " + forType.FullName);
             if (isExtensible) ProtoWriter.AppendExtensionData((IExtensible)value, dest);
-            if (isRootType) Callback(value, TypeModel.CallbackType.AfterSerialize, dest.Context);
+			if (isRootType) Callback(useType, value, TypeModel.CallbackType.AfterSerialize, dest.Context);
         }
-        public object Read(object value, ProtoReader source)
+        public object Read(Type useType, object value, ProtoReader source)
         {
-            if (isRootType && value != null) { Callback(value, TypeModel.CallbackType.BeforeDeserialize, source.Context); } 
+			if (isRootType && value != null) { Callback(useType, value, TypeModel.CallbackType.BeforeDeserialize, source.Context); } 
             int fieldNumber, lastFieldNumber = 0, lastFieldIndex = 0;
             bool fieldHandled;
 
@@ -222,9 +222,9 @@ namespace ProtoBuf.Serializers
                         }
 
                         if (ser.ReturnsValue) {
-                            value = ser.Read(value, source);
+                            value = ser.Read(useType,value, source);
                         } else { // pop
-                            ser.Read(value, source);
+							ser.Read(useType,value, source);
                         }
                         
                         lastFieldIndex = i;
@@ -246,7 +246,7 @@ namespace ProtoBuf.Serializers
             }
             //Helpers.DebugWriteLine("<< Reading fields for " + forType.FullName);
             if(value == null) value = CreateInstance(source, true);
-            if (isRootType) { Callback(value, TypeModel.CallbackType.AfterDeserialize, source.Context); } 
+			if (isRootType) { Callback(useType, value, TypeModel.CallbackType.AfterDeserialize, source.Context); } 
             return value;
         }
 

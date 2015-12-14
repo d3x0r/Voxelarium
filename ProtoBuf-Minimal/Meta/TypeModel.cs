@@ -113,7 +113,7 @@ namespace ProtoBuf.Meta
             {   // write the header, but defer to the model
                 if (Helpers.IsEnum(type))
                 { // no header
-                    Serialize(modelKey, value, writer);
+                    Serialize(modelKey, type, value, writer);
                     return true;
                 }
                 else
@@ -127,11 +127,11 @@ namespace ProtoBuf.Meta
                         case WireType.String:
                             // needs a wrapping length etc
                             SubItemToken token = ProtoWriter.StartSubItem(value, writer);
-                            Serialize(modelKey, value, writer);
+                            Serialize(modelKey, type, value, writer);
                             ProtoWriter.EndSubItem(token, writer);
                             return true;
                         default:
-                            Serialize(modelKey, value, writer);
+						Serialize(modelKey, type, value, writer);
                             return true;
                     }
                 }
@@ -187,14 +187,14 @@ namespace ProtoBuf.Meta
             }
             return false;
         }
-        private void SerializeCore(ProtoWriter writer, object value)
+        private void SerializeCore(ProtoWriter writer, Type useType, object value)
         {
             if (value == null) throw new ArgumentNullException("value");
-            Type type = value.GetType();
+			Type type = useType;//value.GetType();
             int key = GetKey(ref type);
             if (key >= 0)
             {
-                Serialize(key, value, writer);
+                Serialize(key, useType, value, writer);
             }
             else if (!TrySerializeAuxiliaryType(writer, type, DataFormat.Default, Serializer.ListItemTag, value, false))
             {
@@ -209,15 +209,21 @@ namespace ProtoBuf.Meta
         /// <param name="dest">The destination stream to write to.</param>
         public void Serialize(Stream dest, object value)
         {
-            Serialize(dest, value, null);
+			Serialize(dest, value.GetType(), value, null);
         }
-        /// <summary>
-        /// Writes a protocol-buffer representation of the given instance to the supplied stream.
-        /// </summary>
-        /// <param name="value">The existing instance to be serialized (cannot be null).</param>
-        /// <param name="dest">The destination stream to write to.</param>
-        /// <param name="context">Additional information about this serialization operation.</param>
-        public void Serialize(Stream dest, object value, SerializationContext context)
+
+		/// <summary>
+		/// Writes a protocol-buffer representation of the given instance to the supplied stream.
+		/// </summary>
+		/// <param name="value">The existing instance to be serialized (cannot be null).</param>
+		/// <param name="dest">The destination stream to write to.</param>
+		/// <param name="context">Additional information about this serialization operation.</param>
+		public void Serialize(Stream dest, object value, SerializationContext context)
+		{
+			Serialize( dest, value.GetType(), value, context );
+		}
+
+        internal void Serialize(Stream dest, Type useType, object value, SerializationContext context)
         {
 #if FEAT_IKVM
             throw new NotSupportedException();
@@ -225,7 +231,7 @@ namespace ProtoBuf.Meta
             using (ProtoWriter writer = new ProtoWriter(dest, this, context))
             {
                 writer.SetRootObject(value);
-                SerializeCore(writer, value);
+                SerializeCore(writer, useType, value);
                 writer.Close();
             }
 #endif
@@ -243,7 +249,7 @@ namespace ProtoBuf.Meta
             if (dest == null) throw new ArgumentNullException("dest");
             dest.CheckDepthFlushlock();
             dest.SetRootObject(value);
-            SerializeCore(dest, value);
+			SerializeCore(dest, value.GetType(), value);
             dest.CheckDepthFlushlock();
             ProtoWriter.Flush(dest);
 #endif
@@ -550,7 +556,7 @@ namespace ProtoBuf.Meta
                 switch (style)
                 {
                     case PrefixStyle.None:
-                        Serialize(key, value, writer);
+					Serialize(key, type, value, writer);
                         break;
                     case PrefixStyle.Base128:
                     case PrefixStyle.Fixed32:
@@ -1265,7 +1271,7 @@ namespace ProtoBuf.Meta
         /// <param name="key">Represents the type (including inheritance) to consider.</param>
         /// <param name="value">The existing instance to be serialized (cannot be null).</param>
         /// <param name="dest">The destination stream to write to.</param>
-        protected internal abstract void Serialize(int key, object value, ProtoWriter dest);
+        protected internal abstract void Serialize(int key, Type useType, object value, ProtoWriter dest);
         /// <summary>
         /// Applies a protocol-buffer stream to an existing instance (which may be null).
         /// </summary>
@@ -1324,7 +1330,7 @@ namespace ProtoBuf.Meta
                     using(ProtoWriter writer = new ProtoWriter(ms, this, null))
                     {
                         writer.SetRootObject(value);
-                        Serialize(key, value, writer);
+						Serialize(key, type, value, writer);
                         writer.Close();
                     }
                     ms.Position = 0;

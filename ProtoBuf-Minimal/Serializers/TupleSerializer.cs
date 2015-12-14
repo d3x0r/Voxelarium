@@ -82,7 +82,7 @@ namespace ProtoBuf.Serializers
 
 
 #if !FEAT_IKVM
-        void IProtoTypeSerializer.Callback(object value, Meta.TypeModel.CallbackType callbackType, SerializationContext context) { }
+        void IProtoTypeSerializer.Callback(Type useType, object value, Meta.TypeModel.CallbackType callbackType, SerializationContext context) { }
         object IProtoTypeSerializer.CreateInstance(ProtoReader source) { throw new NotSupportedException(); }
         private object GetValue(object obj, int index)
         {
@@ -106,7 +106,7 @@ namespace ProtoBuf.Serializers
                 throw new InvalidOperationException();
             }
         }
-        public object Read(object value, ProtoReader source)
+		public object Read(Type useType, object value, ProtoReader source)
         {
             object[] values = new object[members.Length];
             bool invokeCtor = false;
@@ -123,7 +123,7 @@ namespace ProtoBuf.Serializers
                 if (field <= tails.Length)
                 {
                     IProtoSerializer tail = tails[field - 1];
-                    values[field - 1] = tails[field - 1].Read(tail.RequiresOldValue ? values[field - 1] : null, source);
+                    values[field - 1] = tails[field - 1].Read(useType,tail.RequiresOldValue ? values[field - 1] : null, source);
                 }
                 else
                 {
@@ -132,12 +132,12 @@ namespace ProtoBuf.Serializers
             }
             return invokeCtor ? ctor.Invoke(values) : value;
         }
-        public void Write(object value, ProtoWriter dest)
+		public void Write(Type useType, object value, ProtoWriter dest)
         {
             for (int i = 0; i < tails.Length; i++)
             {
                 object val = GetValue(value, i);
-                if (val != null) tails[i].Write(val, dest);
+                if (val != null) tails[i].Write(useType, val, dest);
             }
         }
 #endif

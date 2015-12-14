@@ -21,7 +21,7 @@ namespace ProtoBuf.Serializers
         bool IProtoTypeSerializer.CanCreateInstance() { return false; }
 #if !FEAT_IKVM
         object IProtoTypeSerializer.CreateInstance(ProtoReader source) { throw new NotSupportedException(); }
-        void IProtoTypeSerializer.Callback(object value, ProtoBuf.Meta.TypeModel.CallbackType callbackType, SerializationContext context) { }
+		void IProtoTypeSerializer.Callback(Type useType, object value, ProtoBuf.Meta.TypeModel.CallbackType callbackType, SerializationContext context) { }
 #endif
 
         public bool ReturnsValue { get { return false; } }
@@ -115,18 +115,18 @@ namespace ProtoBuf.Serializers
         }
 
 #if !FEAT_IKVM
-        public void Write(object value, ProtoWriter writer)
+		public void Write(Type useType, object value, ProtoWriter writer)
         {
-            rootTail.Write(toTail.Invoke(null, new object[] { value }), writer);
+            rootTail.Write(useType, toTail.Invoke(null, new object[] { value }), writer);
         }
-        public object Read(object value, ProtoReader source)
+		public object Read(Type useType, object value, ProtoReader source)
         {
             // convert the incoming value
             object[] args = { value };
             value = toTail.Invoke(null, args);
             
             // invoke the tail and convert the outgoing value
-            args[0] = rootTail.Read(value, source);
+            args[0] = rootTail.Read(useType, value, source);
             return fromTail.Invoke(null, args);
         }
 #endif
