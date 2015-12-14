@@ -138,13 +138,17 @@ namespace Voxelarium.MasterServer
 						send_buffer.SetLength( 8 );
 						send_buffer.Seek( 8, SeekOrigin.Begin );
 						lock( servers ) {
-							List<Protocol.RegisteredGameServer> this_segment = new List<Protocol.RegisteredGameServer>();
+							Protocol.RegisteredGameServer[] this_segment;
 							for( n = listcmd.start_offset; count < 10 && n < servers.Count; n++ ) {
-								Serializer.Serialize( send_buffer, servers[n] );
-								this_segment.Add( servers [n] );
 								count++;
 							}
-							Serializer.Serialize( send_buffer, this_segment);
+							this_segment = new Voxelarium.Protocol.RegisteredGameServer[count];
+							count = 0;
+							for( n = listcmd.start_offset; count < 10 && n < servers.Count; n++ ) {
+								this_segment[count] = servers [n];
+								count++;
+							}
+							Serializer.Serialize<Protocol.RegisteredGameServer[]>( send_buffer, this_segment);
 						}
 						byte[] output = send_buffer.GetBuffer();
 						byte[] msg_len = BitConverter.GetBytes( (int)(send_buffer.Length - 4) );

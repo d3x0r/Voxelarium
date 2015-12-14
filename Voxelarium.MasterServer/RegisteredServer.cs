@@ -7,9 +7,8 @@ using Voxelarium.Protocol;
 
 namespace Voxelarium.MasterServer
 {
-	internal class RegisteredServer:  Protocol.RegisteredGameServer
+	public class RegisteredServer:  Protocol.RegisteredGameServer
 	{
-
 		internal void RemoveAddress( IPAddress host_address )
 		{
 			AddressBytes.Remove( host_address.GetAddressBytes() );
@@ -20,7 +19,7 @@ namespace Voxelarium.MasterServer
 			AddressBytes.Add( host_address.GetAddressBytes() );
 			Addresses.Add( host_address );
 		}
-		internal RegisteredServer()
+		public RegisteredServer()
 		{
 			AddressBytes = new List<byte[]>();
 			Addresses = new List<IPAddress>();
