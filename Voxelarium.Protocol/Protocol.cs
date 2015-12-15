@@ -107,7 +107,7 @@ namespace Voxelarium.Protocol
 	{
 		[ProtoMember( 1 )]
 		public string name { get; set; }
-		//[ProtoMember( 2 )]
+		[ProtoMember( 2 )]
 		public List<byte[]> AddressBytes { get; set; }
 		public List<IPAddress> Addresses;
 		[ProtoMember( 3 )]

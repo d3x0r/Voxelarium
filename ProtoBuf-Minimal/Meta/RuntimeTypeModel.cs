@@ -787,9 +787,9 @@ namespace ProtoBuf.Meta
             IProtoSerializer ser = ((MetaType)types[key]).Serializer;
             if (value == null && Helpers.IsValueType(ser.ExpectedType)) {
                 if(ser.RequiresOldValue) value = Activator.CreateInstance(ser.ExpectedType);
-				return ser.Read(null, value, source);
+				return ser.Read( value == null ? null : value.GetType(), value, source);
             } else {
-				return ser.Read(null, value, source);
+				return ser.Read(value==null?null:value.GetType(), value, source);
             }
 #endif
         }

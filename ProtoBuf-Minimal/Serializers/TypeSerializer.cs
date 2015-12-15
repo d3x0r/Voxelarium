@@ -144,6 +144,7 @@ namespace ProtoBuf.Serializers
         }
         private IProtoSerializer GetMoreSpecificSerializer(Type useType, object value)
         {
+			if( useType == null ) useType = value.GetType();
             if (!CanHaveInheritance) return null;
 			Type actualType = ( useType!=null && useType.IsAssignableFrom( value.GetType() ) ) ? useType:value.GetType() ;
             if (actualType == forType) return null;
