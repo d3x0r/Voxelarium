@@ -175,10 +175,11 @@ namespace ProtoBuf.Meta
             IEnumerable sequence = value as IEnumerable;
             if (sequence != null)
             {
+				Type element_type = type.GetElementType();
                 if (isInsideList) throw CreateNestedListsNotSupported();
                 foreach (object item in sequence) {
                     if (item == null) { throw new NullReferenceException(); }
-                    if (!TrySerializeAuxiliaryType(writer, null, format, tag, item, true))
+                    if (!TrySerializeAuxiliaryType(writer, element_type, format, tag, item, true))
                     {
                         ThrowUnexpectedType(item.GetType());
                     }
