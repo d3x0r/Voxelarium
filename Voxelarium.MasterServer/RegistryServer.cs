@@ -1,7 +1,7 @@
 ﻿/*
  * This file is part of Voxelarium.
  *
- * Copyright 2015-2016 James Buckeyne  *** Added 18/12/2015
+ * Copyright 2015-2016 James Buckeyne  
  *
  * Voxelarium is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,6 +15,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Created 2015/12/01 d3x0r
 */
 using ProtoBuf;
 using System;
@@ -140,11 +142,11 @@ namespace Voxelarium.MasterServer
 						break;
 					case Protocol.Message.PingReply:
 						// nothing to do; no content
-						Log.log( "Received ping reply..." );
+						//Log.log( "Received ping reply..." );
 						break;
 					case Protocol.Message.ServerHello:
 						Protocol.ServerHello msg = Serializer.Deserialize<Protocol.ServerHello>( buffer );
-						Log.log( "Received ServerHello {0} {1}", msg.ServerID, msg.ServerName );
+						//Log.log( "Received ServerHello {0} {1}", msg.ServerID, msg.ServerName );
 						lock( servers ) {
 							registered_server = servers.AddServer( msg, host_address );
 						}
@@ -175,8 +177,12 @@ namespace Voxelarium.MasterServer
 							output[n] = msg_len[n];
 						for( n = 0; n < 4; n++ )
 							output[4+n] = msg_id[n];
-
-						socket.Send( output, (int)send_buffer.Length, SocketFlags.None );
+						try{
+							socket.Send( output, (int)send_buffer.Length, SocketFlags.None );
+						}
+						catch( SocketException  se ) {
+							Log.log( "Unexpected close: " + se.Message );
+						}
 						break;
 					}
 					break;
