@@ -1,4 +1,25 @@
-﻿using System;
+﻿/*
+ * This file is part of Voxelarium.
+ *
+ * Copyright 2015-2016 James Buckeyne  
+ *
+ * Voxelarium is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Voxelarium is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Created 2015/12/01 d3x0r
+*/
+#define test_protobuf_include
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
@@ -38,9 +59,12 @@ namespace Voxelarium.MasterServer
 		{
 			MemoryStream ms = new MemoryStream();
 			DerivedMessage dm = new DerivedMessage();
+			BaseMessage[] bma = new BaseMessage[1];
+			bma [0] = dm;
 			//Protocol.RegisteredGameServer rs = new Protocol.RegisteredGameServer();
 			dm.value = 1234;
-			Serializer.Serialize<BaseMessage>( ms, (BaseMessage)dm );
+			Serializer.Serialize<BaseMessage[]>( ms, bma );
+			//Serializer.Serialize<BaseMessage>( ms, (BaseMessage)dm );
 			Console.WriteLine( "Length is {0}", ms.Length );
 		}
 		static void Stuff2()

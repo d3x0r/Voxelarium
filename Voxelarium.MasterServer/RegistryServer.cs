@@ -1,4 +1,24 @@
-﻿using ProtoBuf;
+﻿/*
+ * This file is part of Voxelarium.
+ *
+ * Copyright 2015-2016 James Buckeyne  
+ *
+ * Voxelarium is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Voxelarium is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Created 2015/12/01 d3x0r
+*/
+using ProtoBuf;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -122,11 +142,11 @@ namespace Voxelarium.MasterServer
 						break;
 					case Protocol.Message.PingReply:
 						// nothing to do; no content
-						Log.log( "Received ping reply..." );
+						//Log.log( "Received ping reply..." );
 						break;
 					case Protocol.Message.ServerHello:
 						Protocol.ServerHello msg = Serializer.Deserialize<Protocol.ServerHello>( buffer );
-						Log.log( "Received ServerHello {0} {1}", msg.ServerID, msg.ServerName );
+						//Log.log( "Received ServerHello {0} {1}", msg.ServerID, msg.ServerName );
 						lock( servers ) {
 							registered_server = servers.AddServer( msg, host_address );
 						}
@@ -157,8 +177,12 @@ namespace Voxelarium.MasterServer
 							output[n] = msg_len[n];
 						for( n = 0; n < 4; n++ )
 							output[4+n] = msg_id[n];
-
-						socket.Send( output, (int)send_buffer.Length, SocketFlags.None );
+						try{
+							socket.Send( output, (int)send_buffer.Length, SocketFlags.None );
+						}
+						catch( SocketException  se ) {
+							Log.log( "Unexpected close: " + se.Message );
+						}
 						break;
 					}
 					break;
