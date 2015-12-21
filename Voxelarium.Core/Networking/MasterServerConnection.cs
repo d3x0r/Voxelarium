@@ -1,4 +1,22 @@
-﻿using ProtoBuf;
+﻿/*
+ * This file is part of Voxelarium.
+ *
+ * Copyright 2015-2016 James Buckeyne  *** Added 18/12/2015
+ *
+ * Voxelarium is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Voxelarium is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+using ProtoBuf;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -129,7 +147,7 @@ namespace Voxelarium.Core.Networking
 			send_buffer.SetLength( 8 );
 			send_buffer.Seek( 8, SeekOrigin.Begin );
 			ListServers request_list = new ListServers();
-			request_list.start_offset = 0;
+			request_list.start_offset = start;
 			Serializer.Serialize( send_buffer, request_list );
 			byte[] len = BitConverter.GetBytes( (int)( send_buffer.Length - 4) );
 			byte[] msgId = BitConverter.GetBytes( (int)Protocol.Message.ListServers );
